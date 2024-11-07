@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace RFAuth.Controllers
 {
     [ApiController]
-    [Route("v1/[controller]")]
+    [Route("v1/login")]
     public class LoginController(ILoginService loginService, IMapper mapper) : ControllerBase
     {
         [HttpPost]
