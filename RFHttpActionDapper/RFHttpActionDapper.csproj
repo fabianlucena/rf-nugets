@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RFAction\RFHttpAction.csproj" />
+    <ProjectReference Include="..\RFHttpAction\RFHttpAction.csproj" />
     <ProjectReference Include="..\RFDapper\RFDapper.csproj" />
   </ItemGroup>
 
