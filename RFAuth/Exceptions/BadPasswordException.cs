@@ -1,8 +1,9 @@
-﻿using RFService.Exceptions;
+﻿using RFHttpExceptions.Exceptions;
 
 namespace RFAuth.Exceptions
 {
-    public class BadPasswordException() : HttpException(401)
+    public class BadPasswordException()
+        : HttpException(401)
     {
     }
 }

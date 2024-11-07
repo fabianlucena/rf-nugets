@@ -1,6 +1,9 @@
-﻿namespace RFService.Exceptions
+﻿using RFHttpExceptions.Exceptions;
+
+namespace RFService.Exceptions
 {
-    public class NamedItemNotFoundException(string name) : HttpException(404, $"Item {name} not found.")
+    public class NamedItemNotFoundException(string name)
+        : HttpException(404, $"Item {name} not found.")
     {
     }
 }

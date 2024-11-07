@@ -2,10 +2,10 @@
 using RFAuth.IServices;
 using RFService.Services;
 using RFAuth.Util;
-using RFService.Exceptions;
 using RFService.IRepo;
 using RFService.Repo;
 using RFAuth.Exceptions;
+using RFHttpExceptions.Exceptions;
 
 namespace RFAuth.Services
 {
@@ -18,19 +18,13 @@ namespace RFAuth.Services
             data = await base.ValidateForCreationAsync(data);
 
             if (data.UserId == 0)
-            {
                 throw new NullFieldException("UserId");
-            }
 
             if (string.IsNullOrWhiteSpace(data.Token))
-            {
                 data.Token = Token.GetString(64);
-            }
 
             if (string.IsNullOrWhiteSpace(data.AutoLoginToken))
-            {
                 data.AutoLoginToken = Token.GetString(64);
-            }
 
             return data;
         }

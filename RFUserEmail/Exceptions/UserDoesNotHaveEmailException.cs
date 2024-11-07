@@ -1,8 +1,9 @@
-﻿using RFService.Exceptions;
+﻿using RFHttpExceptions.Exceptions;
 
-namespace RFAuth.Exceptions
+namespace RFUserEmail.Exceptions
 {
-    public class UserDoesNotHaveEmailException() : HttpException(404)
+    public class UserDoesNotHaveEmailException()
+        : HttpException(404)
     {
     }
 }

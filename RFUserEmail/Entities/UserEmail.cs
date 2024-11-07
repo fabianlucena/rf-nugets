@@ -17,8 +17,5 @@ namespace RFUserEmail.Entities
 
         [Required]
         public required string Email { get; set; }
-
-        [Required]
-        public bool IsVerified { get; set; } = false;
     }
 }

@@ -1,8 +1,9 @@
-﻿using RFService.Exceptions;
+﻿using RFHttpExceptions.Exceptions;
 
 namespace RFAuth.Exceptions
 {
-    public class UnknownUserException() : HttpException(403)
+    public class UnknownUserException()
+        : HttpException(403)
     {
     }
 }

@@ -1,6 +1,6 @@
-﻿using RFService.IExceptions;
+﻿using RFHttpExceptions.IExceptions;
 
-namespace RFService.Exceptions
+namespace RFHttpExceptions.Exceptions
 {
     public class HttpException(int statusCode, string? message = null) : Exception(message), IHttpException
     {

@@ -1,4 +1,4 @@
-﻿namespace RFService.IExceptions
+﻿namespace RFHttpExceptions.IExceptions
 {
     public interface IHttpException
     {
