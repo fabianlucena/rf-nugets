@@ -1,8 +1,9 @@
-﻿using RFService.Exceptions;
+﻿using RFHttpExceptions.Exceptions;
 
-namespace RFAuth.Exceptions
+namespace RFUserEmailVerified.Exceptions
 {
-    public class UserEmailIsAlreadyVerifiedException() : HttpException(400)
+    public class UserEmailIsAlreadyVerifiedException()
+        : HttpException(400)
     {
     }
 }

@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RFAuth\RFAuth.csproj" />
-    <ProjectReference Include="..\RFUserEmail\RFUserEmail.csproj" />
+    <ProjectReference Include="..\RFUserEmailVerified\RFUserEmailVerified.csproj" />
   </ItemGroup>
 
 </Project>

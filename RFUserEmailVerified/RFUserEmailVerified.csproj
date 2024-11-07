@@ -10,6 +10,7 @@
     <ProjectReference Include="..\RFHttpAction\RFHttpAction.csproj" />
     <ProjectReference Include="..\RFAuth\RFAuth.csproj" />
     <ProjectReference Include="..\RFService\RFService.csproj" />
+    <ProjectReference Include="..\RFUserEmail\RFUserEmail.csproj" />
   </ItemGroup>
 
   <ItemGroup>

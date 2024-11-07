@@ -1,16 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFService.IService;
 using RFService.Services;
-using RFUserEmail.IServices;
-using RFUserEmail.Services;
+using RFUserEmailVerified.IServices;
+using RFUserEmailVerified.Services;
 
-namespace RFUserEmail
+namespace RFUserEmailVerified
 {
     public static class MvcServiceCollectionExtensions
     {
-        public static void AddRFUserEmail(this IServiceCollection services)
+        public static void AddRFUserEmailVerified(this IServiceCollection services)
         {
-            services.AddScoped<IUserEmailService, UserEmailService>();
+            services.AddScoped<IUserEmailVerifiedService, UserEmailVerifiedService>();
 
             services.AddSingleton<IPropertiesDecorators, PropertiesDecorators>();
         }
