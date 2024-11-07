@@ -1,20 +1,20 @@
-using RFAuth.IServices;
 using Microsoft.AspNetCore.Mvc;
 using RFUserEmail.DTO;
-using RFUserEmail.IServices;
-using RFUserEmail.Entities;
 using RFAuth.Exceptions;
 using RFService.Authorization;
 using RFService.Repo;
 using RFHttpAction.IServices;
 using RFHttpAction.Entities;
+using RFUserEmailVerified.Entities;
+using RFUserEmailVerified.Exceptions;
+using RFUserEmailVerified.IServices;
 
-namespace RFUserEmail.Controllers
+namespace RFUserEmailVerified.Controllers
 {
     [ApiController]
     [Route("v1/my-email")]
     public class MyEmailController(
-        IUserEmailService userEmailService,
+        IUserEmailVerifiedService userEmailVerifiedService,
         IHttpActionTypeService httpActionTypeService,
         IHttpActionService httpActionService
     ) : ControllerBase
@@ -23,15 +23,16 @@ namespace RFUserEmail.Controllers
         [Permission("myEmail.create")]
         public async Task<IActionResult> MyEmailPostAsync([FromBody] AddEmailRequest request)
         {
-            var userId = HttpContext.Items["UserId"] as Int64?;
+            var userId = HttpContext.Items["UserId"] as long?;
             if (userId == null || userId == 0)
                 throw new NoAuthorizationHeaderException();
 
-            var userEmail = new UserEmail {
+            var userEmail = new UserEmailVerified
+            {
                 UserId = userId.Value,
                 Email = request.Email,
             };
-            var response = await userEmailService.CreateAsync(userEmail);
+            var response = await userEmailVerifiedService.CreateAsync(userEmail);
             return Ok(response);
         }
 
@@ -40,11 +41,11 @@ namespace RFUserEmail.Controllers
         [Permission("myEmail.verify")]
         public async Task<IActionResult> VerifyEmailPostAsync()
         {
-            var userId = HttpContext.Items["UserId"] as Int64?;
+            var userId = HttpContext.Items["UserId"] as long?;
             if (userId == null || userId == 0)
                 throw new NoAuthorizationHeaderException();
 
-            var userEmail = await userEmailService.GetSingleOrDefaultAsync(new GetOptions { Filters = { { "UserId", userId } } })
+            var userEmail = await userEmailVerifiedService.GetSingleOrDefaultAsync(new GetOptions { Filters = { { "UserId", userId } } })
                 ?? throw new UserDoesNotHaveEmailException();
 
             if (userEmail.IsVerified)
@@ -55,7 +56,8 @@ namespace RFUserEmail.Controllers
                 {
                     TypeId = await httpActionTypeService.GetIdForNameAsync(
                         "userEmail.verify",
-                        creator: name => new HttpActionType {
+                        creator: name => new HttpActionType
+                        {
                             Name = name,
                             Title = "UserEmail Verify",
                         }

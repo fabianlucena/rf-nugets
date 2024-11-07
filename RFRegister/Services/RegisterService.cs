@@ -5,6 +5,7 @@ using RFUserEmail.Entities;
 using RFUserEmail.IServices;
 using RFRegister.DTO;
 using RFRegister.IServices;
+using RFUserEmailVerified.Entities;
 
 namespace RFRegister.Services
 {
@@ -40,7 +41,7 @@ namespace RFRegister.Services
                 Hash = passwordService.Hash(registerData.Password),
             });
 
-            await userEmailService.CreateAsync(new UserEmail {
+            await userEmailService.CreateAsync(new UserEmailVerified {
                 UserId = user.Id,
                 Email = registerData.Email,
                 IsVerified = false,

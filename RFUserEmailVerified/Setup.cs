@@ -1,22 +1,21 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using RFAuth.DTO;
-using RFAuth.Entities;
 using RFAuth.Exceptions;
 using RFHttpAction.IServices;
 using RFService.IService;
-using RFUserEmail.IServices;
+using RFUserEmailVerified.IServices;
 
-namespace RFUserEmail
+namespace RFUserEmailVerified
 {
     public static class Setup
     {
-        public static void ConfigureRFUserEmail(IServiceProvider provider)
+        public static void ConfigureRFUserEmailVerified(IServiceProvider provider)
         {
             var propertiesDecorators = provider.GetRequiredService<IPropertiesDecorators>();
-            var userEmailService = provider.GetRequiredService<IUserEmailService>();
-            propertiesDecorators.AddDecorator("LoginAttributes", async (data, property) => {
-                var userEmail = await userEmailService.GetSingleOrDefaultForUserIdAsync(((LoginData)data).UserId);
+            var userEmailVerifiedService = provider.GetRequiredService<IUserEmailVerifiedService>();
+            propertiesDecorators.AddDecorator("LoginAttributes", async (data, property) =>
+            {
+                var userEmail = await userEmailVerifiedService.GetSingleOrDefaultForUserIdAsync(((LoginData)data).UserId);
                 if (userEmail == null)
                     property["hasEmail"] = false;
                 else
@@ -27,15 +26,16 @@ namespace RFUserEmail
             });
 
             var actionListeners = provider.GetRequiredService<IHttpActionListeners>();
-            actionListeners.AddListener("userEmail.verify", async token => {
+            actionListeners.AddListener("userEmail.verify", async token =>
+            {
                 if (string.IsNullOrEmpty(token.Data))
                     throw new NoAuthorizationHeaderException();
 
-                var userEmailId = Int64.Parse(token.Data);
+                var userEmailId = long.Parse(token.Data);
                 if (userEmailId == 0)
                     throw new NoAuthorizationHeaderException();
 
-                await userEmailService.SetIsVerifiedForIdAsync(true, userEmailId);
+                await userEmailVerifiedService.SetIsVerifiedForIdAsync(true, userEmailId);
             });
         }
     }
