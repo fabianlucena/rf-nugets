@@ -1,12 +1,11 @@
-﻿using RFService.Entities;
-using RFService.Repo;
+﻿using RFService.Repo;
 using RFService.IRepo;
 
 namespace RFService.Services
 {
     public abstract class Service<Repo, Entity>(Repo _repo)
         where Repo : IRepo<Entity>
-        where Entity : EntityTimestamps
+        where Entity : RFService.Entities.Entity
     {
         public Repo repo = _repo;
 

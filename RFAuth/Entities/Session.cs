@@ -8,7 +8,7 @@ namespace RFAuth.Entities
     [Table("Sessions", Schema = "auth")]
     [Index(nameof(Token), IsUnique = true)]
     [Index(nameof(AutoLoginToken), IsUnique = true)]
-    public class Session : EntityTimestampsIdUuid
+    public class Session : EntitySoftDeleteTimestampsIdUuid
     {
         [Required]
         [ForeignKey("User")]

@@ -4,10 +4,10 @@ using RFService.Repo;
 
 namespace RFService.Services
 {
-    public abstract class ServiceTimestamps<Repo, Entity>(Repo repo)
-        : Service<Repo, Entity>(repo)
+    public abstract class ServiceSoftDeleteTimestamps<Repo, Entity>(Repo repo)
+        : ServiceSoftDelete<Repo, Entity>(repo)
         where Repo : IRepo<Entity>
-        where Entity : EntityTimestamps
+        where Entity : EntitySoftDeleteTimestamps
     {
         public override async Task<Entity> ValidateForCreationAsync(Entity data)
         {
@@ -17,6 +17,14 @@ namespace RFService.Services
             data.UpdatedAt = DateTime.UtcNow;
 
             return data;
+        }
+
+        public override GetOptions SanitizeGetOptions(GetOptions options)
+        {
+            if (!options.Filters.ContainsKey("DeletedAt"))
+                options.Filters["DeletedAt"] = null;
+
+            return base.SanitizeGetOptions(options);
         }
 
         public override GetOptions SanitizeForAutoGet(GetOptions options)
@@ -50,6 +58,11 @@ namespace RFService.Services
             }
 
             return base.SanitizeForAutoGet(options);
+        }
+
+        public override Task<int> DeleteAsync(GetOptions options)
+        {
+            return UpdateAsync(new { DeletedAt = DateTime.UtcNow }, options);
         }
     }
 }

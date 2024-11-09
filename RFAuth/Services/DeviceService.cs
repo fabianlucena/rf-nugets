@@ -8,7 +8,7 @@ using RFService.IRepo;
 namespace RFAuth.Services
 {
     public class DeviceService(IRepo<Device> repo)
-        : ServiceTimestampsIdUuid<IRepo<Device>, Device>(repo),
+        : ServiceSoftDeleteTimestampsIdUuid<IRepo<Device>, Device>(repo),
             IDeviceService
     {
         public override async Task<Device> ValidateForCreationAsync(Device data)

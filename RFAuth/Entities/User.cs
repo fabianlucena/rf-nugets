@@ -7,7 +7,7 @@ namespace RFAuth.Entities
 {
     [Table("Users", Schema = "auth")]
     [Index(nameof(Username), IsUnique = true)]
-    public class User : EntityTimestampsIdUuidEnabled
+    public class User : EntitySoftDeleteTimestampsIdUuidEnabled
     {
         [Required]
         [ForeignKey("Type")]

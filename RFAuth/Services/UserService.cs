@@ -7,7 +7,7 @@ using RFService.IRepo;
 namespace RFAuth.Services
 {
     public class UserService(IRepo<User> repo, IUserTypeService userTypeService)
-        : ServiceTimestampsIdUuidEnabled<IRepo<User>, User>(repo),
+        : ServiceSoftDeleteTimestampsIdUuidEnabled<IRepo<User>, User>(repo),
             IUserService
     {
         public async Task<User> GetSingleForUsernameAsync(string username)
