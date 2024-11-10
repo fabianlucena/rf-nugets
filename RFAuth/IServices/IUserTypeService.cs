@@ -1,5 +1,5 @@
 ﻿using RFAuth.Entities;
-using RFService.IService;
+using RFService.IServices;
 
 namespace RFAuth.IServices
 {

@@ -1,10 +1,32 @@
-﻿using RFService.Repo;
+﻿using RFService.Exceptions;
+using RFService.Repo;
 
-namespace RFService.IService
+namespace RFService.IServices
 {
     public interface IServiceIdName<Entity>
-        where Entity : class
+        : IServiceName<Entity>,
+            IServiceId<Entity>
+        where Entity : Entities.Entity
     {
-        Task<Int64> GetIdForNameAsync(string name, GetOptions? options = null, Func<string, Entity>? creator = null);
+        public async Task<Int64> GetIdForNameAsync(string name, GetOptions? options = null, Func<string, Entity>? creator = null)
+        {
+            var item = await GetSingleOrDefaultForNameAsync(name, options);
+            if (item == null)
+            {
+                if (creator != null)
+                {
+                    item = creator(name);
+                }
+
+                if (item == null)
+                {
+                    throw new NamedItemNotFoundException(name);
+                }
+
+                await CreateAsync(item);
+            }
+
+            return GetId(item);
+        }
     }
 }

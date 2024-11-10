@@ -10,6 +10,8 @@ namespace RFService.Services
         where Repo : IRepo<Entity>
         where Entity : EntitySoftDeleteTimestampsId
     {
+        public Int64 GetId(Entity item) => item.Id;
+
         public override async Task<Entity> ValidateForCreationAsync(Entity data)
         {
             data = await base.ValidateForCreationAsync(data);

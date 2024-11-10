@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFAuth.DTO;
-using RFAuth.Exceptions;
-using RFService.IService;
+using RFService.IServices;
 using RFUserEmail.IServices;
 
 namespace RFUserEmail

@@ -1,6 +1,6 @@
 ﻿global using PropertyDecorator = System.Func<object, dynamic, System.Threading.Tasks.Task>;
 
-namespace RFService.IService
+namespace RFService.IServices
 {
     public interface IPropertiesDecorators
     {

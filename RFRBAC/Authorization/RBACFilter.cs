@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc.Controllers;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
+using RFAuth.Exceptions;
+using RFRBAC.IServices;
 using RFService.Authorization;
 
 namespace RFRBAC.Authorization
 {
-    public class RBACFilter : IActionFilter
+    public class RBACFilter(IPermissionService permissionService) : IActionFilter
     {
-        public void OnActionExecuting(ActionExecutingContext context)
+        public async void OnActionExecuting(ActionExecutingContext context)
         {
             if (context.ActionDescriptor is not ControllerActionDescriptor controllerActionDescriptor)
                 return;
@@ -20,12 +23,23 @@ namespace RFRBAC.Authorization
             if (permissionAttribute == null)
                 return;
 
-            // context.Result = new ForbidResult(); // Bloquear el acceso si no cumple con la edad mínima
+            var httpContext = context.HttpContext;
+            var userIdText = httpContext.Items["UserId"];
+            var userId = Convert.ToInt64(userIdText);
+            if (userId <= 0)
+                throw new NoAuthorizationHeaderException();
+
+            var permissions = await permissionService.GetAllForUserIdAsync(userId);
+
+            foreach (var permission in permissionAttribute.Permissions) {
+                if (permissions.Any(p => p.Name == permission))
+                    return;
+            }
+
+            context.Result = new StatusCodeResult(403);
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
-        {
-            // No se necesita implementar nada aquí para este ejemplo
-        }
+        {}
     }
 }

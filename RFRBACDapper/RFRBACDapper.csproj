@@ -7,12 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\RFAuth\RFAuth.csproj" />
-    <ProjectReference Include="..\RFService\RFService.csproj" />
+    <ProjectReference Include="..\RFDapper\RFDapper.csproj" />
+    <ProjectReference Include="..\RFRBAC\RFRBAC.csproj" />
   </ItemGroup>
 
 </Project>

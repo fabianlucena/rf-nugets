@@ -1,4 +1,4 @@
-﻿namespace RFService.IService
+﻿namespace RFService.IServices
 {
     public interface IServiceDecorated
     {

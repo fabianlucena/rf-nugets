@@ -1,7 +1,6 @@
 ﻿using RFAuth.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using RFAuth.IServices;
-using RFService.IService;
 
 namespace RFAuth
 {

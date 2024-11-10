@@ -11,7 +11,7 @@ using RFService.Authorization;
 namespace RFAuth.Controllers
 {
     [ApiController]
-    [Route("v1/[controller]")]
+    [Route("v1/user")]
     public class UserController(ILogger<UserController> logger, IUserService userService, IMapper mapper) : ControllerBase
     {
         [HttpGet]

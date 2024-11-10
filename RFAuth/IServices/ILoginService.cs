@@ -1,5 +1,5 @@
 ﻿using RFAuth.DTO;
-using RFService.IService;
+using RFService.IServices;
 
 namespace RFAuth.IServices
 {

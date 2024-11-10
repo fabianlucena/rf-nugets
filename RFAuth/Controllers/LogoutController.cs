@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 namespace RFAuth.Controllers
 {
     [ApiController]
-    [Route("v1/[controller]")]
+    [Route("v1/logout")]
     public class LogoutController(ISessionService sessionService) : ControllerBase
     {
         [HttpPost]

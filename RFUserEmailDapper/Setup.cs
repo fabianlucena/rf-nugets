@@ -9,7 +9,7 @@ namespace RFUserEmailDapper
         public static void ConfigureRFUserEmailDapper(IServiceProvider services)
         {
             var dapperService = services.GetService<Dapper<UserEmail>>() ??
-                throw new Exception($"No service UserEmail");
+                throw new Exception($"No service {typeof(Dapper<UserEmail>).Name}");
 
             dapperService.CreateTable();
         }

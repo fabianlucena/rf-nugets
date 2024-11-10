@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RFService.IService;
+using RFService.IServices;
 using RFService.Services;
 using RFUserEmail.IServices;
 using RFUserEmail.Services;

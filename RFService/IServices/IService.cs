@@ -1,6 +1,6 @@
 ﻿using RFService.Repo;
 
-namespace RFService.IService
+namespace RFService.IServices
 {
     public interface IService<Entity>
         where Entity : class

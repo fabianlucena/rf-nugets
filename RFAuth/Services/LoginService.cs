@@ -2,7 +2,7 @@
 using RFAuth.Exceptions;
 using RFAuth.IServices;
 using RFHttpExceptions.Exceptions;
-using RFService.IService;
+using RFService.IServices;
 using RFService.Services;
 
 namespace RFAuth.Services
