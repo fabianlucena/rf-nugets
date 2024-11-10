@@ -26,9 +26,25 @@ namespace RFRBAC.Services
             return await GetRolesIdAsync(options);
         }
 
+        public async Task<IEnumerable<Int64>> GetRolesIdForUsersIdAsync(IEnumerable<Int64> usersId, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.Filters["UserId"] = usersId;
+
+            return await GetRolesIdAsync(options);
+        }
+
         public async Task<IEnumerable<Int64>> GetAllRolesIdForUserIdAsync(Int64 userId, GetOptions? options = null)
         {
             var rolesId = await GetRolesIdForUserIdAsync(userId, options);
+            var allRolesId = await roleParentService.GetAllRolesIdForRolesIdAsync(rolesId);
+
+            return allRolesId;
+        }
+
+        public async Task<IEnumerable<Int64>> GetAllRolesIdForUsersIdAsync(IEnumerable<Int64> usersId, GetOptions? options = null)
+        {
+            var rolesId = await GetRolesIdForUsersIdAsync(usersId, options);
             var allRolesId = await roleParentService.GetAllRolesIdForRolesIdAsync(rolesId);
 
             return allRolesId;

@@ -11,7 +11,7 @@ namespace RFRBAC.Services
         IUserRoleService userRoleService,
         IRolePermissionService rolePermissionService
     ) : ServiceSoftDeleteTimestampsIdUuidEnabledNameTitleTranslatable<IRepo<Permission>, Permission>(repo),
-            IPermissionService
+        IPermissionService
     {
         public async Task<IEnumerable<Permission>> GetListForRoleIdListAsync(
             IEnumerable<Int64> rolesId,
@@ -32,6 +32,17 @@ namespace RFRBAC.Services
         )
         {
             var allRolesId = await userRoleService.GetAllRolesIdForUserIdAsync(userId);
+            var permissions = await GetListForRoleIdListAsync(allRolesId);
+
+            return permissions;
+        }
+
+        public async Task<IEnumerable<Permission>> GetAllForUsersIdAsync(
+            IEnumerable<Int64> usersId,
+            GetOptions? options = null
+        )
+        {
+            var allRolesId = await userRoleService.GetAllRolesIdForUsersIdAsync(usersId);
             var permissions = await GetListForRoleIdListAsync(allRolesId);
 
             return permissions;

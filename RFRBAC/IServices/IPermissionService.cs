@@ -10,5 +10,7 @@ namespace RFRBAC.IServices
         Task<IEnumerable<Permission>> GetListForRoleIdListAsync(IEnumerable<Int64> rolesId, GetOptions? options = null);
 
         Task<IEnumerable<Permission>> GetAllForUserIdAsync(Int64 userId, GetOptions? options = null);
+
+        Task<IEnumerable<Permission>> GetAllForUsersIdAsync(IEnumerable<Int64> usersId, GetOptions? options = null);
     }
 }

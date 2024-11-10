@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RFAuth.Entities;
 using RFDapper;
 using RFRBAC.Entities;
-using RFService.Entities;
 
 namespace RFRBACDapper
 {
