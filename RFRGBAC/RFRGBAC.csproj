@@ -7,9 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\rh-nugets\RFAuth\RFAuth.csproj" />
-    <ProjectReference Include="..\rh-nugets\RFRBAC\RFRBAC.csproj" />
-    <ProjectReference Include="..\rh-nugets\RFService\RFService.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RFAuth\RFAuth.csproj" />
+    <ProjectReference Include="..\RFRBAC\RFRBAC.csproj" />
+    <ProjectReference Include="..\RFService\RFService.csproj" />
   </ItemGroup>
 
 </Project>
