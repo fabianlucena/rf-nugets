@@ -9,7 +9,7 @@ namespace RFRBAC.Services
 {
     public class RoleParentService(
         IRepo<RoleParent> repo
-    ) : Service<IRepo<RoleParent>, RoleParent>(repo),
+    ) : ServiceTimestamps<IRepo<RoleParent>, RoleParent>(repo),
             IRoleParentService
     {
         public async Task<IEnumerable<Int64>> GetParentsIdForRolesIdAsync(
@@ -33,13 +33,13 @@ namespace RFRBAC.Services
             options ??= new GetOptions();
             options.Filters["RoleId"] = rolesId;
             options.Filters["ParentId"] = Op.DistinctTo(allRolesId);
-            var newRolesId = await GetParentsIdForRolesIdAsync(rolesId);
+            var newRolesId = await GetParentsIdForRolesIdAsync(rolesId, options);
             while (newRolesId.Any())
             {
                 allRolesId.AddRange(newRolesId);
                 options.Filters["RoleId"] = newRolesId;
                 options.Filters["ParentId"] = Op.DistinctTo(allRolesId);
-                newRolesId = await GetParentsIdForRolesIdAsync(rolesId);
+                newRolesId = await GetParentsIdForRolesIdAsync(rolesId, options);
             }
 
             return allRolesId;

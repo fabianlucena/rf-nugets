@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFRBAC.Entities
 {
-    [Table("Roles_Parent", Schema = "auth")]
+    [Table("Roles_Parents", Schema = "auth")]
     [Index(nameof(RoleId), nameof(ParentId), IsUnique = true)]
-    public class RoleParent : Entity
+    public class RoleParent : EntityTimestamps
     {
         [Required]
         [ForeignKey("Role")]

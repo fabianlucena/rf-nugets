@@ -5,7 +5,7 @@ using RFService.Repo;
 namespace RFRBAC.IServices
 {
     public interface IUserRoleService
-        : IService<UserRole>
+        : IServiceTimestamps<UserRole>
     {
         Task<IEnumerable<Int64>> GetRolesIdAsync(GetOptions options);
 

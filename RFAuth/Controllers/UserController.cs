@@ -20,7 +20,6 @@ namespace RFAuth.Controllers
         {
             logger.LogInformation("Recuperando ususarios");
 
-
             var list = await userService.GetListAsync(new GetOptions { Include = { { "Type", new GetOptions() } }});
             var res = list.Select(mapper.Map<User, UserResponse>);
 

@@ -7,7 +7,7 @@ namespace RFRBAC.Entities
 {
     [Table("Roles_Permissions", Schema = "auth")]
     [Index(nameof(RoleId), nameof(PermissionId), IsUnique = true)]
-    public class RolePermission : Entity
+    public class RolePermission : EntityTimestamps
     {
         [Required]
         [ForeignKey("Role")]

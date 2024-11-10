@@ -8,7 +8,7 @@ namespace RFRBAC.Services
 {
     public class RolePermissionService(
         IRepo<RolePermission> repo
-    ) : Service<IRepo<RolePermission>, RolePermission>(repo),
+    ) : ServiceTimestamps<IRepo<RolePermission>, RolePermission>(repo),
             IRolePermissionService
     {
         public async Task<IEnumerable<Int64>> GetPermissionsIdForRolesIdAsync(

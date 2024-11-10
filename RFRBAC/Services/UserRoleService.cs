@@ -9,7 +9,7 @@ namespace RFRBAC.Services
     public class UserRoleService(
         IRepo<UserRole> repo,
         IRoleParentService roleParentService
-    ) : Service<IRepo<UserRole>, UserRole>(repo),
+    ) : ServiceTimestamps<IRepo<UserRole>, UserRole>(repo),
             IUserRoleService
     {
         public async Task<IEnumerable<Int64>> GetRolesIdAsync(GetOptions options)
