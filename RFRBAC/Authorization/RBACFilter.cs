@@ -27,7 +27,10 @@ namespace RFRBAC.Authorization
             var userIdText = httpContext.Items["UserId"];
             var userId = Convert.ToInt64(userIdText);
             if (userId <= 0)
-                throw new NoAuthorizationHeaderException();
+            {
+                context.Result = new StatusCodeResult(401);
+                return;
+            }
 
             var permissions = await permissionService.GetAllForUserIdAsync(userId);
 
