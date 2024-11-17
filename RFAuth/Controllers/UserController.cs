@@ -12,7 +12,11 @@ namespace RFAuth.Controllers
 {
     [ApiController]
     [Route("v1/user")]
-    public class UserController(ILogger<UserController> logger, IUserService userService, IMapper mapper) : ControllerBase
+    public class UserController(
+        ILogger<UserController> logger,
+        IUserService userService,
+        IMapper mapper
+    ) : ControllerBase
     {
         [HttpGet]
         [Permission("user.get")]
