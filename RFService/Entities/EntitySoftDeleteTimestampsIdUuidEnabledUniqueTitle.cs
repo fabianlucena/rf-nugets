@@ -2,11 +2,11 @@
 
 namespace RFService.Entities
 {
-    public abstract class EntitySoftDeleteTimestampsIdUuidEnabledName
+    public abstract class EntitySoftDeleteTimestampsIdUuidEnabledUniqueTitle
         : EntitySoftDeleteTimestampsIdUuidEnabled
     {
         [Required]
         [MaxLength(255)]
-        public required string Name { get; set; }
+        public required string Title { get; set; }
     }
 }
