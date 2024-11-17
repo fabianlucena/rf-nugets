@@ -8,7 +8,10 @@ namespace RFAuth.Controllers
 {
     [ApiController]
     [Route("v1/change-password")]
-    public class ChangePasswordController(IPasswordService passwordService) : ControllerBase
+    public class ChangePasswordController(
+        IPasswordService passwordService,
+        ILocalizerService _localizer
+    ) : ControllerBase
     {
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody] ChangePasswordRequest request)
@@ -20,7 +23,7 @@ namespace RFAuth.Controllers
             var password = await passwordService.GetSingleForUserIdAsync(userId.Value);
             var check = passwordService.Verify(request.CurrentPassword, password);
             if (!check)
-                throw new BadPasswordException();
+                throw new BadPasswordException(_localizer["Bad current password"]);
 
             await passwordService.UpdateForIdAsync(
                 new { Hash = passwordService.Hash(request.NewPassword) },
