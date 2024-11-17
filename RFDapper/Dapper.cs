@@ -57,6 +57,7 @@ namespace RFDapper
                     {"Guid", "UNIQUEIDENTIFIER"},
                     {"DateTime", "DATETIME"},
                     {"Boolean", "BIT"},
+                    {"GeoCoordinate", "GEOGRAPHY"},
                 };
 
             var query = $@"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.schemas WHERE [name] = '{Schema}')

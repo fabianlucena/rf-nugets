@@ -22,7 +22,7 @@
   <ItemGroup>
     <EmbeddedResource Update="Resources\Messages.es.resx">
       <CustomToolNamespace>Resources</CustomToolNamespace>
-      <Generator>PublicResXFileCodeGenerator</Generator>
+      <Generator></Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\Messages.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
