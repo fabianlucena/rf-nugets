@@ -2,8 +2,8 @@
 
 namespace RFAuth.Exceptions
 {
-    public class UnknownUserException()
-        : HttpException(403)
+    public class UnknownUserException(string message)
+        : HttpException(403, message)
     {
     }
 }

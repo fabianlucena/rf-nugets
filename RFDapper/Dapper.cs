@@ -1,19 +1,13 @@
 ﻿using Dapper;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using RFService.IRepo;
 using RFService.Repo;
 using RFService.Services;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Diagnostics.Metrics;
-using System.Dynamic;
-using System.Numerics;
 using System.Reflection;
-using System.Xml.Linq;
 
 namespace RFDapper
 {
