@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RFService.IRepo;
 using RFService.Repo;
 using RFService.Services;
@@ -8,6 +9,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Reflection;
+using System.Text.Json;
+using System.Xml.Linq;
 
 namespace RFDapper
 {
@@ -351,39 +354,108 @@ namespace RFDapper
             };
         }
 
-        public SqlQuery GetUpdateQuery(object data, GetOptions options)
+        public static object? ConvertJsonElement(JsonElement element)
+        {
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    var dict = new Dictionary<string, object?>();
+                    foreach (var prop in element.EnumerateObject())
+                    {
+                        dict[prop.Name] = ConvertJsonElement(prop.Value);
+                    }
+                    return dict;
+                
+                case JsonValueKind.Array:
+                    var list = new List<object?>();
+                    foreach (var item in element.EnumerateArray())
+                    {
+                        list.Add(ConvertJsonElement(item));
+                    }
+                    return list;
+                
+                case JsonValueKind.String:
+                    return element.GetString();
+                
+                case JsonValueKind.Number:
+                    if (element.TryGetInt32(out int intValue))
+                        return intValue;
+                    
+                    if (element.TryGetInt64(out long longValue))
+                        return longValue;
+                    
+                    if (element.TryGetDouble(out double doubleValue))
+                        return doubleValue;
+                    
+                    break;
+                
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                    return element.GetBoolean();
+                
+                case JsonValueKind.Null:
+                    return null;
+            }
+
+            return element.GetRawText();
+        }
+
+        public SqlQuery GetUpdateQueryForDictionary(Dictionary<string, object?> data, GetOptions options)
         {
             var sqlWhere = GetWhereQuery(options, "filter_")
                 ?? throw new Exception("UPDATE without WHERE is forbidden");
 
-            var dataType = data.GetType();
-            var properties = dataType.GetProperties();
             var columns = new List<string>();
             Dictionary<string, object?> values = [];
 
-            foreach (var p in properties)
+            foreach (var item in data)
             {
-                string name = p.Name;
-                var property = dataType.GetProperty(name) ??
-                        throw new Exception($"Unknown {name} property");
-                var propertyType = property.PropertyType;
+                string name = item.Key;
+                var value = item.Value;
 
-                if (propertyType.IsClass && propertyType.Name != "String")
-                    continue;
+                if (value != null)
+                {
+                    JsonElement? valueJsonElement = value as JsonElement?;
+                    if (valueJsonElement != null)
+                        value = ConvertJsonElement(valueJsonElement.Value);
 
+                    if (value != null) {
+                        var valueType = value.GetType();
+                        if (valueType.IsClass && valueType.Name != "String")
+                            continue;
+                    }
+                }
                 var valueName = "data_" + name;
-                values[valueName] = p.GetValue(data, null);
-
+                values[valueName] = value;
                 columns.Add($"[{name}]=@{valueName}");
             }
-
-            var sql = $"UPDATE [{Schema}].[{TableName}] SET {string.Join(",", columns)} {sqlWhere}";
-
+            var sql = $"UPDATE [{Schema}].[{TableName}] SET {string.Join(",", columns)} {sqlWhere.Sql}";
             return new SqlQuery
             {
                 Sql = sql,
-                Values = values,
+                Values = values.Concat(sqlWhere.Values).ToDictionary(x => x.Key, x => x.Value),
             };
+        }
+
+        public SqlQuery GetUpdateQuery(object data, GetOptions options)
+        {
+            var dictionary = data as Dictionary<string, object?>;
+            if (dictionary == null)
+            {
+                dictionary = [];
+                var dataType = data.GetType();
+                var properties = dataType.GetProperties();
+                foreach (var p in properties)
+                {
+                    string name = p.Name;
+                    if (dataType.GetProperty(name) == null)
+                    {
+                        throw new Exception($"Unknown {name} property");
+                    }
+                    dictionary.Add(name, p.GetValue(data, null));
+                }
+            }
+            return GetUpdateQueryForDictionary(dictionary, options);
         }
 
         static void SetId(Entity data, long id)
