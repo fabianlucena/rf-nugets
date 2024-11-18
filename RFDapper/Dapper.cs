@@ -10,14 +10,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Reflection;
 using System.Text.Json;
-using System.Xml.Linq;
 
 namespace RFDapper
 {
     public class SqlQuery
     {
         public string Sql = "";
-        public Dictionary<string, object?> Values = [];
+
+        public Data Data = new();
     }
 
     public class Dapper<Entity>: IRepo<Entity>
@@ -202,7 +202,7 @@ namespace RFDapper
             if (filter is Dictionary<string, object?> filters)
             {
                 var sqlFilters = new List<string>();
-                var values = new Dictionary<string, object?>();
+                var data = new Data();
                 foreach (var f in filters)
                 {
                     var key = f.Key;
@@ -229,14 +229,14 @@ namespace RFDapper
                     var sqlQuery = GetFilterQuery(value, skipNames, newName);
 
                     sqlFilters.Add(key + sqlQuery.Sql);
-                    foreach (var kv in sqlQuery.Values)
-                        values[kv.Key] = kv.Value;
+                    foreach (var kv in sqlQuery.Data.Values)
+                        data.Values[kv.Key] = kv.Value;
                 }
 
                 return new SqlQuery
                 {
                     Sql = string.Join(" AND ", sqlFilters),
-                    Values = values,
+                    Data = data,
                 };
             }
             
@@ -245,7 +245,7 @@ namespace RFDapper
                 return new SqlQuery
                 {
                     Sql = " = @" + name,
-                    Values = { { name, filter } },
+                    Data = { Values = { { name, filter } } },
                 };
             }
 
@@ -254,7 +254,7 @@ namespace RFDapper
                 return new SqlQuery
                 {
                     Sql = " IN @" + name,
-                    Values = { { name, filter } },
+                    Data = { Values = { { name, filter } } },
                 };
             }
             
@@ -269,14 +269,14 @@ namespace RFDapper
                 return new SqlQuery
                 {
                     Sql = sql,
-                    Values = sqlQuery.Values,
+                    Data = sqlQuery.Data,
                 };
             }
 
             return new SqlQuery
             {
                 Sql = " = @" + name,
-                Values = { { name, filter } },
+                Data = { Values = { { name, filter } } },
             };
         }
 
@@ -294,14 +294,14 @@ namespace RFDapper
         public SqlQuery GetSelectQuery(GetOptions options)
         {
             var sql = $"SELECT * FROM [{Schema}].[{TableName}]";
-            Dictionary<string, object?>? values = null;
+            Data? data = null;
             if (options != null)
             {
                 var where = GetWhereQuery(options);
                 if (where != null)
                 {
                     sql += " " + where.Sql;
-                    values = where.Values;
+                    data = where.Data;
                 }
 
                 if (options.Offset != null)
@@ -314,7 +314,7 @@ namespace RFDapper
             return new SqlQuery
             {
                 Sql = sql,
-                Values = values ?? [],
+                Data = data ?? new(),
             };
         }
 
@@ -324,7 +324,7 @@ namespace RFDapper
             var properties = data.GetType().GetProperties();
             var columns = new List<string>();
             var valuesName = new List<string>();
-            Dictionary<string, object?> values = [];
+            var newData = new Data();
 
             foreach (var p in properties)
             {
@@ -342,7 +342,7 @@ namespace RFDapper
                 var varName = "@" + name;
                 columns.Add(name);
                 valuesName.Add(varName);
-                values[varName] = property.GetValue(data, null);
+                newData.Values[varName] = property.GetValue(data, null);
             }
 
             var sql = $"INSERT INTO [{Schema}].[{TableName}]({string.Join(",", columns)}) VALUES ({string.Join(",", valuesName)}); SELECT CAST(SCOPE_IDENTITY() as INT);";
@@ -350,7 +350,7 @@ namespace RFDapper
             return new SqlQuery
             {
                 Sql = sql,
-                Values = values,
+                Data = newData,
             };
         }
 
@@ -421,8 +421,13 @@ namespace RFDapper
 
                     if (value != null) {
                         var valueType = value.GetType();
-                        if (valueType.IsClass && valueType.Name != "String")
+                        if (valueType.IsClass
+                            && valueType.Name != "String"
+                            && valueType.Name != "SqlGeography"
+                        )
+                        {
                             continue;
+                        }
                     }
                 }
                 var valueName = "data_" + name;
@@ -433,7 +438,7 @@ namespace RFDapper
             return new SqlQuery
             {
                 Sql = sql,
-                Values = values.Concat(sqlWhere.Values).ToDictionary(x => x.Key, x => x.Value),
+                Data = { Values = values.Concat(sqlWhere.Data.Values).ToDictionary(x => x.Key, x => x.Value) },
             };
         }
 
@@ -468,9 +473,9 @@ namespace RFDapper
         public async Task<Entity> InsertAsync(Entity data)
         {
             var sqlQuery = GetInsertQuery(data);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Values);
+            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            var rows = await Connection.QueryAsync<long>(sqlQuery.Sql, sqlQuery.Values);
+            var rows = await Connection.QueryAsync<long>(sqlQuery.Sql, sqlQuery.Data.Values);
             long id = rows.First();
             SetId(data, id);
             return data;
@@ -479,41 +484,41 @@ namespace RFDapper
         public Task<Entity?> GetSingleOrDefaultAsync(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Values);
+            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QuerySingleOrDefaultAsync<Entity>(sqlQuery.Sql, sqlQuery.Values);
+            return Connection.QuerySingleOrDefaultAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
         }
 
         public Task<Entity?> GetFirstOrDefaultAsync(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Values);
+            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QueryFirstOrDefaultAsync<Entity>(sqlQuery.Sql, sqlQuery.Values);
+            return Connection.QueryFirstOrDefaultAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
         }
 
         public Task<Entity> GetSingleAsync(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Values);
+            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QuerySingleAsync<Entity>(sqlQuery.Sql, sqlQuery.Values);
+            return Connection.QuerySingleAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
         }
 
         public Task<IEnumerable<Entity>> GetListAsync(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Values);
+            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QueryAsync<Entity>(sqlQuery.Sql, sqlQuery.Values);
+            return Connection.QueryAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
         }
 
         public async Task<int> UpdateAsync(object data, GetOptions options)
         {
             var sqlQuery = GetUpdateQuery(data, options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Values);
+            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return await Connection.ExecuteAsync(sqlQuery.Sql, sqlQuery.Values);
+            return await Connection.ExecuteAsync(sqlQuery.Sql, sqlQuery.Data.Values);
         }
     }
 }
