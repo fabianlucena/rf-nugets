@@ -18,13 +18,19 @@ namespace RFAuth.Controllers
         IMapper mapper
     ) : ControllerBase
     {
-        [HttpGet]
+        [HttpGet("{uuid?}")]
         [Permission("user.get")]
-        public async Task<IActionResult> GetAsync()
+        public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
         {
             logger.LogInformation("Getting users");
 
-            var list = await userService.GetListAsync(new GetOptions { Include = { { "Type", new GetOptions() } }});
+            var options = new GetOptions { Include = { { "Type", new GetOptions() } } };
+            if (uuid != null)
+            {
+                options.Filters["uuid"] = uuid;
+            }
+
+            var list = await userService.GetListAsync(options);
             var res = list.Select(mapper.Map<User, UserResponse>);
 
             return Ok(new DataRowsResult(res));
