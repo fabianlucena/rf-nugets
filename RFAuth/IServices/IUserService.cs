@@ -3,7 +3,8 @@ using RFService.IServices;
 
 namespace RFAuth.IServices
 {
-    public interface IUserService : IService<User>
+    public interface IUserService
+        : IService<User>, IServiceUuid<User>
     {
         Task<User> GetSingleForUsernameAsync(string username);
 

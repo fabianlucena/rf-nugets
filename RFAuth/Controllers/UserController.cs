@@ -22,12 +22,29 @@ namespace RFAuth.Controllers
         [Permission("user.get")]
         public async Task<IActionResult> GetAsync()
         {
-            logger.LogInformation("Recuperando ususarios");
+            logger.LogInformation("Getting users");
 
             var list = await userService.GetListAsync(new GetOptions { Include = { { "Type", new GetOptions() } }});
             var res = list.Select(mapper.Map<User, UserResponse>);
 
             return Ok(new DataRowsResult(res));
+        }
+
+        [HttpPatch("{uuid}")]
+        [Permission("user.edit")]
+        public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] Dictionary<string, object?> data)
+        {
+            logger.LogInformation("Updating users");
+
+            var result = await userService.UpdateForUuidAsync(data, uuid);
+
+            if (result > 0)
+            {
+                return Ok();
+            } else
+            {
+                return BadRequest();
+            }
         }
     }
 }
