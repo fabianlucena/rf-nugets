@@ -14,7 +14,7 @@ namespace RFUserEmail
             var mapper = provider.GetRequiredService<IMapper>();
             var propertiesDecorators = provider.GetRequiredService<IPropertiesDecorators>();
 
-            propertiesDecorators.AddDecorator("LoginAttributes", async (data, property, destiny) => {
+            propertiesDecorators.AddDecorator("LoginAttributes", async (data, property, eventName) => {
                 var userEmail = await userEmailService.GetSingleOrDefaultForUserIdAsync(((LoginData)data).UserId);
                 property["hasEmail"] = userEmail != null;
             });

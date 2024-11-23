@@ -1,4 +1,6 @@
-﻿namespace RFRBAC.DTO
+﻿using System.Text.Json.Serialization;
+
+namespace RFRBAC.DTO
 {
     public class RoleResponse
     {
@@ -14,6 +16,7 @@
 
         public DateTime UpdatedAt { get; set; }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public IDictionary<string, object>? Attributes { get; set; }
     }
 }

@@ -9,6 +9,8 @@ namespace RFRBAC
         public MappingProfile()
         {
             CreateMap<Role, RoleResponse>();
+            CreateMap<Role, RoleAttributes>();
+            CreateMap<RoleAttributes, RoleResponse>();
         }
     }
 }

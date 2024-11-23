@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using RFAuth.DTO;
 using RFRBAC.DTO;
@@ -16,9 +17,9 @@ namespace RFRBAC
             var mapper = provider.GetRequiredService<IMapper>();
             var propertiesDecorators = provider.GetRequiredService<IPropertiesDecorators>();
 
-            propertiesDecorators.AddDecorator("UserAttributes", async (data, property, destiny) => {
+            propertiesDecorators.AddDecorator("UserAttributes", async (data, property, eventName) => {
                 var roles = await roleService.GetListForUserIdAsync(((UserAttributes)data).Id);
-                if (destiny == "Result")
+                if (eventName == "Result")
                     property["roles"] = roles.Select(mapper.Map<Role, RoleResponse>);
                 else
                     property["roles"] = roles;

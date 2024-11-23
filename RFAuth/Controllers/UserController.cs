@@ -37,7 +37,7 @@ namespace RFAuth.Controllers
                 userAttributesList,
                 "UserAttributes",
                 (row, value) => row.Attributes = value,
-                destiny: "Result"
+                eventName: "Result"
             );
 
             var response = userAttributesList.Select(mapper.Map<UserAttributes, UserResponse>);

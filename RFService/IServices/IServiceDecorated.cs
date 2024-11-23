@@ -4,7 +4,12 @@
     {
         IPropertiesDecorators PropertiesDecorators { get; }
 
-        public virtual async Task<IDictionary<string, object>?> DecorateAsync<T>(T data, IDictionary<string, object>? property, string name, string destiny = "")
+        public virtual async Task<IDictionary<string, object>?> DecorateAsync<T>(
+            T data,
+            IDictionary<string, object>? property,
+            string name,
+            string eventName = ""
+        )
         {
             if (data == null)
                 return property;
@@ -15,7 +20,7 @@
 
             IDictionary<string, object> newProperty = property ?? new Dictionary<string, object>();
             foreach (var decorator in decorators)
-                await decorator(data, newProperty, destiny);
+                await decorator(data, newProperty, eventName);
 
             if (newProperty != property && newProperty.Count != 0)
                 property = newProperty;
@@ -23,7 +28,12 @@
             return property;
         }
 
-        public virtual async Task<IEnumerable<T>> DecorateAsync<T>(IEnumerable<T> list, string name, Action<T, IDictionary<string, object>> assign, string destiny = "")
+        public virtual async Task<IEnumerable<T>> DecorateAsync<T>(
+            IEnumerable<T> list,
+            string name,
+            Action<T, IDictionary<string, object>> assign,
+            string eventName = ""
+        )
         {
             var decorators = PropertiesDecorators.GetDecorators(name);
             if (decorators == null)
@@ -37,7 +47,7 @@
                     if (row != null)
                     {
                         IDictionary<string, object> newProperty = new Dictionary<string, object>();
-                        await decorator(row, newProperty, destiny);
+                        await decorator(row, newProperty, eventName);
                         if (newProperty.Count != 0)
                             assign(row, newProperty);
                     }

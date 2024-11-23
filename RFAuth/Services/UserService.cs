@@ -13,7 +13,8 @@ namespace RFAuth.Services
         IPropertiesDecorators propertiesDecorators
     )
         : ServiceSoftDeleteTimestampsIdUuidEnabled<IRepo<User>, User>(repo),
-            IUserService, IServiceDecorated
+            IUserService,
+            IServiceDecorated
     {
         public IPropertiesDecorators PropertiesDecorators { get; } = propertiesDecorators;
 
