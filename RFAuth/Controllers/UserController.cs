@@ -30,10 +30,19 @@ namespace RFAuth.Controllers
                 options.Filters["uuid"] = uuid;
             }
 
-            var list = await userService.GetListAsync(options);
-            var res = list.Select(mapper.Map<User, UserResponse>);
+            var userList = await userService.GetListAsync(options);
+            var userAttributesList = userList.Select(mapper.Map<User, UserAttributes>);
 
-            return Ok(new DataRowsResult(res));
+            userAttributesList = await userService.DecorateAsync(
+                userAttributesList,
+                "UserAttributes",
+                (row, value) => row.Attributes = value,
+                destiny: "Result"
+            );
+
+            var response = userAttributesList.Select(mapper.Map<UserAttributes, UserResponse>);
+
+            return Ok(new DataRowsResult(response));
         }
 
         [HttpPatch("{uuid}")]

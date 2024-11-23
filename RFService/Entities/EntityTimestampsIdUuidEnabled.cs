@@ -5,6 +5,6 @@ namespace RFService.Entities
     public abstract class EntityTimestampsIdUuidEnabled : EntityTimestampsIdUuid
     {
         [Required]
-        public bool? IsEnabled { get; set; }
+        public bool IsEnabled { get; set; } = true;
     }
 }

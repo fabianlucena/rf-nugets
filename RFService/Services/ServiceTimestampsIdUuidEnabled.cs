@@ -9,14 +9,6 @@ namespace RFService.Services
         where Repo : IRepo<Entity>
         where Entity : EntityTimestampsIdUuidEnabled
     {
-        public override async Task<Entity> ValidateForCreationAsync(Entity data)
-        {
-            data = await base.ValidateForCreationAsync(data);
-            data.IsEnabled ??= true;
-
-            return data;
-        }
-
         public override GetOptions SanitizeForAutoGet(GetOptions options)
         {
             if (options.Filters.TryGetValue("IsEnabled", out object? value))

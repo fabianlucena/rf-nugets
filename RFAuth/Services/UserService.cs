@@ -3,13 +3,20 @@ using RFAuth.IServices;
 using RFService.Services;
 using RFService.Repo;
 using RFService.IRepo;
+using RFService.IServices;
 
 namespace RFAuth.Services
 {
-    public class UserService(IRepo<User> repo, IUserTypeService userTypeService)
+    public class UserService(
+        IRepo<User> repo,
+        IUserTypeService userTypeService,
+        IPropertiesDecorators propertiesDecorators
+    )
         : ServiceSoftDeleteTimestampsIdUuidEnabled<IRepo<User>, User>(repo),
-            IUserService
+            IUserService, IServiceDecorated
     {
+        public IPropertiesDecorators PropertiesDecorators { get; } = propertiesDecorators;
+
         public async Task<User> GetSingleForUsernameAsync(string username)
         {
             return await repo.GetSingleAsync(new GetOptions

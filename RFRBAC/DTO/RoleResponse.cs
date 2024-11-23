@@ -1,14 +1,14 @@
-﻿namespace RFAuth.DTO
+﻿namespace RFRBAC.DTO
 {
-    public class UserResponse
+    public class RoleResponse
     {
         public Guid Uuid { get; set; }
 
         public bool IsEnabled { get; set; }
 
-        public required string Username { get; set; }
+        public required string Name { get; set; }
 
-        public required string FullName { get; set; }
+        public required string Title { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

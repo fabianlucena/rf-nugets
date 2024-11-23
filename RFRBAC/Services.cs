@@ -13,6 +13,8 @@ namespace RFRBAC
             services.AddScoped<IRolePermissionService, RolePermissionService>();
             services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<IRoleParentService, RoleParentService>();
+
+            services.AddAutoMapper(typeof(MappingProfile).Assembly);
         }
     }
 }

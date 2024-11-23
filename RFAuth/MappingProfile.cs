@@ -9,6 +9,8 @@ namespace RFAuth
         public MappingProfile()
         {
             CreateMap<User, UserResponse>();
+            CreateMap<User, UserAttributes>();
+            CreateMap<UserAttributes, UserResponse>();
             CreateMap<LoginData, LoginResponse>();
         }
     }

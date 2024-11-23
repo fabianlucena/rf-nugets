@@ -6,6 +6,6 @@ namespace RFService.Entities
         : EntitySoftDeleteTimestampsIdUuidEnabledNameTitle
     {
         [Required]
-        public bool? IsTranslatable { get; set; }
+        public bool IsTranslatable { get; set; } = true;
     }
 }

@@ -19,14 +19,6 @@ namespace RFService.Services
             return data;
         }
 
-        public override GetOptions SanitizeGetOptions(GetOptions options)
-        {
-            if (!options.Filters.ContainsKey("DeletedAt"))
-                options.Filters["DeletedAt"] = null;
-
-            return base.SanitizeGetOptions(options);
-        }
-
         public override GetOptions SanitizeForAutoGet(GetOptions options)
         {
             var newOptions = false;
@@ -58,11 +50,6 @@ namespace RFService.Services
             }
 
             return base.SanitizeForAutoGet(options);
-        }
-
-        public override Task<int> DeleteAsync(GetOptions options)
-        {
-            return UpdateAsync(new { DeletedAt = DateTime.UtcNow }, options);
         }
     }
 }

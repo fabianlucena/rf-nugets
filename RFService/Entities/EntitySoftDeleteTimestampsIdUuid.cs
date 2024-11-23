@@ -7,6 +7,6 @@ namespace RFService.Entities
     public abstract class EntitySoftDeleteTimestampsIdUuid : EntitySoftDeleteTimestampsId
     {
         [Required]
-        public Guid? Uuid { get; set; }
+        public Guid Uuid { get; set; }
     }
 }

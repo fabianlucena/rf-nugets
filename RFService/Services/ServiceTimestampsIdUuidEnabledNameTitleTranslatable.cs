@@ -9,15 +9,6 @@ namespace RFService.Services
         where Repo : IRepo<Entity>
         where Entity : EntityTimestampsIdUuidEnabledNameTitleTranslatable
     {
-        public override async Task<Entity> ValidateForCreationAsync(Entity data)
-        {
-            data = await base.ValidateForCreationAsync(data);
-
-            data.IsTranslatable ??= true;
-
-            return data;
-        }
-
         public override GetOptions SanitizeForAutoGet(GetOptions options)
         {
             if (options.Filters.TryGetValue("IsTranslatable", out object? value))

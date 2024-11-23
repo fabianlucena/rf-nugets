@@ -1,4 +1,4 @@
-﻿global using PropertyDecorator = System.Func<object, dynamic, System.Threading.Tasks.Task>;
+﻿global using PropertyDecorator = System.Func<object, dynamic, string, System.Threading.Tasks.Task>;
 
 namespace RFService.IServices
 {

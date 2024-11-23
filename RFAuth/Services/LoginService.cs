@@ -17,13 +17,15 @@ namespace RFAuth.Services
         IPropertiesDecorators propertiesDecorators,
         ILocalizerService localizerService
     )
-        : ServiceDecorated(propertiesDecorators), ILoginService
+        : ILoginService, IServiceDecorated
     {
         private readonly IUserService _userService = userService;
         private readonly IPasswordService _passwordService = passwordService;
         private readonly IDeviceService _deviceService = deviceService;
         private readonly ISessionService _sessionService = sessionService;
         private readonly ILocalizerService _localizer = localizerService;
+
+        public IPropertiesDecorators PropertiesDecorators { get; } = propertiesDecorators;
 
         public async Task<LoginData> LoginAsync(LoginRequest request)
         {

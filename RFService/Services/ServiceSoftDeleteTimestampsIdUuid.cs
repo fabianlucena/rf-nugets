@@ -13,7 +13,7 @@ namespace RFService.Services
         {
             data = await base.ValidateForCreationAsync(data);
 
-            if (data.Uuid == null || data.Uuid == Guid.Empty)
+            if (data.Uuid == Guid.Empty)
             {
                 data.Uuid = Guid.NewGuid();
             }
