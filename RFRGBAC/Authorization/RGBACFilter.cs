@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using RFAuth.Exceptions;
 using RFRBAC.IServices;
 using RFRGBAC.IServices;
 using RFService.Authorization;
@@ -9,14 +8,21 @@ using RFService.Authorization;
 namespace RFRGBAC.Authorization
 {
     public class RGBACFilter(
-        IPermissionService permissionService,
-        IUserGroupService userGroupService
-    ) : IActionFilter
+        IUserRoleService userRoleService,
+        IUserGroupService userGroupService,
+        IPermissionService permissionService
+    ) : IAsyncActionFilter
     {
-        public async void OnActionExecuting(ActionExecutingContext context)
+        public async Task OnActionExecutionAsync(
+            ActionExecutingContext context,
+            ActionExecutionDelegate next
+        )
         {
             if (context.ActionDescriptor is not ControllerActionDescriptor controllerActionDescriptor)
+            {
+                await next();
                 return;
+            }
 
             // Obtener el atributo aplicado
             var permissionAttribute = (PermissionAttribute?)Attribute.GetCustomAttribute(
@@ -25,27 +31,39 @@ namespace RFRGBAC.Authorization
             );
 
             if (permissionAttribute == null)
+            {
+                await next();
                 return;
+            }
 
             var httpContext = context.HttpContext;
             var userIdText = httpContext.Items["UserId"];
             var userId = Convert.ToInt64(userIdText);
             if (userId <= 0)
-                throw new NoAuthorizationHeaderException();
+            {
+                context.Result = new StatusCodeResult(401);
+                return;
+            }
+
+            var allRoles = await userRoleService.GetAllRolesForUserIdAsync(userId);
+            if (allRoles.Any(i => i.Name == "admin"))
+            {
+                await next();
+                return;
+            }
 
             var allGroupsId = await userGroupService.GetAllGroupsIdForUserIdAsync(userId);
             var permissions = await permissionService.GetAllForUsersIdAsync(allGroupsId);
-
             foreach (var permission in permissionAttribute.Permissions)
             {
                 if (permissions.Any(p => p.Name == permission))
+                {
+                    await next();
                     return;
+                }
             }
 
             context.Result = new StatusCodeResult(403);
         }
-
-        public void OnActionExecuted(ActionExecutedContext context)
-        { }
     }
 }

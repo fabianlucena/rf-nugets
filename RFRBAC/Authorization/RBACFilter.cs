@@ -1,17 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
+using RFRBAC.Entities;
 using RFRBAC.IServices;
 using RFService.Authorization;
 
 namespace RFRBAC.Authorization
 {
-    public class RBACFilter(IPermissionService permissionService) : IActionFilter
+    public class RBACFilter(
+        IUserRoleService userRoleService,
+        IPermissionService permissionService
+    ) : IAsyncActionFilter
     {
-        public async void OnActionExecuting(ActionExecutingContext context)
+        public async Task OnActionExecutionAsync(
+            ActionExecutingContext context,
+            ActionExecutionDelegate next
+        )
         {
             if (context.ActionDescriptor is not ControllerActionDescriptor controllerActionDescriptor)
+            {
+                await next();
                 return;
+            }
 
             // Obtener el atributo aplicado
             var permissionAttribute = (PermissionAttribute?)Attribute.GetCustomAttribute(
@@ -20,7 +30,10 @@ namespace RFRBAC.Authorization
             );
 
             if (permissionAttribute == null)
+            {
+                await next();
                 return;
+            }
 
             var httpContext = context.HttpContext;
             var userIdText = httpContext.Items["UserId"];
@@ -31,17 +44,23 @@ namespace RFRBAC.Authorization
                 return;
             }
 
-            var permissions = await permissionService.GetAllForUserIdAsync(userId);
+            var allRoles = await userRoleService.GetAllRolesForUserIdAsync(userId);
+            if (allRoles.Any(i => i.Name == "admin"))
+            {
+                await next();
+                return;
+            }
 
+            var permissions = await permissionService.GetAllForUserIdAsync(userId);
             foreach (var permission in permissionAttribute.Permissions) {
                 if (permissions.Any(p => p.Name == permission))
+                {
+                    await next();
                     return;
+                }
             }
 
             context.Result = new StatusCodeResult(403);
         }
-
-        public void OnActionExecuted(ActionExecutedContext context)
-        {}
     }
 }
