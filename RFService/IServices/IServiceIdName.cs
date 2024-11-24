@@ -14,19 +14,25 @@ namespace RFService.IServices
             if (item == null)
             {
                 if (creator != null)
-                {
                     item = creator(name);
-                }
 
                 if (item == null)
-                {
                     throw new NamedItemNotFoundException(name);
-                }
 
                 await CreateAsync(item);
             }
 
             return GetId(item);
+        }
+
+        public async Task<IEnumerable<Int64>> GetListIdForNamesAsync(string[] names, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.Filters["Name"] = names;
+
+            var rows = await GetListAsync(options);
+
+            return rows.Select(GetId);
         }
     }
 }

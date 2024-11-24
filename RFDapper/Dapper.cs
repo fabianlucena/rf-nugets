@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Reflection;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RFDapper
 {
@@ -325,12 +326,16 @@ namespace RFDapper
             var columns = new List<string>();
             var valuesName = new List<string>();
             var newData = new Data();
+            bool hasId = false;
 
             foreach (var p in properties)
             {
                 string name = p.Name;
                 if (name == "Id")
+                {
+                    hasId = true;
                     continue;
+                }
 
                 var property = entityType.GetProperty(name) ??
                     throw new Exception($"Unknown {name} property");
@@ -345,7 +350,9 @@ namespace RFDapper
                 newData.Values[varName] = property.GetValue(data, null);
             }
 
-            var sql = $"INSERT INTO [{Schema}].[{TableName}]({string.Join(",", columns)}) VALUES ({string.Join(",", valuesName)}); SELECT CAST(SCOPE_IDENTITY() as INT);";
+            var sql = $"INSERT INTO [{Schema}].[{TableName}]({string.Join(",", columns)}) VALUES ({string.Join(",", valuesName)});";
+            if (hasId)
+                sql += " SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
 
             return new SqlQuery
             {
@@ -402,7 +409,7 @@ namespace RFDapper
 
         public SqlQuery GetUpdateQueryForDictionary(Dictionary<string, object?> data, GetOptions options)
         {
-            var sqlWhere = GetWhereQuery(options, "filter_")
+            var sqlWhere = GetWhereQuery(options, "where_")
                 ?? throw new Exception("UPDATE without WHERE is forbidden");
 
             var columns = new List<string>();
@@ -463,6 +470,22 @@ namespace RFDapper
             return GetUpdateQueryForDictionary(dictionary, options);
         }
 
+        public SqlQuery GetDeleteQuery(GetOptions options)
+        {
+            var sqlWhere = GetWhereQuery(options, "where_")
+                ?? throw new Exception("DELETE without WHERE is forbidden");
+
+            var columns = new List<string>();
+            Dictionary<string, object?> values = [];
+
+            var sql = $"DELETE FROM [{Schema}].[{TableName}] {sqlWhere.Sql}";
+            return new SqlQuery
+            {
+                Sql = sql,
+                Data = { Values = values.Concat(sqlWhere.Data.Values).ToDictionary(x => x.Key, x => x.Value) },
+            };
+        }
+
         static void SetId(Entity data, long id)
         {
             var type = data.GetType();
@@ -476,8 +499,12 @@ namespace RFDapper
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
             var rows = await Connection.QueryAsync<long>(sqlQuery.Sql, sqlQuery.Data.Values);
-            long id = rows.First();
-            SetId(data, id);
+            if (rows.Any())
+            {
+                Int64 id = rows.First();
+                SetId(data, id);
+            }
+
             return data;
         }
 
@@ -516,6 +543,14 @@ namespace RFDapper
         public async Task<int> UpdateAsync(object data, GetOptions options)
         {
             var sqlQuery = GetUpdateQuery(data, options);
+            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
+            Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
+            return await Connection.ExecuteAsync(sqlQuery.Sql, sqlQuery.Data.Values);
+        }
+
+        public async Task<int> DeleteAsync(GetOptions options)
+        {
+            var sqlQuery = GetDeleteQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
             return await Connection.ExecuteAsync(sqlQuery.Sql, sqlQuery.Data.Values);

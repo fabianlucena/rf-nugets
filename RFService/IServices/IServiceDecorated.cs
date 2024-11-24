@@ -8,7 +8,7 @@
             T data,
             IDictionary<string, object>? property,
             string name,
-            string eventName = ""
+            string eventType = ""
         )
         {
             if (data == null)
@@ -20,7 +20,7 @@
 
             IDictionary<string, object> newProperty = property ?? new Dictionary<string, object>();
             foreach (var decorator in decorators)
-                await decorator(data, newProperty, eventName);
+                await decorator(data, newProperty, eventType);
 
             if (newProperty != property && newProperty.Count != 0)
                 property = newProperty;
@@ -32,7 +32,7 @@
             IEnumerable<T> list,
             string name,
             Action<T, IDictionary<string, object>> assign,
-            string eventName = ""
+            string eventType = ""
         )
         {
             var decorators = PropertiesDecorators.GetDecorators(name);
@@ -47,7 +47,7 @@
                     if (row != null)
                     {
                         IDictionary<string, object> newProperty = new Dictionary<string, object>();
-                        await decorator(row, newProperty, eventName);
+                        await decorator(row, newProperty, eventType);
                         if (newProperty.Count != 0)
                             assign(row, newProperty);
                     }

@@ -1,4 +1,5 @@
-﻿using RFAuth.Entities;
+﻿using Microsoft.AspNetCore.Identity;
+using RFAuth.Entities;
 using RFService.IServices;
 
 namespace RFAuth.IServices
@@ -9,5 +10,11 @@ namespace RFAuth.IServices
         Task<User> GetSingleForUsernameAsync(string username);
 
         Task<User?> GetSingleOrDefaultForUsernameAsync(string username);
+
+        public async Task<Int64> GetSingleIdForUsernameAsync(string username)
+        {
+            var user = await GetSingleForUsernameAsync(username);
+            return user.Id;
+        }
     }
 }

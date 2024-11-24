@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using RFService.Data;
 using RFService.Repo;
 using RFService.Authorization;
+using RFService.IServices;
+using RFService.Services;
 
 namespace RFAuth.Controllers
 {
@@ -15,7 +17,8 @@ namespace RFAuth.Controllers
     public class UserController(
         ILogger<UserController> logger,
         IUserService userService,
-        IMapper mapper
+        IMapper mapper,
+        IEventBus eventBus
     ) : ControllerBase
     {
         [HttpGet("{uuid?}")]
@@ -37,7 +40,7 @@ namespace RFAuth.Controllers
                 userAttributesList,
                 "UserAttributes",
                 (row, value) => row.Attributes = value,
-                eventName: "Result"
+                eventType: "Result"
             );
 
             var response = userAttributesList.Select(mapper.Map<UserAttributes, UserResponse>);
@@ -51,15 +54,20 @@ namespace RFAuth.Controllers
         {
             logger.LogInformation("Updating users");
 
+            var eventData = new EventData {
+                Data = data,
+                Filter = new Dictionary<string, object?> {
+                    { "Uuid", uuid }
+                }
+            };
+            await eventBus.FireAsync("updating", "User", eventData);
             var result = await userService.UpdateForUuidAsync(data, uuid);
+            await eventBus.FireAsync("updated", "User", eventData);
 
-            if (result > 0)
-            {
-                return Ok();
-            } else
-            {
+            if (result <= 0)
                 return BadRequest();
-            }
+
+            return Ok();
         }
     }
 }

@@ -37,7 +37,7 @@ namespace RFRBAC.Controllers
                 roleAttributesList,
                 "RoleAttributes",
                 (row, value) => row.Attributes = value,
-                eventName: "Result"
+                eventType: "Result"
             );
 
             var response = roleAttributesList.Select(mapper.Map<RoleAttributes, RoleResponse>);

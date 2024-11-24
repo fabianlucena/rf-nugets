@@ -5,7 +5,8 @@ using RFService.Repo;
 namespace RFRBAC.IServices
 {
     public interface IUserRoleService
-        : IServiceTimestamps<UserRole>
+        : IService<UserRole>,
+            IServiceTimestamps<UserRole>
     {
         Task<IEnumerable<Int64>> GetRolesIdAsync(GetOptions options);
 
@@ -16,5 +17,11 @@ namespace RFRBAC.IServices
         Task<IEnumerable<Int64>> GetAllRolesIdForUserIdAsync(Int64 userId, GetOptions? options = null);
 
         Task<IEnumerable<Int64>> GetAllRolesIdForUsersIdAsync(IEnumerable<Int64> usersId, GetOptions? options = null);
+
+        Task<IEnumerable<Role>> GetRolesForUserIdAsync(Int64 userId, GetOptions? options = null);
+
+        Task<IEnumerable<Role>> GetAllRolesForUserIdAsync(Int64 userId, GetOptions? options = null);
+
+        Task UpdateRolesNameForUserNameAsync(string username, string[] rolesName);
     }
 }

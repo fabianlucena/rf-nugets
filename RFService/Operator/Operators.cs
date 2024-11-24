@@ -1,6 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace RFService.Operator
+﻿namespace RFService.Operator
 {
     public class DistinctTo(object? value)
     {

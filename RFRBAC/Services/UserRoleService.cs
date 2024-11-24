@@ -1,6 +1,8 @@
-﻿using RFRBAC.Entities;
+﻿using RFAuth.IServices;
+using RFRBAC.Entities;
 using RFRBAC.IServices;
 using RFService.IRepo;
+using RFService.Operator;
 using RFService.Repo;
 using RFService.Services;
 
@@ -8,7 +10,9 @@ namespace RFRBAC.Services
 {
     public class UserRoleService(
         IRepo<UserRole> repo,
-        IRoleParentService roleParentService
+        IRoleParentService roleParentService,
+        IUserService userService,
+        IRoleService roleService
     ) : ServiceTimestamps<IRepo<UserRole>, UserRole>(repo),
             IUserRoleService
     {
@@ -48,6 +52,54 @@ namespace RFRBAC.Services
             var allRolesId = await roleParentService.GetAllRolesIdForRolesIdAsync(rolesId);
 
             return allRolesId;
+        }
+
+        public async Task<IEnumerable<Role>> GetRolesForUserIdAsync(long userId, GetOptions? options)
+        {
+            var allRolesId = await GetRolesIdForUserIdAsync(userId);
+
+            options ??= new GetOptions();
+            options.Filters["Id"] = allRolesId;
+            return await roleService.GetListAsync(options);
+        }
+
+        public async Task<IEnumerable<Role>> GetAllRolesForUserIdAsync(long userId, GetOptions? options)
+        {
+            var allRolesId = await GetAllRolesIdForUserIdAsync(userId);
+
+            options ??= new GetOptions();
+            options.Filters["Id"] = allRolesId;
+            return await roleService.GetListAsync(options);
+        }
+
+        public async Task UpdateRolesNameForUserNameAsync(
+            string username,
+            string[] rolesName
+        )
+        {
+            var userId = await userService.GetSingleIdForUsernameAsync(username);
+            var rolesId = await roleService.GetListIdForNamesAsync(rolesName);
+            var existendRolesId = await GetRolesIdForUserIdAsync(userId);
+            var noExistentRolesId = rolesId
+                .Where(i => !existendRolesId.Contains(i))
+                .ToList();
+
+            foreach (var roleId in noExistentRolesId)
+            {
+                await CreateIfNotExistsAsync(new UserRole
+                {
+                    UserId = userId,
+                    RoleId = roleId
+                });
+            }
+
+            await DeleteAsync(new GetOptions
+            {
+                Filters = {
+                    { "userId", userId },
+                    { "roleId", Op.DistinctTo(rolesId) }
+                }
+            });
         }
     }
 }

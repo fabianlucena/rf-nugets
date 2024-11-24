@@ -1,5 +1,6 @@
 ﻿using RFService.Repo;
 using RFService.IRepo;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RFService.Services
 {
@@ -93,7 +94,7 @@ namespace RFService.Services
 
         public virtual Task<int> DeleteAsync(GetOptions options)
         {
-            throw new NotImplementedException();
+            return repo.DeleteAsync(options);
         }
     }
 }

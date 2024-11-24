@@ -15,5 +15,7 @@ namespace RFService.IRepo
         Task<IEnumerable<Entity>> GetListAsync(GetOptions options);
 
         Task<int> UpdateAsync(object data, GetOptions options);
+
+        Task<int> DeleteAsync(GetOptions options);
     }
 }
