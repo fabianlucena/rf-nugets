@@ -5,6 +5,22 @@ namespace RFService.IServices
     public interface IServiceUuid<Entity> : IService<Entity>
         where Entity : class
     {
+        public async Task<Entity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.Filters["Uuid"] = uuid;
+
+            return await GetSingleAsync(options);
+        }
+
+        public async Task<Entity?> GetSingleOrDefaultForUuidAsync(Guid uuid, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.Filters["Uuid"] = uuid;
+
+            return await GetSingleOrDefaultAsync(options);
+        }
+
         Task<int> UpdateForUuidAsync(object data, Guid uuid, GetOptions? options = null)
         {
             options ??= new GetOptions();

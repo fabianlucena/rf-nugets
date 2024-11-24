@@ -39,7 +39,14 @@ namespace RFAuth.Controllers
             userAttributesList = await userService.DecorateAsync(
                 userAttributesList,
                 "UserAttributes",
-                (row, value) => row.Attributes = value,
+                (row, value) => {
+                    if (row.Attributes == null)
+                        row.Attributes = value;
+                    else
+                        row.Attributes = row.Attributes
+                            .Concat(value)
+                            .ToDictionary(pair => pair.Key, pair => pair.Value);
+                },
                 eventType: "Result"
             );
 

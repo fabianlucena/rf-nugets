@@ -6,7 +6,6 @@ using RFRBAC.Entities;
 using RFRBAC.IServices;
 using RFService.IServices;
 using RFService.Services;
-using System.Text.Json;
 
 namespace RFRBAC
 {
@@ -42,10 +41,10 @@ namespace RFRBAC
             if (data == null)
                 return false;
 
-            if (GetPropertyValue(data, "username") is not string username)
+            if (DataValue.GetPropertyValue(data, "username") is not string username)
                 return false;
 
-            List<object?>? rolesValue = GetPropertyValue(data, "roles");
+            List<object?>? rolesValue = DataValue.GetPropertyValue(data, "roles");
             if (rolesValue == null)
                 return false;
 
@@ -57,32 +56,6 @@ namespace RFRBAC
             await userRoleService.UpdateRolesNameForUserNameAsync(username, rolesName);
 
             return true;
-        }
-
-        public static dynamic? GetPropertyValue(dynamic obj, string prop)
-        {
-            var value = obj[prop];
-            if (value.GetType() == typeof(JsonElement))
-                return GetValue(value);
-
-            return value;
-        }
-
-        public static dynamic? GetValue(JsonElement element)
-        {
-            switch (element.ValueKind)
-            {
-                case JsonValueKind.String: return element.GetString();
-                case JsonValueKind.Array: {
-                    List<object?> result = [];
-                    foreach (var item in element.EnumerateArray())
-                        result.Add(GetValue(item));
-
-                    return result;
-                }
-            }
-
-            throw new Exception("Valor no implementado");
         }
     }
 }
