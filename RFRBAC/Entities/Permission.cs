@@ -1,5 +1,5 @@
 ﻿using RFService.Entities;
-using RFService.Services;
+using RFService.Libs;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFRBAC.Entities

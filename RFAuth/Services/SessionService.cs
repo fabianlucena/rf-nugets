@@ -67,7 +67,7 @@ namespace RFAuth.Services
         public async Task<bool> CloseForIdAsync(Int64 id)
         {
             return (await UpdateAsync(
-                new { ClosedAt = DateTime.UtcNow },
+                new Dictionary<string, object?>{ { "ClosedAt", DateTime.UtcNow } },
                 new GetOptions { Filters = { { "Id", id} } }
             )) > 0;
         }

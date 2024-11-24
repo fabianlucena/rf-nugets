@@ -1,12 +1,13 @@
-﻿using RFService.Services;
+﻿using RFService.Libs;
 using System.ComponentModel.DataAnnotations;
 
 namespace RFService.Entities
 {
     [Index(nameof(Uuid), IsUnique = true)]
-    public abstract class EntitySoftDeleteTimestampsIdUuid : EntitySoftDeleteTimestampsId
+    public abstract class EntitySoftDeleteTimestampsIdUuid
+        : EntitySoftDeleteTimestampsId
     {
         [Required]
-        public Guid Uuid { get; set; }
+        public Guid Uuid { get; set; } = default;
     }
 }

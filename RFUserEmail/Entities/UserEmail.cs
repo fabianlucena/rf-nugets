@@ -1,5 +1,6 @@
 ﻿using RFAuth.Entities;
 using RFService.Entities;
+using RFService.Libs;
 using RFService.Services;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

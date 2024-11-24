@@ -58,7 +58,7 @@ namespace RFService.Services
             return GetSingleOrDefaultAsync(options);
         }
 
-        public virtual Task<int> UpdateForIdAsync(object data, Int64 id, GetOptions? options = null)
+        public virtual Task<int> UpdateForIdAsync(IDictionary<string, object?> data, Int64 id, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Id"] = id;

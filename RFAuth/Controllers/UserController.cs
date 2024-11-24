@@ -8,7 +8,8 @@ using RFService.Data;
 using RFService.Repo;
 using RFService.Authorization;
 using RFService.IServices;
-using RFService.Services;
+using RFService.Libs;
+using RFAuth.Services;
 
 namespace RFAuth.Controllers
 {
@@ -17,6 +18,7 @@ namespace RFAuth.Controllers
     public class UserController(
         ILogger<UserController> logger,
         IUserService userService,
+        IPasswordService passwordService,
         IMapper mapper,
         IEventBus eventBus
     ) : ControllerBase
@@ -61,6 +63,7 @@ namespace RFAuth.Controllers
         {
             logger.LogInformation("Updating users");
 
+            data = DataValue.PascalizeDictionary(data);
             var eventData = new EventData {
                 Data = data,
                 Filter = new Dictionary<string, object?> {
@@ -69,12 +72,51 @@ namespace RFAuth.Controllers
             };
             await eventBus.FireAsync("updating", "User", eventData);
             var result = await userService.UpdateForUuidAsync(data, uuid);
+            await UpdatePassword(data);
             await eventBus.FireAsync("updated", "User", eventData);
 
             if (result <= 0)
                 return BadRequest();
 
             return Ok();
+        }
+
+        [HttpPost]
+        [Permission("user.add")]
+        public async Task<IActionResult> PostAsync([FromBody] Dictionary<string, object?> data)
+        {
+            logger.LogInformation("Updating users");
+
+            data = DataValue.PascalizeDictionary(data);
+            var eventData = new EventData { Data = data };
+            await eventBus.FireAsync("creating", "User", eventData);
+            var result = await userService.CreateAsync(DataValue.ObjectFromDictionary<User>(data));
+            await UpdatePassword(data);
+            await eventBus.FireAsync("created", "User", eventData);
+
+            if (result == null)
+                return BadRequest();
+
+            return Ok();
+        }
+
+        async Task<bool> UpdatePassword(Dictionary<string, object?> data)
+        {
+            if (!DataValue.TryGetPropertyValue(data, "Username", out var usernameValue)
+                || usernameValue is not string username
+                || string.IsNullOrEmpty(username)
+            )
+                return false;
+
+            if (!DataValue.TryGetPropertyValue(data, "Password", out var passwordValue)
+                || passwordValue is not string password
+                || string.IsNullOrEmpty(password)
+            )
+                return false;
+        
+            await passwordService.CreateOrUpdateForUsernameAsync(password, username);
+
+            return true;
         }
     }
 }

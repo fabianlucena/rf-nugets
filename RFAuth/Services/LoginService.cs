@@ -1,10 +1,8 @@
-﻿using Microsoft.Extensions.Localization;
-using RFAuth.DTO;
+﻿using RFAuth.DTO;
 using RFAuth.Exceptions;
 using RFAuth.IServices;
 using RFHttpExceptions.Exceptions;
 using RFService.IServices;
-using RFService.Services;
 using System.Globalization;
 
 namespace RFAuth.Services
@@ -17,7 +15,8 @@ namespace RFAuth.Services
         IPropertiesDecorators propertiesDecorators,
         ILocalizerService localizerService
     )
-        : ILoginService, IServiceDecorated
+        : ILoginService,
+            IServiceDecorated
     {
         private readonly IUserService _userService = userService;
         private readonly IPasswordService _passwordService = passwordService;

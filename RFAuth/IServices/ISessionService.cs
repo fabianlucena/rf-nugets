@@ -3,7 +3,8 @@ using RFService.IServices;
 
 namespace RFAuth.IServices
 {
-    public interface ISessionService : IService<Session>
+    public interface ISessionService
+        : IService<Session>
     {
         Task<Session> CreateForUserIdAndDeviceIdAsync(Int64 userId, Int64 deviceId);
 

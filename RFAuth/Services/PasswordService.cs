@@ -1,4 +1,5 @@
-﻿using RFAuth.Entities;
+﻿using Microsoft.Extensions.Options;
+using RFAuth.Entities;
 using RFAuth.IServices;
 using RFService.IRepo;
 using RFService.Repo;
@@ -6,7 +7,10 @@ using RFService.Services;
 
 namespace RFAuth.Services
 {
-    public class PasswordService(IRepo<Password> repo)
+    public class PasswordService(
+        IRepo<Password> repo,
+        IUserService userService
+    )
         : ServiceTimestampsIdUuid<IRepo<Password>, Password>(repo),
             IPasswordService
     {
@@ -64,6 +68,41 @@ namespace RFAuth.Services
             }
 
             return base.SanitizeForAutoGet(options);
+        }
+
+        public async Task<int> UpdateForUserIdAsync(IDictionary<string, object?> data, Int64 userId, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.Filters["UserId"] = userId;
+            return await UpdateAsync(data, options);
+        }
+
+        public async Task<bool> CreateOrUpdateForUserIdAsync(string password, Int64 userId)
+        {
+            var pasaswordObj = await GetSingleOrDefaultForUserIdAsync(userId);
+            if (pasaswordObj == null)
+            {
+                pasaswordObj = await CreateAsync(new Password
+                {
+                    UserId = userId,
+                    Hash = Hash(password)
+                });
+
+                return pasaswordObj != null;
+            }
+
+            var result = await UpdateForUserIdAsync(
+                new Dictionary<string, object?> { { "Hash", Hash(password) } },
+                userId
+            );
+
+            return result > 0;
+        }
+
+        public async Task<bool> CreateOrUpdateForUsernameAsync(string password, string username)
+        {
+            var userId = await userService.GetSingleIdForUsernameAsync(username);
+            return await CreateOrUpdateForUserIdAsync(password, userId);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace RFService.Services
+﻿namespace RFService.Libs
 {
     public class EventData
     {

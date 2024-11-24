@@ -5,7 +5,7 @@ using RFRBAC.DTO;
 using RFRBAC.Entities;
 using RFRBAC.IServices;
 using RFService.IServices;
-using RFService.Services;
+using RFService.Libs;
 
 namespace RFRBAC
 {
@@ -29,10 +29,11 @@ namespace RFRBAC
                     property["roles"] = roles;
             });
 
-            eventBus.AddListener("updated", "User", UserUpdated);
+            eventBus.AddListener("updated", "User", UpdateUserRoles);
+            eventBus.AddListener("created", "User", UpdateUserRoles);
         }
 
-        public static async Task<bool> UserUpdated(Event evt)
+        public static async Task<bool> UpdateUserRoles(Event evt)
         {
             if (userRoleService == null)
                 return false;
@@ -41,14 +42,17 @@ namespace RFRBAC
             if (data == null)
                 return false;
 
-            if (DataValue.GetPropertyValue(data, "username") is not string username)
+            if (!DataValue.TryGetPropertyValue(data, "Username", out var usernameValue)
+                || usernameValue is not string username
+            )
                 return false;
 
-            List<object?>? rolesValue = DataValue.GetPropertyValue(data, "roles");
-            if (rolesValue == null)
+            if (!DataValue.TryGetPropertyValue(data, "Roles", out var rolesValue)
+                || rolesValue is not List<object?> roles
+            )
                 return false;
 
-            var rolesName = rolesValue
+            var rolesName = roles
                 .Select(i => i?.ToString() ?? "")
                 .Where(i => !string.IsNullOrEmpty(i))
                 .ToArray();

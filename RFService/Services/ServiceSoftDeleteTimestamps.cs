@@ -19,6 +19,16 @@ namespace RFService.Services
             return data;
         }
 
+        public override async Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data)
+        {
+            data = await base.ValidateForUpdateAsync(data);
+
+            if (!data.ContainsKey("UpdatedAt"))
+                data["UpdatedAt"] = DateTime.UtcNow;
+
+            return data;
+        }
+
         public override GetOptions SanitizeForAutoGet(GetOptions options)
         {
             var newOptions = false;

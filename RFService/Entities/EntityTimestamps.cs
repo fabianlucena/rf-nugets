@@ -2,7 +2,8 @@
 
 namespace RFService.Entities
 {
-    public abstract class EntityTimestamps : Entity
+    public abstract class EntityTimestamps
+        : Entity
     {
         [Required]
         public DateTime CreatedAt { get; set; }

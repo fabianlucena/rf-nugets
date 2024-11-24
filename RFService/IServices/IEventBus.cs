@@ -1,6 +1,5 @@
-﻿global using Listener = System.Func<RFService.Services.Event, System.Threading.Tasks.Task>;
-
-using RFService.Services;
+﻿global using Listener = System.Func<RFService.Libs.Event, System.Threading.Tasks.Task>;
+using RFService.Libs;
 
 namespace RFService.IServices
 {

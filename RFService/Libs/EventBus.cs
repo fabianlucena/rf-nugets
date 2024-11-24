@@ -1,7 +1,7 @@
 ﻿using RFService.Exceptions;
 using RFService.IServices;
 
-namespace RFService.Services
+namespace RFService.Libs
 {
     public class EventBus
         : IEventBus
@@ -54,11 +54,12 @@ namespace RFService.Services
             if (!entitiesListeners.TryGetValue(entity, out List<Listener>? listeners))
                 return;
 
-            foreach(var listener in listeners)
+            foreach (var listener in listeners)
             {
-                await listener(new Event {
+                await listener(new Event
+                {
                     Type = eventType,
-                    Entity = entity, 
+                    Entity = entity,
                     Data = data,
                 });
             }

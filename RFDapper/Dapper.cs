@@ -1,16 +1,15 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using RFDapper.Exceptions;
 using RFService.IRepo;
+using RFService.Libs;
 using RFService.Repo;
-using RFService.Services;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Reflection;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RFDapper
 {
@@ -21,7 +20,8 @@ namespace RFDapper
         public Data Data = new();
     }
 
-    public class Dapper<Entity>: IRepo<Entity>
+    public class Dapper<Entity>
+        : IRepo<Entity>
         where Entity : class
     {
         private readonly ILogger<Dapper<Entity>> _logger;
@@ -281,7 +281,7 @@ namespace RFDapper
             };
         }
 
-        public SqlQuery? GetWhereQuery(GetOptions options, string prefix = "")
+        public SqlQuery? GetWhereQuery(GetOptions options, string prefix = "where_")
         {
             if (options.Filters.Count == 0)
                 return null;
@@ -407,19 +407,25 @@ namespace RFDapper
             return element.GetRawText();
         }
 
-        public SqlQuery GetUpdateQueryForDictionary(Dictionary<string, object?> data, GetOptions options)
+        public SqlQuery GetUpdateQuery(
+            IDictionary<string, object?> data,
+            GetOptions options
+        )
         {
-            var sqlWhere = GetWhereQuery(options, "where_")
+            var sqlWhere = GetWhereQuery(options)
                 ?? throw new Exception("UPDATE without WHERE is forbidden");
 
+            var entityType = typeof(Entity);
             var columns = new List<string>();
             Dictionary<string, object?> values = [];
 
             foreach (var item in data)
             {
-                string name = item.Key;
-                var value = item.Value;
+                var name = item.Key;
+                if (entityType.GetProperty(name) == null)
+                    continue;
 
+                var value = item.Value;
                 if (value != null)
                 {
                     JsonElement? valueJsonElement = value as JsonElement?;
@@ -441,7 +447,13 @@ namespace RFDapper
                 values[valueName] = value;
                 columns.Add($"[{name}]=@{valueName}");
             }
-            var sql = $"UPDATE [{Schema}].[{TableName}] SET {string.Join(",", columns)} {sqlWhere.Sql}";
+
+            if (columns.Count <= 0)
+                throw new NothingToUpdateException();
+
+            var sql = $"UPDATE [{Schema}].[{TableName}]"
+                + $" SET {string.Join(",", columns)} "
+                + sqlWhere.Sql;
             return new SqlQuery
             {
                 Sql = sql,
@@ -449,30 +461,9 @@ namespace RFDapper
             };
         }
 
-        public SqlQuery GetUpdateQuery(object data, GetOptions options)
-        {
-            var dictionary = data as Dictionary<string, object?>;
-            if (dictionary == null)
-            {
-                dictionary = [];
-                var dataType = data.GetType();
-                var properties = dataType.GetProperties();
-                foreach (var p in properties)
-                {
-                    string name = p.Name;
-                    if (dataType.GetProperty(name) == null)
-                    {
-                        throw new Exception($"Unknown {name} property");
-                    }
-                    dictionary.Add(name, p.GetValue(data, null));
-                }
-            }
-            return GetUpdateQueryForDictionary(dictionary, options);
-        }
-
         public SqlQuery GetDeleteQuery(GetOptions options)
         {
-            var sqlWhere = GetWhereQuery(options, "where_")
+            var sqlWhere = GetWhereQuery(options)
                 ?? throw new Exception("DELETE without WHERE is forbidden");
 
             var columns = new List<string>();
@@ -540,7 +531,7 @@ namespace RFDapper
             return Connection.QueryAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
         }
 
-        public async Task<int> UpdateAsync(object data, GetOptions options)
+        public async Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options)
         {
             var sqlQuery = GetUpdateQuery(data, options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);

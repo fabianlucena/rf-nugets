@@ -3,7 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFService.Entities
 {
-    public abstract class EntityTimestampsId : EntityTimestamps
+    public abstract class EntityTimestampsId
+        : EntityTimestamps
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

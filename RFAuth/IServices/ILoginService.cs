@@ -3,7 +3,8 @@ using RFService.IServices;
 
 namespace RFAuth.IServices
 {
-    public interface ILoginService : IServiceDecorated
+    public interface ILoginService
+        : IServiceDecorated
     {
         Task<LoginData> LoginAsync(LoginRequest request);
 

@@ -1,5 +1,5 @@
 ﻿using RFService.Entities;
-using RFService.Services;
+using RFService.Libs;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -7,19 +7,20 @@ namespace RFAuth.Entities
 {
     [Table("Users", Schema = "auth")]
     [Index(nameof(Username), IsUnique = true)]
-    public class User : EntitySoftDeleteTimestampsIdUuidEnabled
+    public class User
+        : EntitySoftDeleteTimestampsIdUuidEnabled
     {
         [Required]
         [ForeignKey("Type")]
-        public required Int64 TypeId { get; set; }
-        public UserType? Type { get; set; }
+        public Int64 TypeId { get; set; } = default;
+        public UserType? Type { get; set; } = default;
 
         [Required]
         [MaxLength(255)]
-        public required string Username { get; set; }
+        public string Username { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(255)]
-        public required string FullName { get; set; }
+        public string FullName { get; set; } = string.Empty;
     }
 }

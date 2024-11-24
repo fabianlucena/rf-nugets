@@ -1,9 +1,11 @@
 ﻿using RFAuth.Entities;
 using RFService.IServices;
+using RFService.Repo;
 
 namespace RFAuth.IServices
 {
-    public interface IPasswordService : IServiceId<Password>
+    public interface IPasswordService
+        : IServiceId<Password>
     {
         Task<Password> GetSingleForUserIdAsync(Int64 userId);
 
@@ -18,5 +20,11 @@ namespace RFAuth.IServices
         bool Verify(string rawPassword, string hash);
 
         bool Verify(string rawPassword, Password password);
+
+        Task<int> UpdateForUserIdAsync(IDictionary<string, object?> data, Int64 userId, GetOptions? options = null);
+
+        Task<bool> CreateOrUpdateForUserIdAsync(string password, Int64 userId);
+
+        Task<bool> CreateOrUpdateForUsernameAsync(string password, string username);
     }
 }

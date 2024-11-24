@@ -1,7 +1,8 @@
 ﻿namespace RFService.Entities
 {
-    public abstract class EntitySoftDelete : Entity
+    public abstract class EntitySoftDelete
+        : Entity
     {
-        public DateTime? DeletedAt { get; set; }
+        public DateTime? DeletedAt { get; set; } = default;
     }
 }

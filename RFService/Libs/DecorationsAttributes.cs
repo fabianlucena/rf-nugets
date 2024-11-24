@@ -1,14 +1,15 @@
-﻿namespace RFService.Services
+﻿namespace RFService.Libs
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple=true)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class IndexAttribute(params string[] propertyNames) : Attribute
     {
         public IReadOnlyList<string> PropertyNames { get; } = propertyNames;
-        
+
         public bool IsUniqueHasValue { get; private set; } = false;
 
         private bool isUnique;
-        public bool IsUnique {
+        public bool IsUnique
+        {
             get
             {
                 return isUnique;
@@ -16,7 +17,7 @@
 
             set
             {
-                this.isUnique = value;
+                isUnique = value;
                 IsUniqueHasValue = true;
             }
         }

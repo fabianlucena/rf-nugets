@@ -26,7 +26,7 @@ namespace RFAuth.Controllers
                 throw new BadPasswordException(_localizer["Bad current password"]);
 
             await passwordService.UpdateForIdAsync(
-                new { Hash = passwordService.Hash(request.NewPassword) },
+                new Dictionary<string, object?> { { "Hash", passwordService.Hash(request.NewPassword) } },
                 password.Id
             );
 

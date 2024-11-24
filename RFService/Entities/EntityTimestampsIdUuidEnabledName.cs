@@ -1,4 +1,4 @@
-﻿using RFService.Services;
+﻿using RFService.Libs;
 using System.ComponentModel.DataAnnotations;
 
 namespace RFService.Entities

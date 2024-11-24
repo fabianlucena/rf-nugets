@@ -1,6 +1,6 @@
 ﻿using RFService.IServices;
 
-namespace RFService.Services
+namespace RFService.Libs
 {
     public class PropertiesDecorators : IPropertiesDecorators
     {

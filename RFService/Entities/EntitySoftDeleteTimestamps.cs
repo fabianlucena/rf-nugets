@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFService.Entities
 {
-    public abstract class EntitySoftDeleteTimestamps : EntitySoftDelete
+    public abstract class EntitySoftDeleteTimestamps
+        : EntitySoftDelete
     {
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = default;
 
         [Required]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = default;
     }
 }

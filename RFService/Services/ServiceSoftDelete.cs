@@ -19,7 +19,10 @@ namespace RFService.Services
 
         public override Task<int> DeleteAsync(GetOptions options)
         {
-            return UpdateAsync(new { DeletedAt = DateTime.UtcNow }, options);
+            return UpdateAsync(
+                new Dictionary<string, object?>{ { "DeletedAt", DateTime.UtcNow } },
+                options
+            );
         }
     }
 }

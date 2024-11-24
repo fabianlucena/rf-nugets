@@ -29,7 +29,9 @@ namespace RFService.IServices
 
         Task CreateIfNotExistsAsync(Entity data);
 
-        Task<int> UpdateAsync(object data, GetOptions options);
+        Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data);
+
+        Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options);
 
         Task<int> DeleteAsync(GetOptions options);
     }

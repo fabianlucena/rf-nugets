@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
-using RFAuth.Entities;
+﻿using RFAuth.Entities;
 using RFService.IServices;
 
 namespace RFAuth.IServices
 {
     public interface IUserService
-        : IService<User>, IServiceUuid<User>, IServiceDecorated
+        : IService<User>,
+            IServiceUuid<User>,
+            IServiceDecorated
     {
         Task<User> GetSingleForUsernameAsync(string username);
 

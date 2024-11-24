@@ -87,9 +87,15 @@ namespace RFService.Services
             return GetOrCreateAsync(data);
         }
 
-        public virtual Task<int> UpdateAsync(object data, GetOptions options)
+        public virtual async Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data)
         {
-            return repo.UpdateAsync(data, options);
+            return await Task.Run(() => data);
+        }
+
+        public virtual async Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options)
+        {
+            data = await ValidateForUpdateAsync(data);
+            return await repo.UpdateAsync(data, options);
         }
 
         public virtual Task<int> DeleteAsync(GetOptions options)

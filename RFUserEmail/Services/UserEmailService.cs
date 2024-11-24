@@ -17,7 +17,10 @@ namespace RFUserEmail.Services
 
         public async Task SetIsVerifiedForIdAsync(bool isVerified, Int64 id)
         {
-            await UpdateAsync(new { IsVerified = true }, new GetOptions { Filters = { { "Id", id } } });
+            await UpdateAsync(
+                new Dictionary<string, object?> { { "IsVerified", true } },
+                new GetOptions { Filters = { { "Id", id } } }
+            );
         }
 
         public virtual Task<UserEmail?> GetSingleOrDefaultForUserIdAsync(Int64 userId, GetOptions? options = null)

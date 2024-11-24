@@ -2,7 +2,8 @@
 
 namespace RFService.IServices
 {
-    public interface IServiceId<Entity> : IService<Entity>
+    public interface IServiceId<Entity>
+        : IService<Entity>
         where Entity : class
     {
         Int64 GetId(Entity item);
@@ -11,7 +12,7 @@ namespace RFService.IServices
 
         Task<Entity?> GetSingleOrDefaultForIdAsync(Int64 id, GetOptions? options = null);
 
-        Task<int> UpdateForIdAsync(object data, Int64 id, GetOptions? options = null);
+        Task<int> UpdateForIdAsync(IDictionary<string, object?> data, Int64 id, GetOptions? options = null);
 
         Task<int> DeleteForIdAsync(Int64 id, GetOptions? options = null);
     }
