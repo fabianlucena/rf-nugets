@@ -63,7 +63,7 @@ namespace RFRBAC.Services
             return await roleService.GetListAsync(options);
         }
 
-        public async Task<IEnumerable<Role>> GetAllRolesForUserIdAsync(long userId, GetOptions? options)
+        public async Task<IEnumerable<Role>> GetAllRolesForUserIdAsync(long userId, GetOptions? options = null)
         {
             var allRolesId = await GetAllRolesIdForUserIdAsync(userId);
 

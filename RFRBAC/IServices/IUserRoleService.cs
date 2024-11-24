@@ -1,4 +1,6 @@
-﻿using RFRBAC.Entities;
+﻿using RFAuth.Entities;
+using RFRBAC.Entities;
+using RFRBAC.Services;
 using RFService.IServices;
 using RFService.Repo;
 
@@ -21,6 +23,15 @@ namespace RFRBAC.IServices
         Task<IEnumerable<Role>> GetRolesForUserIdAsync(Int64 userId, GetOptions? options = null);
 
         Task<IEnumerable<Role>> GetAllRolesForUserIdAsync(Int64 userId, GetOptions? options = null);
+
+        async Task<IEnumerable<string>> GetAllRolesNameForUserIdAsync(Int64 userId, GetOptions? options = null)
+            => (await GetAllRolesForUserIdAsync(userId, options)).Select(i => i.Name);
+
+        async Task<bool> UserIdHasAnyRoleAsync(Int64 userId, params string[] checkingRoles)
+        {
+            var rolesName = (await GetAllRolesNameForUserIdAsync(userId)).ToList();
+            return checkingRoles.Any(i => rolesName.Contains(i));
+        }
 
         Task UpdateRolesNameForUserNameAsync(string username, string[] rolesName);
     }
