@@ -6,10 +6,8 @@ namespace RFAuth
 {
     public static class Setup
     {
-        public static void ConfigureRFAuth(IServiceProvider services)
-        {
-            ConfigureRFAuthAsync(services).Wait();
-        }
+        public static void ConfigureRFAuth(IServiceProvider provider)
+            => ConfigureRFAuthAsync(provider).Wait();
 
         public static async Task ConfigureRFAuthAsync(IServiceProvider provider)
         {

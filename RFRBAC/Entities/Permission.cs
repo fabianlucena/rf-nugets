@@ -6,7 +6,8 @@ namespace RFRBAC.Entities
 {
     [Table("Permissions", Schema = "auth")]
     [Index(nameof(Name), IsUnique = true)]
-    public class Permission : EntitySoftDeleteTimestampsIdUuidEnabledNameTitleTranslatable
+    public class Permission
+        : EntitySoftDeleteTimestampsIdUuidEnabledNameTitleTranslatable
     {
     }
 }

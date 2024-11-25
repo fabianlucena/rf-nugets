@@ -1,5 +1,4 @@
-﻿using RFService.Exceptions;
-using RFService.Repo;
+﻿using RFService.Repo;
 
 namespace RFService.IServices
 {
