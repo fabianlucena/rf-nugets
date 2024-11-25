@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using Microsoft.AspNetCore.Http;
+using System.Globalization;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
@@ -63,7 +64,7 @@ namespace RFService.Libs
             throw new Exception("Valor no implementado");
         }
 
-        public static Dictionary<string, object?> PascalizeDictionary(Dictionary<string, object?> data)
+        public static Dictionary<string, object?> PascalizeDictionary(IDictionary<string, object?> data)
         {
             var result = new Dictionary<string, object?>();
 
@@ -108,5 +109,11 @@ namespace RFService.Libs
 
             return obj;
         }
+
+        public static Dictionary<string, string> GetPascalizeQueryDictionaryFromHttpContext(HttpContext httpContext)
+            => httpContext.Request.Query.ToDictionary(
+                k => char.ToUpper(k.Key[0], CultureInfo.InvariantCulture) + k.Key[1..],
+                v => v.Value.ToString()
+            );
     }
 }
