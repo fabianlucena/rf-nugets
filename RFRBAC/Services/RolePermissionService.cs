@@ -8,6 +8,7 @@ namespace RFRBAC.Services
 {
     public class RolePermissionService(
         IRepo<RolePermission> repo,
+        IRoleService roleService,
         IPermissionService permissionService,
         IUserRoleService userRoleService
     ) : ServiceTimestamps<IRepo<RolePermission>, RolePermission>(repo),
@@ -60,6 +61,54 @@ namespace RFRBAC.Services
         {
             var allRolesId = await userRoleService.GetAllRolesIdForUsersIdAsync(usersId);
             return await GetPermissionsForRoleIdListAsync(allRolesId);
+        }
+
+        public async Task<bool> AddRolesPermissionsAsync(IDictionary<string, IEnumerable<string>> rolesPermissions)
+        {
+            foreach (var rolePermissions in rolesPermissions)
+            {
+                var requiredPermissionsName = rolePermissions.Value;
+                var roleId = await roleService.GetIdForNameAsync(rolePermissions.Key);
+                var requiredPermissions = await permissionService.GetListForNamesAsync(requiredPermissionsName);
+                if (requiredPermissions.Count() != requiredPermissionsName.Count())
+                {
+                    var currentPermissionsName = requiredPermissions.Select(x => x.Name);
+                    var newPermissionsName = requiredPermissionsName.Except(currentPermissionsName);
+                    foreach (var permissionName in newPermissionsName)
+                    {
+                        await permissionService.CreateAsync(new Permission {
+                            Name = permissionName,
+                            Title = permissionName
+                        });
+                    }
+
+                    requiredPermissions = await permissionService.GetListForNamesAsync(requiredPermissionsName);
+                }
+
+                var requiredPermissionsId = requiredPermissions.Select(x => x.Id);
+
+                var currentPermissionsId = (await GetListAsync(new GetOptions
+                    {
+                        Filters = {
+                            { "RoleId", roleId },
+                            { "PermissionId", requiredPermissionsId }
+                        }
+                    }))
+                    .Select(i => i.PermissionId);
+                var newPermissionsId = requiredPermissionsId.Except(currentPermissionsId);
+
+                if (newPermissionsId.Any())
+                {
+                    var rolePermission = new RolePermission { RoleId = roleId };
+                    foreach (var newPermissionId in newPermissionsId)
+                    {
+                        rolePermission.PermissionId = newPermissionId;
+                        await CreateAsync(rolePermission);
+                    }
+                }
+            }
+
+            return true;
         }
     }
 }

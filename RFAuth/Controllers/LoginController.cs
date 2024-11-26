@@ -8,7 +8,10 @@ namespace RFAuth.Controllers
 {
     [ApiController]
     [Route("v1/login")]
-    public class LoginController(ILoginService loginService, IMapper mapper) : ControllerBase
+    public class LoginController(
+        ILoginService loginService,
+        IMapper mapper
+    ) : ControllerBase
     {
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody] LoginRequest request)

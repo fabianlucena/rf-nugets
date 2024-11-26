@@ -5,7 +5,9 @@ namespace RFAuth.IServices
 {
     public interface IUserService
         : IService<User>,
+            IServiceId<User>,
             IServiceUuid<User>,
+            IServiceSoftDeleteUuid<User>,
             IServiceDecorated
     {
         Task<User> GetSingleForUsernameAsync(string username);

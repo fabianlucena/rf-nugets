@@ -23,8 +23,12 @@ namespace RFService.Services
         {
             data = await base.ValidateForUpdateAsync(data);
 
-            if (!data.ContainsKey("UpdatedAt"))
+            if (!data.ContainsKey("UpdatedAt")
+                && !data.ContainsKey("DeletedAt")
+            )
+            {
                 data["UpdatedAt"] = DateTime.UtcNow;
+            }
 
             return data;
         }

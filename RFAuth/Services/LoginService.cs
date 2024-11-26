@@ -18,12 +18,6 @@ namespace RFAuth.Services
         : ILoginService,
             IServiceDecorated
     {
-        private readonly IUserService _userService = userService;
-        private readonly IPasswordService _passwordService = passwordService;
-        private readonly IDeviceService _deviceService = deviceService;
-        private readonly ISessionService _sessionService = sessionService;
-        private readonly ILocalizerService _localizer = localizerService;
-
         public IPropertiesDecorators PropertiesDecorators { get; } = propertiesDecorators;
 
         public async Task<LoginData> LoginAsync(LoginRequest request)
@@ -38,19 +32,20 @@ namespace RFAuth.Services
             if (string.IsNullOrWhiteSpace(request.Password))
                 throw new HttpArgumentNullOrEmptyException(nameof(request.Password));
 
-            var user = await _userService.GetSingleOrDefaultForUsernameAsync(request.Username.Trim())
-                ?? throw new UnknownUserException(_localizer["Unknown username"]);
+            var user = await userService.GetSingleOrDefaultForUsernameAsync(request.Username.Trim())
+                ?? throw new UnknownUserException(localizerService["Unknown username"]);
 
-            var password = await _passwordService.GetSingleForUserAsync(user);
-            var check = _passwordService.Verify(request.Password.Trim(), password);
+            var password = await passwordService.GetSingleForUserAsync(user);
+            var check = passwordService.Verify(request.Password.Trim(), password);
             if (!check)
-                throw new BadPasswordException(_localizer["Bad password"]);
+                throw new BadPasswordException(localizerService["Bad password"]);
 
-            var device = await _deviceService.GetSingleForTokenOrCreateAsync(request.DeviceToken);
-            var session = await _sessionService.CreateForUserAndDeviceAsync(user, device);
-            
+            var device = await deviceService.GetSingleForTokenOrCreateAsync(request.DeviceToken);
+            var session = await sessionService.CreateForUserAndDeviceAsync(user, device);
+
             return new LoginData
             {
+                Username = user.Username,
                 AuthorizationToken = session.Token,
                 AutoLoginToken = session.AutoLoginToken,
                 DeviceToken = device.Token,
@@ -66,13 +61,15 @@ namespace RFAuth.Services
             if (string.IsNullOrWhiteSpace(request.DeviceToken))
                 throw new HttpArgumentNullOrEmptyException(nameof(request.DeviceToken));
 
-            var device = await _deviceService.GetSingleOrDefaultForTokenAsync(request.DeviceToken)
+            var device = await deviceService.GetSingleOrDefaultForTokenAsync(request.DeviceToken)
                 ?? throw new UnknownDeviceException();
 
-            var session = await _sessionService.CreateForAutoLoginTokenAndDeviceAsync(request.AutoLoginToken, device);
+            var session = await sessionService.CreateForAutoLoginTokenAndDeviceAsync(request.AutoLoginToken, device);
+            var user = await userService.GetSingleForIdAsync(session.UserId);
 
             return new LoginData
             {
+                Username = user.Username,
                 AuthorizationToken = session.Token,
                 AutoLoginToken = session.AutoLoginToken,
                 DeviceToken = device.Token,

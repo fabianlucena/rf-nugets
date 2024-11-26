@@ -14,6 +14,8 @@
 
         public DateTime UpdatedAt { get; set; }
 
+        public DateTime? DeletedAt { get; set; }
+
         public IDictionary<string, object>? Attributes { get; set; }
     }
 }

@@ -25,14 +25,15 @@ namespace RFService.IServices
             return GetId(item);
         }
 
-        public async Task<IEnumerable<Int64>> GetIdsForNamesAsync(IEnumerable<string> names, GetOptions? options = null)
+        public async Task<IEnumerable<Entity>> GetListForNamesAsync(IEnumerable<string> names, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Name"] = names;
 
-            var rows = await GetListAsync(options);
-
-            return rows.Select(GetId);
+            return await GetListAsync(options);
         }
+
+        public async Task<IEnumerable<Int64>> GetIdsForNamesAsync(IEnumerable<string> names, GetOptions? options = null)
+            => (await GetListForNamesAsync(names, options)).Select(GetId);
     }
 }

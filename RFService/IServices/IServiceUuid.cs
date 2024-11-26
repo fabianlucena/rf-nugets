@@ -2,7 +2,8 @@
 
 namespace RFService.IServices
 {
-    public interface IServiceUuid<Entity> : IService<Entity>
+    public interface IServiceUuid<Entity>
+        : IService<Entity>
         where Entity : class
     {
         public async Task<Entity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null)
@@ -26,6 +27,13 @@ namespace RFService.IServices
             options ??= new GetOptions();
             options.Filters["uuid"] = uuid;
             return UpdateAsync(data, options);
+        }
+
+        Task<int> DeleteForUuidAsync(Guid uuid, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.Filters["uuid"] = uuid;
+            return DeleteAsync(options);
         }
     }
 }

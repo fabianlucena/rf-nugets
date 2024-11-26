@@ -1,23 +1,30 @@
 using RFAuth.DTO;
 using RFAuth.IServices;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace RFAuth.Controllers
 {
     [ApiController]
     [Route("v1/auto-login")]
-    public class AutoLoginController(ILoginService loginService) : ControllerBase
+    public class AutoLoginController(
+        ILoginService loginService,
+        IMapper mapper
+    ) : ControllerBase
     {
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody] AutoLoginRequest request)
         {
-            var response = await loginService.AutoLoginAsync(request);
-            response.Attributes = await loginService.DecorateItemAsync(
-                response,
+            var loginData = await loginService.AutoLoginAsync(request);
+            loginData.Attributes = await loginService.DecorateItemAsync(
+                loginData,
                 "LoginAttributes",
-                response.Attributes,
+                loginData.Attributes,
                 "Reponse"
             );
+
+            var response = mapper.Map<LoginData, LoginResponse>(loginData);
+
             return Ok(response);
         }
     }

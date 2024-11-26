@@ -29,11 +29,10 @@ namespace RFAuth.Controllers
         {
             logger.LogInformation("Getting users");
 
-            var options = new GetOptions { Include = { { "Type", new GetOptions() } } };
+            var query = DataValue.GetPascalizeQueryDictionaryFromHttpContext(HttpContext);
+            var options = GetOptions.CreateFromQuery(query);
             if (uuid != null)
-            {
-                options.Filters["uuid"] = uuid;
-            }
+                options.Filters["Uuid"] = uuid;
 
             var userList = await userService.GetListAsync(options);
             var userAttributesList = userList.Select(mapper.Map<User, UserAttributes>);
@@ -54,6 +53,8 @@ namespace RFAuth.Controllers
 
             var response = userAttributesList.Select(mapper.Map<UserAttributes, UserResponse>);
 
+            logger.LogInformation("Users getted");
+
             return Ok(new DataRowsResult(response));
         }
 
@@ -61,7 +62,7 @@ namespace RFAuth.Controllers
         [Permission("user.edit")]
         public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] Dictionary<string, object?> data)
         {
-            logger.LogInformation("Updating users");
+            logger.LogInformation("Updating user");
 
             data = DataValue.PascalizeDictionary(data);
             var eventData = new EventData {
@@ -78,6 +79,8 @@ namespace RFAuth.Controllers
             if (result <= 0)
                 return BadRequest();
 
+            logger.LogInformation("User updated");
+
             return Ok();
         }
 
@@ -85,7 +88,7 @@ namespace RFAuth.Controllers
         [Permission("user.add")]
         public async Task<IActionResult> PostAsync([FromBody] Dictionary<string, object?> data)
         {
-            logger.LogInformation("Updating users");
+            logger.LogInformation("Creating user");
 
             data = DataValue.PascalizeDictionary(data);
             var eventData = new EventData { Data = data };
@@ -96,6 +99,58 @@ namespace RFAuth.Controllers
 
             if (result == null)
                 return BadRequest();
+
+            logger.LogInformation("User created");
+
+            return Ok();
+        }
+
+        [HttpDelete("{uuid}")]
+        [Permission("user.delete")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid uuid)
+        {
+            logger.LogInformation("Deleting user");
+
+            var eventData = new EventData
+            {
+                Filter = new Dictionary<string, object?> {
+                    { "Uuid", uuid }
+                }
+            };
+            
+            await eventBus.FireAsync("updating", "User", eventData);
+            var result = await userService.DeleteForUuidAsync(uuid);
+            await eventBus.FireAsync("updated", "User", eventData);
+
+            if (result <= 0)
+                return BadRequest();
+
+            logger.LogInformation("User deleted");
+
+            return Ok();
+        }
+
+        [HttpPost("restore/{uuid}")]
+        [Permission("user.restore")]
+        public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
+        {
+            logger.LogInformation("Restoring user");
+
+            var eventData = new EventData
+            {
+                Filter = new Dictionary<string, object?> {
+                    { "Uuid", uuid }
+                }
+            };
+
+            await eventBus.FireAsync("restoring", "User", eventData);
+            var result = await userService.RestoreForUuidAsync(uuid);
+            await eventBus.FireAsync("restored", "User", eventData);
+
+            if (result <= 0)
+                return BadRequest();
+
+            logger.LogInformation("User restored");
 
             return Ok();
         }

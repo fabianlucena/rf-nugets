@@ -11,7 +11,9 @@ namespace RFService.Repo
         public int? Top { get; set; }
 
         public Dictionary<string, object?> Filters { get; set; } = [];
-        
+
+        public Dictionary<string, object?> Options { get; set; } = [];
+
         public Dictionary<string, GetOptions> Include { get; set; } = [];
 
         public GetOptions() { }
@@ -50,6 +52,12 @@ namespace RFService.Repo
         {
             if (!query?.ContainsKey("IncludeDisabled") ?? true)
                 Filters["IsEnabled"] = true;
+
+            if (query?.TryGetValue("IncludeDeleted", out string? includeDeletedText) ?? false)
+            {
+                if (bool.TryParse(includeDeletedText, out bool includeDeleted))
+                   Options["IncludeDeleted"] = includeDeleted;
+            }
 
             return this;
         }
