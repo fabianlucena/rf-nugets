@@ -25,7 +25,6 @@ namespace RFAuth.Services
             CultureInfo.CurrentCulture = new CultureInfo("es");
             CultureInfo.CurrentUICulture = new CultureInfo("es");
 
-
             if (string.IsNullOrWhiteSpace(request.Username))
                 throw new HttpArgumentNullOrEmptyException(paramName: nameof(request.Username));
 
