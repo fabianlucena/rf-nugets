@@ -48,10 +48,10 @@ namespace RFRBAC
                 var userId = ((LoginData)data).UserId;
                 var roles = await UserRoleService.GetAllRolesForUserIdAsync(userId);
                 var rolesId = roles.Select(i =>  i.Id);
-                var permissionsName = (await RolePermissionService.GetPermissionsForRolesIdAsync(rolesId))
-                    .Select(i => i.Name);
+                var permissions = await RolePermissionService.GetPermissionsForRolesIdAsync(rolesId);
+                
                 property["roles"] = roles.Select(i => i.Name);
-                property["permissions"] = permissionsName;
+                property["permissions"] = permissions.Select(i => i.Name);
             });
 
             eventBus.AddListener("updated", "User", UpdateUserRoles);
