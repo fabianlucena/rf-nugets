@@ -32,7 +32,7 @@ namespace RFRBAC.Services
             GetOptions? options = null
         )
         {
-            var allPermissions = await GetAllPermissionsForUserIdAsync(usersId);
+            var allPermissions = await GetAllPermissionsForUserIdAsync(usersId, options);
             return allPermissions.Select(i => i.Name);
         }
 
