@@ -38,7 +38,7 @@ namespace RFAuth.Controllers
             var userList = await userService.GetListAsync(options);
             var userAttributesList = userList.Select(mapper.Map<User, UserAttributes>);
 
-            userAttributesList = await userService.DecorateAsync(
+            userAttributesList = await userService.DecorateListAsync(
                 userAttributesList,
                 "UserAttributes",
                 (row, value) => {

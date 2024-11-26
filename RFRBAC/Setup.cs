@@ -14,27 +14,44 @@ namespace RFRBAC
 {
     public static class Setup
     {
-        static IUserRoleService? userRoleService;
         static IRoleService? roleService;
         static IPermissionService? permissionService;
+        static IUserRoleService? userRoleService;
+        static IRolePermissionService? rolePermissionService;
+        static IMapper? mapper;
+        static IPropertiesDecorators? propertiesDecorators;
+        static IEventBus? eventBus;
 
         static IPermissionService PermissionService => permissionService ?? throw new Exception();
+        static IUserRoleService UserRoleService => userRoleService ?? throw new Exception();
+        static IRolePermissionService RolePermissionService => rolePermissionService ?? throw new Exception();
 
         public static void ConfigureRFRBAC(IServiceProvider provider)
         {
             roleService = provider.GetRequiredService<IRoleService>();
-            userRoleService = provider.GetRequiredService<IUserRoleService>();
             permissionService = provider.GetRequiredService<IPermissionService>();
-            var mapper = provider.GetRequiredService<IMapper>();
-            var propertiesDecorators = provider.GetRequiredService<IPropertiesDecorators>();
-            var eventBus = provider.GetRequiredService<IEventBus>();
+            userRoleService = provider.GetRequiredService<IUserRoleService>();
+            rolePermissionService = provider.GetRequiredService<IRolePermissionService>();
+            mapper = provider.GetRequiredService<IMapper>();
+            propertiesDecorators = provider.GetRequiredService<IPropertiesDecorators>();
+            eventBus = provider.GetRequiredService<IEventBus>();
 
             propertiesDecorators.AddDecorator("UserAttributes", async (data, property, eventType) => {
-                var roles = await userRoleService.GetRolesForUserIdAsync(((UserAttributes)data).Id);
+                var roles = await UserRoleService.GetRolesForUserIdAsync(((UserAttributes)data).Id);
                 if (eventType == "Result")
                     property["roles"] = roles.Select(mapper.Map<Role, RoleResponse>);
                 else
                     property["roles"] = roles;
+            });
+
+            propertiesDecorators.AddDecorator("LoginAttributes", async (data, property, eventType) => {
+                var userId = ((LoginData)data).UserId;
+                var roles = await UserRoleService.GetAllRolesForUserIdAsync(userId);
+                var rolesId = roles.Select(i =>  i.Id);
+                var permissionsName = (await RolePermissionService.GetPermissionsForRolesIdAsync(rolesId))
+                    .Select(i => i.Name);
+                property["roles"] = roles.Select(i => i.Name);
+                property["permissions"] = permissionsName;
             });
 
             eventBus.AddListener("updated", "User", UpdateUserRoles);

@@ -44,7 +44,7 @@ namespace RFService.Services
             return base.SanitizeForAutoGet(options);
         }
 
-        public virtual Task<Entity> GetForIdAsync(Int64 id, GetOptions? options = null)
+        public virtual Task<Entity> GetSingleForIdAsync(Int64 id, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Id"] = id;
@@ -56,6 +56,13 @@ namespace RFService.Services
             options ??= new GetOptions();
             options.Filters["Id"] = id;
             return GetSingleOrDefaultAsync(options);
+        }
+
+        public virtual Task<IEnumerable<Entity>> GetListForIdsAsync(IEnumerable<Int64> id, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.Filters["Id"] = id;
+            return GetListAsync(options);
         }
 
         public virtual Task<int> UpdateForIdAsync(IDictionary<string, object?> data, Int64 id, GetOptions? options = null)

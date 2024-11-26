@@ -4,10 +4,10 @@
     {
         IPropertiesDecorators PropertiesDecorators { get; }
 
-        public virtual async Task<IDictionary<string, object>?> DecorateAsync<T>(
+        public virtual async Task<IDictionary<string, object>?> DecorateItemAsync<T>(
             T data,
-            IDictionary<string, object>? property,
             string name,
+            IDictionary<string, object>? property,
             string eventType = ""
         )
         {
@@ -28,7 +28,7 @@
             return property;
         }
 
-        public virtual async Task<IEnumerable<T>> DecorateAsync<T>(
+        public virtual async Task<IEnumerable<T>> DecorateListAsync<T>(
             IEnumerable<T> list,
             string name,
             Action<T, IDictionary<string, object>> assign,

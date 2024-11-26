@@ -9,7 +9,7 @@ namespace RFRBAC.Authorization
 {
     public class RBACFilter(
         IUserRoleService userRoleService,
-        IPermissionService permissionService
+        IRolePermissionService rolePermissionService
     ) : IAsyncActionFilter
     {
         public async Task OnActionExecutionAsync(
@@ -51,7 +51,7 @@ namespace RFRBAC.Authorization
                 return;
             }
 
-            var permissions = await permissionService.GetAllForUserIdAsync(userId);
+            var permissions = await rolePermissionService.GetAllPermissionsForUserIdAsync(userId);
             foreach (var permission in permissionAttribute.Permissions) {
                 if (permissions.Any(p => p.Name == permission))
                 {

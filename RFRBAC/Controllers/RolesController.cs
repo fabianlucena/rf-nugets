@@ -33,7 +33,7 @@ namespace RFRBAC.Controllers
             var roleList = await roleService.GetListAsync(options);
             var roleAttributesList = roleList.Select(mapper.Map<Role, RoleAttributes>);
 
-            roleAttributesList = await roleService.DecorateAsync(
+            roleAttributesList = await roleService.DecorateListAsync(
                 roleAttributesList,
                 "RoleAttributes",
                 (row, value) => row.Attributes = value,
