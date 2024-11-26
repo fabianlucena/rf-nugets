@@ -3,6 +3,7 @@ using RFAuth.IServices;
 using Microsoft.AspNetCore.Mvc;
 using RFAuth.Exceptions;
 using Microsoft.AspNetCore.Http;
+using RFService.Authorization;
 
 namespace RFAuth.Controllers
 {
@@ -14,6 +15,7 @@ namespace RFAuth.Controllers
     ) : ControllerBase
     {
         [HttpPost]
+        [Permission("changePassword")]
         public async Task<IActionResult> PostAsync([FromBody] ChangePasswordRequest request)
         {
             var userId = HttpContext.Items["UserId"] as Int64?;
