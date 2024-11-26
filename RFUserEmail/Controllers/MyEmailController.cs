@@ -16,7 +16,7 @@ namespace RFUserEmail.Controllers
     ) : ControllerBase
     {
         [HttpPost]
-        [Permission("myEmail.create")]
+        [Permission("myEmail.add")]
         public async Task<IActionResult> MyEmailPostAsync([FromBody] AddEmailRequest request)
         {
             var userId = HttpContext.Items["UserId"] as Int64?;

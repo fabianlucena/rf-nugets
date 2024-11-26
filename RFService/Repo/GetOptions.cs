@@ -41,7 +41,7 @@ namespace RFService.Repo
         public GetOptions AddFilterUuid(Guid? uuid)
         {
             if (uuid != null)
-                Filters["uuid"] = uuid;
+                Filters["Uuid"] = uuid;
 
             return this;
         }
