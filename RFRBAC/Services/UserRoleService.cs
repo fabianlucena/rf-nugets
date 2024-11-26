@@ -78,7 +78,7 @@ namespace RFRBAC.Services
         )
         {
             var userId = await userService.GetSingleIdForUsernameAsync(username);
-            var rolesId = await roleService.GetListIdForNamesAsync(rolesName);
+            var rolesId = await roleService.GetIdsForNamesAsync(rolesName);
             var existendRolesId = await GetRolesIdForUserIdAsync(userId);
             var noExistentRolesId = rolesId
                 .Where(i => !existendRolesId.Contains(i))

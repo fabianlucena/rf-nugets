@@ -25,7 +25,7 @@ namespace RFService.IServices
             return GetId(item);
         }
 
-        public async Task<IEnumerable<Int64>> GetListIdForNamesAsync(string[] names, GetOptions? options = null)
+        public async Task<IEnumerable<Int64>> GetIdsForNamesAsync(IEnumerable<string> names, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Name"] = names;

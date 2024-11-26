@@ -6,7 +6,8 @@ namespace RFRBAC.IServices
     public interface IPermissionService
         : IService<Permission>,
             IServiceId<Permission>,
-            IServiceName<Permission>
+            IServiceName<Permission>,
+            IServiceIdName<Permission>
     {
     }
 }
