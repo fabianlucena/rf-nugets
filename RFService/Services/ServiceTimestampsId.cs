@@ -18,7 +18,7 @@ namespace RFService.Services
 
             if (data.Id != 0)
             {
-                throw new ForbidenIdForCreationException();
+                throw new ForbiddenIdForCreationException();
             }
 
             return data;

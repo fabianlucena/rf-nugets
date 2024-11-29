@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Reflection;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RFDapper
 {
@@ -193,7 +194,7 @@ namespace RFDapper
             Connection.Query(query);
         }
 
-        public SqlQuery GetFilterQuery(object? filter, List<string> skipNames, string name = "")
+        public SqlQuery GetFilterQuery(object? filter, List<string> skipNames, string name = "", string? tableAlias = null)
         {
             if (filter == null)
             {
@@ -208,9 +209,13 @@ namespace RFDapper
                 {
                     var key = f.Key;
                     var value = f.Value;
+                    var columnName = $"[{key}]";
+                    if (!string.IsNullOrEmpty(tableAlias))
+                        columnName = $"[{tableAlias}].{columnName}";
+
                     if (value == null)
                     {
-                        sqlFilters.Add($"{key} IS NULL");
+                        sqlFilters.Add($"{columnName} IS NULL");
                         continue;
                     }
 
@@ -227,9 +232,9 @@ namespace RFDapper
                     }
                     skipNames.Add(newName);
 
-                    var sqlQuery = GetFilterQuery(value, skipNames, newName);
+                    var sqlQuery = GetFilterQuery(value, skipNames, newName, tableAlias);
 
-                    sqlFilters.Add(key + sqlQuery.Sql);
+                    sqlFilters.Add(columnName + sqlQuery.Sql);
                     foreach (var kv in sqlQuery.Data.Values)
                         data.Values[kv.Key] = kv.Value;
                 }
@@ -286,7 +291,7 @@ namespace RFDapper
             if (options.Filters.Count == 0)
                 return null;
 
-            var sqlQuery = GetFilterQuery(options.Filters, [], prefix);
+            var sqlQuery = GetFilterQuery(options.Filters, [], prefix, options.TableAlias);
             sqlQuery.Sql = "WHERE " + sqlQuery.Sql;
 
             return sqlQuery;
@@ -294,27 +299,39 @@ namespace RFDapper
 
         public SqlQuery GetSelectQuery(GetOptions options)
         {
-            var sql = $"SELECT * FROM [{Schema}].[{TableName}]";
+            var alias = options.TableAlias;
+            if (!string.IsNullOrWhiteSpace(alias))
+                alias = "t";
+
+            var sqlSelect = $"SELECT [{alias}].*";
+            var sqlFrom = $" FROM [{Schema}].[{TableName}] [{options.TableAlias}]";
+
             Data? data = null;
             if (options != null)
             {
+                foreach (var include in options.Include)
+                {
+                    sqlSelect += ", '----' AS t1Separator, [t1].*";
+                    sqlFrom += $" INNER JOIN sc.BusStops t1 ON t1.Id = [{options.TableAlias}].HeadingId";
+                }
+
                 var where = GetWhereQuery(options);
                 if (where != null)
                 {
-                    sql += " " + where.Sql;
+                    sqlFrom += " " + where.Sql;
                     data = where.Data;
                 }
 
                 if (options.Offset != null)
-                    sql += $" OFFSET {options.Offset}";
+                    sqlFrom += $" OFFSET {options.Offset}";
 
                 if (options.Top != null)
-                    sql += $" TOP {options.Top}";
+                    sqlFrom += $" TOP {options.Top}";
             }
 
             return new SqlQuery
             {
-                Sql = sql,
+                Sql = sqlSelect + sqlFrom,
                 Data = data ?? new(),
             };
         }
@@ -529,6 +546,28 @@ namespace RFDapper
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
             return Connection.QueryAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
+        }
+
+        public Task<IEnumerable<Entity>> GetListAsync<TIncluded1>(GetOptions options)
+        {
+            var sqlQuery = GetSelectQuery(options);
+            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
+            Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
+
+            var type = typeof(Entity);
+            var pIncluded = type.GetProperty("Heading");
+            if (pIncluded == null)
+                return Connection.QueryAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
+
+            return Connection.QueryAsync<Entity, TIncluded1, Entity>(
+                sqlQuery.Sql,
+                (row, included) => {
+                    pIncluded.SetValue(row, included);
+                    return row;
+                },
+                sqlQuery.Data.Values,
+                splitOn: "t1Separator"
+            );
         }
 
         public async Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options)

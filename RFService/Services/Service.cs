@@ -27,9 +27,10 @@ namespace RFService.Services
         }
 
         public virtual Task<IEnumerable<Entity>> GetListAsync(GetOptions options)
-        {
-            return repo.GetListAsync(SanitizeGetOptions(options));
-        }
+            => repo.GetListAsync(SanitizeGetOptions(options));
+
+        public virtual Task<IEnumerable<Entity>> GetListAsync<TIncluded1>(GetOptions options)
+            => repo.GetListAsync<TIncluded1>(SanitizeGetOptions(options));
 
         public virtual Task<Entity> GetSingleAsync(GetOptions options)
         {

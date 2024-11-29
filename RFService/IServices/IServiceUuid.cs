@@ -6,6 +6,8 @@ namespace RFService.IServices
         : IService<Entity>
         where Entity : class
     {
+        Guid GetUuid(Entity item);
+
         public async Task<Entity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null)
         {
             options ??= new GetOptions();

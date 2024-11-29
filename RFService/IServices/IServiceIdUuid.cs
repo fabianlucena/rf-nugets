@@ -8,16 +8,9 @@ namespace RFService.IServices
             IServiceId<Entity>
         where Entity : Entities.Entity
     {
-        public async Task<Int64> GetIdForUuidAsync(Guid uuid, GetOptions? options = null)
+        public async Task<Int64> GetSingleIdForUuidAsync(Guid uuid, GetOptions? options = null)
         {
-            var item = await GetSingleOrDefaultForUuidAsync(uuid, options);
-            if (item == null)
-            {
-                if (item == null)
-                    throw new UuidItemNotFoundException(uuid);
-
-                await CreateAsync(item);
-            }
+            var item = await GetSingleForUuidAsync(uuid, options);
 
             return GetId(item);
         }
@@ -30,6 +23,13 @@ namespace RFService.IServices
             var rows = await GetListAsync(options);
 
             return rows.Select(GetId);
+        }
+
+        public async Task<Guid> GetSingleUuidForIdAsync(Int64 id, GetOptions? options = null)
+        {
+            var item = await GetSingleForIdAsync(id, options);
+
+            return GetUuid(item);
         }
     }
 }

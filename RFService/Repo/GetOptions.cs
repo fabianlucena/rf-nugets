@@ -6,6 +6,8 @@ namespace RFService.Repo
 {
     public class GetOptions
     {
+        public string TableAlias { get; set; } = "t";
+
         public int? Offset { get; set; }
         
         public int? Top { get; set; }

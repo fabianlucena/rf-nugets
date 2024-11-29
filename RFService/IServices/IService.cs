@@ -13,6 +13,8 @@ namespace RFService.IServices
 
         Task<IEnumerable<Entity>> GetListAsync(GetOptions options);
 
+        Task<IEnumerable<Entity>> GetListAsync<TIncluded1>(GetOptions options);
+
         Task<Entity> GetSingleAsync(GetOptions options);
 
         Task<Entity?> GetSingleOrDefaultAsync(GetOptions options);
