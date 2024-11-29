@@ -2,19 +2,19 @@
 
 namespace RFService.IRepo
 {
-    public interface IRepo<Entity>
+    public interface IRepo<TEntity>
     {
-        Task<Entity> InsertAsync(Entity data);
+        Task<TEntity> InsertAsync(TEntity data);
 
-        Task<Entity> GetSingleAsync(GetOptions options);
+        Task<TEntity> GetSingleAsync(GetOptions options);
 
-        Task<Entity?> GetSingleOrDefaultAsync(GetOptions options);
+        Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options);
 
-        Task<Entity?> GetFirstOrDefaultAsync(GetOptions options);
+        Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options);
 
-        Task<IEnumerable<Entity>> GetListAsync(GetOptions options);
+        Task<IEnumerable<TEntity>> GetListAsync(GetOptions options);
 
-        Task<IEnumerable<Entity>> GetListAsync<TIncluded1>(GetOptions options);
+        Task<IEnumerable<TEntity>> GetListAsync<TIncluded1>(GetOptions options);
 
         Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options);
 

@@ -1,12 +1,12 @@
-﻿using RFService.Exceptions;
+﻿using RFService.Entities;
 using RFService.Repo;
 
 namespace RFService.IServices
 {
-    public interface IServiceIdUuid<Entity>
-        : IServiceUuid<Entity>,
-            IServiceId<Entity>
-        where Entity : Entities.Entity
+    public interface IServiceIdUuid<TEntity>
+        : IServiceUuid<TEntity>,
+            IServiceId<TEntity>
+        where TEntity : Entity
     {
         public async Task<Int64> GetSingleIdForUuidAsync(Guid uuid, GetOptions? options = null)
         {

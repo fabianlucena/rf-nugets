@@ -5,17 +5,17 @@ using RFService.Repo;
 
 namespace RFService.Services
 {
-    public abstract class ServiceSoftDeleteTimestampsIdUuidEnabledName<Repo, Entity>(Repo repo)
-        : ServiceSoftDeleteTimestampsIdUuidEnabled<Repo, Entity>(repo),
-            IServiceName<Entity>,
-            IServiceIdName<Entity>
-        where Repo : IRepo<Entity>
-        where Entity : EntitySoftDeleteTimestampsIdUuidEnabledName
+    public abstract class ServiceSoftDeleteTimestampsIdUuidEnabledName<TRepo, TEntity>(TRepo repo)
+        : ServiceSoftDeleteTimestampsIdUuidEnabled<TRepo, TEntity>(repo),
+            IServiceName<TEntity>,
+            IServiceIdName<TEntity>
+        where TRepo : IRepo<TEntity>
+        where TEntity : EntitySoftDeleteTimestampsIdUuidEnabledName
     {
         public override GetOptions SanitizeForAutoGet(GetOptions options)
         {
             return base.SanitizeForAutoGet(
-                ((IServiceName<Entity>)this).SanitizeNameForAutoGet(options)
+                ((IServiceName<TEntity>)this).SanitizeNameForAutoGet(options)
             );
         }
     }

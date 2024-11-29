@@ -1,13 +1,12 @@
-﻿using RFService.Exceptions;
-using RFService.Repo;
+﻿using RFService.Repo;
 
 namespace RFService.IServices
 {
-    public interface IServiceUniqueTitle<Entity>
-        : IService<Entity>
-        where Entity : class
+    public interface IServiceUniqueTitle<TEntity>
+        : IService<TEntity>
+        where TEntity : class
     {
-        public async Task<Entity> GetSingleForTitleAsync(string title, GetOptions? options = null)
+        public async Task<TEntity> GetSingleForTitleAsync(string title, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Title"] = title;
@@ -15,7 +14,7 @@ namespace RFService.IServices
             return await GetSingleAsync(options);
         }
 
-        public async Task<Entity?> GetSingleOrDefaultForTitleAsync(string title, GetOptions? options = null)
+        public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Title"] = title;

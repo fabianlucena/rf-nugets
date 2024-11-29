@@ -5,14 +5,14 @@ using RFService.Repo;
 
 namespace RFService.Services
 {
-    public abstract class ServiceTimestampsId<Repo, Entity>(Repo repo)
-        : ServiceTimestamps<Repo, Entity>(repo)
-        where Repo : IRepo<Entity>
-        where Entity : EntityTimestampsId
+    public abstract class ServiceTimestampsId<TRepo, TEntity>(TRepo repo)
+        : ServiceTimestamps<TRepo, TEntity>(repo)
+        where TRepo : IRepo<TEntity>
+        where TEntity : EntityTimestampsId
     {
-        public Int64 GetId(Entity item) => item.Id;
+        public Int64 GetId(TEntity item) => item.Id;
 
-        public override async Task<Entity> ValidateForCreationAsync(Entity data)
+        public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {
             data = await base.ValidateForCreationAsync(data);
 
@@ -44,21 +44,21 @@ namespace RFService.Services
             return base.SanitizeForAutoGet(options);
         }
 
-        public virtual Task<Entity> GetSingleForIdAsync(Int64 id, GetOptions? options = null)
+        public virtual Task<TEntity> GetSingleForIdAsync(Int64 id, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Id"] = id;
             return GetSingleAsync(options);
         }
 
-        public virtual Task<Entity?> GetSingleOrDefaultForIdAsync(Int64 id, GetOptions? options = null)
+        public virtual Task<TEntity?> GetSingleOrDefaultForIdAsync(Int64 id, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Id"] = id;
             return GetSingleOrDefaultAsync(options);
         }
 
-        public virtual Task<IEnumerable<Entity>> GetListForIdsAsync(IEnumerable<Int64> id, GetOptions? options = null)
+        public virtual Task<IEnumerable<TEntity>> GetListForIdsAsync(IEnumerable<Int64> id, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Id"] = id;

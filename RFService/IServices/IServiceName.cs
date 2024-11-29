@@ -2,9 +2,9 @@
 
 namespace RFService.IServices
 {
-    public interface IServiceName<Entity>
-        : IService<Entity>
-        where Entity : class
+    public interface IServiceName<TEntity>
+        : IService<TEntity>
+        where TEntity : class
     {
         public GetOptions SanitizeNameForAutoGet(GetOptions options)
         {
@@ -27,7 +27,7 @@ namespace RFService.IServices
             return options;
         }
 
-        public async Task<Entity> GetSingleForNameAsync(string name, GetOptions? options = null)
+        public async Task<TEntity> GetSingleForNameAsync(string name, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Name"] = name;
@@ -35,7 +35,7 @@ namespace RFService.IServices
             return await GetSingleAsync(options);
         }
 
-        public async Task<Entity?> GetSingleOrDefaultForNameAsync(string name, GetOptions? options = null)
+        public async Task<TEntity?> GetSingleOrDefaultForNameAsync(string name, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Name"] = name;

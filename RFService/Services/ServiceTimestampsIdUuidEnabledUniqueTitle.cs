@@ -4,10 +4,10 @@ using RFService.Repo;
 
 namespace RFService.Services
 {
-    public abstract class ServiceTimestampsIdUuidEnabledUniqueTitle<Repo, Entity>(Repo repo)
-        : ServiceTimestampsIdUuidEnabled<Repo, Entity>(repo)
-        where Repo : IRepo<Entity>
-        where Entity : EntityTimestampsIdUuidEnabledUniqueTitle
+    public abstract class ServiceTimestampsIdUuidEnabledUniqueTitle<TRepo, TEntity>(TRepo repo)
+        : ServiceTimestampsIdUuidEnabled<TRepo, TEntity>(repo)
+        where TRepo : IRepo<TEntity>
+        where TEntity : EntityTimestampsIdUuidEnabledUniqueTitle
     {
         public override GetOptions SanitizeForAutoGet(GetOptions options)
         {

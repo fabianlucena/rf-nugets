@@ -4,11 +4,11 @@ namespace RFDapper
 {
     public static class Setup
     {
-        public static void CreateTable<Entity>(IServiceProvider services)
-            where Entity : class
+        public static void CreateTable<TEntity>(IServiceProvider services)
+            where TEntity : class
         {
-            var dapperService = services.GetService<Dapper<Entity>>() ??
-                throw new Exception($"No service {typeof(Entity).Name}");
+            var dapperService = services.GetService<Dapper<TEntity>>() ??
+                throw new Exception($"No service {typeof(TEntity).Name}");
 
             dapperService.CreateTable();
         }

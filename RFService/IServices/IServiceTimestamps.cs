@@ -1,7 +1,7 @@
 ﻿namespace RFService.IServices
 {
-    public interface IServiceTimestamps<Entity>
-        where Entity : class
+    public interface IServiceTimestamps<TEntity>
+        where TEntity : class
     {
     }
 }

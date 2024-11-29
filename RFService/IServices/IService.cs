@@ -1,35 +1,36 @@
-﻿using RFService.Repo;
+﻿using RFService.Entities;
+using RFService.Repo;
 
 namespace RFService.IServices
 {
-    public interface IService<Entity>
-        where Entity : class
+    public interface IService<TEntity>
+        where TEntity : class
     {
-        Task<Entity> ValidateForCreationAsync(Entity data);
+        Task<TEntity> ValidateForCreationAsync(TEntity data);
 
-        Task<Entity> CreateAsync(Entity data);
+        Task<TEntity> CreateAsync(TEntity data);
 
         GetOptions SanitizeGetOptions(GetOptions options);
 
-        Task<IEnumerable<Entity>> GetListAsync(GetOptions options);
+        Task<IEnumerable<TEntity>> GetListAsync(GetOptions options);
 
-        Task<IEnumerable<Entity>> GetListAsync<TIncluded1>(GetOptions options);
+        Task<IEnumerable<TEntity>> GetListAsync<TIncluded1>(GetOptions options);
 
-        Task<Entity> GetSingleAsync(GetOptions options);
+        Task<TEntity> GetSingleAsync(GetOptions options);
 
-        Task<Entity?> GetSingleOrDefaultAsync(GetOptions options);
+        Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options);
 
-        Task<Entity?> GetFirstOrDefaultAsync(GetOptions options);
+        Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options);
 
         GetOptions SanitizeForAutoGet(GetOptions options);
 
-        Task<Entity?> AutoGetFirstOrDefaultAsync(GetOptions options);
+        Task<TEntity?> AutoGetFirstOrDefaultAsync(GetOptions options);
 
-        Task<Entity?> AutoGetFirstOrDefaultAsync(Entity data);
+        Task<TEntity?> AutoGetFirstOrDefaultAsync(TEntity data);
 
-        Task<Entity> GetOrCreateAsync(Entity data);
+        Task<TEntity> GetOrCreateAsync(TEntity data);
 
-        Task CreateIfNotExistsAsync(Entity data);
+        Task CreateIfNotExistsAsync(TEntity data);
 
         Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data);
 

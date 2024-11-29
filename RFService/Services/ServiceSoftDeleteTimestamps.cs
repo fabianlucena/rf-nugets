@@ -4,12 +4,12 @@ using RFService.Repo;
 
 namespace RFService.Services
 {
-    public abstract class ServiceSoftDeleteTimestamps<Repo, Entity>(Repo repo)
-        : ServiceSoftDelete<Repo, Entity>(repo)
-        where Repo : IRepo<Entity>
-        where Entity : EntitySoftDeleteTimestamps
+    public abstract class ServiceSoftDeleteTimestamps<TRepo, TEntity>(TRepo repo)
+        : ServiceSoftDelete<TRepo, TEntity>(repo)
+        where TRepo : IRepo<TEntity>
+        where TEntity : EntitySoftDeleteTimestamps
     {
-        public override async Task<Entity> ValidateForCreationAsync(Entity data)
+        public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {
             data = await base.ValidateForCreationAsync(data);
 

@@ -1,21 +1,21 @@
 ﻿using RFService.Repo;
 using RFService.IRepo;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using RFService.Entities;
 
 namespace RFService.Services
 {
-    public abstract class Service<Repo, Entity>(Repo _repo)
-        where Repo : IRepo<Entity>
-        where Entity : RFService.Entities.Entity
+    public abstract class Service<TRepo, TEntity>(TRepo _repo)
+        where TRepo : IRepo<TEntity>
+        where TEntity : Entity
     {
-        public Repo repo = _repo;
+        public TRepo repo = _repo;
 
-        public virtual async Task<Entity> ValidateForCreationAsync(Entity data)
+        public virtual async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {
             return await Task.Run(() => data);
         }
 
-        public virtual async Task<Entity> CreateAsync(Entity data)
+        public virtual async Task<TEntity> CreateAsync(TEntity data)
         {
             data = await ValidateForCreationAsync(data);
             return await repo.InsertAsync(data);
@@ -26,23 +26,23 @@ namespace RFService.Services
             return options;
         }
 
-        public virtual Task<IEnumerable<Entity>> GetListAsync(GetOptions options)
+        public virtual Task<IEnumerable<TEntity>> GetListAsync(GetOptions options)
             => repo.GetListAsync(SanitizeGetOptions(options));
 
-        public virtual Task<IEnumerable<Entity>> GetListAsync<TIncluded1>(GetOptions options)
+        public virtual Task<IEnumerable<TEntity>> GetListAsync<TIncluded1>(GetOptions options)
             => repo.GetListAsync<TIncluded1>(SanitizeGetOptions(options));
 
-        public virtual Task<Entity> GetSingleAsync(GetOptions options)
+        public virtual Task<TEntity> GetSingleAsync(GetOptions options)
         {
             return repo.GetSingleAsync(SanitizeGetOptions(options));
         }
 
-        public virtual Task<Entity?> GetSingleOrDefaultAsync(GetOptions options)
+        public virtual Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options)
         {
             return repo.GetSingleOrDefaultAsync(SanitizeGetOptions(options));
         }
 
-        public virtual Task<Entity?> GetFirstOrDefaultAsync(GetOptions options)
+        public virtual Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options)
         {
             return repo.GetFirstOrDefaultAsync(SanitizeGetOptions(options));
         }
@@ -52,15 +52,15 @@ namespace RFService.Services
             return options;
         }
 
-        public virtual Task<Entity?> AutoGetFirstOrDefaultAsync(GetOptions options)
+        public virtual Task<TEntity?> AutoGetFirstOrDefaultAsync(GetOptions options)
         {
             return GetFirstOrDefaultAsync(SanitizeForAutoGet(options));
         }
 
-        public virtual Task<Entity?> AutoGetFirstOrDefaultAsync(Entity data)
+        public virtual Task<TEntity?> AutoGetFirstOrDefaultAsync(TEntity data)
         {
             var filters = new Dictionary<string, object?>();
-            var entityType = typeof(Entity);
+            var entityType = typeof(TEntity);
             var properties = entityType.GetProperties();
             foreach (var pInfo in properties)
             {
@@ -74,7 +74,7 @@ namespace RFService.Services
             return AutoGetFirstOrDefaultAsync(new GetOptions { Filters = filters });
         }
 
-        public virtual async Task<Entity> GetOrCreateAsync(Entity data)
+        public virtual async Task<TEntity> GetOrCreateAsync(TEntity data)
         {
             var res = await AutoGetFirstOrDefaultAsync(data);
             if (res != null)
@@ -83,7 +83,7 @@ namespace RFService.Services
             return await CreateAsync(data);
         }
 
-        public virtual Task CreateIfNotExistsAsync(Entity data)
+        public virtual Task CreateIfNotExistsAsync(TEntity data)
         {
             return GetOrCreateAsync(data);
         }

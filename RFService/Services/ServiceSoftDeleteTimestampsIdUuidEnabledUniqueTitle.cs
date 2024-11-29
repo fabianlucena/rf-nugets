@@ -6,13 +6,13 @@ using RFService.Repo;
 
 namespace RFService.Services
 {
-    public abstract class ServiceSoftDeleteTimestampsIdUuidEnabledUniqueTitle<Repo, Entity>(Repo repo)
-        : ServiceSoftDeleteTimestampsIdUuidEnabled<Repo, Entity>(repo),
-            IServiceUniqueTitle<Entity>
-        where Repo : IRepo<Entity>
-        where Entity : EntitySoftDeleteTimestampsIdUuidEnabledUniqueTitle
+    public abstract class ServiceSoftDeleteTimestampsIdUuidEnabledUniqueTitle<TRepo, TEntity>(TRepo repo)
+        : ServiceSoftDeleteTimestampsIdUuidEnabled<TRepo, TEntity>(repo),
+            IServiceUniqueTitle<TEntity>
+        where TRepo : IRepo<TEntity>
+        where TEntity : EntitySoftDeleteTimestampsIdUuidEnabledUniqueTitle
     {
-        public override async Task<Entity> ValidateForCreationAsync(Entity data)
+        public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {
             if (string.IsNullOrEmpty(data.Title))
                 throw new TitleCannotBeNullOrEmptyException();
@@ -26,7 +26,7 @@ namespace RFService.Services
             return data;
         }
 
-        public async Task<Entity?> GetSingleOrDefaultForTitleAsync(string title, GetOptions? options = null)
+        public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Title"] = title;

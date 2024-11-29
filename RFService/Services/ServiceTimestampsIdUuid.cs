@@ -4,14 +4,14 @@ using RFService.Repo;
 
 namespace RFService.Services
 {
-    public abstract class ServiceTimestampsIdUuid<Repo, Entity>(Repo repo)
-        : ServiceTimestampsId<Repo, Entity>(repo)
-        where Repo : IRepo<Entity>
-        where Entity : EntityTimestampsIdUuid
+    public abstract class ServiceTimestampsIdUuid<TRepo, TEntity>(TRepo repo)
+        : ServiceTimestampsId<TRepo, TEntity>(repo)
+        where TRepo : IRepo<TEntity>
+        where TEntity : EntityTimestampsIdUuid
     {
-        public Guid GetUuid(Entity item) => item.Uuid;
+        public Guid GetUuid(TEntity item) => item.Uuid;
 
-        public override async Task<Entity> ValidateForCreationAsync(Entity data)
+        public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {
             data = await base.ValidateForCreationAsync(data);
 

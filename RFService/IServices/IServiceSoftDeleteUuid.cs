@@ -2,9 +2,9 @@
 
 namespace RFService.IServices
 {
-    public interface IServiceSoftDeleteUuid<Entity>
-        : IServiceSoftDelete<Entity>
-        where Entity : class
+    public interface IServiceSoftDeleteUuid<TEntity>
+        : IServiceSoftDelete<TEntity>
+        where TEntity : class
     {
         Task<int> RestoreForUuidAsync(Guid uuid, GetOptions? options = null)
         {

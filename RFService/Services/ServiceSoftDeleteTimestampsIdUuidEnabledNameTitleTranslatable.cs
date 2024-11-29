@@ -1,13 +1,12 @@
 ﻿using RFService.Entities;
 using RFService.IRepo;
-using RFService.Repo;
 
 namespace RFService.Services
 {
-    public abstract class ServiceSoftDeleteTimestampsIdUuidEnabledNameTitleTranslatable<Repo, Entity>(Repo repo)
-        : ServiceSoftDeleteTimestampsIdUuidEnabledNameTitle<Repo, Entity>(repo)
-        where Repo : IRepo<Entity>
-        where Entity : EntitySoftDeleteTimestampsIdUuidEnabledNameTitleTranslatable
+    public abstract class ServiceSoftDeleteTimestampsIdUuidEnabledNameTitleTranslatable<TRepo, TEntity>(TRepo repo)
+        : ServiceSoftDeleteTimestampsIdUuidEnabledNameTitle<TRepo, TEntity>(repo)
+        where TRepo : IRepo<TEntity>
+        where TEntity : EntitySoftDeleteTimestampsIdUuidEnabledNameTitleTranslatable
     {
     }
 }

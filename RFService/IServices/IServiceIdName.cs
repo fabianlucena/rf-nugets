@@ -1,14 +1,15 @@
-﻿using RFService.Exceptions;
+﻿using RFService.Entities;
+using RFService.Exceptions;
 using RFService.Repo;
 
 namespace RFService.IServices
 {
-    public interface IServiceIdName<Entity>
-        : IServiceName<Entity>,
-            IServiceId<Entity>
-        where Entity : Entities.Entity
+    public interface IServiceIdName<TEntity>
+        : IServiceName<TEntity>,
+            IServiceId<TEntity>
+        where TEntity : Entity
     {
-        public async Task<Int64> GetIdForNameAsync(string name, GetOptions? options = null, Func<string, Entity>? creator = null)
+        public async Task<Int64> GetIdForNameAsync(string name, GetOptions? options = null, Func<string, TEntity>? creator = null)
         {
             var item = await GetSingleOrDefaultForNameAsync(name, options);
             if (item == null)
@@ -25,7 +26,7 @@ namespace RFService.IServices
             return GetId(item);
         }
 
-        public async Task<IEnumerable<Entity>> GetListForNamesAsync(IEnumerable<string> names, GetOptions? options = null)
+        public async Task<IEnumerable<TEntity>> GetListForNamesAsync(IEnumerable<string> names, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Name"] = names;

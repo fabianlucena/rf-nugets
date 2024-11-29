@@ -4,10 +4,10 @@ using RFService.Repo;
 
 namespace RFService.Services
 {
-    public abstract class ServiceSoftDelete<Repo, Entity>(Repo repo)
-        : Service<Repo, Entity>(repo)
-        where Repo : IRepo<Entity>
-        where Entity : EntitySoftDelete
+    public abstract class ServiceSoftDelete<TRepo, TEntity>(TRepo repo)
+        : Service<TRepo, TEntity>(repo)
+        where TRepo : IRepo<TEntity>
+        where TEntity : EntitySoftDelete
     {
         public override GetOptions SanitizeGetOptions(GetOptions options)
         {

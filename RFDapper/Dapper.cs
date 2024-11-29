@@ -21,28 +21,28 @@ namespace RFDapper
         public Data Data = new();
     }
 
-    public class Dapper<Entity>
-        : IRepo<Entity>
-        where Entity : class
+    public class Dapper<TEntity>
+        : IRepo<TEntity>
+        where TEntity : class
     {
-        private readonly ILogger<Dapper<Entity>> _logger;
+        private readonly ILogger<Dapper<TEntity>> _logger;
         private readonly IDbConnection _connection;
         private readonly string _tableName;
         private readonly string _schema = "dbo";
 
-        public ILogger<Dapper<Entity>> Logger { get => _logger; }
+        public ILogger<Dapper<TEntity>> Logger { get => _logger; }
         public IDbConnection Connection { get => _connection; }
         public string TableName { get => _tableName; }
         public string Schema { get => _schema; }
 
-        public Dapper(ILogger<Dapper<Entity>> logger, IDbConnection Connection)
+        public Dapper(ILogger<Dapper<TEntity>> logger, IDbConnection Connection)
         {
             _logger = logger;
             _connection = Connection;
-            var tableAttribute = typeof(Entity).GetCustomAttribute<TableAttribute>();
+            var tableAttribute = typeof(TEntity).GetCustomAttribute<TableAttribute>();
             if (tableAttribute == null)
             {
-                _tableName = typeof(Entity).Name;
+                _tableName = typeof(TEntity).Name;
             }
             else
             {
@@ -69,7 +69,7 @@ namespace RFDapper
                 EXEC('CREATE SCHEMA [{Schema}] AUTHORIZATION [dbo]');";
             Connection.Query(query);
 
-            var entityType = typeof(Entity);
+            var entityType = typeof(TEntity);
             var properties = entityType.GetProperties();
             var columnsQueries = new List<string>();
             var postQueries = new List<string>();
@@ -156,7 +156,7 @@ namespace RFDapper
                         foreignSchema = "dbo",
                         foreignColumn = "Id";
                     if (foreignTableAttribute == null)
-                        foreignTable = typeof(Entity).Name;
+                        foreignTable = typeof(TEntity).Name;
                     else
                     {
                         foreignTable = foreignTableAttribute.Name;
@@ -336,9 +336,9 @@ namespace RFDapper
             };
         }
 
-        public SqlQuery GetInsertQuery(Entity data)
+        public SqlQuery GetInsertQuery(TEntity data)
         {
-            var entityType = typeof(Entity);
+            var entityType = typeof(TEntity);
             var properties = data.GetType().GetProperties();
             var columns = new List<string>();
             var valuesName = new List<string>();
@@ -432,7 +432,7 @@ namespace RFDapper
             var sqlWhere = GetWhereQuery(options)
                 ?? throw new Exception("UPDATE without WHERE is forbidden");
 
-            var entityType = typeof(Entity);
+            var entityType = typeof(TEntity);
             var columns = new List<string>();
             Dictionary<string, object?> values = [];
 
@@ -494,14 +494,14 @@ namespace RFDapper
             };
         }
 
-        static void SetId(Entity data, long id)
+        static void SetId(TEntity data, long id)
         {
             var type = data.GetType();
             var pId = type.GetProperty("Id");
             pId?.SetValue(data, id);
         }
 
-        public async Task<Entity> InsertAsync(Entity data)
+        public async Task<TEntity> InsertAsync(TEntity data)
         {
             var sqlQuery = GetInsertQuery(data);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
@@ -516,50 +516,50 @@ namespace RFDapper
             return data;
         }
 
-        public Task<Entity?> GetSingleOrDefaultAsync(GetOptions options)
+        public Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QuerySingleOrDefaultAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
+            return Connection.QuerySingleOrDefaultAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
         }
 
-        public Task<Entity?> GetFirstOrDefaultAsync(GetOptions options)
+        public Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QueryFirstOrDefaultAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
+            return Connection.QueryFirstOrDefaultAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
         }
 
-        public Task<Entity> GetSingleAsync(GetOptions options)
+        public Task<TEntity> GetSingleAsync(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QuerySingleAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
+            return Connection.QuerySingleAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
         }
 
-        public Task<IEnumerable<Entity>> GetListAsync(GetOptions options)
+        public Task<IEnumerable<TEntity>> GetListAsync(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QueryAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
+            return Connection.QueryAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
         }
 
-        public Task<IEnumerable<Entity>> GetListAsync<TIncluded1>(GetOptions options)
+        public Task<IEnumerable<TEntity>> GetListAsync<TIncluded1>(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
 
-            var type = typeof(Entity);
+            var type = typeof(TEntity);
             var pIncluded = type.GetProperty("Heading");
             if (pIncluded == null)
-                return Connection.QueryAsync<Entity>(sqlQuery.Sql, sqlQuery.Data.Values);
+                return Connection.QueryAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
 
-            return Connection.QueryAsync<Entity, TIncluded1, Entity>(
+            return Connection.QueryAsync<TEntity, TIncluded1, TEntity>(
                 sqlQuery.Sql,
                 (row, included) => {
                     pIncluded.SetValue(row, included);
