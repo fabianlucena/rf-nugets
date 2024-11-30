@@ -1,31 +1,39 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using RFService.Libs;
+using System.Data;
 
 namespace RFService.Repo
 {
     public class GetOptions
+        : From
     {
-        public string TableAlias { get; set; } = "t";
-
         public int? Offset { get; set; }
         
         public int? Top { get; set; }
+
+        public IDbTransaction? Transaction { get; set; }
+
+        public bool Buffered { get; set; } = true;
+
+        public string Separator { get; set; } = "*** S E P A R A T O R ***";
+
+        public int? CommandTimeout { get; set; } = null;
+
+        public CommandType? CommandType { get; set; } = null;
 
         public Dictionary<string, object?> Filters { get; set; } = [];
 
         public Dictionary<string, object?> Options { get; set; } = [];
 
-        public Dictionary<string, GetOptions> Include { get; set; } = [];
-
         public GetOptions() { }
 
         public GetOptions(GetOptions options)
+            : base(options)
         {
             Offset = options.Offset;
             Top = options.Top;
             Filters = new Dictionary<string, object?>(options.Filters);
-            Include = new Dictionary<string, GetOptions>(options.Include);
         }
 
         public static GetOptions CreateFromQuery(IDictionary<string, string> query)
@@ -61,6 +69,12 @@ namespace RFService.Repo
                    Options["IncludeDeleted"] = includeDeleted;
             }
 
+            return this;
+        }
+
+        public GetOptions Include(string propertyName, string? alias = null)
+        {
+            Join[propertyName] = new From(alias);
             return this;
         }
     }

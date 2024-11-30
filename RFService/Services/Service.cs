@@ -11,9 +11,7 @@ namespace RFService.Services
         public TRepo repo = _repo;
 
         public virtual async Task<TEntity> ValidateForCreationAsync(TEntity data)
-        {
-            return await Task.Run(() => data);
-        }
+            => await Task.Run(() => data);
 
         public virtual async Task<TEntity> CreateAsync(TEntity data)
         {
@@ -22,40 +20,25 @@ namespace RFService.Services
         }
 
         public virtual GetOptions SanitizeGetOptions(GetOptions options)
-        {
-            return options;
-        }
+            => options;
 
         public virtual Task<IEnumerable<TEntity>> GetListAsync(GetOptions options)
             => repo.GetListAsync(SanitizeGetOptions(options));
 
-        public virtual Task<IEnumerable<TEntity>> GetListAsync<TIncluded1>(GetOptions options)
-            => repo.GetListAsync<TIncluded1>(SanitizeGetOptions(options));
-
         public virtual Task<TEntity> GetSingleAsync(GetOptions options)
-        {
-            return repo.GetSingleAsync(SanitizeGetOptions(options));
-        }
+            => repo.GetSingleAsync(SanitizeGetOptions(options));
 
         public virtual Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options)
-        {
-            return repo.GetSingleOrDefaultAsync(SanitizeGetOptions(options));
-        }
+            => repo.GetSingleOrDefaultAsync(SanitizeGetOptions(options));
 
         public virtual Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options)
-        {
-            return repo.GetFirstOrDefaultAsync(SanitizeGetOptions(options));
-        }
+            => repo.GetFirstOrDefaultAsync(SanitizeGetOptions(options));
 
         public virtual GetOptions SanitizeForAutoGet(GetOptions options)
-        {
-            return options;
-        }
+            => options;
 
         public virtual Task<TEntity?> AutoGetFirstOrDefaultAsync(GetOptions options)
-        {
-            return GetFirstOrDefaultAsync(SanitizeForAutoGet(options));
-        }
+            => GetFirstOrDefaultAsync(SanitizeForAutoGet(options));
 
         public virtual Task<TEntity?> AutoGetFirstOrDefaultAsync(TEntity data)
         {
@@ -84,14 +67,10 @@ namespace RFService.Services
         }
 
         public virtual Task CreateIfNotExistsAsync(TEntity data)
-        {
-            return GetOrCreateAsync(data);
-        }
+            => GetOrCreateAsync(data);
 
         public virtual async Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data)
-        {
-            return await Task.Run(() => data);
-        }
+            => await Task.Run(() => data);
 
         public virtual async Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options)
         {
@@ -100,8 +79,6 @@ namespace RFService.Services
         }
 
         public virtual Task<int> DeleteAsync(GetOptions options)
-        {
-            return repo.DeleteAsync(options);
-        }
+            => repo.DeleteAsync(options);
     }
 }

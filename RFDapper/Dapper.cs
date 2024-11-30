@@ -5,12 +5,12 @@ using RFDapper.Exceptions;
 using RFService.IRepo;
 using RFService.Libs;
 using RFService.Repo;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Reflection;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RFDapper
 {
@@ -197,9 +197,7 @@ namespace RFDapper
         public SqlQuery GetFilterQuery(object? filter, List<string> skipNames, string name = "", string? tableAlias = null)
         {
             if (filter == null)
-            {
                 return new SqlQuery { Sql = " IS NULL" };
-            }
 
             if (filter is Dictionary<string, object?> filters)
             {
@@ -228,6 +226,7 @@ namespace RFDapper
                         while (skipNames.Contains(newName))
                         {
                             counter++;
+                            newName = root + counter;
                         }
                     }
                     skipNames.Add(newName);
@@ -291,28 +290,58 @@ namespace RFDapper
             if (options.Filters.Count == 0)
                 return null;
 
-            var sqlQuery = GetFilterQuery(options.Filters, [], prefix, options.TableAlias);
+            var sqlQuery = GetFilterQuery(options.Filters, [], prefix, options.Alias);
             sqlQuery.Sql = "WHERE " + sqlQuery.Sql;
 
             return sqlQuery;
         }
 
+        private static string? GetForeignColumnNameForProperty(string name)
+        {
+            var entityType = typeof(TEntity);
+            var properties = entityType.GetProperties();
+            foreach (var property in properties)
+            {
+                var foreign = property.GetCustomAttribute<ForeignKeyAttribute>();
+                if (foreign == null
+                    || foreign.Name != name
+                )
+                    continue;
+
+                return property.Name;
+            }
+
+            return null;
+        }
+
         public SqlQuery GetSelectQuery(GetOptions options)
         {
-            var alias = options.TableAlias;
-            if (!string.IsNullOrWhiteSpace(alias))
-                alias = "t";
+            options.Alias = options.GetOrCreateAlias("t");
 
-            var sqlSelect = $"SELECT [{alias}].*";
-            var sqlFrom = $" FROM [{Schema}].[{TableName}] [{options.TableAlias}]";
+            var sqlSelect = $"SELECT [{options.Alias}].*";
+            var sqlFrom = $" FROM [{Schema}].[{TableName}] [{options.Alias}]";
 
             Data? data = null;
             if (options != null)
             {
-                foreach (var include in options.Include)
+                foreach (var join in options.Join)
                 {
-                    sqlSelect += ", '----' AS t1Separator, [t1].*";
-                    sqlFrom += $" INNER JOIN sc.BusStops t1 ON t1.Id = [{options.TableAlias}].HeadingId";
+                    var from = join.Value;
+                    if (string.IsNullOrEmpty(from.Alias))
+                        from.Alias = options.CreateAlias("t");
+
+                    var foreignColumnName = Dapper<TEntity>.GetForeignColumnNameForProperty(join.Key) ??
+                        throw new Exception($"No foreign column for {join.Key}");
+
+                    var entityType = typeof(TEntity);
+                    var foreignProperty = entityType.GetProperty(join.Key) ??
+                        throw new Exception($"No foreign property {join.Key}");
+
+                    var foreignTaleColumnKey = "Id";
+
+                    sqlSelect += $", NULL AS [{options.Separator}], [{from.Alias}].*";
+                    sqlFrom += $" INNER JOIN sc.BusStops [{from.Alias}]"
+                        + $" ON [{from.Alias}].[{foreignTaleColumnKey}] = [{options.Alias}].[{foreignColumnName}]";
                 }
 
                 var where = GetWhereQuery(options);
@@ -540,33 +569,61 @@ namespace RFDapper
             return Connection.QuerySingleAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
         }
 
-        public Task<IEnumerable<TEntity>> GetListAsync(GetOptions options)
+        public async Task<IEnumerable<TEntity>> GetListAsync(GetOptions options)
         {
-            var sqlQuery = GetSelectQuery(options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
-            Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QueryAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
+            if (options.Join.Count == 0)
+            {
+                var sqlQuery = GetSelectQuery(options);
+                var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
+                Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
+                return await Connection.QueryAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
+            }
+
+            if (options.Join.Count == 1)
+            {
+                var join = options.Join.First();
+                var type = typeof(TEntity);
+                var pIncluded1 = type.GetProperty(join.Key)
+                    ?? throw new Exception($"Error property {join.Key} does not exist");
+
+                var getListAsyncMethod = this.GetType().GetMethod("GetListWith1IncludesAsync")
+                    ?? throw new Exception("Error to get GetListWith1IncludesAsync method");
+
+                var genericGetListAsyncMethod = getListAsyncMethod.MakeGenericMethod(pIncluded1.PropertyType);
+
+                var task = (Task?)genericGetListAsyncMethod.Invoke(
+                    this,
+                    [options]
+                )
+                    ?? throw new Exception("No result for query");
+
+                var resultProperty = task.GetType().GetProperty("Result");
+                return (IEnumerable<TEntity>?)resultProperty?.GetValue(task)
+                    ?? throw new Exception("No result for query"); ;
+            }
+
+            throw new TooManyJoinsException();
         }
 
-        public Task<IEnumerable<TEntity>> GetListAsync<TIncluded1>(GetOptions options)
+        public Task<IEnumerable<TEntity>> GetListWith1IncludesAsync<TIncluded1>(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
 
             var type = typeof(TEntity);
-            var pIncluded = type.GetProperty("Heading");
-            if (pIncluded == null)
-                return Connection.QueryAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
+            var join = options.Join.First();
+            var pIncluded1 = type.GetProperty(join.Key)
+                ?? throw new Exception($"Error property {join.Key} does not exist");
 
             return Connection.QueryAsync<TEntity, TIncluded1, TEntity>(
                 sqlQuery.Sql,
-                (row, included) => {
-                    pIncluded.SetValue(row, included);
+                (TEntity row, TIncluded1 included) => {
+                    pIncluded1.SetValue(row, included);
                     return row;
                 },
                 sqlQuery.Data.Values,
-                splitOn: "t1Separator"
+                splitOn: options.Separator
             );
         }
 

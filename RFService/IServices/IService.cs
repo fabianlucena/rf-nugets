@@ -14,8 +14,6 @@ namespace RFService.IServices
 
         Task<IEnumerable<TEntity>> GetListAsync(GetOptions options);
 
-        Task<IEnumerable<TEntity>> GetListAsync<TIncluded1>(GetOptions options);
-
         Task<TEntity> GetSingleAsync(GetOptions options);
 
         Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options);
