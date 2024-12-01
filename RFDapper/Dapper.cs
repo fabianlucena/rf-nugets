@@ -5,6 +5,7 @@ using RFDapper.Exceptions;
 using RFService.IRepo;
 using RFService.Libs;
 using RFService.Repo;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -387,7 +388,10 @@ namespace RFDapper
                     throw new Exception($"Unknown {name} property");
 
                 var propertyType = property.PropertyType;
-                if (propertyType.IsClass && propertyType.Name != "String")
+                if (propertyType.IsClass
+                    && propertyType.Name != "String"
+                    && propertyType.Name != "SqlGeography"
+                )
                     continue;
 
                 var varName = "@" + name;
