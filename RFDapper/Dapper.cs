@@ -59,6 +59,7 @@ namespace RFDapper
         {
             var SQLTypes = new Dictionary<string, string>
                 {
+                    {"Int32", "INT"},
                     {"Int64", "BIGINT"},
                     {"Guid", "UNIQUEIDENTIFIER"},
                     {"DateTime", "DATETIME"},
