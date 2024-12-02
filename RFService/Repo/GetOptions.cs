@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using RFService.Libs;
 using System.Data;
 
@@ -23,6 +22,8 @@ namespace RFService.Repo
         public CommandType? CommandType { get; set; } = null;
 
         public Dictionary<string, object?> Filters { get; set; } = [];
+
+        public List<string> OrderBy { get; set; } = [];
 
         public Dictionary<string, object?> Options { get; set; } = [];
 

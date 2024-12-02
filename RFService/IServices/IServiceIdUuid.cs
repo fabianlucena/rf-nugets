@@ -15,7 +15,7 @@ namespace RFService.IServices
             return GetId(item);
         }
 
-        public async Task<IEnumerable<Int64>> GetListIdForUuidsAsync(Guid[] uuids, GetOptions? options = null)
+        public async Task<IEnumerable<Int64>> GetListIdForUuidsAsync(IEnumerable<Guid> uuids, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Uuid"] = uuids;

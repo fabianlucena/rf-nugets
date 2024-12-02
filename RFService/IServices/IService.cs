@@ -1,5 +1,4 @@
-﻿using RFService.Entities;
-using RFService.Repo;
+﻿using RFService.Repo;
 
 namespace RFService.IServices
 {
@@ -8,7 +7,7 @@ namespace RFService.IServices
     {
         Task<TEntity> ValidateForCreationAsync(TEntity data);
 
-        Task<TEntity> CreateAsync(TEntity data);
+        Task<TEntity> CreateAsync(TEntity data, GetOptions? options = null);
 
         GetOptions SanitizeGetOptions(GetOptions options);
 

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 
@@ -353,11 +354,14 @@ namespace RFDapper
                     data = where.Data;
                 }
 
+                if (options.OrderBy.Count > 0)
+                    sqlFrom += $" ORDER BY {String.Join(", ", options.OrderBy)}";
+
                 if (options.Offset != null)
                     sqlFrom += $" OFFSET {options.Offset}";
 
                 if (options.Top != null)
-                    sqlFrom += $" TOP {options.Top}";
+                    sqlFrom += $" FETCH NEXT {options.Top} ROWS ONLY";
             }
 
             return new SqlQuery
@@ -396,6 +400,7 @@ namespace RFDapper
                     continue;
 
                 var varName = "@" + name;
+                name = $"[{name}]";
                 columns.Add(name);
                 valuesName.Add(varName);
                 newData.Values[varName] = property.GetValue(data, null);
@@ -463,6 +468,7 @@ namespace RFDapper
             GetOptions options
         )
         {
+            options.Alias = "";
             var sqlWhere = GetWhereQuery(options)
                 ?? throw new Exception("UPDATE without WHERE is forbidden");
 

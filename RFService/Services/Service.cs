@@ -13,7 +13,7 @@ namespace RFService.Services
         public virtual async Task<TEntity> ValidateForCreationAsync(TEntity data)
             => await Task.Run(() => data);
 
-        public virtual async Task<TEntity> CreateAsync(TEntity data)
+        public virtual async Task<TEntity> CreateAsync(TEntity data, GetOptions? options = null)
         {
             data = await ValidateForCreationAsync(data);
             return await repo.InsertAsync(data);
