@@ -143,7 +143,13 @@ namespace RFService.Libs
                     else
                         json = value[0] ?? "";
 
-                    return GetValue(JsonSerializer.Deserialize<object?>(json), true);
+                    try
+                    {
+                        return GetValue(JsonSerializer.Deserialize<object?>(json), true);
+                    } catch
+                    {
+                        return json;
+                    }
                 }
             );
         }
