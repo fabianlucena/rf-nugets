@@ -1,4 +1,5 @@
 ﻿using RFAuth.Entities;
+using RFAuth.Services;
 using RFRBAC.Entities;
 using RFRBAC.Services;
 using RFService.IServices;
@@ -34,5 +35,18 @@ namespace RFRBAC.IServices
         }
 
         Task UpdateRolesNameForUserNameAsync(string username, string[] rolesName);
+
+        async Task<bool> UserIdHasRoleIdAsync(Int64 userId, Int64 roleId)
+        {
+            var userRole = await GetFirstOrDefaultAsync(new GetOptions
+            {
+                Filters = {
+                    { "UserId", userId },
+                    { "RoleId", roleId },
+                }
+            });
+
+            return userRole != null;
+        }
     }
 }

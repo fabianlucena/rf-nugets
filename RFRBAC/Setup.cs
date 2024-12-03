@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using RFAuth.DTO;
+using RFAuth.IServices;
 using RFRBAC.DTO;
 using RFRBAC.Entities;
 using RFRBAC.IServices;
@@ -14,23 +15,27 @@ namespace RFRBAC
 {
     public static class Setup
     {
+        static IUserService? userService;
         static IRoleService? roleService;
-        static IPermissionService? permissionService;
         static IUserRoleService? userRoleService;
+        static IPermissionService? permissionService;
         static IRolePermissionService? rolePermissionService;
         static IMapper? mapper;
         static IPropertiesDecorators? propertiesDecorators;
         static IEventBus? eventBus;
 
-        static IPermissionService PermissionService => permissionService ?? throw new Exception();
+        static IUserService UserService => userService ?? throw new Exception();
+        static IRoleService RoleService => roleService ?? throw new Exception();
         static IUserRoleService UserRoleService => userRoleService ?? throw new Exception();
+        static IPermissionService PermissionService => permissionService ?? throw new Exception();
         static IRolePermissionService RolePermissionService => rolePermissionService ?? throw new Exception();
 
         public static void ConfigureRFRBAC(IServiceProvider provider)
         {
+            userService = provider.GetRequiredService<IUserService>();
             roleService = provider.GetRequiredService<IRoleService>();
-            permissionService = provider.GetRequiredService<IPermissionService>();
             userRoleService = provider.GetRequiredService<IUserRoleService>();
+            permissionService = provider.GetRequiredService<IPermissionService>();
             rolePermissionService = provider.GetRequiredService<IRolePermissionService>();
             mapper = provider.GetRequiredService<IMapper>();
             propertiesDecorators = provider.GetRequiredService<IPropertiesDecorators>();
@@ -91,6 +96,23 @@ namespace RFRBAC
 
         public static async Task ConfigureRFRBACAsync()
         {
+            var role = await RoleService.GetSingleOrDefaultForNameAsync("admin")
+                ?? await RoleService.CreateAsync(new Role
+                {
+                    Name = "admin",
+                    Title = "Administrator",
+                    IsSelectable = true,
+                    IsTranslatable = true,
+                });
+
+            var roleAdminId = role.Id;
+            var userAdminId = await UserService.GetSingleIdForUsernameAsync("admin");
+            if (!await UserRoleService.UserIdHasRoleIdAsync(userAdminId, roleAdminId))
+                await UserRoleService.CreateAsync(new UserRole{
+                    UserId = userAdminId,
+                    RoleId = roleAdminId,
+                });
+
             Type attributeType = typeof(PermissionAttribute);
             List<string> permissionsName = [];
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
