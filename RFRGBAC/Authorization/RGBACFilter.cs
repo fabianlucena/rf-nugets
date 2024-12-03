@@ -10,7 +10,7 @@ namespace RFRGBAC.Authorization
     public class RGBACFilter(
         IUserRoleService userRoleService,
         IUserGroupService userGroupService,
-        IPermissionService permissionService
+        IRolePermissionService rolePermissionService
     ) : IAsyncActionFilter
     {
         public async Task OnActionExecutionAsync(
@@ -53,7 +53,7 @@ namespace RFRGBAC.Authorization
             }
 
             var allGroupsId = await userGroupService.GetAllGroupsIdForUserIdAsync(userId);
-            var permissions = await permissionService.GetAllForUsersIdAsync(allGroupsId);
+            var permissions = await rolePermissionService.GetAllPermissionsForUsersIdAsync(allGroupsId);
             foreach (var permission in permissionAttribute.Permissions)
             {
                 if (permissions.Any(p => p.Name == permission))
