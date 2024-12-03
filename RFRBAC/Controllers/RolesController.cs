@@ -7,6 +7,7 @@ using RFService.Authorization;
 using RFRBAC.IServices;
 using RFRBAC.DTO;
 using RFRBAC.Entities;
+using RFService.Libs;
 
 namespace RFRBAC.Controllers
 {
@@ -24,12 +25,16 @@ namespace RFRBAC.Controllers
         {
             logger.LogInformation("Getting roles");
 
-            var options = new GetOptions();
+            var query = DataValue.GetPascalizeQueryDictionaryFromHttpContext(HttpContext);
+            var options = GetOptions.CreateFromQuery(query);
             if (uuid != null)
-            {
                 options.Filters["uuid"] = uuid;
-            }
 
+            if (DataValue.TryGetValue(query, "IsSelectable", out bool? isSelectable)
+                && isSelectable != null
+            )
+                options.Filters["IsSelectable"] = isSelectable;
+            
             var roleList = await roleService.GetListAsync(options);
             var roleAttributesList = roleList.Select(mapper.Map<Role, RoleAttributes>);
 

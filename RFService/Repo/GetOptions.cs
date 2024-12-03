@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using RFService.Libs;
 using System.Data;
+using System.Text.Json;
 
 namespace RFService.Repo
 {
@@ -37,7 +38,7 @@ namespace RFService.Repo
             Filters = new Dictionary<string, object?>(options.Filters);
         }
 
-        public static GetOptions CreateFromQuery(IDictionary<string, string> query)
+        public static GetOptions CreateFromQuery(IDictionary<string, object?> query)
         {
             GetOptions options = new();
             options.AddFromQuery(query);
@@ -59,16 +60,14 @@ namespace RFService.Repo
             return this;
         }
 
-        public GetOptions AddFromQuery(IDictionary<string, string> query)
+        public GetOptions AddFromQuery(IDictionary<string, object?> query)
         {
-            if (!query?.ContainsKey("IncludeDisabled") ?? true)
+            if (!query.ContainsKey("IncludeDisabled"))
                 Filters["IsEnabled"] = true;
 
-            if (query?.TryGetValue("IncludeDeleted", out string? includeDeletedText) ?? false)
-            {
-                if (bool.TryParse(includeDeletedText, out bool includeDeleted))
-                   Options["IncludeDeleted"] = includeDeleted;
-            }
+            if (DataValue.TryGetValue(query, "IncludeDeleted", out bool? includeDeleted)
+                && includeDeleted != null)
+                Options["IncludeDeleted"] = includeDeleted;
 
             return this;
         }

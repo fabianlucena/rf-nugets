@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Globalization;
-using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 
 namespace RFService.Libs
 {
     public static class DataValue
     {
-        public static dynamic? GetPropertyValue(dynamic obj, string prop)
+        public static object? GetPropertyValue(dynamic obj, string prop)
         {
             return GetValue(obj[prop]);
         }
@@ -30,7 +28,7 @@ namespace RFService.Libs
             return true;
         }
 
-        public static dynamic? GetValue(object? element)
+        public static object? GetValue(object? element, bool camelize = false)
         {
             if (element == null)
                 return null;
@@ -54,11 +52,30 @@ namespace RFService.Libs
                     return null;
 
                 case JsonValueKind.Array:
-                    List<object?> result = [];
-                    foreach (var item in jsonElement.EnumerateArray())
-                        result.Add(GetValue(item));
+                    {
+                        List<object?> result = [];
+                        foreach (var item in jsonElement.EnumerateArray())
+                            result.Add(GetValue(item));
 
-                    return result;
+                        return result;
+                    }
+
+                case JsonValueKind.Object:
+                    {
+                        Dictionary<string, object?> result = [];
+                        if (camelize)
+                        {
+                            foreach (var item in jsonElement.EnumerateObject())
+                                result[char.ToUpper(item.Name[0], CultureInfo.InvariantCulture) + item.Name[1..]] = GetValue(item.Value);
+                        }
+                        else
+                        {
+                            foreach (var item in jsonElement.EnumerateObject())
+                                result[item.Name] = GetValue(item.Value);
+                        }
+
+                        return result;
+                    }
             }
 
             throw new Exception("Valor no implementado");
@@ -87,7 +104,6 @@ namespace RFService.Libs
             return result;
         }
 
-
         public static T ObjectFromDictionary<T>(Dictionary<string, object?> data)
             where T : new()
         {
@@ -110,10 +126,41 @@ namespace RFService.Libs
             return obj;
         }
 
-        public static Dictionary<string, string> GetPascalizeQueryDictionaryFromHttpContext(HttpContext httpContext)
-            => httpContext.Request.Query.ToDictionary(
+        public static Dictionary<string, object?> GetPascalizeQueryDictionaryFromHttpContext(HttpContext httpContext)
+        {
+            return httpContext.Request.Query.ToDictionary(
                 k => char.ToUpper(k.Key[0], CultureInfo.InvariantCulture) + k.Key[1..],
-                v => v.Value.ToString()
+                v => {
+                    var value = v.Value;
+                    if (value.Count == 0)
+                        return "";
+
+                    string json;
+                    if (value.Count > 1)
+                        json = $"[${string.Join(',', value.Select(v => v ?? ""))}]";
+                    else if (value[0] == null)
+                        return "";
+                    else
+                        json = value[0] ?? "";
+
+                    return GetValue(JsonSerializer.Deserialize<object?>(json), true);
+                }
             );
+        }
+
+        public static bool TryGetValue<T>(IDictionary<string, object?> data, string name, out T? value)
+            where T : struct
+        {
+            if (data.TryGetValue(name, out var obj)
+                && obj is T val
+            )
+            {
+                value = val;
+                return true;
+            }
+
+            value = default;
+            return true;
+        }
     }
 }
