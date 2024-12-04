@@ -25,14 +25,12 @@ namespace RFRBAC.Controllers
         {
             logger.LogInformation("Getting roles");
 
-            var query = DataValue.GetPascalizeQueryDictionaryFromHttpContext(HttpContext);
+            var query = HttpContext.Request.Query.GetPascalized();
             var options = GetOptions.CreateFromQuery(query);
             if (uuid != null)
                 options.Filters["uuid"] = uuid;
 
-            if (DataValue.TryGetValue(query, "IsSelectable", out bool? isSelectable)
-                && isSelectable != null
-            )
+            if (query.TryGetBool("IsSelectable", out bool isSelectable))
                 options.Filters["IsSelectable"] = isSelectable;
             
             var roleList = await roleService.GetListAsync(options);

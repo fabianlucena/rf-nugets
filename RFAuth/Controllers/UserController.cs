@@ -9,7 +9,6 @@ using RFService.Repo;
 using RFService.Authorization;
 using RFService.IServices;
 using RFService.Libs;
-using RFAuth.Services;
 
 namespace RFAuth.Controllers
 {
@@ -29,8 +28,7 @@ namespace RFAuth.Controllers
         {
             logger.LogInformation("Getting users");
 
-            var query = DataValue.GetPascalizeQueryDictionaryFromHttpContext(HttpContext);
-            var options = GetOptions.CreateFromQuery(query);
+            var options = GetOptions.CreateFromQuery(HttpContext);
             if (uuid != null)
                 options.Filters["Uuid"] = uuid;
 
@@ -60,11 +58,11 @@ namespace RFAuth.Controllers
 
         [HttpPatch("{uuid}")]
         [Permission("user.edit")]
-        public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] Dictionary<string, object?> data)
+        public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary data)
         {
             logger.LogInformation("Updating user");
 
-            data = DataValue.PascalizeDictionary(data);
+            data = data.GetPascalized();
             var eventData = new EventData {
                 Data = data,
                 Filter = new Dictionary<string, object?> {
@@ -86,14 +84,14 @@ namespace RFAuth.Controllers
 
         [HttpPost]
         [Permission("user.add")]
-        public async Task<IActionResult> PostAsync([FromBody] Dictionary<string, object?> data)
+        public async Task<IActionResult> PostAsync([FromBody] DataDictionary data)
         {
             logger.LogInformation("Creating user");
 
-            data = DataValue.PascalizeDictionary(data);
+            data = data.GetPascalized();
             var eventData = new EventData { Data = data };
             await eventBus.FireAsync("creating", "User", eventData);
-            var result = await userService.CreateAsync(DataValue.ObjectFromDictionary<User>(data));
+            var result = await userService.CreateAsync(data.ToObject<User>());
             await UpdatePassword(data);
             await eventBus.FireAsync("created", "User", eventData);
 
@@ -155,18 +153,12 @@ namespace RFAuth.Controllers
             return Ok();
         }
 
-        async Task<bool> UpdatePassword(Dictionary<string, object?> data)
+        async Task<bool> UpdatePassword(DataDictionary data)
         {
-            if (!DataValue.TryGetPropertyValue(data, "Username", out var usernameValue)
-                || usernameValue is not string username
-                || string.IsNullOrEmpty(username)
-            )
+            if (!data.TryGetNotNullString("Username", out var username))
                 return false;
 
-            if (!DataValue.TryGetPropertyValue(data, "Password", out var passwordValue)
-                || passwordValue is not string password
-                || string.IsNullOrEmpty(password)
-            )
+            if (!data.TryGetNotNullString("Password", out var password))
                 return false;
         
             await passwordService.CreateOrUpdateForUsernameAsync(password, username);

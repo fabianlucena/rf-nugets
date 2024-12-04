@@ -38,7 +38,7 @@ namespace RFService.Repo
             Filters = new Dictionary<string, object?>(options.Filters);
         }
 
-        public static GetOptions CreateFromQuery(IDictionary<string, object?> query)
+        public static GetOptions CreateFromQuery(IQueryCollection query)
         {
             GetOptions options = new();
             options.AddFromQuery(query);
@@ -46,12 +46,9 @@ namespace RFService.Repo
             return options;
         }
 
-        public static GetOptions CreateFromQueryHttpContext(HttpContext httpContext)
-        {
-            var query = DataValue.GetPascalizeQueryDictionaryFromHttpContext(httpContext);
-            return CreateFromQuery(query);
-        }
-
+        public static GetOptions CreateFromQuery(HttpContext httpContext)
+            => CreateFromQuery(httpContext.Request.Query.GetPascalized());
+        
         public GetOptions AddFilterUuid(Guid? uuid)
         {
             if (uuid != null)
@@ -60,13 +57,12 @@ namespace RFService.Repo
             return this;
         }
 
-        public GetOptions AddFromQuery(IDictionary<string, object?> query)
+        public GetOptions AddFromQuery(IQueryCollection query)
         {
             if (!query.ContainsKey("IncludeDisabled"))
                 Filters["IsEnabled"] = true;
 
-            if (DataValue.TryGetValue(query, "IncludeDeleted", out bool? includeDeleted)
-                && includeDeleted != null)
+            if (query.TryGetBool("IncludeDeleted", out bool includeDeleted))
                 Options["IncludeDeleted"] = includeDeleted;
 
             return this;

@@ -74,7 +74,7 @@ namespace RFRBAC.Services
 
         public async Task UpdateRolesNameForUserNameAsync(
             string username,
-            string[] rolesName
+            IEnumerable<string> rolesName
         )
         {
             var userId = await userService.GetSingleIdForUsernameAsync(username);

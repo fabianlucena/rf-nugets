@@ -74,20 +74,11 @@ namespace RFRBAC
             if (data == null)
                 return false;
 
-            if (!DataValue.TryGetPropertyValue(data, "Username", out var usernameValue)
-                || usernameValue is not string username
-            )
+            if (!data.TryGetNotNullString("Username", out var username))
                 return false;
 
-            if (!DataValue.TryGetPropertyValue(data, "Roles", out var rolesValue)
-                || rolesValue is not List<object?> roles
-            )
+            if (!data.TryGetNotNullStrings("Roles", out var rolesName))
                 return false;
-
-            var rolesName = roles
-                .Select(i => i?.ToString() ?? "")
-                .Where(i => !string.IsNullOrEmpty(i))
-                .ToArray();
 
             await userRoleService.UpdateRolesNameForUserNameAsync(username, rolesName);
 
