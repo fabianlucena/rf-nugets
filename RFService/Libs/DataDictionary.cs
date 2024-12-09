@@ -149,6 +149,40 @@ namespace RFService.Libs
             return true;
         }
 
+        public bool TryGetGuid(string key, out Guid value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = default;
+                return false;
+            }
+
+            if (obj is Guid guid)
+            {
+                value = guid;
+                return true;
+            }
+
+            var str = obj.ToString();
+            if (string.IsNullOrEmpty(str))
+            {
+                value = default;
+                return false;
+            }
+
+            guid = Guid.Parse(str);
+            if (guid == Guid.Empty)
+            {
+                value = default;
+                return false;
+            }
+
+            value = guid;
+            return true;
+        }
+
         public bool TryGetGuids(string key, out IEnumerable<Guid> value)
         {
             if (!TryGetValue(key, out object? obj)
@@ -181,7 +215,10 @@ namespace RFService.Libs
             foreach (var item in list)
             {
                 if (item == null)
-                    continue;
+                {
+                    value = [];
+                    return false;
+                }
 
                 if (item is Guid guid)
                 {
@@ -191,11 +228,19 @@ namespace RFService.Libs
 
                 var str = item.ToString();
                 if (string.IsNullOrEmpty(str))
-                    continue;
+                {
+                    value = [];
+                    return false;
+                }
 
                 guid = Guid.Parse(str);
-                if (guid != Guid.Empty)
-                    newValue.Add(guid);
+                if (guid == Guid.Empty)
+                {
+                    value = [];
+                    return false;
+                }
+
+                newValue.Add(guid);
             }
 
             value = newValue;
@@ -293,6 +338,14 @@ namespace RFService.Libs
 
                 case JsonValueKind.Null:
                     return null;
+
+                case JsonValueKind.Number:
+                    if (jsonElement.TryGetInt64(out var int32))
+                        return int32;
+                    else if (jsonElement.TryGetUInt64(out var uint32))
+                        return uint32;
+                    else
+                        return jsonElement.GetDouble();
 
                 case JsonValueKind.Array:
                     {
