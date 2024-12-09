@@ -57,8 +57,8 @@ namespace RFService.Libs
             }
 
             value = Guid.Parse(strings[0] ?? "");
-            return value != Guid.Empty;
 
+            return value != Guid.Empty;
         }
 
         static public Guid GetGuid(this IQueryCollection query, string name)

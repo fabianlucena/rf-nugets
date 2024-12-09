@@ -202,6 +202,38 @@ namespace RFService.Libs
             return true;
         }
 
+        public bool TryGetNullableObjects(string key, out IEnumerable<object?> value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = [];
+                return false;
+            }
+
+            if (obj is IEnumerable<object?> objects)
+            {
+                value = objects;
+                return true;
+            }
+
+            if (obj is IEnumerable<object?> eobjects)
+            {
+                value = eobjects;
+                return true;
+            }
+
+            if (obj is not IEnumerable list)
+            {
+                value = [];
+                return false;
+            }
+
+            value = list.Cast<object?>();
+            return true;
+        }
+
         public T ToObject<T>()
             where T : new()
         {
