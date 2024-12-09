@@ -34,7 +34,7 @@ namespace RFRBAC.IServices
             return checkingRoles.Any(i => rolesName.Contains(i));
         }
 
-        Task UpdateRolesNameForUserNameAsync(string username, string[] rolesName);
+        Task UpdateRolesNameForUserNameAsync(string username, IEnumerable<string> rolesName);
 
         async Task<bool> UserIdHasRoleIdAsync(Int64 userId, Int64 roleId)
         {
