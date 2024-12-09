@@ -5,17 +5,11 @@ using RFDapper.Exceptions;
 using RFService.IRepo;
 using RFService.Libs;
 using RFService.Repo;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
-using System.Xml.Serialization;
 
 namespace RFDapper
 {
@@ -304,6 +298,7 @@ namespace RFDapper
             var filter = GetWhereFilter(options, prefix);
             if (filter != null)
                 filter.Sql = "WHERE " + filter.Sql;
+
             return filter;
         }
 
