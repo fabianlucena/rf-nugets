@@ -302,11 +302,12 @@ namespace RFDapper
             return filter;
         }
 
-        private static (string, TableAttribute)? GetForeignInfoForProperty(string name)
+        private static (string, bool, TableAttribute)? GetForeignInfoForProperty(string name)
         {
             var entityType = typeof(TEntity);
             var properties = entityType.GetProperties();
             string? propertyName = null;
+            bool nullable = false;
             ForeignKeyAttribute? foreign = null;
             foreach (var property in properties)
             {
@@ -317,6 +318,10 @@ namespace RFDapper
                     continue;
                 
                 propertyName = property.Name;
+
+                var propertyType = property.PropertyType;
+                nullable = propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>);
+
                 break;
             }
 
@@ -325,17 +330,17 @@ namespace RFDapper
                 return null;
             }
 
-            var propertyType = entityType.GetProperty(foreign.Name);
-            if (propertyType == null)
+            var foreignPropertyType = entityType.GetProperty(foreign.Name);
+            if (foreignPropertyType == null)
             {
                 return null;
             }
-            var tableAttribute = propertyType.PropertyType.GetCustomAttribute<TableAttribute>();
+            var tableAttribute = foreignPropertyType.PropertyType.GetCustomAttribute<TableAttribute>();
             if (tableAttribute == null)
             {
                 return null;
             }
-            return (propertyName, tableAttribute);
+            return (propertyName, nullable, tableAttribute);
         }
 
         public SqlQuery GetSelectQuery(GetOptions options)
@@ -357,7 +362,7 @@ namespace RFDapper
 
                     var entityType = typeof(TEntity);
 
-                    var (foreignColumnName, foreignTable) = Dapper<TEntity>.GetForeignInfoForProperty(join.Key) ??
+                    var (foreignColumnName, nullable, foreignTable) = Dapper<TEntity>.GetForeignInfoForProperty(join.Key) ??
                         throw new Exception($"No foreign column for {join.Key}");
 
                     var tableName = foreignTable.Schema;
@@ -374,9 +379,7 @@ namespace RFDapper
                     var foreignTableColumnKey = "Id";
 
                     sqlSelect += $", NULL AS [{options.Separator}], [{from.Alias}].*";
-                    // TODO: Find a way to determine the schema and name of the foreign table
-                    // Hardcoding schema and plurality of name for now
-                    sqlFrom += $" INNER JOIN {tableName} [{from.Alias}]"
+                    sqlFrom += $" {(nullable? "LEFT OUTER": "INNER")} JOIN {tableName} [{from.Alias}]"
                         + $" ON [{from.Alias}].[{foreignTableColumnKey}] = [{options.Alias}].[{foreignColumnName}]";
 
                     if (join.Value is GetOptions) {
