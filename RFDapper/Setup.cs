@@ -4,6 +4,11 @@ namespace RFDapper
 {
     public static class Setup
     {
+        public static void ConfigureDefaultDBConnectionString(string dbConnectionString)
+        {
+            DBConnectionString.Default = dbConnectionString;
+        }
+
         public static void CreateTable<TEntity>(IServiceProvider services)
             where TEntity : class
         {

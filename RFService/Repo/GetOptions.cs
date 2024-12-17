@@ -1,18 +1,18 @@
 ﻿using Microsoft.AspNetCore.Http;
 using RFService.Libs;
 using System.Data;
-using System.Text.Json;
 
 namespace RFService.Repo
 {
     public class GetOptions
-        : From
+        : From,
+            IDisposable
     {
-        public int? Offset { get; set; }
-        
-        public int? Top { get; set; }
+        public RepoOptions RepoOptions { get; set; } = new RepoOptions();
 
-        public IDbTransaction? Transaction { get; set; }
+        public int? Offset { get; set; }
+
+        public int? Top { get; set; }
 
         public bool Buffered { get; set; } = true;
 
@@ -33,9 +33,30 @@ namespace RFService.Repo
         public GetOptions(GetOptions options)
             : base(options)
         {
+            RepoOptions = options.RepoOptions;
             Offset = options.Offset;
             Top = options.Top;
+            Buffered = options.Buffered;
+            Separator = options.Separator;
+            CommandTimeout = options.CommandTimeout;
+            CommandType = options.CommandType;
             Filters = new Dictionary<string, object?>(options.Filters);
+            OrderBy = options.OrderBy;
+            Options = new Dictionary<string, object?>(options.Options);
+        }
+
+        public GetOptions(RepoOptions repoOptions)
+        {
+            RepoOptions = repoOptions;
+        }
+
+        ~GetOptions()
+            => Dispose();
+
+        public void Dispose()
+        {
+            RepoOptions.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public static GetOptions CreateFromQuery(IQueryCollection query)

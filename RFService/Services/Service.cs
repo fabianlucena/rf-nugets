@@ -1,6 +1,7 @@
 ﻿using RFService.Repo;
 using RFService.IRepo;
 using RFService.Entities;
+using System.Data;
 
 namespace RFService.Services
 {
@@ -8,7 +9,10 @@ namespace RFService.Services
         where TRepo : IRepo<TEntity>
         where TEntity : Entity
     {
-        public TRepo repo = _repo;
+        protected readonly TRepo repo = _repo;
+
+        public (IDbConnection, Action) OpenConnection(RepoOptions? options = null)
+            => repo.OpenConnection(options);
 
         public virtual async Task<TEntity> ValidateForCreationAsync(TEntity data)
             => await Task.Run(() => data);

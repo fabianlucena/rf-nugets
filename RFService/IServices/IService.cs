@@ -1,10 +1,13 @@
 ﻿using RFService.Repo;
+using System.Data;
 
 namespace RFService.IServices
 {
     public interface IService<TEntity>
         where TEntity : class
     {
+        (IDbConnection, Action) OpenConnection(RepoOptions? options = null);
+
         Task<TEntity> ValidateForCreationAsync(TEntity data);
 
         Task<TEntity> CreateAsync(TEntity data, GetOptions? options = null);

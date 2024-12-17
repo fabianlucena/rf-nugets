@@ -1,10 +1,13 @@
 ﻿using RFService.Repo;
+using System.Data;
 
 namespace RFService.IRepo
 {
     public interface IRepo<TEntity>
     {
-        Task<TEntity> InsertAsync(TEntity data);
+        (IDbConnection, Action) OpenConnection(RepoOptions? options = null);
+
+        Task<TEntity> InsertAsync(TEntity data, RepoOptions? options = null);
 
         Task<TEntity> GetSingleAsync(GetOptions options);
 

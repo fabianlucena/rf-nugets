@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RFDapper.Exceptions;
@@ -25,19 +26,17 @@ namespace RFDapper
         where TEntity : class
     {
         private readonly ILogger<Dapper<TEntity>> _logger;
-        private readonly IDbConnection _connection;
         private readonly string _tableName;
         private readonly string _schema = "dbo";
 
         public ILogger<Dapper<TEntity>> Logger { get => _logger; }
-        public IDbConnection Connection { get => _connection; }
+        public string ConnectionString { get => DBConnectionString.Get<TEntity>(); }
         public string TableName { get => _tableName; }
         public string Schema { get => _schema; }
 
-        public Dapper(ILogger<Dapper<TEntity>> logger, IDbConnection Connection)
+        public Dapper(ILogger<Dapper<TEntity>> logger)
         {
             _logger = logger;
-            _connection = Connection;
             var tableAttribute = typeof(TEntity).GetCustomAttribute<TableAttribute>();
             if (tableAttribute == null)
             {
@@ -51,6 +50,17 @@ namespace RFDapper
                     _schema = tableAttribute.Schema;
                 }
             }
+        }
+
+        public (IDbConnection, Action) OpenConnection(RepoOptions? options = null)
+        {
+            if (options?.Connection != null)
+                return (options.Connection, () => { });
+
+            var connection = new SqlConnection(ConnectionString);
+            connection.Open();
+
+            return (connection, () => connection.Dispose());
         }
 
         public void CreateTable()
@@ -67,7 +77,9 @@ namespace RFDapper
 
             var query = $@"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.schemas WHERE [name] = '{Schema}')
                 EXEC('CREATE SCHEMA [{Schema}] AUTHORIZATION [dbo]');";
-            Connection.Query(query);
+            using var connection = new SqlConnection(ConnectionString);
+            connection.Open();
+            connection.Query(query);
 
             var entityType = typeof(TEntity);
             var properties = entityType.GetProperties();
@@ -191,7 +203,7 @@ namespace RFDapper
                 + $"\r\n\tCREATE TABLE [{Schema}].[{TableName}] (\r\n\t\t{columnsQuery}\r\n\t) ON [PRIMARY]";
 
             _logger.LogDebug("{query}", query);
-            Connection.Query(query);
+            connection.Query(query);
         }
 
         public SqlQuery GetFilterQuery(object? filter, List<string> skipNames, string name = "", string? tableAlias = null)
@@ -588,43 +600,87 @@ namespace RFDapper
             pId?.SetValue(data, id);
         }
 
-        public async Task<TEntity> InsertAsync(TEntity data)
+        public async Task<TEntity> InsertAsync(TEntity data, RepoOptions? options = null)
         {
             var sqlQuery = GetInsertQuery(data);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            var rows = await Connection.QueryAsync<long>(sqlQuery.Sql, sqlQuery.Data.Values);
-            if (rows.Any())
+            var (connection, autoClose) = OpenConnection(options);
+            try
             {
-                Int64 id = rows.First();
-                SetId(data, id);
+                var rows = await connection.QueryAsync<Int64>(sqlQuery.Sql, sqlQuery.Data.Values, options?.Transaction);
+                if (rows.Any())
+                {
+                    Int64 id = rows.First();
+                    SetId(data, id);
+                }
+
+                return data;
             }
-
-            return data;
+            finally
+            {
+                autoClose();
+            }
         }
 
-        public Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options)
+        public async Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QuerySingleOrDefaultAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
+            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            try
+            {
+                return await connection.QuerySingleOrDefaultAsync<TEntity>(
+                    sqlQuery.Sql,
+                    sqlQuery.Data.Values,
+                    options.RepoOptions?.Transaction
+                );
+            }
+            finally
+            {
+                autoClose();
+            }
         }
 
-        public Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options)
+        public async Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QueryFirstOrDefaultAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
+            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            try
+            {
+                return await connection.QueryFirstOrDefaultAsync<TEntity>(
+                    sqlQuery.Sql,
+                    sqlQuery.Data.Values,
+                    options.RepoOptions?.Transaction
+                );
+            }
+            finally
+            {
+                autoClose();
+            }
         }
 
-        public Task<TEntity> GetSingleAsync(GetOptions options)
+        public async Task<TEntity> GetSingleAsync(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return Connection.QuerySingleAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
+            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            try
+            {
+                return await connection.QuerySingleAsync<TEntity>(
+                    sqlQuery.Sql,
+                    sqlQuery.Data.Values,
+                    options.RepoOptions?.Transaction
+                );
+            }
+            finally
+            {
+                autoClose();
+            }
         }
 
         public async Task<IEnumerable<TEntity>> GetListAsync(GetOptions options)
@@ -634,7 +690,19 @@ namespace RFDapper
                 var sqlQuery = GetSelectQuery(options);
                 var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
                 Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-                return await Connection.QueryAsync<TEntity>(sqlQuery.Sql, sqlQuery.Data.Values);
+                var (connection, autoClose) = OpenConnection(options.RepoOptions);
+                try
+                {
+                    return await connection.QueryAsync<TEntity>(
+                        sqlQuery.Sql,
+                        sqlQuery.Data.Values,
+                        options.RepoOptions?.Transaction
+                    );
+                }
+                finally
+                {
+                    autoClose();
+                }
             }
 
             if (options.Join.Count == 1)
@@ -689,7 +757,7 @@ namespace RFDapper
             throw new TooManyJoinsException();
         }
 
-        public Task<IEnumerable<TEntity>> GetListWith1IncludesAsync<TIncluded1>(GetOptions options)
+        public async Task<IEnumerable<TEntity>> GetListWith1IncludesAsync<TIncluded1>(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
@@ -700,17 +768,28 @@ namespace RFDapper
             var pIncluded1 = type.GetProperty(join.Key)
                 ?? throw new Exception($"Error property {join.Key} does not exist");
 
-            return Connection.QueryAsync<TEntity, TIncluded1, TEntity>(
-                sqlQuery.Sql,
-                (TEntity row, TIncluded1 included) => {
-                    pIncluded1.SetValue(row, included);
-                    return row;
-                },
-                sqlQuery.Data.Values,
-                splitOn: options.Separator
-            );
+            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            try
+            {
+                return await connection.QueryAsync<TEntity, TIncluded1, TEntity>(
+                    sqlQuery.Sql,
+                    (TEntity row, TIncluded1 included) =>
+                    {
+                        pIncluded1.SetValue(row, included);
+                        return row;
+                    },
+                    sqlQuery.Data.Values,
+                    splitOn: options.Separator,
+                    transaction: options.RepoOptions?.Transaction
+                );
+            }
+            finally
+            {
+                autoClose();
+            }
         }
-        public Task<IEnumerable<TEntity>> GetListWith2IncludesAsync<TIncluded1, TIncluded2>(GetOptions options)
+
+        public async Task<IEnumerable<TEntity>> GetListWith2IncludesAsync<TIncluded1, TIncluded2>(GetOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
@@ -724,16 +803,26 @@ namespace RFDapper
              var pIncluded2 = type.GetProperty(join2.Key)
                 ?? throw new Exception($"Error property {join2.Key} does not exist");
 
-            return Connection.QueryAsync<TEntity, TIncluded1, TIncluded2, TEntity>(
-                sqlQuery.Sql,
-                (TEntity row, TIncluded1 included1, TIncluded2 included2) => {
-                    pIncluded1.SetValue(row, included1);
-                    pIncluded2.SetValue(row, included2);
-                    return row;
-                },
-                sqlQuery.Data.Values,
-                splitOn: options.Separator
-            );
+            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            try
+            {
+                return await connection.QueryAsync<TEntity, TIncluded1, TIncluded2, TEntity>(
+                    sqlQuery.Sql,
+                    (TEntity row, TIncluded1 included1, TIncluded2 included2) =>
+                    {
+                        pIncluded1.SetValue(row, included1);
+                        pIncluded2.SetValue(row, included2);
+                        return row;
+                    },
+                    sqlQuery.Data.Values,
+                    splitOn: options.Separator,
+                    transaction: options.RepoOptions?.Transaction
+                );
+            }
+            finally
+            {
+                autoClose();
+            }
         }
 
         public async Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options)
@@ -741,7 +830,19 @@ namespace RFDapper
             var sqlQuery = GetUpdateQuery(data, options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return await Connection.ExecuteAsync(sqlQuery.Sql, sqlQuery.Data.Values);
+            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            try
+            {
+                return await connection.ExecuteAsync(
+                    sqlQuery.Sql,
+                    sqlQuery.Data.Values,
+                    options.RepoOptions?.Transaction
+                );
+            }
+            finally
+            {
+                autoClose();
+            }
         }
 
         public async Task<int> DeleteAsync(GetOptions options)
@@ -749,7 +850,19 @@ namespace RFDapper
             var sqlQuery = GetDeleteQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            return await Connection.ExecuteAsync(sqlQuery.Sql, sqlQuery.Data.Values);
+            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            try
+            {
+                return await connection.ExecuteAsync(
+                    sqlQuery.Sql,
+                    sqlQuery.Data.Values,
+                    options.RepoOptions?.Transaction
+                );
+            }
+            finally
+            {
+                autoClose();
+            }
         }
     }
 }
