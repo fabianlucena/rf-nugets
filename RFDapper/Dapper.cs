@@ -605,7 +605,7 @@ namespace RFDapper
             var sqlQuery = GetInsertQuery(data);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            var (connection, autoClose) = OpenConnection(options);
+            var (connection, closeConnection) = OpenConnection(options);
             try
             {
                 var rows = await connection.QueryAsync<Int64>(sqlQuery.Sql, sqlQuery.Data.Values, options?.Transaction);
@@ -619,7 +619,7 @@ namespace RFDapper
             }
             finally
             {
-                autoClose();
+                closeConnection();
             }
         }
 
@@ -628,7 +628,7 @@ namespace RFDapper
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
                 return await connection.QuerySingleOrDefaultAsync<TEntity>(
@@ -639,7 +639,7 @@ namespace RFDapper
             }
             finally
             {
-                autoClose();
+                closeConnection();
             }
         }
 
@@ -648,7 +648,7 @@ namespace RFDapper
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
                 return await connection.QueryFirstOrDefaultAsync<TEntity>(
@@ -659,7 +659,7 @@ namespace RFDapper
             }
             finally
             {
-                autoClose();
+                closeConnection();
             }
         }
 
@@ -668,7 +668,7 @@ namespace RFDapper
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
                 return await connection.QuerySingleAsync<TEntity>(
@@ -679,7 +679,7 @@ namespace RFDapper
             }
             finally
             {
-                autoClose();
+                closeConnection();
             }
         }
 
@@ -690,7 +690,7 @@ namespace RFDapper
                 var sqlQuery = GetSelectQuery(options);
                 var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
                 Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-                var (connection, autoClose) = OpenConnection(options.RepoOptions);
+                var (connection, closeConnection) = OpenConnection(options.RepoOptions);
                 try
                 {
                     return await connection.QueryAsync<TEntity>(
@@ -701,7 +701,7 @@ namespace RFDapper
                 }
                 finally
                 {
-                    autoClose();
+                    closeConnection();
                 }
             }
 
@@ -768,7 +768,7 @@ namespace RFDapper
             var pIncluded1 = type.GetProperty(join.Key)
                 ?? throw new Exception($"Error property {join.Key} does not exist");
 
-            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
                 return await connection.QueryAsync<TEntity, TIncluded1, TEntity>(
@@ -785,7 +785,7 @@ namespace RFDapper
             }
             finally
             {
-                autoClose();
+                closeConnection();
             }
         }
 
@@ -803,7 +803,7 @@ namespace RFDapper
              var pIncluded2 = type.GetProperty(join2.Key)
                 ?? throw new Exception($"Error property {join2.Key} does not exist");
 
-            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
                 return await connection.QueryAsync<TEntity, TIncluded1, TIncluded2, TEntity>(
@@ -821,7 +821,7 @@ namespace RFDapper
             }
             finally
             {
-                autoClose();
+                closeConnection();
             }
         }
 
@@ -830,7 +830,7 @@ namespace RFDapper
             var sqlQuery = GetUpdateQuery(data, options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
                 return await connection.ExecuteAsync(
@@ -841,7 +841,7 @@ namespace RFDapper
             }
             finally
             {
-                autoClose();
+                closeConnection();
             }
         }
 
@@ -850,7 +850,7 @@ namespace RFDapper
             var sqlQuery = GetDeleteQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            var (connection, autoClose) = OpenConnection(options.RepoOptions);
+            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
                 return await connection.ExecuteAsync(
@@ -861,7 +861,7 @@ namespace RFDapper
             }
             finally
             {
-                autoClose();
+                closeConnection();
             }
         }
     }
