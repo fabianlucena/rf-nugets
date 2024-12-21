@@ -26,6 +26,7 @@ namespace RFDapper
         where TEntity : class
     {
         private readonly ILogger<Dapper<TEntity>> _logger;
+        private readonly IDriver _driver;
         private readonly string _tableName;
         private readonly string _schema = "dbo";
 
@@ -34,9 +35,13 @@ namespace RFDapper
         public string TableName { get => _tableName; }
         public string Schema { get => _schema; }
 
-        public Dapper(ILogger<Dapper<TEntity>> logger)
+        public Dapper(
+            ILogger<Dapper<TEntity>> logger,
+            IDriver driver
+        )
         {
             _logger = logger;
+            _driver = driver;
             var tableAttribute = typeof(TEntity).GetCustomAttribute<TableAttribute>();
             if (tableAttribute == null)
             {
@@ -76,7 +81,7 @@ namespace RFDapper
                 };
 
             var query = $@"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.schemas WHERE [name] = '{Schema}')
-                EXEC('CREATE SCHEMA [{Schema}] AUTHORIZATION [dbo]');";
+                EXEC('CREATE SCHEMA {_driver.SanitizeSchema(Schema)} AUTHORIZATION {_driver.GetDefaultSchema()}');";
             using var connection = new SqlConnection(ConnectionString);
             connection.Open();
             connection.Query(query);
@@ -206,7 +211,7 @@ namespace RFDapper
             connection.Query(query);
         }
 
-        public SqlQuery GetFilterQuery(object? filter, List<string> skipNames, string name = "", string? tableAlias = null)
+        public SqlQuery GetFilterQuery(object? filter, GetOptions options, List<string> skipNames, string name = "", string? tableAlias = null)
         {
             if (filter == null)
                 return new SqlQuery { Sql = " IS NULL" };
@@ -219,9 +224,8 @@ namespace RFDapper
                 {
                     var key = f.Key;
                     var value = f.Value;
-                    var columnName = $"[{key}]";
-                    if (!string.IsNullOrEmpty(tableAlias))
-                        columnName = $"[{tableAlias}].{columnName}";
+
+                    var columnName = _driver.GetFullColumnName(key, options, tableAlias);
 
                     if (value == null)
                     {
@@ -229,7 +233,7 @@ namespace RFDapper
                         continue;
                     }
 
-                    var newName = name + key;
+                    var newName = _driver.SanitizeVarname(name + key);
                     if (skipNames.Contains(name))
                     {
                         var root = newName;
@@ -243,7 +247,7 @@ namespace RFDapper
                     }
                     skipNames.Add(newName);
 
-                    var sqlQuery = GetFilterQuery(value, skipNames, newName, tableAlias);
+                    var sqlQuery = GetFilterQuery(value, options, skipNames, newName, tableAlias);
 
                     sqlFilters.Add(columnName + sqlQuery.Sql);
                     foreach (var kv in sqlQuery.Data.Values)
@@ -277,7 +281,7 @@ namespace RFDapper
             
             if (filter is RFService.Operator.DistinctTo op)
             {
-                var sqlQuery = GetFilterQuery(op.Value, skipNames, name);
+                var sqlQuery = GetFilterQuery(op.Value, options, skipNames, name);
                 var sql = " NOT";
                 if (sqlQuery.Sql[0] != ' ')
                     sql += " ";
@@ -301,7 +305,8 @@ namespace RFDapper
         {
             if (options.Filters.Count == 0)
                 return null;
-            var sqlQuery = GetFilterQuery(options.Filters, [], prefix, options.Alias);
+            var sqlQuery = GetFilterQuery(options.Filters, options, [], prefix, options.Alias);
+
             return sqlQuery;
         }
 

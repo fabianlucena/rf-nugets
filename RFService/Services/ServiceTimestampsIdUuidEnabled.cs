@@ -9,7 +9,7 @@ namespace RFService.Services
         where TRepo : IRepo<TEntity>
         where TEntity : EntityTimestampsIdUuidEnabled
     {
-        public override GetOptions SanitizeForAutoGet(GetOptions options)
+        public override GetOptions SanitizeGetOptions(GetOptions options)
         {
             if (options.Filters.TryGetValue("IsEnabled", out object? value))
             {
@@ -20,7 +20,7 @@ namespace RFService.Services
                 }
             }
 
-            return base.SanitizeForAutoGet(options);
+            return base.SanitizeGetOptions(options);
         }
     }
 }

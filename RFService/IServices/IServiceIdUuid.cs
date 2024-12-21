@@ -15,6 +15,15 @@ namespace RFService.IServices
             return GetId(item);
         }
 
+        public async Task<Int64?> GetSingleIdOrDefaultForUuidAsync(Guid uuid, GetOptions? options = null)
+        {
+            var item = await GetSingleOrDefaultForUuidAsync(uuid, options);
+            if (item == null)
+                return null;
+
+            return GetId(item);
+        }
+
         public async Task<IEnumerable<Int64>> GetListIdForUuidsAsync(IEnumerable<Guid> uuids, GetOptions? options = null)
         {
             options ??= new GetOptions();

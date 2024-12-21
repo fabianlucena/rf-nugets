@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using RFService.Libs;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace RFService.Repo
 {
@@ -80,11 +81,46 @@ namespace RFService.Repo
 
         public GetOptions AddFromQuery(IQueryCollection query)
         {
-            if (!query.ContainsKey("IncludeDisabled"))
-                Filters["IsEnabled"] = true;
+            if (query.ContainsKey("IncludeDisabled"))
+                Filters["IsEnabled"] = null;
 
             if (query.TryGetBool("IncludeDeleted", out bool includeDeleted))
                 Options["IncludeDeleted"] = includeDeleted;
+
+            var filters = query.GetStrings("$filter");
+            foreach (var filter in filters)
+            {
+                if (string.IsNullOrEmpty(filter))
+                    continue;
+
+                string pattern = @"^([\w\.]+)\s+eq\s+(.*)$";
+
+                Regex regex = new(pattern);
+                Match match = regex.Match(filter);
+                if (!match.Success)
+                    throw new UnknownFilterException(filter);
+
+                AddFilter(match.Groups[1].Value, match.Groups[2].Value);
+            }
+
+            return this;
+        }
+
+        public GetOptions AddFilter(string column, object value)
+        {
+            if (Filters.ContainsKey(column))
+            {
+                List<object> list;
+                if (Filters[column] is IEnumerable<object> enumerable)
+                    list = enumerable.ToList();
+                else
+                    list = [Filters[column]];
+
+                list.Add(value);
+                Filters[column] = list;
+            }
+            else
+                Filters[column] = value;
 
             return this;
         }
