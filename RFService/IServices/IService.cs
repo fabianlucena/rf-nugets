@@ -32,7 +32,7 @@ namespace RFService.IServices
 
         Task CreateIfNotExistsAsync(TEntity data);
 
-        Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data);
+        Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data, GetOptions options);
 
         Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options);
 

@@ -12,6 +12,9 @@ namespace RFService.Services
     {
         public Int64 GetId(TEntity item) => item.Id;
 
+        public async Task<IEnumerable<Int64>> GetListIdAsync(GetOptions options)
+            => (await GetListAsync(options)).Select(GetId);
+
         public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {
             data = await base.ValidateForCreationAsync(data);

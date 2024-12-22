@@ -19,9 +19,9 @@ namespace RFService.Services
             return data;
         }
 
-        public override async Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data)
+        public override async Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data, GetOptions options)
         {
-            data = await base.ValidateForUpdateAsync(data);
+            data = await base.ValidateForUpdateAsync(data, options);
 
             if (!data.ContainsKey("UpdatedAt"))
                 data["UpdatedAt"] = DateTime.UtcNow;

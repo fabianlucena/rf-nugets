@@ -15,9 +15,7 @@ namespace RFAuth.Services
             IPasswordService
     {
         public string Hash(string rawPassword)
-        {
-            return BCrypt.Net.BCrypt.HashPassword(rawPassword);
-        }
+            => BCrypt.Net.BCrypt.HashPassword(rawPassword);
 
         public bool Verify(string rawPassword, string hash)
         {

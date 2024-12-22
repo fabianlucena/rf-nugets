@@ -73,12 +73,12 @@ namespace RFService.Services
         public virtual Task CreateIfNotExistsAsync(TEntity data)
             => GetOrCreateAsync(data);
 
-        public virtual async Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data)
+        public virtual async Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data, GetOptions options)
             => await Task.Run(() => data);
 
         public virtual async Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options)
         {
-            data = await ValidateForUpdateAsync(data);
+            data = await ValidateForUpdateAsync(data, options);
             return await repo.UpdateAsync(data, options);
         }
 

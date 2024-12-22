@@ -8,8 +8,7 @@ namespace RFService.IServices
     {
         Int64 GetId(TEntity item);
 
-        public async Task<IEnumerable<Int64>> GetListIdAsync(GetOptions options)
-            => (await GetListAsync(options)).Select(GetId);
+        Task<IEnumerable<Int64>> GetListIdAsync(GetOptions options);
 
         Task<TEntity> GetSingleForIdAsync(Int64 id, GetOptions? options = null);
 
