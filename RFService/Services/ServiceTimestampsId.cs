@@ -2,6 +2,8 @@
 using RFService.Entities;
 using RFService.IRepo;
 using RFService.Repo;
+using RFService.Libs;
+using RFService.ILibs;
 
 namespace RFService.Services
 {
@@ -36,7 +38,7 @@ namespace RFService.Services
                     && (Int64)value > 0
                 )
                 {
-                    options.Filters = new Dictionary<string, object?> { { "Id", value } };
+                    options.Filters = new DataDictionary { { "Id", value } };
                     return options;
                 }
                 else {
@@ -68,7 +70,7 @@ namespace RFService.Services
             return GetListAsync(options);
         }
 
-        public virtual Task<int> UpdateForIdAsync(IDictionary<string, object?> data, Int64 id, GetOptions? options = null)
+        public virtual Task<int> UpdateForIdAsync(IDataDictionary data, Int64 id, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["Id"] = id;

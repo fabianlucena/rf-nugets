@@ -6,6 +6,7 @@ using RFService.IRepo;
 using RFService.Repo;
 using RFAuth.Exceptions;
 using RFHttpExceptions.Exceptions;
+using RFService.Libs;
 
 namespace RFAuth.Services
 {
@@ -67,7 +68,7 @@ namespace RFAuth.Services
         public async Task<bool> CloseForIdAsync(Int64 id)
         {
             return (await UpdateAsync(
-                new Dictionary<string, object?>{ { "ClosedAt", DateTime.UtcNow } },
+                new DataDictionary { { "ClosedAt", DateTime.UtcNow } },
                 new GetOptions { Filters = { { "Id", id} } }
             )) > 0;
         }

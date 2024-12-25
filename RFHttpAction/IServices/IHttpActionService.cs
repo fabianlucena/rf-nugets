@@ -1,5 +1,5 @@
 ﻿using RFHttpAction.Entities;
-using RFService.IService;
+using RFService.IServices;
 
 namespace RFHttpAction.IServices
 {

@@ -1,4 +1,5 @@
-﻿using RFService.Repo;
+﻿using RFService.ILibs;
+using RFService.Repo;
 using System.Data;
 
 namespace RFService.IServices
@@ -32,9 +33,9 @@ namespace RFService.IServices
 
         Task CreateIfNotExistsAsync(TEntity data);
 
-        Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data, GetOptions options);
+        Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, GetOptions options);
 
-        Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options);
+        Task<int> UpdateAsync(IDataDictionary data, GetOptions options);
 
         Task<int> DeleteAsync(GetOptions options);
     }

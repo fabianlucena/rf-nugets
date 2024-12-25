@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RFService.IService;
-using RFService.Services;
+using RFService.IServices;
+using RFService.Libs;
 using RFUserEmailVerified.IServices;
 using RFUserEmailVerified.Services;
 

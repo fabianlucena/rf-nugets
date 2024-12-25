@@ -1,4 +1,5 @@
 ﻿using RFAuth.Entities;
+using RFService.ILibs;
 using RFService.IServices;
 using RFService.Repo;
 
@@ -21,7 +22,7 @@ namespace RFAuth.IServices
 
         bool Verify(string rawPassword, Password password);
 
-        Task<int> UpdateForUserIdAsync(IDictionary<string, object?> data, Int64 userId, GetOptions? options = null);
+        Task<int> UpdateForUserIdAsync(IDataDictionary data, Int64 userId, GetOptions? options = null);
 
         Task<bool> CreateOrUpdateForUserIdAsync(string password, Int64 userId);
 

@@ -23,11 +23,11 @@ namespace RFService.Repo
 
         public CommandType? CommandType { get; set; } = null;
 
-        public Dictionary<string, object?> Filters { get; set; } = [];
+        public DataDictionary Filters { get; set; } = [];
 
         public List<string> OrderBy { get; set; } = [];
 
-        public Dictionary<string, object?> Options { get; set; } = [];
+        public DataDictionary Options { get; set; } = [];
 
         public GetOptions() { }
 
@@ -41,9 +41,9 @@ namespace RFService.Repo
             Separator = options.Separator;
             CommandTimeout = options.CommandTimeout;
             CommandType = options.CommandType;
-            Filters = new Dictionary<string, object?>(options.Filters);
+            Filters = new DataDictionary(options.Filters);
             OrderBy = options.OrderBy;
-            Options = new Dictionary<string, object?>(options.Options);
+            Options = new DataDictionary(options.Options);
         }
 
         public GetOptions(RepoOptions repoOptions)

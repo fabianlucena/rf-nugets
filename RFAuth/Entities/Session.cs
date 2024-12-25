@@ -1,6 +1,5 @@
 ﻿using RFService.Entities;
 using RFService.Libs;
-using RFService.Services;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,7 +8,8 @@ namespace RFAuth.Entities
     [Table("Sessions", Schema = "auth")]
     [Index(nameof(Token), IsUnique = true)]
     [Index(nameof(AutoLoginToken), IsUnique = true)]
-    public class Session : EntitySoftDeleteTimestampsIdUuid
+    public class Session
+        : EntitySoftDeleteTimestampsIdUuid
     {
         [Required]
         [ForeignKey("User")]

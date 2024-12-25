@@ -4,6 +4,7 @@ using RFService.Services;
 using RFService.Repo;
 using RFService.IRepo;
 using RFService.IServices;
+using RFService.Libs;
 
 namespace RFAuth.Services
 {
@@ -56,7 +57,7 @@ namespace RFAuth.Services
                     && !string.IsNullOrEmpty((string)value)
                 )
                 {
-                    options.Filters = new Dictionary<string, object?> { { "Username", value } };
+                    options.Filters = new DataDictionary { { "Username", value } };
                     return options;
                 }
                 else

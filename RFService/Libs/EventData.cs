@@ -4,6 +4,6 @@
     {
         public DataDictionary? Data { get; set; } = null;
 
-        public Dictionary<string, object?>? Filter { get; set; } = null;
+        public DataDictionary? Filter { get; set; } = null;
     }
 }

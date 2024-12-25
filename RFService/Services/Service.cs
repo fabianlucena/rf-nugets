@@ -2,6 +2,8 @@
 using RFService.IRepo;
 using RFService.Entities;
 using System.Data;
+using RFService.Libs;
+using RFService.ILibs;
 
 namespace RFService.Services
 {
@@ -46,7 +48,7 @@ namespace RFService.Services
 
         public virtual Task<TEntity?> AutoGetFirstOrDefaultAsync(TEntity data)
         {
-            var filters = new Dictionary<string, object?>();
+            var filters = new DataDictionary();
             var entityType = typeof(TEntity);
             var properties = entityType.GetProperties();
             foreach (var pInfo in properties)
@@ -73,10 +75,10 @@ namespace RFService.Services
         public virtual Task CreateIfNotExistsAsync(TEntity data)
             => GetOrCreateAsync(data);
 
-        public virtual async Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data, GetOptions options)
+        public virtual async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, GetOptions options)
             => await Task.Run(() => data);
 
-        public virtual async Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options)
+        public virtual async Task<int> UpdateAsync(IDataDictionary data, GetOptions options)
         {
             data = await ValidateForUpdateAsync(data, options);
             return await repo.UpdateAsync(data, options);

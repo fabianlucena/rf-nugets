@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RFDapper.Exceptions;
+using RFService.ILibs;
 using RFService.IRepo;
 using RFService.Libs;
 using RFService.Repo;
@@ -216,7 +217,7 @@ namespace RFDapper
             if (filter == null)
                 return new SqlQuery { Sql = " IS NULL" };
 
-            if (filter is Dictionary<string, object?> filters)
+            if (filter is DataDictionary filters)
             {
                 var sqlFilters = new List<string>();
                 var data = new Data();
@@ -486,7 +487,7 @@ namespace RFDapper
             switch (element.ValueKind)
             {
                 case JsonValueKind.Object:
-                    var dict = new Dictionary<string, object?>();
+                    var dict = new DataDictionary();
                     foreach (var prop in element.EnumerateObject())
                     {
                         dict[prop.Name] = ConvertJsonElement(prop.Value);
@@ -528,7 +529,7 @@ namespace RFDapper
         }
 
         public SqlQuery GetUpdateQuery(
-            IDictionary<string, object?> data,
+            IDataDictionary data,
             GetOptions options
         )
         {
@@ -538,7 +539,7 @@ namespace RFDapper
 
             var entityType = typeof(TEntity);
             var columns = new List<string>();
-            Dictionary<string, object?> values = [];
+            DataDictionary values = [];
 
             foreach (var item in data)
             {
@@ -578,7 +579,7 @@ namespace RFDapper
             return new SqlQuery
             {
                 Sql = sql,
-                Data = { Values = values.Concat(sqlWhere.Data.Values).ToDictionary(x => x.Key, x => x.Value) },
+                Data = { Values = values.Concat(sqlWhere.Data.Values).ToDataDictionary() },
             };
         }
 
@@ -588,13 +589,13 @@ namespace RFDapper
                 ?? throw new Exception("DELETE without WHERE is forbidden");
 
             var columns = new List<string>();
-            Dictionary<string, object?> values = [];
+            DataDictionary values = [];
 
             var sql = $"DELETE FROM [{Schema}].[{TableName}] {sqlWhere.Sql}";
             return new SqlQuery
             {
                 Sql = sql,
-                Data = { Values = values.Concat(sqlWhere.Data.Values).ToDictionary(x => x.Key, x => x.Value) },
+                Data = { Values = values.Concat(sqlWhere.Data.Values).ToDataDictionary() },
             };
         }
 
@@ -830,7 +831,7 @@ namespace RFDapper
             }
         }
 
-        public async Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options)
+        public async Task<int> UpdateAsync(IDataDictionary data, GetOptions options)
         {
             var sqlQuery = GetUpdateQuery(data, options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);

@@ -1,4 +1,5 @@
-﻿using RFService.Repo;
+﻿using RFService.Libs;
+using RFService.Repo;
 
 namespace RFService.IServices
 {
@@ -7,6 +8,6 @@ namespace RFService.IServices
         where TEntity : class
     {
         Task<int> RestoreAsync(GetOptions options)
-            => UpdateAsync(new Dictionary<string, object?>{{ "DeletedAt", null }}, options);
+            => UpdateAsync(new DataDictionary { { "DeletedAt" , null } }, options);
     }
 }

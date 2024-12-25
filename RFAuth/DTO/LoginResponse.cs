@@ -1,4 +1,6 @@
-﻿namespace RFAuth.DTO
+﻿using RFService.ILibs;
+
+namespace RFAuth.DTO
 {
     public class LoginResponse
     {
@@ -10,6 +12,6 @@
 
         public string DeviceToken { get; set; } = string.Empty;
 
-        public IDictionary<string, object>? Attributes { get; set; }
+        public IDataDictionary? Attributes { get; set; }
     }
 }

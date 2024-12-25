@@ -1,4 +1,6 @@
-﻿namespace RFAuth.DTO
+﻿using RFService.Libs;
+
+namespace RFAuth.DTO
 {
     public class LoginData
     {
@@ -12,6 +14,6 @@
 
         public Int64 UserId { get; set; }
 
-        public IDictionary<string, object>? Attributes { get; set; }
+        public DataDictionary? Attributes { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using RFService.Entities;
 using RFService.IRepo;
+using RFService.Libs;
 using RFService.Repo;
 
 namespace RFService.Services
@@ -32,7 +33,7 @@ namespace RFService.Services
                     && (Guid)value != Guid.Empty
                 )
                 {
-                    options.Filters = new Dictionary<string, object?> { { "Uuid", value } };
+                    options.Filters = new DataDictionary { { "Uuid", value } };
                     return options;
                 }
                 else

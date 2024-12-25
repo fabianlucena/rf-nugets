@@ -1,4 +1,5 @@
-﻿using RFService.Repo;
+﻿using RFService.ILibs;
+using RFService.Repo;
 using System.Data;
 
 namespace RFService.IRepo
@@ -17,7 +18,7 @@ namespace RFService.IRepo
 
         Task<IEnumerable<TEntity>> GetListAsync(GetOptions options);
 
-        Task<int> UpdateAsync(IDictionary<string, object?> data, GetOptions options);
+        Task<int> UpdateAsync(IDataDictionary data, GetOptions options);
 
         Task<int> DeleteAsync(GetOptions options);
     }

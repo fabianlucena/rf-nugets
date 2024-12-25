@@ -1,11 +1,13 @@
-﻿using System.Collections;
+﻿using RFService.ILibs;
+using System.Collections;
 using System.Globalization;
 using System.Text.Json;
 
 namespace RFService.Libs
 {
     public class DataDictionary
-        : Dictionary<string, object?>
+        : Dictionary<string, object?>,
+            IDataDictionary
     {
         public DataDictionary()
         { }
@@ -29,7 +31,7 @@ namespace RFService.Libs
                 }
             );
 
-            return new(data);
+            return new DataDictionary(data);
         }
 
         public bool IsNullValue(string key)
@@ -316,7 +318,7 @@ namespace RFService.Libs
             return obj;
         }
 
-        public static object? GetValue(object? element, bool camelize = false)
+        public object? GetValue(object? element, bool camelize = false)
         {
             if (element == null)
                 return null;
@@ -358,7 +360,7 @@ namespace RFService.Libs
 
                 case JsonValueKind.Object:
                     {
-                        Dictionary<string, object?> result = [];
+                        DataDictionary result = [];
                         if (camelize)
                         {
                             foreach (var item in jsonElement.EnumerateObject())

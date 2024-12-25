@@ -1,4 +1,5 @@
-﻿using RFService.Repo;
+﻿using RFService.ILibs;
+using RFService.Repo;
 
 namespace RFService.IServices
 {
@@ -24,7 +25,7 @@ namespace RFService.IServices
             return await GetSingleOrDefaultAsync(options);
         }
 
-        Task<int> UpdateForUuidAsync(IDictionary<string, object?> data, Guid uuid, GetOptions? options = null)
+        Task<int> UpdateForUuidAsync(IDataDictionary data, Guid uuid, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["uuid"] = uuid;

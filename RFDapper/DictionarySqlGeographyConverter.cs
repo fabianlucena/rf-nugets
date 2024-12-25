@@ -1,14 +1,15 @@
 ﻿using Newtonsoft.Json;
 using Microsoft.SqlServer.Types;
 using Newtonsoft.Json.Linq;
+using RFService.Libs;
 namespace RFDapper
 {
     public class DictionarySqlGeographyConverter
-        : JsonConverter<Dictionary<string, object?>>
+        : JsonConverter<DataDictionary>
     {
         public override void WriteJson(
             JsonWriter writer,
-            Dictionary<string, object?>? value,
+            DataDictionary? value,
             JsonSerializer serializer
         )
         {
@@ -35,15 +36,15 @@ namespace RFDapper
 
             jobject.WriteTo(writer);
         }
-        public override Dictionary<string, object?> ReadJson(
+        public override DataDictionary ReadJson(
             JsonReader reader,
             Type objectType,
-            Dictionary<string, object?>? existingValue,
+            DataDictionary? existingValue,
             bool hasExistingValue,
             JsonSerializer serializer
         )
         {
-            var dictionary = new Dictionary<string, object?>();
+            var dictionary = new DataDictionary();
             var jobject = JObject.Load(reader);
             
             foreach (var property in jobject.Properties())

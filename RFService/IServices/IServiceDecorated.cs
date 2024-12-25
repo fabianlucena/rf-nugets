@@ -1,13 +1,15 @@
-﻿namespace RFService.IServices
+﻿using RFService.Libs;
+
+namespace RFService.IServices
 {
     public interface IServiceDecorated
     {
         IPropertiesDecorators PropertiesDecorators { get; }
 
-        public virtual async Task<IDictionary<string, object>?> DecorateItemAsync<T>(
+        public virtual async Task<DataDictionary?> DecorateItemAsync<T>(
             T data,
             string name,
-            IDictionary<string, object>? property,
+            DataDictionary? property,
             string eventType = ""
         )
         {
@@ -18,7 +20,7 @@
             if (decorators == null)
                 return property;
 
-            IDictionary<string, object> newProperty = property ?? new Dictionary<string, object>();
+            DataDictionary newProperty = property ?? [];
             foreach (var decorator in decorators)
                 await decorator(data, newProperty, eventType);
 
@@ -31,7 +33,7 @@
         public virtual async Task<IEnumerable<T>> DecorateListAsync<T>(
             IEnumerable<T> list,
             string name,
-            Action<T, IDictionary<string, object>> assign,
+            Action<T, DataDictionary> assign,
             string eventType = ""
         )
         {
@@ -46,7 +48,7 @@
                 {
                     if (row != null)
                     {
-                        IDictionary<string, object> newProperty = new Dictionary<string, object>();
+                        DataDictionary newProperty = [];
                         await decorator(row, newProperty, eventType);
                         if (newProperty.Count != 0)
                             assign(row, newProperty);

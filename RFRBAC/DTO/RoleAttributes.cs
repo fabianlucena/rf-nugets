@@ -1,10 +1,11 @@
 ﻿using RFRBAC.Entities;
+using RFService.ILibs;
 
 namespace RFRBAC.DTO
 {
     public class RoleAttributes
         : Role
     {
-        public IDictionary<string, object>? Attributes { get; set; }
+        public IDataDictionary? Attributes { get; set; }
     }
 }

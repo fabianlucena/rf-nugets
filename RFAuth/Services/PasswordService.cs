@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using RFAuth.Entities;
 using RFAuth.IServices;
+using RFService.ILibs;
 using RFService.IRepo;
+using RFService.Libs;
 using RFService.Repo;
 using RFService.Services;
 
@@ -56,7 +58,7 @@ namespace RFAuth.Services
                     && (Int64)value != 0
                 )
                 {
-                    options.Filters = new Dictionary<string, object?> { { "UserId", value } };
+                    options.Filters = new DataDictionary { { "UserId", value } };
                     return options;
                 }
                 else
@@ -68,7 +70,7 @@ namespace RFAuth.Services
             return base.SanitizeForAutoGet(options);
         }
 
-        public async Task<int> UpdateForUserIdAsync(IDictionary<string, object?> data, Int64 userId, GetOptions? options = null)
+        public async Task<int> UpdateForUserIdAsync(IDataDictionary data, Int64 userId, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["UserId"] = userId;
@@ -90,7 +92,7 @@ namespace RFAuth.Services
             }
 
             var result = await UpdateForUserIdAsync(
-                new Dictionary<string, object?> { { "Hash", Hash(password) } },
+                new DataDictionary { { "Hash", Hash(password) } },
                 userId
             );
 

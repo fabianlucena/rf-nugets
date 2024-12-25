@@ -1,5 +1,6 @@
 ﻿using RFService.Entities;
 using RFService.IRepo;
+using RFService.Libs;
 using RFService.Repo;
 
 namespace RFService.Services
@@ -27,7 +28,7 @@ namespace RFService.Services
         public override Task<int> DeleteAsync(GetOptions options)
         {
             return UpdateAsync(
-                new Dictionary<string, object?>{ { "DeletedAt", DateTime.UtcNow } },
+                new DataDictionary { { "DeletedAt", DateTime.UtcNow } },
                 options
             );
         }

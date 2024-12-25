@@ -1,4 +1,5 @@
-﻿using RFService.Repo;
+﻿using RFService.Libs;
+using RFService.Repo;
 
 namespace RFService.IServices
 {
@@ -15,7 +16,7 @@ namespace RFService.IServices
                     && !string.IsNullOrEmpty((string)value)
                 )
                 {
-                    options.Filters = new Dictionary<string, object?> { { "Name", value } };
+                    options.Filters = new DataDictionary { { "Name", value } };
                     return options;
                 }
                 else

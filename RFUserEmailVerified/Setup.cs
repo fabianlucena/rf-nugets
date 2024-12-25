@@ -2,7 +2,7 @@
 using RFAuth.DTO;
 using RFAuth.Exceptions;
 using RFHttpAction.IServices;
-using RFService.IService;
+using RFService.IServices;
 using RFUserEmailVerified.IServices;
 
 namespace RFUserEmailVerified
@@ -13,15 +13,15 @@ namespace RFUserEmailVerified
         {
             var propertiesDecorators = provider.GetRequiredService<IPropertiesDecorators>();
             var userEmailVerifiedService = provider.GetRequiredService<IUserEmailVerifiedService>();
-            propertiesDecorators.AddDecorator("LoginAttributes", async (data, property) =>
+            propertiesDecorators.AddDecorator("LoginAttributes", async (data, newProperty, property) =>
             {
                 var userEmail = await userEmailVerifiedService.GetSingleOrDefaultForUserIdAsync(((LoginData)data).UserId);
                 if (userEmail == null)
-                    property["hasEmail"] = false;
+                    newProperty["hasEmail"] = false;
                 else
                 {
-                    property["hasEmail"] = true;
-                    property["isEmailVerified"] = userEmail.IsVerified;
+                    newProperty["hasEmail"] = true;
+                    newProperty["isEmailVerified"] = userEmail.IsVerified;
                 }
             });
 

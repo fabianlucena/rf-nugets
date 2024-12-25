@@ -44,7 +44,7 @@ namespace RFAuth.Controllers
                     else
                         row.Attributes = row.Attributes
                             .Concat(value)
-                            .ToDictionary(pair => pair.Key, pair => pair.Value);
+                            .ToDataDictionary();
                 },
                 eventType: "Result"
             );
@@ -65,7 +65,7 @@ namespace RFAuth.Controllers
             data = data.GetPascalized();
             var eventData = new EventData {
                 Data = data,
-                Filter = new Dictionary<string, object?> {
+                Filter = new DataDictionary {
                     { "Uuid", uuid }
                 }
             };
@@ -111,7 +111,7 @@ namespace RFAuth.Controllers
 
             var eventData = new EventData
             {
-                Filter = new Dictionary<string, object?> {
+                Filter = new DataDictionary {
                     { "Uuid", uuid }
                 }
             };
@@ -134,12 +134,7 @@ namespace RFAuth.Controllers
         {
             logger.LogInformation("Restoring user");
 
-            var eventData = new EventData
-            {
-                Filter = new Dictionary<string, object?> {
-                    { "Uuid", uuid }
-                }
-            };
+            var eventData = new EventData { Filter = new DataDictionary { { "Uuid", uuid } } };
 
             await eventBus.FireAsync("restoring", "User", eventData);
             var result = await userService.RestoreForUuidAsync(uuid);

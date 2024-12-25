@@ -1,4 +1,5 @@
-﻿using RFService.Repo;
+﻿using RFService.ILibs;
+using RFService.Repo;
 
 namespace RFService.IServices
 {
@@ -16,7 +17,7 @@ namespace RFService.IServices
 
         Task<IEnumerable<TEntity>> GetListForIdsAsync(IEnumerable<Int64> id, GetOptions? options = null);
 
-        Task<int> UpdateForIdAsync(IDictionary<string, object?> data, Int64 id, GetOptions? options = null);
+        Task<int> UpdateForIdAsync(IDataDictionary data, Int64 id, GetOptions? options = null);
 
         Task<int> DeleteForIdAsync(Int64 id, GetOptions? options = null);
     }

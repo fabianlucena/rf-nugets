@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using RFAuth.Exceptions;
 using Microsoft.AspNetCore.Http;
 using RFService.Authorization;
+using RFService.Libs;
 
 namespace RFAuth.Controllers
 {
@@ -28,7 +29,7 @@ namespace RFAuth.Controllers
                 throw new BadPasswordException(_localizer["Bad current password"]);
 
             await passwordService.UpdateForIdAsync(
-                new Dictionary<string, object?> { { "Hash", passwordService.Hash(request.NewPassword) } },
+                new DataDictionary { { "Hash", passwordService.Hash(request.NewPassword) } },
                 password.Id
             );
 

@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
+using RFService.Libs;
 
 namespace RFDapper
 {
     public class Data
     {
         [JsonConverter(typeof(DictionarySqlGeographyConverter))]
-        public Dictionary<string, object?> Values { get; set; } = [];
+        public DataDictionary Values { get; set; } = [];
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace RFAuth.DTO
+﻿using RFService.ILibs;
+
+namespace RFAuth.DTO
 {
     public class UserResponse
     {
@@ -16,6 +18,6 @@
 
         public DateTime? DeletedAt { get; set; }
 
-        public IDictionary<string, object>? Attributes { get; set; }
+        public IDataDictionary? Attributes { get; set; }
     }
 }

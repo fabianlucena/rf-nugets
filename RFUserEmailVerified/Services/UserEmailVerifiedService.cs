@@ -1,4 +1,5 @@
 ﻿using RFService.IRepo;
+using RFService.Libs;
 using RFService.Repo;
 using RFService.Services;
 using RFUserEmailVerified.Entities;
@@ -12,7 +13,7 @@ namespace RFUserEmailVerified.Services
     {
         public async Task SetIsVerifiedForIdAsync(bool isVerified, long id)
         {
-            await UpdateAsync(new { IsVerified = true }, new GetOptions { Filters = { { "Id", id } } });
+            await UpdateAsync(new DataDictionary { { "IsVerified", true } }, new GetOptions { Filters = { { "Id", id } } });
         }
 
         public virtual Task<UserEmailVerified?> GetSingleOrDefaultForUserIdAsync(long userId, GetOptions? options = null)

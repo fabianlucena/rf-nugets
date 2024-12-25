@@ -15,7 +15,7 @@ namespace RFHttpAction.Controllers
         public async Task<IActionResult> PostAsync([FromRoute] string token)
         {
             var httpAction = await httpActionService.GetSingleForTokenAsync(token);
-            var httpActionType = await httpActionTypeService.GetForIdAsync(httpAction.TypeId);
+            var httpActionType = await httpActionTypeService.GetSingleForIdAsync(httpAction.TypeId);
             var listeners = httpActionListeners.GetListeners(httpActionType.Name);
             if (listeners != null)
             {

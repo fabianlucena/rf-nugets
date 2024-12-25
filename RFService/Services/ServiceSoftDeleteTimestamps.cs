@@ -1,4 +1,5 @@
 ﻿using RFService.Entities;
+using RFService.ILibs;
 using RFService.IRepo;
 using RFService.Repo;
 
@@ -19,7 +20,7 @@ namespace RFService.Services
             return data;
         }
 
-        public override async Task<IDictionary<string, object?>> ValidateForUpdateAsync(IDictionary<string, object?> data, GetOptions options)
+        public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, GetOptions options)
         {
             data = await base.ValidateForUpdateAsync(data, options);
 
