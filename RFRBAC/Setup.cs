@@ -39,7 +39,7 @@ namespace RFRBAC
             rolePermissionService = provider.GetRequiredService<IRolePermissionService>();
             mapper = provider.GetRequiredService<IMapper>();
             propertiesDecorators = provider.GetRequiredService<IPropertiesDecorators>();
-            eventBus = provider.GetRequiredService<IEventBus>();
+            eventBus = provider.GetService<IEventBus>();
 
             propertiesDecorators.AddDecorator("UserAttributes", async (data, property, eventType) => {
                 var roles = await UserRoleService.GetRolesForUserIdAsync(((UserAttributes)data).Id);
@@ -59,8 +59,11 @@ namespace RFRBAC
                 property["permissions"] = permissions.Select(i => i.Name);
             });
 
-            eventBus.AddListener("updated", "User", UpdateUserRoles);
-            eventBus.AddListener("created", "User", UpdateUserRoles);
+            if (eventBus != null)
+            {
+                eventBus.AddListener("updated", "User", UpdateUserRoles);
+                eventBus.AddListener("created", "User", UpdateUserRoles);
+            }
 
             ConfigureRFRBACAsync().Wait();
         }

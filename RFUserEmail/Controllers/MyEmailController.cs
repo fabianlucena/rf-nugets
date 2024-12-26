@@ -4,12 +4,18 @@ using RFUserEmail.IServices;
 using RFUserEmail.Entities;
 using RFAuth.Exceptions;
 using RFService.Authorization;
+using AutoMapper;
+using RFAuth.DTO;
+using Microsoft.Extensions.Logging;
+using RFAuth.Controllers;
+using RFUserEmail.Exceptions;
 
 namespace RFUserEmail.Controllers
 {
     [ApiController]
     [Route("v1/my-email")]
     public class MyEmailController(
+        ILogger<UserController> logger,
         IUserEmailService _userEmailService
     ) : ControllerBase
     {
@@ -17,6 +23,8 @@ namespace RFUserEmail.Controllers
         [Permission("myEmail.create")]
         public virtual async Task<IActionResult> MyEmailPostAsync([FromBody] AddEmailRequest request)
         {
+            logger.LogInformation("Creating email");
+
             var userId = HttpContext.Items["UserId"] as Int64?;
             if (userId == null || userId == 0)
                 throw new NoAuthorizationHeaderException();
@@ -25,9 +33,10 @@ namespace RFUserEmail.Controllers
                 UserId = userId.Value,
                 Email = request.Email,
             };
-            var response = await _userEmailService.CreateAsync(userEmail);
+            if ((await _userEmailService.CreateAsync(userEmail)) == null)
+                throw new ErrorToCreateEmailException();
 
-            return Ok(response);
+            return Ok();
         }
     }
 }

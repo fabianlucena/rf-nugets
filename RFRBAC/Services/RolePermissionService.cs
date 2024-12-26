@@ -1,4 +1,5 @@
-﻿using RFRBAC.Entities;
+﻿using RFAuth.IServices;
+using RFRBAC.Entities;
 using RFRBAC.IServices;
 using RFService.IRepo;
 using RFService.Repo;
@@ -12,7 +13,8 @@ namespace RFRBAC.Services
         IPermissionService permissionService,
         IUserRoleService userRoleService
     ) : ServiceTimestamps<IRepo<RolePermission>, RolePermission>(repo),
-            IRolePermissionService
+        IRolePermissionService,
+        IAddRolePermissionService
     {
         public async Task<IEnumerable<Int64>> GetPermissionsIdForRolesIdAsync(
             IEnumerable<Int64> rolesId,
@@ -68,7 +70,14 @@ namespace RFRBAC.Services
             foreach (var rolePermissions in rolesPermissions)
             {
                 var requiredPermissionsName = rolePermissions.Value;
-                var roleId = await roleService.GetIdForNameAsync(rolePermissions.Key);
+                var roleId = await roleService.GetSingleIdForNameAsync(
+                    rolePermissions.Key,
+                    creator: name => new Role
+                    {
+                        Name = name,
+                        Title = name,
+                    }
+                );
                 var requiredPermissions = await permissionService.GetListForNamesAsync(requiredPermissionsName);
                 if (requiredPermissions.Count() != requiredPermissionsName.Count())
                 {

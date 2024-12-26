@@ -36,6 +36,22 @@ namespace RFAuth
                 UserId = user.Id,
                 Hash = "$2a$11$fRe./FCGyNjS9Vao3IIBlOiVCx3C05NRBNFrHhVk32Qdw75Ia.Y5S",
             });
+
+            var addRolePermissionService = provider.GetService<IAddRolePermissionService>();
+            if (addRolePermissionService != null)
+            {
+                var rolesPermissions = new Dictionary<string, IEnumerable<string>>{
+                    { "user",  [
+                        "changePassword",
+                    ] },
+
+                    { "admin",  [
+                        "user.get", "user.add", "user.edit", "user.delete", "user.restore",
+                    ] },
+                };
+
+                await addRolePermissionService.AddRolesPermissionsAsync(rolesPermissions);
+            }
         }
     }
 }

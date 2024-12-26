@@ -33,9 +33,10 @@ namespace RFUserEmailVerified.Controllers
                 UserId = userId.Value,
                 Email = request.Email,
             };
-            var response = await userEmailVerifiedService.CreateAsync(userEmail);
+            if ((await userEmailVerifiedService.CreateAsync(userEmail)) == null)
+                throw new ErrorToCreateEmailException();
 
-            return Ok(response);
+            return Ok();
         }
 
         [Route("verify")]
@@ -56,7 +57,7 @@ namespace RFUserEmailVerified.Controllers
             var action = await httpActionService.CreateAsync(
                 new HttpAction
                 {
-                    TypeId = await httpActionTypeService.GetIdForNameAsync(
+                    TypeId = await httpActionTypeService.GetSingleIdForNameAsync(
                         "userEmail.verify",
                         creator: name => new HttpActionType
                         {

@@ -9,7 +9,7 @@ namespace RFService.IServices
             IServiceId<TEntity>
         where TEntity : Entity
     {
-        public async Task<Int64> GetIdForNameAsync(string name, GetOptions? options = null, Func<string, TEntity>? creator = null)
+        public async Task<Int64> GetSingleIdForNameAsync(string name, GetOptions? options = null, Func<string, TEntity>? creator = null)
         {
             var item = await GetSingleOrDefaultForNameAsync(name, options);
             if (item == null)
@@ -22,6 +22,15 @@ namespace RFService.IServices
 
                 await CreateAsync(item);
             }
+
+            return GetId(item);
+        }
+
+        public async Task<Int64?> GetSingleOrDefaultIdForNameAsync(string name, GetOptions? options = null)
+        {
+            var item = await GetSingleOrDefaultForNameAsync(name, options);
+            if (item == null)
+                return null;
 
             return GetId(item);
         }
