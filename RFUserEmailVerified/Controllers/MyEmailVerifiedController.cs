@@ -1,27 +1,28 @@
 using Microsoft.AspNetCore.Mvc;
-using RFUserEmail.DTO;
 using RFAuth.Exceptions;
 using RFService.Authorization;
 using RFService.Repo;
-using RFHttpAction.IServices;
 using RFHttpAction.Entities;
-using RFUserEmailVerified.Entities;
 using RFUserEmailVerified.Exceptions;
+using RFHttpAction.IServices;
 using RFUserEmailVerified.IServices;
+using RFUserEmailVerified.Entities;
+using RFUserEmailVerified.DTO;
 
 namespace RFUserEmailVerified.Controllers
 {
     [ApiController]
     [Route("v1/my-email")]
-    public class MyEmailController(
+    public class MyEmailVerifiedController(
         IUserEmailVerifiedService userEmailVerifiedService,
         IHttpActionTypeService httpActionTypeService,
         IHttpActionService httpActionService
-    ) : ControllerBase
+    )
+        : ControllerBase
     {
         [HttpPost]
         [Permission("myEmail.create")]
-        public async Task<IActionResult> MyEmailPostAsync([FromBody] AddEmailRequest request)
+        public async Task<IActionResult> MyEmailVerifiedPostAsync([FromBody] AddEmailRequest request)
         {
             var userId = HttpContext.Items["UserId"] as Int64?;
             if (userId == null || userId == 0)
@@ -33,6 +34,7 @@ namespace RFUserEmailVerified.Controllers
                 Email = request.Email,
             };
             var response = await userEmailVerifiedService.CreateAsync(userEmail);
+
             return Ok(response);
         }
 

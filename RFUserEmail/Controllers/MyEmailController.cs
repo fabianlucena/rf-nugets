@@ -1,23 +1,21 @@
-using RFAuth.IServices;
 using Microsoft.AspNetCore.Mvc;
 using RFUserEmail.DTO;
 using RFUserEmail.IServices;
 using RFUserEmail.Entities;
 using RFAuth.Exceptions;
 using RFService.Authorization;
-using RFService.Repo;
 
 namespace RFUserEmail.Controllers
 {
     [ApiController]
     [Route("v1/my-email")]
     public class MyEmailController(
-        IUserEmailService userEmailService
+        IUserEmailService _userEmailService
     ) : ControllerBase
     {
         [HttpPost]
-        [Permission("myEmail.add")]
-        public async Task<IActionResult> MyEmailPostAsync([FromBody] AddEmailRequest request)
+        [Permission("myEmail.create")]
+        public virtual async Task<IActionResult> MyEmailPostAsync([FromBody] AddEmailRequest request)
         {
             var userId = HttpContext.Items["UserId"] as Int64?;
             if (userId == null || userId == 0)
@@ -27,7 +25,8 @@ namespace RFUserEmail.Controllers
                 UserId = userId.Value,
                 Email = request.Email,
             };
-            var response = await userEmailService.CreateAsync(userEmail);
+            var response = await _userEmailService.CreateAsync(userEmail);
+
             return Ok(response);
         }
     }
