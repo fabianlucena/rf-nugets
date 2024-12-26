@@ -46,6 +46,7 @@ namespace RFAuth
                     ] },
 
                     { "admin",  [
+                        "changePassword",
                         "user.get", "user.add", "user.edit", "user.delete", "user.restore",
                     ] },
                 };
