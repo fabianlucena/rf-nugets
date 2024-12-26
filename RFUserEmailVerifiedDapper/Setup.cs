@@ -1,15 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFDapper;
-using RFUserEmail.Entities;
+using RFUserEmailVerified.Entities;
 
-namespace RFUserEmailDapper
+namespace RFUserEmailVerifiedDapper
 {
     public static class Setup
     {
-        public static void ConfigureRFUserEmailDapper(IServiceProvider services)
+        public static void ConfigureRFUserEmailVerifiedDapper(IServiceProvider services)
         {
-            var dapperService = services.GetService<Dapper<UserEmail>>() ??
-                throw new Exception($"No service UserEmail");
+            var dapperService = services.GetService<Dapper<UserEmailVerified>>() ??
+                throw new Exception($"No service UserEmailVerified");
 
             dapperService.CreateTable();
         }

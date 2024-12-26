@@ -1,17 +1,17 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFDapper;
 using RFService.IRepo;
-using RFUserEmail.Entities;
+using RFUserEmailVerified.Entities;
 
-namespace RFUserEmailDapper
+namespace RFUserEmailVerifiedDapper
 {
     public static class MvcServiceCollectionExtensions
     {
-        public static void AddRFUserEmailDapper(this IServiceCollection services)
+        public static void AddRFUserEmailVerifiedDapper(this IServiceCollection services)
         {
-            services.AddScoped<Dapper<UserEmail>, Dapper<UserEmail>>();
+            services.AddScoped<Dapper<UserEmailVerified>, Dapper<UserEmailVerified>>();
 
-            services.AddScoped<IRepo<UserEmail>, Dapper<UserEmail>>();
+            services.AddScoped<IRepo<UserEmailVerified>, Dapper<UserEmailVerified>>();
         }
     }
 }

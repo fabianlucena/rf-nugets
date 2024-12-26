@@ -1,15 +1,20 @@
 ﻿using AutoMapper;
 using RFAuth.Entities;
 using RFAuth.IServices;
-using RFUserEmail.Entities;
-using RFUserEmail.IServices;
+using RFUserEmailVerified.IServices;
 using RFRegister.DTO;
 using RFRegister.IServices;
 using RFUserEmailVerified.Entities;
 
 namespace RFRegister.Services
 {
-    public class RegisterService(IUserService userService, IPasswordService passwordService, IUserEmailService userEmailService, IMapper mapper) : IRegisterService
+    public class RegisterService(
+        IUserService userService,
+        IPasswordService passwordService,
+        IUserEmailVerifiedService userEmailService,
+        IMapper mapper
+    )
+        : IRegisterService
     {
         public async Task RegisterAsync(RegisterRequest registerData)
         {

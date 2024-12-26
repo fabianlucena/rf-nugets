@@ -23,7 +23,7 @@ namespace RFUserEmailVerified.Controllers
         [Permission("myEmail.create")]
         public async Task<IActionResult> MyEmailPostAsync([FromBody] AddEmailRequest request)
         {
-            var userId = HttpContext.Items["UserId"] as long?;
+            var userId = HttpContext.Items["UserId"] as Int64?;
             if (userId == null || userId == 0)
                 throw new NoAuthorizationHeaderException();
 

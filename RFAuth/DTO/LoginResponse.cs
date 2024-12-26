@@ -1,4 +1,4 @@
-﻿using RFService.ILibs;
+﻿using RFService.Libs;
 
 namespace RFAuth.DTO
 {
@@ -12,6 +12,6 @@ namespace RFAuth.DTO
 
         public string DeviceToken { get; set; } = string.Empty;
 
-        public IDataDictionary? Attributes { get; set; }
+        public DataDictionary? Attributes { get; set; }
     }
 }
