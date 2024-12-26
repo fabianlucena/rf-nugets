@@ -2,6 +2,7 @@
 using RFAuth.Exceptions;
 using RFAuth.IServices;
 using RFHttpExceptions.Exceptions;
+using RFLocalizer.IServices;
 using RFService.IServices;
 using System.Globalization;
 
@@ -13,7 +14,7 @@ namespace RFAuth.Services
         IDeviceService deviceService,
         ISessionService sessionService,
         IPropertiesDecorators propertiesDecorators,
-        ILocalizerService localizerService
+        ILocalizerContextService localizerService
     )
         : ILoginService,
             IServiceDecorated
@@ -32,12 +33,12 @@ namespace RFAuth.Services
                 throw new HttpArgumentNullOrEmptyException(nameof(request.Password));
 
             var user = await userService.GetSingleOrDefaultForUsernameAsync(request.Username.Trim())
-                ?? throw new UnknownUserException(localizerService["Unknown username"]);
+                ?? throw new UnknownUserException(localizerService["loginException"]["Unknown username"]);
 
             var password = await passwordService.GetSingleForUserAsync(user);
             var check = passwordService.Verify(request.Password.Trim(), password);
             if (!check)
-                throw new BadPasswordException(localizerService["Bad password"]);
+                throw new BadPasswordException(localizerService["passwordException"]["Bad password"]);
 
             var device = await deviceService.GetSingleForTokenOrCreateAsync(request.DeviceToken);
             var session = await sessionService.CreateForUserAndDeviceAsync(user, device);

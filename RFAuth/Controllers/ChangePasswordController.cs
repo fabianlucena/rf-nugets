@@ -5,6 +5,7 @@ using RFAuth.Exceptions;
 using Microsoft.AspNetCore.Http;
 using RFService.Authorization;
 using RFService.Libs;
+using RFLocalizer.IServices;
 
 namespace RFAuth.Controllers
 {
@@ -12,7 +13,7 @@ namespace RFAuth.Controllers
     [Route("v1/change-password")]
     public class ChangePasswordController(
         IPasswordService passwordService,
-        ILocalizerService _localizer
+        ILocalizerContextService localizer
     ) : ControllerBase
     {
         [HttpPost]
@@ -26,7 +27,7 @@ namespace RFAuth.Controllers
             var password = await passwordService.GetSingleForUserIdAsync(userId.Value);
             var check = passwordService.Verify(request.CurrentPassword, password);
             if (!check)
-                throw new BadPasswordException(_localizer["Bad current password"]);
+                throw new BadPasswordException(localizer["passwordException"]["Bad current password"]);
 
             await passwordService.UpdateForIdAsync(
                 new DataDictionary { { "Hash", passwordService.Hash(request.NewPassword) } },
