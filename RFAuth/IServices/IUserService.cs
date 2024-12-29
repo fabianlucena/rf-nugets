@@ -7,6 +7,7 @@ namespace RFAuth.IServices
         : IService<User>,
             IServiceId<User>,
             IServiceUuid<User>,
+            IServiceIdUuid<User>,
             IServiceSoftDeleteUuid<User>,
             IServiceDecorated
     {
