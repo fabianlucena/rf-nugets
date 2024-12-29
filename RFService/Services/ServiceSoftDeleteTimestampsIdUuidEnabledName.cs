@@ -18,5 +18,21 @@ namespace RFService.Services
                 ((IServiceName<TEntity>)this).SanitizeNameForAutoGet(options)
             );
         }
+
+        public async Task<TEntity> GetSingleForNameAsync(string name, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.Filters["Name"] = name;
+
+            return await GetSingleAsync(options);
+        }
+
+        public async Task<TEntity?> GetSingleOrDefaultForNameAsync(string name, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.Filters["Name"] = name;
+
+            return await GetSingleOrDefaultAsync(options);
+        }
     }
 }
