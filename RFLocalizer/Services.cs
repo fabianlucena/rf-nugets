@@ -14,6 +14,7 @@ namespace RFLocalizer
             services.AddScoped<IContextService, ContextService>();
             services.AddScoped<ISourceService, SourceService>();
             services.AddScoped<ITranslationService, TranslationService>();
+            services.AddScoped<IAddTranslationService, AddTranslationService>();
         }
     }
 }

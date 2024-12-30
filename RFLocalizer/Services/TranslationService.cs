@@ -12,7 +12,7 @@ namespace RFLocalizer.Services
         IContextService contextService,
         ISourceService sourceService
     )
-        : ServiceId<IRepo<Translation>, Translation>(repo),
+        : ServiceIdUuid<IRepo<Translation>, Translation>(repo),
             ITranslationService
     {
         public async Task<string> GetTranslationAsync(
@@ -22,8 +22,8 @@ namespace RFLocalizer.Services
         )
         {
             var languageId = await languageService.GetSingleIdForNameOrCreateAsync(language, new Language { Name = language });
-            var contextId = await contextService.GetSingleIdForNameOrCreateAsync(context, new Context { Name = language });
-            var sourceId = await sourceService.GetSingleIdForNameOrCreateAsync(source, new Source { Name = language });
+            var contextId = await contextService.GetSingleIdForNameOrCreateAsync(context, new Context { Name = context });
+            var sourceId = await sourceService.GetSingleIdForNameOrCreateAsync(source, new Source { Name = source });
 
             var row = await GetSingleOrDefaultAsync(new GetOptions
             {
