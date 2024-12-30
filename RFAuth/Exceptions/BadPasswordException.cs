@@ -2,8 +2,8 @@
 
 namespace RFAuth.Exceptions
 {
-    public class BadPasswordException(string message)
-        : HttpException(401, message)
+    public class BadPasswordException()
+        : HttpException(401, "Bad password")
     {
     }
 }

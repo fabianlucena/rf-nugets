@@ -4,7 +4,7 @@ using RFService.Repo;
 
 namespace RFService.IServices
 {
-    public interface IServiceIdName<TEntity>
+    public interface IServiceIdUuidName<TEntity>
         : IServiceName<TEntity>,
             IServiceId<TEntity>
         where TEntity : Entity
@@ -31,6 +31,14 @@ namespace RFService.IServices
             var item = await GetSingleOrDefaultForNameAsync(name, options);
             if (item == null)
                 return null;
+
+            return GetId(item);
+        }
+
+        public async Task<Int64> GetSingleIdForNameOrCreateAsync(string name, TEntity data, GetOptions? options = null)
+        {
+            var item = await GetSingleOrDefaultForNameAsync(name, options)
+                ?? await CreateAsync(data, options);
 
             return GetId(item);
         }

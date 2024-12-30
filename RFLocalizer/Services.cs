@@ -8,7 +8,12 @@ namespace RFLocalizer
     {
         public static void AddRFLocalizer(this IServiceCollection services)
         {
-            services.AddScoped<ILocalizerContextService, LocalizerContextService>();
+            services.AddScoped<ILocalizerFactoryService, LocalizerFactoryService>();
+
+            services.AddScoped<ILanguageService, LanguageService>();
+            services.AddScoped<IContextService, ContextService>();
+            services.AddScoped<ISourceService, SourceService>();
+            services.AddScoped<ITranslationService, TranslationService>();
         }
     }
 }

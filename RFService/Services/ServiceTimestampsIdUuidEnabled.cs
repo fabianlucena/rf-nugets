@@ -19,6 +19,11 @@ namespace RFService.Services
                     options.Filters.Remove("IsEnabled");
                 }
             }
+            else
+            {
+                options = new GetOptions(options);
+                options.Filters["IsEnabled"] = true;
+            }
 
             return base.SanitizeGetOptions(options);
         }

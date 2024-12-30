@@ -28,6 +28,9 @@ namespace RFService.Services
         public virtual GetOptions SanitizeGetOptions(GetOptions options)
             => options;
 
+        public virtual Task<int> GetCountAsync(GetOptions options)
+            => repo.GetCountAsync(SanitizeGetOptions(options));
+
         public virtual Task<IEnumerable<TEntity>> GetListAsync(GetOptions options)
             => repo.GetListAsync(SanitizeGetOptions(options));
 

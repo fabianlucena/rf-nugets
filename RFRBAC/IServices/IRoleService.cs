@@ -6,7 +6,7 @@ namespace RFRBAC.IServices
     public interface IRoleService
         : IService<Role>,
             IServiceName<Role>,
-            IServiceIdName<Role>,
+            IServiceIdUuidName<Role>,
             IServiceDecorated
     {
     }

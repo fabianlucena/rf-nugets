@@ -10,6 +10,8 @@ namespace RFService.IRepo
 
         Task<TEntity> InsertAsync(TEntity data, RepoOptions? options = null);
 
+        Task<int> GetCountAsync(GetOptions options);
+
         Task<TEntity> GetSingleAsync(GetOptions options);
 
         Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options);

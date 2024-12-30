@@ -15,6 +15,8 @@ namespace RFService.IServices
 
         GetOptions SanitizeGetOptions(GetOptions options);
 
+        Task<int> GetCountAsync(GetOptions options);
+
         Task<IEnumerable<TEntity>> GetListAsync(GetOptions options);
 
         Task<TEntity> GetSingleAsync(GetOptions options);

@@ -7,7 +7,7 @@ namespace RFRBAC.IServices
         : IService<Permission>,
             IServiceId<Permission>,
             IServiceName<Permission>,
-            IServiceIdName<Permission>
+            IServiceIdUuidName<Permission>
     {
     }
 }

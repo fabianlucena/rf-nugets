@@ -15,6 +15,15 @@ using System.Text.Json;
 
 namespace RFDapper
 {
+    public class SqlQueryParts
+    {
+        public string SqlSelect = "";
+
+        public string SqlFrom = "";
+
+        public Data Data = new();
+    }
+
     public class SqlQuery
     {
         public string Sql = "";
@@ -212,7 +221,7 @@ namespace RFDapper
             connection.Query(query);
         }
 
-        public SqlQuery GetFilterQuery(object? filter, GetOptions options, List<string> skipNames, string name = "", string? tableAlias = null)
+        public SqlQuery GetFilterQuery(object? filter, GetOptions options, List<string> skipNames, string name = "", string? tableAlias = null, string op = "=")
         {
             if (filter == null)
                 return new SqlQuery { Sql = " IS NULL" };
@@ -266,7 +275,7 @@ namespace RFDapper
             {
                 return new SqlQuery
                 {
-                    Sql = " = @" + name,
+                    Sql = $" {op} @" + name,
                     Data = { Values = { { name, filter } } },
                 };
             }
@@ -280,9 +289,9 @@ namespace RFDapper
                 };
             }
             
-            if (filter is RFService.Operator.DistinctTo op)
+            if (filter is RFService.Operator.DistinctTo dt)
             {
-                var sqlQuery = GetFilterQuery(op.Value, options, skipNames, name);
+                var sqlQuery = GetFilterQuery(dt.Value, options, skipNames, name);
                 var sql = " NOT";
                 if (sqlQuery.Sql[0] != ' ')
                     sql += " ";
@@ -295,9 +304,12 @@ namespace RFDapper
                 };
             }
 
+            if (filter is RFService.Operator.GE ge)
+                return GetFilterQuery(ge.Value, options, skipNames, name, op: ">=");
+
             return new SqlQuery
             {
-                Sql = " = @" + name,
+                Sql = $" {op} @" + name,
                 Data = { Values = { { name, filter } } },
             };
         }
@@ -306,6 +318,7 @@ namespace RFDapper
         {
             if (options.Filters.Count == 0)
                 return null;
+
             var sqlQuery = GetFilterQuery(options.Filters, options, [], prefix, options.Alias);
 
             return sqlQuery;
@@ -361,7 +374,7 @@ namespace RFDapper
             return (propertyName, nullable, tableAttribute);
         }
 
-        public SqlQuery GetSelectQuery(GetOptions options)
+        public SqlQueryParts GetSelectQueryParts(GetOptions options)
         {
             options.Alias = options.GetOrCreateAlias("t");
 
@@ -422,17 +435,29 @@ namespace RFDapper
                 if (options.OrderBy.Count > 0)
                     sqlFrom += $" ORDER BY {String.Join(", ", options.OrderBy)}";
 
-                if (options.Offset != null)
-                    sqlFrom += $" OFFSET {options.Offset}";
+                if (options.Offset != null || options.Top != null)
+                    sqlFrom += $" OFFSET {options.Offset ?? 0} ROWS";
 
                 if (options.Top != null)
                     sqlFrom += $" FETCH NEXT {options.Top} ROWS ONLY";
             }
 
+            return new SqlQueryParts
+            {
+                SqlSelect = sqlSelect,
+                SqlFrom = sqlFrom,
+                Data = data,
+            };
+        }
+
+        public SqlQuery GetSelectQuery(GetOptions options)
+        {
+            var parts = GetSelectQueryParts(options);
+
             return new SqlQuery
             {
-                Sql = sqlSelect + sqlFrom,
-                Data = data,
+                Sql = parts.SqlSelect + parts.SqlFrom,
+                Data = parts.Data,
             };
         }
 
@@ -588,7 +613,6 @@ namespace RFDapper
             var sqlWhere = GetWhereQuery(options)
                 ?? throw new Exception("DELETE without WHERE is forbidden");
 
-            var columns = new List<string>();
             DataDictionary values = [];
 
             var sql = $"DELETE FROM [{Schema}].[{TableName}] {sqlWhere.Sql}";
@@ -628,6 +652,28 @@ namespace RFDapper
                 closeConnection();
             }
         }
+
+        public async Task<int> GetCountAsync(GetOptions options)
+        {
+            var sqlQueryParts = GetSelectQueryParts(options);
+            var query = "SELECT COUNT(*) " + sqlQueryParts.SqlFrom;
+            var jsonData = JsonConvert.SerializeObject(sqlQueryParts.Data);
+            Logger.LogDebug("{query}\n{jsonData}", query, jsonData);
+            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
+            try
+            {
+                return await connection.QuerySingleOrDefaultAsync<int>(
+                    query,
+                    sqlQueryParts.Data.Values,
+                    options.RepoOptions?.Transaction
+                );
+            }
+            finally
+            {
+                closeConnection();
+            }
+        }
+
 
         public async Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options)
         {

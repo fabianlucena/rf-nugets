@@ -5,18 +5,13 @@ using RFService.Repo;
 
 namespace RFService.Services
 {
-    public abstract class ServiceSoftDeleteTimestampsIdUuidEnabledName<TRepo, TEntity>(TRepo repo)
-        : ServiceSoftDeleteTimestampsIdUuidEnabled<TRepo, TEntity>(repo)
+    public abstract class ServiceIdUuidName<TRepo, TEntity>(TRepo repo)
+        : ServiceIdUuid<TRepo, TEntity>(repo),
+            IServiceIdUuid<TEntity>,
+            IServiceIdUuidName<TEntity>
         where TRepo : IRepo<TEntity>
-        where TEntity : EntitySoftDeleteTimestampsIdUuidEnabledName
+        where TEntity : EntityIdUuidName
     {
-        public override GetOptions SanitizeForAutoGet(GetOptions options)
-        {
-            return base.SanitizeForAutoGet(
-                ((IServiceName<TEntity>)this).SanitizeNameForAutoGet(options)
-            );
-        }
-
         public async Task<TEntity> GetSingleForNameAsync(string name, GetOptions? options = null)
         {
             options ??= new GetOptions();

@@ -6,5 +6,7 @@ namespace RFService.Entities
     {
         [Required]
         public bool IsTranslatable { get; set; } = true;
+
+        public string? TranslationContext { get; set; }
     }
 }
