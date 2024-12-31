@@ -37,17 +37,21 @@ namespace RFHttpExceptionsLocale.Middlewares
 
             if (exception is IHttpException httpException)
                 context.Response.StatusCode = httpException.StatusCode;
+            else
+                context.Response.StatusCode = 500;
 
             var localizer = localizerFactoryService.GetLocalizerForAcceptLanguage(
                 context.Request.Headers.AcceptLanguage,
                 "exception"
             );
 
-            await context.Response.WriteAsJsonAsync(new
+            var result = new
             {
                 Error = exception.GetType().Name,
                 Message = localizer[exception.Message],
-            });
+            };
+
+            await context.Response.WriteAsJsonAsync(result);
         }
     }
 }
