@@ -304,6 +304,15 @@ namespace RFDapper
                 };
             }
 
+            if (filter is RFService.Operator.NotNull)
+            {
+                return new SqlQuery
+                {
+                    Sql = " IS NOT NULL",
+                    Data = new(),
+                };
+            }
+
             if (filter is RFService.Operator.GE ge)
                 return GetFilterQuery(ge.Value, options, skipNames, name, op: ">=");
 
