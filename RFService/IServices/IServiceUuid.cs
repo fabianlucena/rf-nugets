@@ -25,7 +25,7 @@ namespace RFService.IServices
             return await GetSingleOrDefaultAsync(options);
         }
 
-        Task<int> UpdateForUuidAsync(IDataDictionary data, Guid uuid, GetOptions? options = null)
+        Task<int> UpdateForUuidAsync(Guid uuid, IDataDictionary data, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.Filters["uuid"] = uuid;

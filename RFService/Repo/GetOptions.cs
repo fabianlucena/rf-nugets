@@ -106,12 +106,12 @@ namespace RFService.Repo
             return this;
         }
 
-        public GetOptions AddFilter(string column, object value)
+        public GetOptions AddFilter(string column, object? value)
         {
             if (Filters.ContainsKey(column))
             {
-                List<object> list;
-                if (Filters[column] is IEnumerable<object> enumerable)
+                List<object?> list;
+                if (Filters[column] is IEnumerable<object?> enumerable)
                     list = enumerable.ToList();
                 else
                     list = [Filters[column]];

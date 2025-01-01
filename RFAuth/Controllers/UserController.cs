@@ -70,7 +70,7 @@ namespace RFAuth.Controllers
                 }
             };
             await eventBus.FireAsync("updating", "User", eventData);
-            var result = await userService.UpdateForUuidAsync(data, uuid);
+            var result = await userService.UpdateForUuidAsync(uuid, data);
             await UpdatePassword(data);
             await eventBus.FireAsync("updated", "User", eventData);
 
