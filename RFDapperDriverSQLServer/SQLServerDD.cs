@@ -4,9 +4,14 @@ using System.Text.RegularExpressions;
 
 namespace RFDapperDriverSQLServer
 {
-    public class SQLServerDD
+    public partial class SQLServerDD
         : IDriver
     {
+        private readonly static Regex SqareBracketColumn= new(@"^\[.*\]$");
+        private readonly static Regex SqareBracketTableAndColumn= new(@"^\[.*\]\.\[.*\]$");
+        private readonly static Regex SqareBracketTableAndFreeColumn = new(@"^\[.*\]\.[\w][\w\d]*$");
+        private readonly static Regex FreeTableAndSqareBracketColumn = new(@"^[\w][\w\d]\.\[.*\]*$");
+
         public string GetDefaultSchema()
             => "[dbo]";
 
@@ -23,7 +28,11 @@ namespace RFDapperDriverSQLServer
         public string GetFullColumnName(string columnName, GetOptions options, string? defaultAlias)
         {
             columnName = columnName.Trim();
-            if (new Regex(@"^\[.*\]$").IsMatch(columnName))
+            if (SqareBracketColumn.IsMatch(columnName)
+                || SqareBracketTableAndColumn.IsMatch(columnName)
+                || SqareBracketTableAndFreeColumn.IsMatch(columnName)
+                || FreeTableAndSqareBracketColumn.IsMatch(columnName)
+            )
                 return columnName;
 
             if (columnName.Contains('[') || columnName.Contains(']'))
