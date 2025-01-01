@@ -11,18 +11,15 @@ namespace RFService.Services
     {
         public override GetOptions SanitizeGetOptions(GetOptions options)
         {
-            if (options.Filters.TryGetValue("IsEnabled", out object? value))
-            {
-                if (value == null)
-                {
-                    options = new GetOptions(options);
-                    options.Filters.Remove("IsEnabled");
-                }
-            }
-            else
+            if (!options.Filters.TryGetValue("IsEnabled", out object? isEnabled))
             {
                 options = new GetOptions(options);
                 options.Filters["IsEnabled"] = true;
+            }
+            else if (isEnabled == null)
+            {
+                options = new GetOptions(options);
+                options.Filters.Remove("IsEnabled");
             }
 
             return base.SanitizeGetOptions(options);
