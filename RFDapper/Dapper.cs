@@ -7,6 +7,7 @@ using RFService.ILibs;
 using RFService.IRepo;
 using RFService.Libs;
 using RFService.Repo;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
@@ -127,6 +128,17 @@ namespace RFDapper
                 {
                     var columnQuery = $"[{property.Name}] {sqlType}";
 
+                    if (property.CustomAttributes.Any(a => a.AttributeType.Name == "RequiredAttribute"))
+                        columnQuery += " NOT NULL";
+                    else if (Nullable.GetUnderlyingType(propertyType) != null)
+                        columnQuery += " NULL";
+                    else if (nullable != null)
+                    {
+                        columnQuery += (bool)nullable ?
+                            " NULL" :
+                            " NOT NULL";
+                    }
+
                     var settedPk = false;
                     var databaseGeneratedAttribute = property.GetCustomAttribute<DatabaseGeneratedAttribute>();
                     if (databaseGeneratedAttribute != null)
@@ -139,22 +151,8 @@ namespace RFDapper
                         }
                     }
 
-                    if (!settedPk)
-                    {
-                        if (property.CustomAttributes.Any(a => a.AttributeType.Name == "RequiredAttribute"))
-                            columnQuery += " NOT NULL";
-                        else if (Nullable.GetUnderlyingType(propertyType) != null)
-                            columnQuery += " NULL";
-                        else if (nullable != null)
-                        {
-                            columnQuery += (bool)nullable ?
-                                " NULL" :
-                                " NOT NULL";
-                        }
-
-                        if (property.GetCustomAttribute<KeyAttribute>() != null)
-                            postQueries.Add($"CONSTRAINT [{Schema}_{TableName}_PK_{property.Name}] PRIMARY KEY CLUSTERED ([{property.Name}])");
-                    }
+                    if (!settedPk && property.GetCustomAttribute<KeyAttribute>() != null)
+                        postQueries.Add($"CONSTRAINT [{Schema}_{TableName}_PK_{property.Name}] PRIMARY KEY CLUSTERED ([{property.Name}])");
 
                     columnsQueries.Add(columnQuery);
                 }
@@ -219,6 +217,26 @@ namespace RFDapper
 
             _logger.LogDebug("{query}", query);
             connection.Query(query);
+        }
+
+        public string? GetPrimaryKey()
+        {
+            var entityType = typeof(TEntity);
+            var properties = entityType.GetProperties();
+            foreach (var property in properties)
+            {
+                var databaseGeneratedAttribute = property.GetCustomAttribute<DatabaseGeneratedAttribute>();
+                if (databaseGeneratedAttribute == null)
+                    continue;
+
+                if (databaseGeneratedAttribute.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
+                    return property.Name;
+
+                if (property.GetCustomAttribute<KeyAttribute>() != null)
+                    return property.Name;
+            }
+
+            return null;
         }
 
         public SqlQuery GetFilterQuery(object? filter, GetOptions options, List<string> skipNames, string name = "", string? tableAlias = null, string op = "=")
@@ -402,8 +420,8 @@ namespace RFDapper
 
                     var entityType = typeof(TEntity);
 
-                    var (foreignColumnName, nullable, foreignTable) = Dapper<TEntity>.GetForeignInfoForProperty(join.Key) ??
-                        throw new Exception($"No foreign column for {join.Key}");
+                    var (foreignColumnName, nullable, foreignTable) = Dapper<TEntity>.GetForeignInfoForProperty(join.Key)
+                        ?? throw new Exception($"No foreign column for {join.Key}.");
 
                     var tableName = foreignTable.Schema;
                     if (!string.IsNullOrWhiteSpace(tableName))
@@ -441,8 +459,22 @@ namespace RFDapper
                             data.Values.Add(value.Key, value.Value);
                 }
 
-                if (options.OrderBy.Count > 0)
-                    sqlFrom += $" ORDER BY {String.Join(", ", options.OrderBy)}";
+                var orderBy = new List<string>(options.OrderBy);
+                if (options.OrderBy.Count == 0 && (options.Offset != null || options.Top != null))
+                {
+                    var newOrderBy = GetPrimaryKey();
+                    if (string.IsNullOrEmpty(newOrderBy))
+                    {
+                        var entityType = typeof(TEntity);
+                        var properties = entityType.GetProperties();
+                        newOrderBy = properties[0].Name;
+                    }
+
+                    orderBy.Add($"{options.Alias ?? TableName}.{newOrderBy}");
+                }
+
+                if (orderBy.Count > 0)
+                    sqlFrom += $" ORDER BY {String.Join(", ", orderBy)}";
 
                 if (options.Offset != null || options.Top != null)
                     sqlFrom += $" OFFSET {options.Offset ?? 0} ROWS";
@@ -686,62 +718,41 @@ namespace RFDapper
 
         public async Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options)
         {
-            var sqlQuery = GetSelectQuery(options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
-            Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
-            try
-            {
-                return await connection.QuerySingleOrDefaultAsync<TEntity>(
-                    sqlQuery.Sql,
-                    sqlQuery.Data.Values,
-                    options.RepoOptions?.Transaction
-                );
-            }
-            finally
-            {
-                closeConnection();
-            }
+            options = new GetOptions(options) { Top = 2 };
+            var list = await GetListAsync(options);
+            var count = list.Count();
+            if (count == 0)
+                return null;
+
+            if (count > 1)
+                throw new TooManyRowsException();
+
+            return list.First();
         }
 
         public async Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options)
         {
-            var sqlQuery = GetSelectQuery(options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
-            Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
-            try
-            {
-                return await connection.QueryFirstOrDefaultAsync<TEntity>(
-                    sqlQuery.Sql,
-                    sqlQuery.Data.Values,
-                    options.RepoOptions?.Transaction
-                );
-            }
-            finally
-            {
-                closeConnection();
-            }
+            options = new GetOptions(options) { Top = 1 };
+            var list = await GetListAsync(options);
+            var count = list.Count();
+            if (count == 0)
+                return null;
+
+            return list.First();
         }
 
         public async Task<TEntity> GetSingleAsync(GetOptions options)
         {
-            var sqlQuery = GetSelectQuery(options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
-            Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
-            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
-            try
-            {
-                return await connection.QuerySingleAsync<TEntity>(
-                    sqlQuery.Sql,
-                    sqlQuery.Data.Values,
-                    options.RepoOptions?.Transaction
-                );
-            }
-            finally
-            {
-                closeConnection();
-            }
+            options = new GetOptions(options) { Top = 2 };
+            var list = await GetListAsync(options);
+            var count = list.Count();
+            if (count == 0)
+                throw new NoRowsException();
+
+            if (count > 1)
+                throw new TooManyRowsException();
+
+            return list.First();
         }
 
         public async Task<IEnumerable<TEntity>> GetListAsync(GetOptions options)
