@@ -15,7 +15,7 @@ namespace RFService.IServices
             return GetId(item);
         }
 
-        public async Task<Int64?> GetSingleIdOrDefaultForUuidAsync(Guid uuid, GetOptions? options = null)
+        public async Task<Int64?> GetSingleOrDefaultIdForUuidAsync(Guid uuid, GetOptions? options = null)
         {
             var item = await GetSingleOrDefaultForUuidAsync(uuid, options);
             if (item == null)
