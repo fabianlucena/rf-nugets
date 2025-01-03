@@ -11,6 +11,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Data.Common;
 using System.Reflection;
 using System.Text.Json;
 
@@ -81,16 +82,6 @@ namespace RFDapper
 
         public void CreateTable()
         {
-            var SQLTypes = new Dictionary<string, string>
-                {
-                    {"Int32", "INT"},
-                    {"Int64", "BIGINT"},
-                    {"Guid", "UNIQUEIDENTIFIER"},
-                    {"DateTime", "DATETIME"},
-                    {"Boolean", "BIT"},
-                    {"SqlGeography", "GEOGRAPHY"},
-                };
-
             var query = $@"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.schemas WHERE [name] = '{Schema}')
                 EXEC('CREATE SCHEMA {_driver.SanitizeSchema(Schema)} AUTHORIZATION {_driver.GetDefaultSchema()}');";
             using var connection = new SqlConnection(ConnectionString);
@@ -104,40 +95,11 @@ namespace RFDapper
             foreach (var property in properties)
             {
                 var propertyType = property.PropertyType;
-                bool? nullable = null;
-                string propertyTypeName;
-                if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    nullable = true;
-                    propertyTypeName = Nullable.GetUnderlyingType(propertyType)?.Name ?? "";
-                } else
-                {
-                    propertyTypeName = propertyType.Name;
-                }
+                var columnDefinition = _driver.GetSQLColumnDefinition(property);
 
-                if (!SQLTypes.TryGetValue(propertyTypeName, out string? sqlType))
+                if (columnDefinition != null)
                 {
-                    if (!propertyType.IsClass)
-                        throw new Exception($"Unknown type {propertyType.Name}");
-
-                    if (propertyTypeName == "String")
-                        sqlType = $"NVARCHAR({property.GetCustomAttribute<MaxLengthAttribute>()?.Length ?? 255})";
-                }
-
-                if (sqlType != null)
-                {
-                    var columnQuery = $"[{property.Name}] {sqlType}";
-
-                    if (property.CustomAttributes.Any(a => a.AttributeType.Name == "RequiredAttribute"))
-                        columnQuery += " NOT NULL";
-                    else if (Nullable.GetUnderlyingType(propertyType) != null)
-                        columnQuery += " NULL";
-                    else if (nullable != null)
-                    {
-                        columnQuery += (bool)nullable ?
-                            " NULL" :
-                            " NOT NULL";
-                    }
+                    columnsQueries.Add(columnDefinition);
 
                     var settedPk = false;
                     var databaseGeneratedAttribute = property.GetCustomAttribute<DatabaseGeneratedAttribute>();
@@ -145,7 +107,6 @@ namespace RFDapper
                     {
                         if (databaseGeneratedAttribute.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
                         {
-                            columnQuery += " IDENTITY(1,1)";
                             postQueries.Add($"CONSTRAINT [{Schema}_{TableName}_PK] PRIMARY KEY NONCLUSTERED ({property.Name})");
                             settedPk = true;
                         }
@@ -153,8 +114,6 @@ namespace RFDapper
 
                     if (!settedPk && property.GetCustomAttribute<KeyAttribute>() != null)
                         postQueries.Add($"CONSTRAINT [{Schema}_{TableName}_PK_{property.Name}] PRIMARY KEY CLUSTERED ([{property.Name}])");
-
-                    columnsQueries.Add(columnQuery);
                 }
 
                 var foreign = property.GetCustomAttribute<ForeignKeyAttribute>();

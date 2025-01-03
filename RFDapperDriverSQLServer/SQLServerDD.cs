@@ -1,5 +1,8 @@
 ﻿using RFDapper;
 using RFService.Repo;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace RFDapperDriverSQLServer
@@ -53,6 +56,79 @@ namespace RFDapperDriverSQLServer
                 columnName = $"[{defaultAlias}].{columnName}";
             
             return columnName;
+        }
+
+        public string? GetColumnType(string type, PropertyInfo property)
+        {
+            switch (type)
+            {
+                case "Int32": return "INT";
+                case "Int64": return "BIGINT";
+                case "Guid": return "UNIQUEIDENTIFIER";
+                case "DateTime": return "DATETIME";
+                case "Boolean": return "BIT";
+                case "SqlGeography": return "GEOGRAPHY";
+                case "String":
+                    var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
+                        ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
+
+                    if (length.HasValue)
+                        return $"NVARCHAR({length.Value})";
+
+                    return "NVARCHAR(MAX)";
+            }
+
+            if (type.ToUpper().StartsWith("DECIMAL"))
+                return type;
+
+            if (!property.PropertyType.IsClass)
+                throw new UnknownColumnTypeException(type);
+
+            return null;
+        }
+
+        public string? GetSQLColumnDefinition(PropertyInfo property)
+        {
+            var propertyType = property.PropertyType;
+            var columnAttributes = propertyType.GetCustomAttribute<ColumnAttribute>();
+            bool? nullable = null;
+            string propertyTypeName;
+            if (columnAttributes?.TypeName != null)
+            {
+                propertyTypeName = columnAttributes.TypeName;
+            }
+            else if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                nullable = true;
+                propertyTypeName = Nullable.GetUnderlyingType(propertyType)?.Name ?? "";
+            }
+            else
+            {
+                propertyTypeName = propertyType.Name;
+            }
+
+            var columnType = GetColumnType(propertyTypeName, property);
+            if (columnType == null)
+                return null;
+
+            var columnDefinition = $"[{property.Name}] {columnType}";
+
+            if (property.CustomAttributes.Any(a => a.AttributeType.Name == "RequiredAttribute"))
+                columnDefinition += " NOT NULL";
+            else if (Nullable.GetUnderlyingType(propertyType) != null)
+                columnDefinition += " NULL";
+            else if (nullable != null)
+            {
+                columnDefinition += (bool)nullable ?
+                    " NULL" :
+                    " NOT NULL";
+            }
+
+            var databaseGeneratedAttribute = property.GetCustomAttribute<DatabaseGeneratedAttribute>();
+            if (databaseGeneratedAttribute?.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
+                columnDefinition += " IDENTITY(1,1)";
+
+            return columnDefinition;
         }
     }
 }

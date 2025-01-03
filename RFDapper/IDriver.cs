@@ -1,4 +1,5 @@
 ﻿using RFService.Repo;
+using System.Reflection;
 
 namespace RFDapper
 {
@@ -11,5 +12,9 @@ namespace RFDapper
         string SanitizeVarname(string varname);
 
         string GetFullColumnName(string key, GetOptions options, string? defaultAlias);
+
+        string? GetColumnType(string type, PropertyInfo property);
+
+        string? GetSQLColumnDefinition(PropertyInfo property);
     }
 }
