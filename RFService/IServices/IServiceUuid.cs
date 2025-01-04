@@ -9,6 +9,8 @@ namespace RFService.IServices
     {
         Guid GetUuid(TEntity item);
 
+        Task<IEnumerable<Guid>> GetListUuidAsync(GetOptions options);
+
         public async Task<TEntity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null)
         {
             options ??= new GetOptions();

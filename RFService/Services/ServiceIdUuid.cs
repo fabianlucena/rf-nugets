@@ -1,6 +1,7 @@
 ﻿using RFService.Entities;
 using RFService.IRepo;
 using RFService.IServices;
+using RFService.Repo;
 
 namespace RFService.Services
 {
@@ -11,6 +12,9 @@ namespace RFService.Services
         where TEntity : EntityIdUuid
     {
         public Guid GetUuid(TEntity item) => item.Uuid;
+
+        public async Task<IEnumerable<Guid>> GetListUuidAsync(GetOptions options)
+            => (await GetListAsync(options)).Select(GetUuid);
 
         public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {

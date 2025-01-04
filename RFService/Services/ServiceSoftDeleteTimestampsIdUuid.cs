@@ -12,6 +12,9 @@ namespace RFService.Services
     {
         public Guid GetUuid(TEntity item) => item.Uuid;
 
+        public async Task<IEnumerable<Guid>> GetListUuidAsync(GetOptions options)
+            => (await GetListAsync(options)).Select(GetUuid);
+
         public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {
             data = await base.ValidateForCreationAsync(data);
