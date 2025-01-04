@@ -281,6 +281,31 @@ namespace RFService.Libs
             return true;
         }
 
+        public bool TryGet<T>(string key, out T value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+#pragma warning disable CS8601 // Possible null reference assignment.
+                value = default;
+#pragma warning restore CS8601 // Possible null reference assignment.
+                return false;
+            }
+
+            if (obj is T val)
+            {
+                value = val;
+                return true;
+            }
+
+#pragma warning disable CS8601 // Possible null reference assignment.
+            value = default;
+#pragma warning restore CS8601 // Possible null reference assignment.
+
+            return false;
+        }
+
         public T ToObject<T>()
             where T : new()
         {
