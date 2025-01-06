@@ -8,10 +8,14 @@ namespace RFDapper
         string GetDefaultSchema();
 
         string SanitizeSchema(string schema);
-        
+
         string SanitizeVarname(string varname);
 
-        string GetFullColumnName(string key, GetOptions options, string? defaultAlias);
+        string GetParamName(string paramName, List<string> usedNames);
+
+        string GetColumnName(string key, GetOptions options, string? defaultAlias = null);
+
+        SqlQuery GetValue(object? data, GetOptions options, List<string> usedNames);
 
         string? GetColumnType(string type, PropertyInfo property);
 

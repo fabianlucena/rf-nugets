@@ -11,8 +11,8 @@ namespace RFService.Libs
     {
         public DataDictionary()
         { }
-
-        public DataDictionary(Dictionary<string, object?> data)
+        
+        public DataDictionary(IDictionary<string, object?> data)
             : base(data)
         { }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using RFService.Entities;
+using RFService.ILibs;
 using RFService.IRepo;
 using RFService.IServices;
 using RFService.Repo;
@@ -12,10 +13,15 @@ namespace RFService.Services
         where TRepo : IRepo<TEntity>
         where TEntity : EntityTimestampsIdUuidEnabledName
     {
+        public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
+            => base.SanitizeDataForAutoGet(
+                ((IServiceName<TEntity>)this).SanitizeNameForAutoGet(data)
+            );
+
         public async Task<TEntity> GetSingleForNameAsync(string name, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Name"] = name;
+            options.AddFilter("Name", name);
 
             return await GetSingleAsync(options);
         }
@@ -23,7 +29,7 @@ namespace RFService.Services
         public async Task<TEntity?> GetSingleOrDefaultForNameAsync(string name, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Name"] = name;
+            options.AddFilter("Name", name);
 
             return await GetSingleOrDefaultAsync(options);
         }

@@ -27,7 +27,7 @@ namespace RFUserEmail.Services
         public virtual Task<UserEmail?> GetSingleOrDefaultForUserIdAsync(Int64 userId, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["UserId"] = userId;
+            options.AddFilter("UserId", userId);
             return GetSingleOrDefaultAsync(options);
         }
     }

@@ -3,15 +3,14 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RFDapper.Exceptions;
+using RFOperators;
 using RFService.ILibs;
 using RFService.IRepo;
 using RFService.Libs;
 using RFService.Repo;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Data.Common;
 using System.Reflection;
 using System.Text.Json;
 
@@ -22,13 +21,6 @@ namespace RFDapper
         public string SqlSelect = "";
 
         public string SqlFrom = "";
-
-        public Data Data = new();
-    }
-
-    public class SqlQuery
-    {
-        public string Sql = "";
 
         public Data Data = new();
     }
@@ -198,121 +190,111 @@ namespace RFDapper
             return null;
         }
 
-        public SqlQuery GetFilterQuery(object? filter, GetOptions options, List<string> skipNames, string name = "", string? tableAlias = null, string op = "=")
+        public SqlQuery GetOperation(
+            Operator op,
+            GetOptions options,
+            List<string> usedNames
+        )
         {
-            if (filter == null)
-                return new SqlQuery { Sql = " IS NULL" };
+            if (op is Column col)
+                return new SqlQuery { Sql = _driver.GetColumnName(col.Name, options) };
 
-            if (filter is DataDictionary filters)
+            if (op is Value val)
             {
-                var sqlFilters = new List<string>();
-                var data = new Data();
-                foreach (var f in filters)
+                if (val.Data == null)
+                    return new SqlQuery { IsNull = true };
+
+                return _driver.GetValue(val.Data, options, usedNames);
+            }
+
+            if (op is Unary uop)
+            {
+                var sqlQuery = GetOperation(uop.Op, options, usedNames);
+                sqlQuery.Sql = op switch
                 {
-                    var key = f.Key;
-                    var value = f.Value;
+                    IsNull =>    $"({sqlQuery.Sql}) IS NULL",
+                    IsNotNull => $"({sqlQuery.Sql}) IS NOT NULL",
+                    _ => throw new UnknownUnaryOperatorException(op.GetType().Name),
+                };
+                return sqlQuery;
+            }
 
-                    var columnName = _driver.GetFullColumnName(key, options, tableAlias);
+            if (op is Binary bop)
+            {
+                var sqlQuery1 = GetOperation(bop.Op1, options, usedNames);
+                var sqlQuery2 = GetOperation(bop.Op2, options, usedNames);
 
-                    if (value == null)
-                    {
-                        sqlFilters.Add($"{columnName} IS NULL");
-                        continue;
-                    }
+                foreach (var kv in sqlQuery2.Data.Values)
+                    sqlQuery1.Data.Values[kv.Key] = kv.Value;
 
-                    var newName = _driver.SanitizeVarname(name + key);
-                    if (skipNames.Contains(name))
-                    {
-                        var root = newName;
-                        int counter = 0;
-                        newName = root + counter;
-                        while (skipNames.Contains(newName))
-                        {
-                            counter++;
-                            newName = root + counter;
-                        }
-                    }
-                    skipNames.Add(newName);
+                sqlQuery1.Sql = op switch
+                {
+                    Eq => sqlQuery2.IsNull?
+                        $"({sqlQuery1.Sql}) IS NULL":
+                        $"({sqlQuery1.Sql}) = ({sqlQuery2.Sql})",
+                    NE => sqlQuery2.IsNull ?
+                        $"({sqlQuery1.Sql}) IS NOT NULL" :
+                        $"({sqlQuery1.Sql}) <> ({sqlQuery2.Sql})",
+                    In => $"({sqlQuery1.Sql}) IN {sqlQuery2.Sql}",
+                    NotIn => $"({sqlQuery1.Sql}) NOT IN {sqlQuery2.Sql}",
+                    _ => throw new UnknownBinaryOperatorException(op.GetType().Name),
+                };
+                return sqlQuery1;
+            }
 
-                    var sqlQuery = GetFilterQuery(value, options, skipNames, newName, tableAlias);
+            if (op is NAry nop)
+            {
+                SqlQuery sqlQuery = new();
+                List<string> sqls = [];
 
-                    sqlFilters.Add(columnName + sqlQuery.Sql);
-                    foreach (var kv in sqlQuery.Data.Values)
-                        data.Values[kv.Key] = kv.Value;
+                foreach (var iop in nop.Ops)
+                {
+                    var newSqlQuery = GetOperation(iop, options, usedNames);
+                    sqls.Add(newSqlQuery.Sql);
+                    foreach (var kv in newSqlQuery.Data.Values)
+                        sqlQuery.Data.Values[kv.Key] = kv.Value;
                 }
 
-                return new SqlQuery
+                sqlQuery.Sql = op switch
                 {
-                    Sql = string.Join(" AND ", sqlFilters),
-                    Data = data,
+                    And => "(" + string.Join(") AND (", sqls) + ")",
+                    Or => "(" + string.Join(") OR (", sqls) + ")",
+                    _ => throw new UnknownNAryOperatorException(op.GetType().Name),
                 };
-            }
-            
-            if (filter is string)
-            {
-                return new SqlQuery
-                {
-                    Sql = $" {op} @" + name,
-                    Data = { Values = { { name, filter } } },
-                };
+                return sqlQuery;
             }
 
-            if (filter.GetType().GetInterface("IEnumerable") != null)
-            {
-                return new SqlQuery
-                {
-                    Sql = " IN @" + name,
-                    Data = { Values = { { name, filter } } },
-                };
-            }
-            
-            if (filter is RFService.Operator.DistinctTo dt)
-            {
-                var sqlQuery = GetFilterQuery(dt.Value, options, skipNames, name);
-                var sql = " NOT";
-                if (sqlQuery.Sql[0] != ' ')
-                    sql += " ";
-                sql += sqlQuery.Sql;
-
-                return new SqlQuery
-                {
-                    Sql = sql,
-                    Data = sqlQuery.Data,
-                };
-            }
-
-            if (filter is RFService.Operator.NotNull)
-            {
-                return new SqlQuery
-                {
-                    Sql = " IS NOT NULL",
-                    Data = new(),
-                };
-            }
-
-            if (filter is RFService.Operator.GE ge)
-                return GetFilterQuery(ge.Value, options, skipNames, name, op: ">=");
-
-            return new SqlQuery
-            {
-                Sql = $" {op} @" + name,
-                Data = { Values = { { name, filter } } },
-            };
+            throw new UnknownOperationException(op.GetType().Name);
         }
 
-        public SqlQuery? GetWhereFilter(GetOptions options, string prefix = "where_")
+        public SqlQuery GetFilterQuery(
+            Operators operators,
+            GetOptions options,
+            List<string> usedNames
+        )
+        {
+            if (operators.Count <= 0)
+                return new SqlQuery();
+
+            if (operators.Count == 1)
+                return GetOperation(operators[0], options, usedNames);
+
+            return GetOperation(Op.And([.. operators]), options, usedNames);
+        }
+
+        public SqlQuery? GetWhereFilter(GetOptions options)
         {
             if (options.Filters.Count == 0)
                 return null;
 
-            var sqlQuery = GetFilterQuery(options.Filters, options, [], prefix, options.Alias);
+            var sqlQuery = GetFilterQuery(options.Filters, options, []);
 
             return sqlQuery;
         }
 
-        public SqlQuery? GetWhereQuery(GetOptions options, string prefix = "where_")
+        public SqlQuery? GetWhereQuery(GetOptions options)
         {
-            var filter = GetWhereFilter(options, prefix);
+            var filter = GetWhereFilter(options);
             if (filter != null)
                 filter.Sql = "WHERE " + filter.Sql;
 
@@ -400,7 +382,7 @@ namespace RFDapper
                         + $" ON [{from.Alias}].[{foreignTableColumnKey}] = [{options.Alias}].[{foreignColumnName}]";
 
                     if (join.Value is GetOptions) {
-                        var joinWhere = GetWhereFilter((join.Value as GetOptions)!, $"{join.Key}_where_");
+                        var joinWhere = GetWhereFilter((join.Value as GetOptions)!);
                         if (joinWhere != null)
                             wheres.Add(joinWhere);
                     }
@@ -565,6 +547,7 @@ namespace RFDapper
             var entityType = typeof(TEntity);
             var columns = new List<string>();
             DataDictionary values = [];
+            List<string> usedNames = [];
 
             foreach (var item in data)
             {
@@ -579,15 +562,8 @@ namespace RFDapper
                     if (valueJsonElement != null)
                         value = ConvertJsonElement(valueJsonElement.Value);
 
-                    if (value != null) {
-                        var valueType = value.GetType();
-                        if (valueType.IsClass
-                            && valueType.Name != "String"
-                            && valueType.Name != "SqlGeography"
-                        )
-                        {
-                            continue;
-                        }
+                    if (value is Operator op) {
+                        value = GetOperation(op, options, usedNames);
                     }
                 }
                 var valueName = "data_" + name;
@@ -730,6 +706,11 @@ namespace RFDapper
                         options.RepoOptions?.Transaction
                     );
                 }
+                catch (Exception)
+                {
+                    closeConnection();
+                    throw;
+                }
                 finally
                 {
                     closeConnection();
@@ -756,7 +737,7 @@ namespace RFDapper
 
                 var resultProperty = task.GetType().GetProperty("Result");
                 return (IEnumerable<TEntity>?)resultProperty?.GetValue(task)
-                    ?? throw new Exception("No result for query"); ;
+                    ?? throw new Exception("No result for query");
             }
 
             if (options.Join.Count == 2) 
@@ -782,7 +763,7 @@ namespace RFDapper
 
                 var resultProperty = task.GetType().GetProperty("Result");
                 return (IEnumerable<TEntity>?)resultProperty?.GetValue(task)
-                    ?? throw new Exception("No result for query"); ;
+                    ?? throw new Exception("No result for query");
             }
 
             throw new TooManyJoinsException();
@@ -869,6 +850,11 @@ namespace RFDapper
                     sqlQuery.Data.Values,
                     options.RepoOptions?.Transaction
                 );
+            }
+            catch (Exception)
+            {
+                closeConnection();
+                throw;
             }
             finally
             {

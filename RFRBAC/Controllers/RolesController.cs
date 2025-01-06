@@ -28,10 +28,10 @@ namespace RFRBAC.Controllers
             var query = HttpContext.Request.Query.GetPascalized();
             var options = GetOptions.CreateFromQuery(query);
             if (uuid != null)
-                options.Filters["uuid"] = uuid;
+                options.AddFilter("uuid", uuid);
 
             if (query.TryGetBool("IsSelectable", out bool isSelectable))
-                options.Filters["IsSelectable"] = isSelectable;
+                options.AddFilter("IsSelectable", isSelectable);
             
             var roleList = await roleService.GetListAsync(options);
             var roleAttributesList = roleList.Select(mapper.Map<Role, RoleAttributes>);

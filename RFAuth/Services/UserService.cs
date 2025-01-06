@@ -5,6 +5,7 @@ using RFService.Repo;
 using RFService.IRepo;
 using RFService.IServices;
 using RFService.Libs;
+using RFService.ILibs;
 
 namespace RFAuth.Services
 {
@@ -48,25 +49,24 @@ namespace RFAuth.Services
             return data;
         }
 
-        public override GetOptions SanitizeForAutoGet(GetOptions options)
+        public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
         {
-            if (options.Filters.TryGetValue("Username", out object? value))
+            if (data.TryGetValue("Username", out object? value))
             {
-                options = new GetOptions(options);
                 if (value != null
                     && !string.IsNullOrEmpty((string)value)
                 )
                 {
-                    options.Filters = new DataDictionary { { "Username", value } };
-                    return options;
+                    return new DataDictionary { { "Username", value } };
                 }
                 else
                 {
-                    options.Filters.Remove("Username");
+                    data = new DataDictionary(data);
+                    data.Remove("Username");
                 }
             }
 
-            return base.SanitizeForAutoGet(options);
+            return base.SanitizeDataForAutoGet(data);
         }
     }
 }

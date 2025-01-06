@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using RFAuth.Entities;
+﻿using RFAuth.Entities;
 using RFAuth.IServices;
 using RFService.ILibs;
 using RFService.IRepo;
@@ -30,50 +29,42 @@ namespace RFAuth.Services
         }
 
         public async Task<Password> GetSingleForUserIdAsync(Int64 userId)
-        {
-            return await repo.GetSingleAsync(new GetOptions { Filters = { { "UserId", userId } } });
-        }
+            => await repo.GetSingleAsync(new GetOptions { Filters = { { "UserId", userId } } });
 
         public async Task<Password?> GetSingleOrDefaultForUserIdAsync(Int64 userId)
-        {
-            return await repo.GetSingleOrDefaultAsync(new GetOptions { Filters = { { "UserId", userId } } });
-        }
+            => await repo.GetSingleOrDefaultAsync(new GetOptions { Filters = { { "UserId", userId } } });
 
         public async Task<Password> GetSingleForUserAsync(User user)
-        {
-            return await GetSingleForUserIdAsync(user.Id);
-        }
+            => await GetSingleForUserIdAsync(user.Id);
 
         public async Task<Password?> GetSingleOrDefaultForUserAsync(User user)
-        {
-            return await GetSingleOrDefaultForUserIdAsync(user.Id);
-        }
+            => await GetSingleOrDefaultForUserIdAsync(user.Id);
 
-        public override GetOptions SanitizeForAutoGet(GetOptions options)
+        public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
         {
-            if (options.Filters.TryGetValue("UserId", out object? value))
+            if (data.TryGetValue("UserId", out object? value))
             {
-                options = new GetOptions(options);
                 if (value != null
                     && (Int64)value != 0
                 )
                 {
-                    options.Filters = new DataDictionary { { "UserId", value } };
-                    return options;
+                    return new DataDictionary { { "UserId", value } };
                 }
                 else
                 {
-                    options.Filters.Remove("UserId");
+                    data = new DataDictionary(data);
+                    data.Remove("UserId");
                 }
             }
 
-            return base.SanitizeForAutoGet(options);
+            return base.SanitizeDataForAutoGet(data);
         }
+
 
         public async Task<int> UpdateForUserIdAsync(IDataDictionary data, Int64 userId, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["UserId"] = userId;
+            options.AddFilter("UserId", userId);
             return await UpdateAsync(data, options);
         }
 

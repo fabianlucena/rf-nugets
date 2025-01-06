@@ -1,4 +1,5 @@
 ﻿using RFService.ILibs;
+using RFService.Libs;
 using RFService.Repo;
 
 namespace RFService.IServices
@@ -9,12 +10,32 @@ namespace RFService.IServices
     {
         Guid GetUuid(TEntity item);
 
+        public IDataDictionary SanitizeUuidForAutoGet(IDataDictionary data)
+        {
+            if (data.TryGetValue("Uuid", out object? value))
+            {
+                if (value != null
+                    && (Guid)value != Guid.Empty
+                )
+                {
+                    return new DataDictionary { { "Uuid", value } };
+                }
+                else
+                {
+                    data = new DataDictionary(data);
+                    data.Remove("Uuid");
+                }
+            }
+
+            return data;
+        }
+
         Task<IEnumerable<Guid>> GetListUuidAsync(GetOptions options);
 
         public async Task<TEntity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Uuid"] = uuid;
+            options.AddFilter("Uuid", uuid);
 
             return await GetSingleAsync(options);
         }
@@ -22,7 +43,7 @@ namespace RFService.IServices
         public async Task<TEntity?> GetSingleOrDefaultForUuidAsync(Guid uuid, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Uuid"] = uuid;
+            options.AddFilter("Uuid", uuid);
 
             return await GetSingleOrDefaultAsync(options);
         }
@@ -30,14 +51,14 @@ namespace RFService.IServices
         Task<int> UpdateForUuidAsync(Guid uuid, IDataDictionary data, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["uuid"] = uuid;
+            options.AddFilter("uuid", uuid);
             return UpdateAsync(data, options);
         }
 
         Task<int> DeleteForUuidAsync(Guid uuid, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["uuid"] = uuid;
+            options.AddFilter("uuid", uuid);
             return DeleteAsync(options);
         }
     }

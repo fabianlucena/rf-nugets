@@ -1,4 +1,5 @@
-﻿using RFService.Libs;
+﻿using RFService.ILibs;
+using RFService.Libs;
 using RFService.Repo;
 
 namespace RFService.IServices
@@ -7,6 +8,22 @@ namespace RFService.IServices
         : IService<TEntity>
         where TEntity : class
     {
+        public IDataDictionary SanitizeSoftDeleteForAutoGet(IDataDictionary data)
+        {
+            if (data.TryGetValue("DeletedAt", out object? value))
+            {
+                if (value == null
+                    || (DateTime)value == DateTime.MinValue
+                )
+                {
+                    data = new DataDictionary(data);
+                    data.Remove("DeletedAt");
+                }
+            }
+
+            return data;
+        }
+
         Task<int> RestoreAsync(GetOptions options)
             => UpdateAsync(new DataDictionary { { "DeletedAt" , null } }, options);
     }

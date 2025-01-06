@@ -1,7 +1,7 @@
-﻿using RFRBAC.Entities;
+﻿using RFOperators;
+using RFRBAC.Entities;
 using RFRBAC.IServices;
 using RFService.IRepo;
-using RFService.Operator;
 using RFService.Repo;
 using RFService.Services;
 
@@ -18,7 +18,7 @@ namespace RFRBAC.Services
         )
         {
             options ??= new GetOptions();
-            options.Filters["RoleId"] = rolesId;
+            options.AddFilter("RoleId", rolesId);
             var rolesParents = await GetListAsync(options);
             return rolesParents.Select(i => i.ParentId);
         }
@@ -31,12 +31,12 @@ namespace RFRBAC.Services
             var allRolesId = rolesId.ToList();
 
             options ??= new GetOptions();
-            options.Filters["ParentId"] = Op.DistinctTo(allRolesId);
+            options.Filters.Add(Op.NE("ParentId", allRolesId));
             var newRolesId = await GetParentsIdForRolesIdAsync(rolesId, options);
             while (newRolesId.Any())
             {
                 allRolesId.AddRange(newRolesId);
-                options.Filters["ParentId"] = Op.DistinctTo(allRolesId);
+                options.Filters.Add(Op.NE("ParentId", allRolesId));
                 newRolesId = await GetParentsIdForRolesIdAsync(rolesId, options);
             }
 

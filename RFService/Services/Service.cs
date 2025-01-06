@@ -4,6 +4,7 @@ using RFService.Entities;
 using System.Data;
 using RFService.Libs;
 using RFService.ILibs;
+using RFOperators;
 
 namespace RFService.Services
 {
@@ -43,15 +44,12 @@ namespace RFService.Services
         public virtual Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options)
             => repo.GetFirstOrDefaultAsync(SanitizeGetOptions(options));
 
-        public virtual GetOptions SanitizeForAutoGet(GetOptions options)
-            => options;
-
-        public virtual Task<TEntity?> AutoGetFirstOrDefaultAsync(GetOptions options)
-            => GetFirstOrDefaultAsync(SanitizeForAutoGet(options));
+        public virtual IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
+            => data;
 
         public virtual Task<TEntity?> AutoGetFirstOrDefaultAsync(TEntity data)
         {
-            var filters = new DataDictionary();
+            IDataDictionary autoGetData = new DataDictionary();
             var entityType = typeof(TEntity);
             var properties = entityType.GetProperties();
             foreach (var pInfo in properties)
@@ -60,10 +58,19 @@ namespace RFService.Services
                 if (pType.IsClass && pType.Name != "String")
                     continue;
 
-                filters[pInfo.Name] = pInfo.GetValue(data);
+                var column = pInfo.Name;
+                var value = pInfo.GetValue(data);
+
+                autoGetData.Add(column, value);
             }
 
-            return AutoGetFirstOrDefaultAsync(new GetOptions { Filters = filters });
+            autoGetData = SanitizeDataForAutoGet(autoGetData);
+
+            var filters = new Operators();
+            foreach (var kv in autoGetData)
+                filters.Add(kv.Key, kv.Value);
+
+            return GetFirstOrDefaultAsync(new GetOptions { Filters = filters });
         }
 
         public virtual async Task<TEntity> GetOrCreateAsync(TEntity data)

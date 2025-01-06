@@ -1,16 +1,26 @@
 ﻿using RFService.Entities;
+using RFService.ILibs;
 using RFService.IRepo;
-using RFService.Libs;
+using RFService.IServices;
 using RFService.Repo;
 
 namespace RFService.Services
 {
     public abstract class ServiceTimestampsIdUuid<TRepo, TEntity>(TRepo repo)
-        : ServiceTimestampsId<TRepo, TEntity>(repo)
+        : ServiceTimestampsId<TRepo, TEntity>(repo),
+            IServiceUuid<TEntity>
         where TRepo : IRepo<TEntity>
         where TEntity : EntityTimestampsIdUuid
     {
         public Guid GetUuid(TEntity item) => item.Uuid;
+
+        public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
+            => base.SanitizeDataForAutoGet(
+                ((IServiceUuid<TEntity>)this).SanitizeUuidForAutoGet(data)
+            );
+
+        public async Task<IEnumerable<Guid>> GetListUuidAsync(GetOptions options)
+            => (await GetListAsync(options)).Select(GetUuid);
 
         public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {
@@ -22,27 +32,6 @@ namespace RFService.Services
             }
 
             return data;
-        }
-
-        public override GetOptions SanitizeForAutoGet(GetOptions options)
-        {
-            if (options.Filters.TryGetValue("Uuid", out object? value))
-            {
-                options = new GetOptions(options);
-                if (value != null
-                    && (Guid)value != Guid.Empty
-                )
-                {
-                    options.Filters = new DataDictionary { { "Uuid", value } };
-                    return options;
-                }
-                else
-                {
-                    options.Filters.Remove("Uuid");
-                }
-            }
-
-            return base.SanitizeForAutoGet(options);
         }
     }
 }

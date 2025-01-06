@@ -19,7 +19,7 @@ namespace RFUserEmailVerified.Services
         public virtual Task<UserEmailVerified?> GetSingleOrDefaultForUserIdAsync(long userId, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["UserId"] = userId;
+            options.AddFilter("UserId", userId);
             return GetSingleOrDefaultAsync(options);
         }
     }

@@ -9,7 +9,7 @@ namespace RFService.IServices
         public async Task<TEntity> GetSingleForTitleAsync(string title, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Title"] = title;
+            options.AddFilter("Title", title);
 
             return await GetSingleAsync(options);
         }
@@ -17,7 +17,7 @@ namespace RFService.IServices
         public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Title"] = title;
+            options.AddFilter("Title", title);
 
             return await GetSingleOrDefaultAsync(options);
         }

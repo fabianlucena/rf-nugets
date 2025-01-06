@@ -1,12 +1,14 @@
 ﻿using RFService.Entities;
+using RFService.ILibs;
 using RFService.IRepo;
-using RFService.Libs;
+using RFService.IServices;
 using RFService.Repo;
 
 namespace RFService.Services
 {
     public abstract class ServiceSoftDeleteTimestampsIdUuid<TRepo, TEntity>(TRepo repo)
-        : ServiceSoftDeleteTimestampsId<TRepo, TEntity>(repo)
+        : ServiceSoftDeleteTimestampsId<TRepo, TEntity>(repo),
+            IServiceUuid<TEntity>
         where TRepo : IRepo<TEntity>
         where TEntity : EntitySoftDeleteTimestampsIdUuid
     {
@@ -27,25 +29,9 @@ namespace RFService.Services
             return data;
         }
 
-        public override GetOptions SanitizeForAutoGet(GetOptions options)
-        {
-            if (options.Filters.TryGetValue("Uuid", out object? value))
-            {
-                options = new GetOptions(options);
-                if (value != null
-                    && (Guid)value != Guid.Empty
-                )
-                {
-                    options.Filters = new DataDictionary { { "Uuid", value } };
-                    return options;
-                }
-                else
-                {
-                    options.Filters.Remove("Uuid");
-                }
-            }
-
-            return base.SanitizeForAutoGet(options);
-        }
+        public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
+            => base.SanitizeDataForAutoGet(
+                ((IServiceUuid<TEntity>)this).SanitizeUuidForAutoGet(data)
+            );
     }
 }

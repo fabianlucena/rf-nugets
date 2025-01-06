@@ -9,7 +9,7 @@ namespace RFService.IServices
         Task<int> RestoreForUuidAsync(Guid uuid, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["uuid"] = uuid;
+            options.AddFilter("uuid", uuid);
             return RestoreAsync(options);
         }
     }

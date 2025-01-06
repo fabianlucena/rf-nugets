@@ -21,7 +21,7 @@ namespace RFRBAC.Services
             GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["RoleId"] = rolesId;
+            options.AddFilter("RoleId", rolesId);
             var rolesPermissions = await GetListAsync(options);
             return rolesPermissions.Select(i => i.PermissionId);
         }
@@ -42,7 +42,7 @@ namespace RFRBAC.Services
             var permissionsId = await GetPermissionsIdForRolesIdAsync(rolesId);
 
             options ??= new GetOptions();
-            options.Filters["Id"] = permissionsId;
+            options.AddFilter("Id", permissionsId);
 
             return await permissionService.GetListAsync(options);
         }

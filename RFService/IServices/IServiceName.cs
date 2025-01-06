@@ -1,4 +1,5 @@
-﻿using RFService.Libs;
+﻿using RFService.ILibs;
+using RFService.Libs;
 using RFService.Repo;
 
 namespace RFService.IServices
@@ -7,25 +8,24 @@ namespace RFService.IServices
         : IService<TEntity>
         where TEntity : class
     {
-        public GetOptions SanitizeNameForAutoGet(GetOptions options)
+        IDataDictionary SanitizeNameForAutoGet(IDataDictionary data)
         {
-            if (options.Filters.TryGetValue("Name", out object? value))
+            if (data.TryGetValue("Name", out object? value))
             {
-                options = new GetOptions(options);
                 if (value != null
                     && !string.IsNullOrEmpty((string)value)
                 )
                 {
-                    options.Filters = new DataDictionary { { "Name", value } };
-                    return options;
+                    return new DataDictionary { { "Name", value } };
                 }
                 else
                 {
-                    options.Filters.Remove("Name");
+                    data = new DataDictionary(data);
+                    data.Remove("Name");
                 }
             }
 
-            return options;
+            return data;
         }
 
         Task<TEntity> GetSingleForNameAsync(string name, GetOptions? options = null);

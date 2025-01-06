@@ -1,4 +1,5 @@
 ﻿using RFService.Entities;
+using RFService.ILibs;
 using RFService.IRepo;
 using RFService.IServices;
 using RFService.Repo;
@@ -6,21 +7,20 @@ using RFService.Repo;
 namespace RFService.Services
 {
     public abstract class ServiceSoftDeleteTimestampsIdUuidEnabledName<TRepo, TEntity>(TRepo repo)
-        : ServiceSoftDeleteTimestampsIdUuidEnabled<TRepo, TEntity>(repo)
+        : ServiceSoftDeleteTimestampsIdUuidEnabled<TRepo, TEntity>(repo),
+            IServiceName<TEntity>
         where TRepo : IRepo<TEntity>
         where TEntity : EntitySoftDeleteTimestampsIdUuidEnabledName
     {
-        public override GetOptions SanitizeForAutoGet(GetOptions options)
-        {
-            return base.SanitizeForAutoGet(
-                ((IServiceName<TEntity>)this).SanitizeNameForAutoGet(options)
+        public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
+            => base.SanitizeDataForAutoGet(
+                ((IServiceName<TEntity>)this).SanitizeNameForAutoGet(data)
             );
-        }
 
         public async Task<TEntity> GetSingleForNameAsync(string name, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Name"] = name;
+            options.AddFilter("Name", name);
 
             return await GetSingleAsync(options);
         }
@@ -28,7 +28,7 @@ namespace RFService.Services
         public async Task<TEntity?> GetSingleOrDefaultForNameAsync(string name, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Name"] = name;
+            options.AddFilter("Name", name);
 
             return await GetSingleOrDefaultAsync(options);
         }

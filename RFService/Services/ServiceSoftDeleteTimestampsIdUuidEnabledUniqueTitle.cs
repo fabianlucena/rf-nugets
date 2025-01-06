@@ -1,5 +1,6 @@
 ﻿using RFService.Entities;
 using RFService.Exceptions;
+using RFService.ILibs;
 using RFService.IRepo;
 using RFService.IServices;
 using RFService.Repo;
@@ -12,6 +13,11 @@ namespace RFService.Services
         where TRepo : IRepo<TEntity>
         where TEntity : EntitySoftDeleteTimestampsIdUuidEnabledUniqueTitle
     {
+        public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
+            => base.SanitizeDataForAutoGet(
+                ((IServiceTitle<TEntity>)this).SanitizeTitleForAutoGet(data)
+            );
+
         public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {
             if (string.IsNullOrEmpty(data.Title))
@@ -29,7 +35,7 @@ namespace RFService.Services
         public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Title"] = title;
+            options.AddFilter("Title", title);
 
             return await GetSingleOrDefaultAsync(options);
         }

@@ -30,7 +30,7 @@ namespace RFAuth.Controllers
 
             var options = GetOptions.CreateFromQuery(HttpContext);
             if (uuid != null)
-                options.Filters["Uuid"] = uuid;
+                options.AddFilter("Uuid", uuid);
 
             var userList = await userService.GetListAsync(options);
             var userAttributesList = userList.Select(mapper.Map<User, UserAttributes>);

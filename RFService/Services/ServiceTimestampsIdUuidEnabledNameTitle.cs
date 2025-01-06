@@ -1,26 +1,19 @@
 ﻿using RFService.Entities;
+using RFService.ILibs;
 using RFService.IRepo;
-using RFService.Repo;
+using RFService.IServices;
 
 namespace RFService.Services
 {
     public abstract class ServiceTimestampsIdUuidEnabledNameTitle<TRepo, TEntity>(TRepo repo)
-        : ServiceTimestampsIdUuidEnabledName<TRepo, TEntity>(repo)
+        : ServiceTimestampsIdUuidEnabledName<TRepo, TEntity>(repo),
+            IServiceTitle<TEntity>
         where TRepo : IRepo<TEntity>
         where TEntity : EntityTimestampsIdUuidEnabledNameTitle
     {
-        public override GetOptions SanitizeForAutoGet(GetOptions options)
-        {
-            if (options.Filters.TryGetValue("Title", out object? value))
-            {
-                if (value == null || string.IsNullOrEmpty((string)value))
-                {
-                    options = new GetOptions(options);
-                    options.Filters.Remove("Title");
-                }
-            }
-
-            return base.SanitizeForAutoGet(options);
-        }
+        public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
+            => base.SanitizeDataForAutoGet(
+                ((IServiceTitle<TEntity>)this).SanitizeTitleForAutoGet(data)
+            );
     }
 }

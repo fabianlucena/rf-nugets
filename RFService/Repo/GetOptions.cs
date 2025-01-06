@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using RFOperators;
 using RFService.Libs;
 using System.Data;
 using System.Text.RegularExpressions;
@@ -23,7 +24,7 @@ namespace RFService.Repo
 
         public CommandType? CommandType { get; set; } = null;
 
-        public DataDictionary Filters { get; set; } = [];
+        public Operators Filters { get; set; } = [];
 
         public List<string> OrderBy { get; set; } = [];
 
@@ -41,9 +42,9 @@ namespace RFService.Repo
             Separator = options.Separator;
             CommandTimeout = options.CommandTimeout;
             CommandType = options.CommandType;
-            Filters = new DataDictionary(options.Filters);
+            Filters = new (options.Filters);
             OrderBy = options.OrderBy;
-            Options = new DataDictionary(options.Options);
+            Options = new (options.Options);
         }
 
         public GetOptions(RepoOptions repoOptions)
@@ -74,15 +75,15 @@ namespace RFService.Repo
         public GetOptions AddFilterUuid(Guid? uuid)
         {
             if (uuid != null)
-                Filters["Uuid"] = uuid;
+                AddFilterIfNotExists("Uuid", uuid);
 
             return this;
         }
 
         public GetOptions AddFromQuery(IQueryCollection query)
         {
-            if (query.ContainsKey("IncludeDisabled"))
-                Filters["IsEnabled"] = null;
+            if (query.TryGetBool("IncludeDisabled", out bool includeDisabled))
+                Options["IncludeDisabled"] = includeDisabled;
 
             if (query.TryGetBool("IncludeDeleted", out bool includeDeleted))
                 Options["IncludeDeleted"] = includeDeleted;
@@ -106,21 +107,20 @@ namespace RFService.Repo
             return this;
         }
 
+        public bool HasColumnFilter(string column)
+            => Filters.Any(filter => filter.HasColumn(column));
+
+        public GetOptions AddFilterIfNotExists(string column, object? value)
+        {
+            if (!HasColumnFilter(column))
+                AddFilter(column, value);
+
+            return this;
+        }
+
         public GetOptions AddFilter(string column, object? value)
         {
-            if (Filters.ContainsKey(column))
-            {
-                List<object?> list;
-                if (Filters[column] is IEnumerable<object?> enumerable)
-                    list = enumerable.ToList();
-                else
-                    list = [Filters[column]];
-
-                list.Add(value);
-                Filters[column] = list;
-            }
-            else
-                Filters[column] = value;
+            Filters.Add(column, value);
 
             return this;
         }

@@ -1,26 +1,19 @@
 ﻿using RFService.Entities;
+using RFService.ILibs;
 using RFService.IRepo;
-using RFService.Repo;
+using RFService.IServices;
 
 namespace RFService.Services
 {
     public abstract class ServiceTimestampsIdUuidEnabledNameTitleTranslatable<TRepo, TEntity>(TRepo repo)
-        : ServiceTimestampsIdUuidEnabledNameTitle<TRepo, TEntity>(repo)
+        : ServiceTimestampsIdUuidEnabledNameTitle<TRepo, TEntity>(repo),
+            IServiceTranslatable<TEntity>
         where TRepo : IRepo<TEntity>
         where TEntity : EntityTimestampsIdUuidEnabledNameTitleTranslatable
     {
-        public override GetOptions SanitizeForAutoGet(GetOptions options)
-        {
-            if (options.Filters.TryGetValue("IsTranslatable", out object? value))
-            {
-                if (value == null)
-                {
-                    options = new GetOptions(options);
-                    options.Filters.Remove("IsTranslatable");
-                }
-            }
-
-            return base.SanitizeForAutoGet(options);
-        }
+        public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
+            => base.SanitizeDataForAutoGet(
+                ((IServiceTranslatable<TEntity>)this).SanitizeIsTranslatableForAutoGet(data)
+            );
     }
 }

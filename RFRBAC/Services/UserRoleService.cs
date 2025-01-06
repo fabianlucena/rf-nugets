@@ -1,8 +1,8 @@
 ﻿using RFAuth.IServices;
+using RFOperators;
 using RFRBAC.Entities;
 using RFRBAC.IServices;
 using RFService.IRepo;
-using RFService.Operator;
 using RFService.Repo;
 using RFService.Services;
 
@@ -25,7 +25,7 @@ namespace RFRBAC.Services
         public async Task<IEnumerable<Int64>> GetRolesIdForUserIdAsync(Int64 userId, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["UserId"] = userId;
+            options.AddFilter("UserId", userId);
 
             return await GetRolesIdAsync(options);
         }
@@ -33,7 +33,7 @@ namespace RFRBAC.Services
         public async Task<IEnumerable<Int64>> GetRolesIdForUsersIdAsync(IEnumerable<Int64> usersId, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["UserId"] = usersId;
+            options.AddFilter("UserId", usersId);
 
             return await GetRolesIdAsync(options);
         }
@@ -59,7 +59,7 @@ namespace RFRBAC.Services
             var allRolesId = await GetRolesIdForUserIdAsync(userId);
 
             options ??= new GetOptions();
-            options.Filters["Id"] = allRolesId;
+            options.AddFilter("Id", allRolesId);
             return await roleService.GetListAsync(options);
         }
 
@@ -68,7 +68,7 @@ namespace RFRBAC.Services
             var allRolesId = await GetAllRolesIdForUserIdAsync(userId);
 
             options ??= new GetOptions();
-            options.Filters["Id"] = allRolesId;
+            options.AddFilter("Id", allRolesId);
             return await roleService.GetListAsync(options);
         }
 
@@ -97,7 +97,7 @@ namespace RFRBAC.Services
             {
                 Filters = {
                     { "userId", userId },
-                    { "roleId", Op.DistinctTo(rolesId) }
+                    { Op.NE("roleId", rolesId) }
                 }
             });
         }

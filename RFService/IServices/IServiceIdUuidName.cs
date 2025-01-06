@@ -46,7 +46,7 @@ namespace RFService.IServices
         public async Task<IEnumerable<TEntity>> GetListForNamesAsync(IEnumerable<string> names, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Name"] = names;
+            options.AddFilter("Name", names);
 
             return await GetListAsync(options);
         }

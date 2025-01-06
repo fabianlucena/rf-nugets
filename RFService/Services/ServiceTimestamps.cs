@@ -1,12 +1,14 @@
 ﻿using RFService.Entities;
 using RFService.ILibs;
 using RFService.IRepo;
+using RFService.IServices;
 using RFService.Repo;
 
 namespace RFService.Services
 {
     public abstract class ServiceTimestamps<TRepo, TEntity>(TRepo repo)
-        : Service<TRepo, TEntity>(repo)
+        : Service<TRepo, TEntity>(repo),
+            IServiceTimestamps<TEntity>
         where TRepo : IRepo<TEntity>
         where TEntity : EntityTimestamps
     {
@@ -34,37 +36,9 @@ namespace RFService.Services
             return data;
         }
 
-        public override GetOptions SanitizeForAutoGet(GetOptions options)
-        {
-            var newOptions = false;
-            if (options.Filters.TryGetValue("CreatedAt", out object? value))
-            {
-                if (value == null
-                    || (DateTime)value == DateTime.MinValue
-                )
-                {
-                    options = new GetOptions(options);
-                    newOptions = true;
-                    options.Filters.Remove("CreatedAt");
-                }
-            }
-
-            if (options.Filters.TryGetValue("UpdatedAt", out value))
-            {
-                if (value == null
-                    || (DateTime)value == DateTime.MinValue
-                )
-                {
-                    if (!newOptions)
-                    {
-                        options = new GetOptions(options);
-                    }
-
-                    options.Filters.Remove("UpdatedAt");
-                }
-            }
-
-            return base.SanitizeForAutoGet(options);
-        }
+        public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
+            => base.SanitizeDataForAutoGet(
+                ((IServiceTimestamps<TEntity>)this).SanitizeTimestampsForAutoGet(data)
+            );
     }
 }

@@ -25,9 +25,7 @@ namespace RFService.IServices
 
         Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options);
 
-        GetOptions SanitizeForAutoGet(GetOptions options);
-
-        Task<TEntity?> AutoGetFirstOrDefaultAsync(GetOptions options);
+        IDataDictionary SanitizeDataForAutoGet(IDataDictionary data);
 
         Task<TEntity?> AutoGetFirstOrDefaultAsync(TEntity data);
 

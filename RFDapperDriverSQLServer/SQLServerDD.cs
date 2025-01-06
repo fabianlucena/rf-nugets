@@ -1,9 +1,11 @@
-﻿using RFDapper;
+﻿using Microsoft.IdentityModel.Tokens;
+using RFDapper;
 using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using static Azure.Core.HttpHeader;
 
 namespace RFDapperDriverSQLServer
 {
@@ -28,7 +30,28 @@ namespace RFDapperDriverSQLServer
             return name.Replace('.', '_');
         }
 
-        public string GetFullColumnName(string columnName, GetOptions options, string? defaultAlias)
+        public string GetParamName(string paramName, List<string> usedNames)
+        {
+            paramName = paramName.Trim();
+            if (string.IsNullOrEmpty(paramName))
+                paramName = "param";
+
+            if (usedNames.Contains(paramName))
+            {
+                var root = paramName;
+                var counter = 0;
+                do
+                {
+                    counter++;
+                    paramName = root + "_" + counter;
+                } while (usedNames.Contains(paramName));
+            }
+
+            usedNames.Add(paramName);
+            return $"@{paramName}";
+        }
+
+        public string GetColumnName(string columnName, GetOptions options, string? defaultAlias = null)
         {
             columnName = columnName.Trim();
             if (SqareBracketColumn.IsMatch(columnName)
@@ -54,8 +77,25 @@ namespace RFDapperDriverSQLServer
                 columnName = $"[{parts[index]}].{columnName}";
             else if (!string.IsNullOrEmpty(defaultAlias))
                 columnName = $"[{defaultAlias}].{columnName}";
-            
+            else if (!string.IsNullOrEmpty(options.Alias))
+                columnName = $"[{options.Alias}].{columnName}";
+
             return columnName;
+        }
+
+        public SqlQuery GetValue(
+            object? data,
+            GetOptions options,
+            List<string> usedNames
+        )
+        {
+            var name = GetParamName("", usedNames);
+
+            return new()
+            {
+                Sql = name,
+                Data = new Data { Values = { { name, data } } },
+            };
         }
 
         public string? GetColumnType(string type, PropertyInfo property)
@@ -78,7 +118,7 @@ namespace RFDapperDriverSQLServer
                     return "NVARCHAR(MAX)";
             }
 
-            if (type.ToUpper().StartsWith("DECIMAL"))
+            if (type.StartsWith("DECIMAL", StringComparison.CurrentCultureIgnoreCase))
                 return type;
 
             if (!property.PropertyType.IsClass)

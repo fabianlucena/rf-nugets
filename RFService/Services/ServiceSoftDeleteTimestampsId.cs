@@ -2,13 +2,14 @@
 using RFService.Entities;
 using RFService.IRepo;
 using RFService.Repo;
-using RFService.Libs;
 using RFService.ILibs;
+using RFService.IServices;
 
 namespace RFService.Services
 {
     public abstract class ServiceSoftDeleteTimestampsId<TRepo, TEntity>(TRepo repo)
-        : ServiceSoftDeleteTimestamps<TRepo, TEntity>(repo)
+        : ServiceSoftDeleteTimestamps<TRepo, TEntity>(repo),
+            IServiceId<TEntity>
         where TRepo : IRepo<TEntity>
         where TEntity : EntitySoftDeleteTimestampsId
     {
@@ -22,65 +23,48 @@ namespace RFService.Services
             data = await base.ValidateForCreationAsync(data);
 
             if (data.Id != 0)
-            {
                 throw new ForbiddenIdForCreationException();
-            }
 
             return data;
         }
 
-        public override GetOptions SanitizeForAutoGet(GetOptions options)
-        {
-            if (options.Filters.TryGetValue("Id", out object? value))
-            {
-                options = new GetOptions(options);
-                if (value != null
-                    && (Int64)value > 0
-                )
-                {
-                    options.Filters = new DataDictionary { { "Id", value } };
-                    return options;
-                }
-                else {
-                    options.Filters.Remove("Id");
-                }
-            }
-
-            return base.SanitizeForAutoGet(options);
-        }
+        public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
+            => base.SanitizeDataForAutoGet(
+                ((IServiceId<TEntity>)this).SanitizeIdForAutoGet(data)
+            );
 
         public virtual Task<TEntity> GetSingleForIdAsync(Int64 id, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Id"] = id;
+            options.AddFilter("Id", id);
             return GetSingleAsync(options);
         }
 
         public virtual Task<TEntity?> GetSingleOrDefaultForIdAsync(Int64 id, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Id"] = id;
+            options.AddFilter("Id", id);
             return GetSingleOrDefaultAsync(options);
         }
 
         public virtual Task<IEnumerable<TEntity>> GetListForIdsAsync(IEnumerable<Int64> id, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Id"] = id;
+            options.AddFilter("Id", id);
             return GetListAsync(options);
         }
 
         public virtual Task<int> UpdateForIdAsync(IDataDictionary data, Int64 id, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Id"] = id;
+            options.AddFilter("Id", id);
             return UpdateAsync(data, options);
         }
 
         public virtual Task<int> DeleteForIdAsync(Int64 id, GetOptions? options = null)
         {
             options ??= new GetOptions();
-            options.Filters["Id"] = id;
+            options.AddFilter("Id", id);
             return DeleteAsync(options);
         }
     }
