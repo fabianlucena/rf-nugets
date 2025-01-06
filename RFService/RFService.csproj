@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RFOperators\RFOperators.csproj" />
     <ProjectReference Include="..\RFHttpExceptions\RFHttpExceptions.csproj" />
     <ProjectReference Include="..\RFOperators\RFOperators.csproj" />
   </ItemGroup>

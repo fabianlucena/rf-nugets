@@ -125,6 +125,13 @@ namespace RFService.Repo
             return this;
         }
 
+        public GetOptions AddFilter(Operator op)
+        {
+            Filters.Add(op);
+
+            return this;
+        }
+
         public GetOptions Include(string propertyName, string? alias = null)
         {
             Join[propertyName] = new From(alias);

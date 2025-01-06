@@ -3,7 +3,7 @@
 namespace RFAuth.Exceptions
 {
     public class UnknownUsernameException()
-        : HttpException(403, "Unknown username")
+        : HttpException(403, "Unknown username.")
     {
     }
 }

@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RFOperators\RFOperators.csproj" />
     <ProjectReference Include="..\RFService\RFService.csproj" />
   </ItemGroup>
 
