@@ -1,7 +1,7 @@
-﻿using RFRGBAC.Entities;
+﻿using RFOperators;
+using RFRGBAC.Entities;
 using RFRGBAC.IServices;
 using RFService.IRepo;
-using RFService.Operator;
 using RFService.Repo;
 using RFService.Services;
 
@@ -18,7 +18,7 @@ namespace RFRGBAC.Services
         )
         {
             options ??= new GetOptions();
-            options.Filters["UserId"] = userId;
+            options.AddFilter("UserId", userId);
             var usersGroups = await GetListAsync(options);
             return usersGroups.Select(i => i.GroupId);
         }
@@ -29,7 +29,7 @@ namespace RFRGBAC.Services
         )
         {
             options ??= new GetOptions();
-            options.Filters["UserId"] = usersId;
+            options.AddFilter("UserId", usersId);
             var usersGroups = await GetListAsync(options);
             return usersGroups.Select(i => i.GroupId);
         }
@@ -42,12 +42,12 @@ namespace RFRGBAC.Services
             var allGroupsId = usersId.ToList();
 
             options ??= new GetOptions();
-            options.Filters["GroupId"] = Op.DistinctTo(allGroupsId);
+            options.AddFilter(Op.NE("GroupId", allGroupsId));
             var newGroupsId = await GetGroupsIdForUsersIdAsync(usersId, options);
             while (newGroupsId.Any())
             {
                 allGroupsId.AddRange(newGroupsId);
-                options.Filters["ParentId"] = Op.DistinctTo(allGroupsId);
+                options.AddFilter(Op.NE("ParentId", allGroupsId));
                 newGroupsId = await GetGroupsIdForUsersIdAsync(newGroupsId, options);
             }
 
@@ -62,12 +62,12 @@ namespace RFRGBAC.Services
             var allGroupsId = new List<Int64> { userId };
 
             options ??= new GetOptions();
-            options.Filters["GroupId"] = Op.DistinctTo(allGroupsId);
+            options.AddFilter(Op.NE("GroupId", allGroupsId));
             var newGroupsId = await GetGroupsIdForUserIdAsync(userId, options);
             while (newGroupsId.Any())
             {
                 allGroupsId.AddRange(newGroupsId);
-                options.Filters["ParentId"] = Op.DistinctTo(allGroupsId);
+                options.AddFilter(Op.NE("ParentId", allGroupsId));
                 newGroupsId = await GetGroupsIdForUsersIdAsync(newGroupsId, options);
             }
 
