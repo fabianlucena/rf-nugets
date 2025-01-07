@@ -12,8 +12,8 @@ namespace RFService.Libs
         public DataDictionary()
         { }
         
-        public DataDictionary(IDictionary<string, object?> data)
-            : base(data)
+        public DataDictionary(IDictionary<string, object?>? data)
+            : base(data ?? new Dictionary<string, object?>())
         { }
 
         public DataDictionary GetPascalized()

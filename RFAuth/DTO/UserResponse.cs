@@ -1,4 +1,4 @@
-﻿using RFService.ILibs;
+﻿using RFService.Libs;
 
 namespace RFAuth.DTO
 {
@@ -18,6 +18,6 @@ namespace RFAuth.DTO
 
         public DateTime? DeletedAt { get; set; }
 
-        public IDataDictionary? Attributes { get; set; }
+        public DataDictionary? Attributes { get; set; }
     }
 }

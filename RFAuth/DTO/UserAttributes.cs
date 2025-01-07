@@ -1,11 +1,11 @@
 ﻿using RFAuth.Entities;
-using RFService.ILibs;
+using RFService.Libs;
 
 namespace RFAuth.DTO
 {
     public class UserAttributes
         : User
     {
-        public IDataDictionary? Attributes { get; set; }
+        public DataDictionary? Attributes { get; set; }
     }
 }
