@@ -112,7 +112,7 @@ namespace RFDapperDriverSQLServer
                     var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
                         ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
 
-                    if (length.HasValue)
+                    if (length.HasValue && length.Value > 0)
                         return $"NVARCHAR({length.Value})";
 
                     return "NVARCHAR(MAX)";
