@@ -1,19 +1,18 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using RFDapper;
+﻿using RFDapper;
+using RFDapperDriverSQLServer.Exceptions;
 using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using static Azure.Core.HttpHeader;
 
 namespace RFDapperDriverSQLServer
 {
     public partial class SQLServerDD
         : IDriver
     {
-        private readonly static Regex SqareBracketColumn= new(@"^\[.*\]$");
-        private readonly static Regex SqareBracketTableAndColumn= new(@"^\[.*\]\.\[.*\]$");
+        private readonly static Regex SqareBracketColumn = new(@"^\[.*\]$");
+        private readonly static Regex SqareBracketTableAndColumn = new(@"^\[.*\]\.\[.*\]$");
         private readonly static Regex SqareBracketTableAndFreeColumn = new(@"^\[.*\]\.[\w][\w\d]*$");
         private readonly static Regex FreeTableAndSqareBracketColumn = new(@"^[\w][\w\d]\.\[.*\]*$");
 
@@ -169,6 +168,42 @@ namespace RFDapperDriverSQLServer
                 columnDefinition += " IDENTITY(1,1)";
 
             return columnDefinition;
+        }
+
+        public string GetSQLOrderBy(string orderBy, GetOptions options)
+        {
+            orderBy = orderBy.Trim();
+
+            string column,
+                direction;
+            if (orderBy.EndsWith("ASC", true, null) && " \n\r\t".Contains(orderBy[^4]))
+            {
+                column = orderBy[..^4].Trim();
+                direction = "ASC";
+            }
+            else if (orderBy.EndsWith("DESC", true, null) && " \n\r\t".Contains(orderBy[^5]))
+            {
+                column = orderBy[..^5].Trim();
+                direction = "DESC";
+            }
+            else
+            {
+                column = orderBy;
+                direction = "ASC";
+            }
+
+            column = GetColumnName(column, options);
+
+            return $"{column} {direction}";
+        }
+
+        public IEnumerable<string> GetSQLOrderBy(IEnumerable<string> orderBy, GetOptions options)
+        {
+            List<string> result = [];
+            foreach (var orderByItem in orderBy)
+                result.Add(GetSQLOrderBy(orderByItem, options));
+
+            return result;
         }
     }
 }

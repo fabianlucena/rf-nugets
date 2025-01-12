@@ -415,7 +415,7 @@ namespace RFDapper
                 }
 
                 if (orderBy.Count > 0)
-                    sqlFrom += $" ORDER BY {String.Join(", ", orderBy)}";
+                    sqlFrom += $" ORDER BY {String.Join(", ", _driver.GetSQLOrderBy(orderBy, options))}";
 
                 if (options.Offset != null || options.Top != null)
                     sqlFrom += $" OFFSET {options.Offset ?? 0} ROWS";
