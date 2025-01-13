@@ -61,14 +61,14 @@ namespace RFAuth.Services
         }
 
 
-        public async Task<int> UpdateForUserIdAsync(IDataDictionary data, Int64 userId, GetOptions? options = null)
+        public async Task<int> UpdateForUserIdAsync(Int64 userId, IDataDictionary data, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.AddFilter("UserId", userId);
             return await UpdateAsync(data, options);
         }
 
-        public async Task<bool> CreateOrUpdateForUserIdAsync(string password, Int64 userId)
+        public async Task<bool> CreateOrUpdateForUserIdAsync(Int64 userId, string password)
         {
             var pasaswordObj = await GetSingleOrDefaultForUserIdAsync(userId);
             if (pasaswordObj == null)
@@ -83,17 +83,17 @@ namespace RFAuth.Services
             }
 
             var result = await UpdateForUserIdAsync(
-                new DataDictionary { { "Hash", Hash(password) } },
-                userId
+                userId,
+                new DataDictionary { { "Hash", Hash(password) } }
             );
 
             return result > 0;
         }
 
-        public async Task<bool> CreateOrUpdateForUsernameAsync(string password, string username)
+        public async Task<bool> CreateOrUpdateForUsernameAsync(string username, string password)
         {
             var userId = await userService.GetSingleIdForUsernameAsync(username);
-            return await CreateOrUpdateForUserIdAsync(password, userId);
+            return await CreateOrUpdateForUserIdAsync(userId, password);
         }
     }
 }

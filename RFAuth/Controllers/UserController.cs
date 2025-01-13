@@ -156,7 +156,7 @@ namespace RFAuth.Controllers
             if (!data.TryGetNotNullString("Password", out var password))
                 return false;
         
-            await passwordService.CreateOrUpdateForUsernameAsync(password, username);
+            await passwordService.CreateOrUpdateForUsernameAsync(username, password);
 
             return true;
         }

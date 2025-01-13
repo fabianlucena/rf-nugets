@@ -56,7 +56,7 @@ namespace RFService.Services
             return GetListAsync(options);
         }
 
-        public virtual Task<int> UpdateForIdAsync(IDataDictionary data, Int64 id, GetOptions? options = null)
+        public virtual Task<int> UpdateForIdAsync(Int64 id, IDataDictionary data, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.AddFilter("Id", id);
