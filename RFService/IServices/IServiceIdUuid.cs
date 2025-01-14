@@ -8,12 +8,7 @@ namespace RFService.IServices
             IServiceId<TEntity>
         where TEntity : Entity
     {
-        public async Task<Int64> GetSingleIdForUuidAsync(Guid uuid, GetOptions? options = null)
-        {
-            var item = await GetSingleForUuidAsync(uuid, options);
-
-            return GetId(item);
-        }
+        Task<Int64> GetSingleIdForUuidAsync(Guid uuid, GetOptions? options = null);
 
         public async Task<Int64?> GetSingleOrDefaultIdForUuidAsync(Guid uuid, GetOptions? options = null)
         {

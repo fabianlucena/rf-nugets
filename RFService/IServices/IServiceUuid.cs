@@ -32,13 +32,7 @@ namespace RFService.IServices
 
         Task<IEnumerable<Guid>> GetListUuidAsync(GetOptions options);
 
-        public async Task<TEntity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null)
-        {
-            options ??= new GetOptions();
-            options.AddFilter("Uuid", uuid);
-
-            return await GetSingleAsync(options);
-        }
+        Task<TEntity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null);
 
         public async Task<TEntity?> GetSingleOrDefaultForUuidAsync(Guid uuid, GetOptions? options = null)
         {

@@ -14,13 +14,19 @@ namespace RFService.Services
     {
         public Guid GetUuid(TEntity item) => item.Uuid;
 
+        public async Task<IEnumerable<Guid>> GetListUuidAsync(GetOptions options)
+            => (await GetListAsync(options)).Select(GetUuid);
+
+        public Task<TEntity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null)
+            => GetSingleAsync(new GetOptions(options) { Filters = { { "Uuid", uuid } } });
+
+        public async Task<Int64> GetSingleIdForUuidAsync(Guid uuid, GetOptions? options = null)
+            => GetId(await GetSingleForUuidAsync(uuid, options));
+
         public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
             => base.SanitizeDataForAutoGet(
                 ((IServiceUuid<TEntity>)this).SanitizeUuidForAutoGet(data)
             );
-
-        public async Task<IEnumerable<Guid>> GetListUuidAsync(GetOptions options)
-            => (await GetListAsync(options)).Select(GetUuid);
 
         public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {

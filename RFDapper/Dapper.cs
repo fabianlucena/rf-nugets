@@ -215,8 +215,9 @@ namespace RFDapper
                 var sqlQuery = GetOperation(uop.Op, options, usedNames);
                 sqlQuery.Sql = op switch
                 {
-                    IsNull =>    $"({sqlQuery.Sql}) IS NULL",
+                    IsNull => $"({sqlQuery.Sql}) IS NULL",
                     IsNotNull => $"({sqlQuery.Sql}) IS NOT NULL",
+                    Not => $"NOT ({sqlQuery.Sql})",
                     _ => throw new UnknownUnaryOperatorException(op.GetType().Name),
                 };
                 return sqlQuery;
@@ -242,6 +243,8 @@ namespace RFDapper
                     NotIn => $"({sqlQuery1.Sql}) NOT IN {sqlQuery2.Sql}",
                     ST_Intersects => $"{sqlQuery1.Sql}.STIntersects({sqlQuery2.Sql}) = 1",
                     ST_Contains => $"{sqlQuery1.Sql}.STContains({sqlQuery2.Sql}) = 1",
+                    Like => $"({sqlQuery1.Sql}) LIKE ({sqlQuery2.Sql})",
+                    NotLike => $"({sqlQuery1.Sql}) NOT LIKE ({sqlQuery2.Sql})",
                     _ => throw new UnknownBinaryOperatorException(op.GetType().Name),
                 };
                 return sqlQuery1;
