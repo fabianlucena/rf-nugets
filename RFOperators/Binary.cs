@@ -12,6 +12,12 @@
             Op2 = op2;
         }
 
+        public Binary(string column, Operator value)
+        {
+            Op1 = new Column(column);
+            Op2 = value;
+        }
+
         public Binary(string column, object? value)
         {
             Op1 = new Column(column);

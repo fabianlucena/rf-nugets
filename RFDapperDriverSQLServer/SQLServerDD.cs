@@ -1,4 +1,5 @@
-﻿using RFDapper;
+﻿using Microsoft.Extensions.Options;
+using RFDapper;
 using RFDapperDriverSQLServer.Exceptions;
 using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
@@ -11,23 +12,36 @@ namespace RFDapperDriverSQLServer
     public partial class SQLServerDD
         : IDriver
     {
-        private readonly static Regex SqareBracketColumn = new(@"^\[.*\]$");
-        private readonly static Regex SqareBracketTableAndColumn = new(@"^\[.*\]\.\[.*\]$");
-        private readonly static Regex SqareBracketTableAndFreeColumn = new(@"^\[.*\]\.[\w][\w\d]*$");
-        private readonly static Regex FreeTableAndSqareBracketColumn = new(@"^[\w][\w\d]\.\[.*\]*$");
+        private readonly static Regex SqareBracketSingle= new(@"^\[.*\]$");
+        private readonly static Regex SqareBracketDouble = new(@"^\[.*\]\.\[.*\]$");
+        private readonly static Regex SqareBracketAndFree = new(@"^\[.*\]\.[\w][\w\d]*$");
+        private readonly static Regex FreeAndSqareBracket = new(@"^[\w][\w\d]\.\[.*\]*$");
 
         public string GetDefaultSchema()
             => "[dbo]";
 
-        public string SanitizeSchema(string schema)
+        public string GetSchemaName(string schema)
         {
+            schema = schema.Trim();
+            if (SqareBracketSingle.IsMatch(schema))
+                return schema;
+
+            if (schema.Contains('[') || schema.Contains(']'))
+                throw new InvalidSchemaNameException(schema);
+
+            var parts = schema.Split('.');
+            if (parts.Length > 1)
+                throw new InvalidTableNameException(schema);
+
+            var index = parts.Length - 1;
+
+            schema = $"[{parts[index]}]";
+
             return schema;
         }
 
         public string SanitizeVarname(string name)
-        {
-            return name.Replace('.', '_');
-        }
+            => name.Replace('.', '_');
 
         public string GetParamName(string paramName, List<string> usedNames)
         {
@@ -50,13 +64,82 @@ namespace RFDapperDriverSQLServer
             return $"@{paramName}";
         }
 
+        public string GetTableName(string tableName, string? defaultScheme = null)
+        {
+            tableName = tableName.Trim();
+            if (SqareBracketSingle.IsMatch(tableName)
+                || SqareBracketDouble.IsMatch(tableName)
+                || SqareBracketAndFree.IsMatch(tableName)
+                || FreeAndSqareBracket.IsMatch(tableName)
+            )
+                return tableName;
+
+            if (tableName.Contains('[') || tableName.Contains(']'))
+                throw new InvalidTableNameException(tableName);
+
+            var parts = tableName.Split('.');
+            if (parts.Length > 2)
+                throw new InvalidTableNameException(tableName);
+
+            var index = parts.Length - 1;
+
+            tableName = $"[{parts[index]}]";
+            index--;
+
+            if (index >= 0)
+                tableName = $"[{parts[index]}].{tableName}";
+            else if (!string.IsNullOrEmpty(defaultScheme))
+                tableName = $"[{defaultScheme}].{tableName}";
+
+            return tableName;
+        }
+
+        public string GetTableAlias(string tableAlias)
+        {
+            tableAlias = tableAlias.Trim();
+            if (SqareBracketSingle.IsMatch(tableAlias))
+                return tableAlias;
+
+            if (tableAlias.Contains('[') || tableAlias.Contains(']'))
+                throw new InvalidTableNameException(tableAlias);
+
+            var parts = tableAlias.Split('.');
+            if (parts.Length > 1)
+                throw new InvalidTableNameException(tableAlias);
+
+            var index = parts.Length - 1;
+
+            tableAlias = $"[{parts[index]}]";
+
+            return tableAlias;
+        }
+        public string GetColumnAlias(string columnAlias)
+        {
+            columnAlias = columnAlias.Trim();
+            if (SqareBracketSingle.IsMatch(columnAlias))
+                return columnAlias;
+
+            if (columnAlias.Contains('[') || columnAlias.Contains(']'))
+                throw new InvalidColumnAliasException(columnAlias);
+
+            var parts = columnAlias.Split('.');
+            if (parts.Length > 1)
+                throw new InvalidColumnAliasException(columnAlias);
+
+            var index = parts.Length - 1;
+
+            columnAlias = $"[{parts[index]}]";
+
+            return columnAlias;
+        }
+
         public string GetColumnName(string columnName, GetOptions options, string? defaultAlias = null)
         {
             columnName = columnName.Trim();
-            if (SqareBracketColumn.IsMatch(columnName)
-                || SqareBracketTableAndColumn.IsMatch(columnName)
-                || SqareBracketTableAndFreeColumn.IsMatch(columnName)
-                || FreeTableAndSqareBracketColumn.IsMatch(columnName)
+            if (SqareBracketSingle.IsMatch(columnName)
+                || SqareBracketDouble.IsMatch(columnName)
+                || SqareBracketAndFree.IsMatch(columnName)
+                || FreeAndSqareBracket.IsMatch(columnName)
             )
                 return columnName;
 

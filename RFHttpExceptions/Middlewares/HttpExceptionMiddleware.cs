@@ -34,6 +34,8 @@ namespace RFHttpExceptions.Middlewares
 
             if (exception is IHttpException httpException)
                 context.Response.StatusCode = httpException.StatusCode;
+            else
+                context.Response.StatusCode = 500;
 
             await context.Response.WriteAsJsonAsync(new
             {

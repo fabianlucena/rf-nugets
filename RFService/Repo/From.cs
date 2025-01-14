@@ -1,24 +1,48 @@
-﻿namespace RFService.Repo
+﻿using RFOperators;
+using RFService.Entities;
+
+namespace RFService.Repo
 {
     public class From
     {
+        public string? Type { get; set; }
+
+        public string? PropertyName { get; set; }
+
+        public Type? Entity { get; set; }
+
         public string? Alias { get; set; }
 
-        public Dictionary<string, From> Join { get; set; } = [];
+        public Operator? On { get; set; }
 
-        public From()
-            {}
+        public List<From> Join { get; set; } = [];
 
-        public From(From src)
+        public From(From? from)
         {
-            Alias = src.Alias;
-            foreach (var join in src.Join)
-                Join[join.Key] = new From(join.Value);
+            if (from != null)
+            {
+                Type = from.Type;
+                PropertyName = from.PropertyName;
+                Entity = from.Entity;
+                Alias = from.Alias;
+                On = from.On;
+                Join = from.Join;
+            }
         }
 
-        public From(string? alias)
+        public From(
+            string? propertyName = null,
+            string? alias = null,
+            string? type = null,
+            Type? entity = null,
+            Operator? on = null
+        )
         {
+            Type = type;
+            PropertyName = propertyName;
+            Entity = entity;
             Alias = alias;
+            On = on;
         }
 
         public List<string> GetAllAlias() {
@@ -28,7 +52,7 @@
                 allAlias.Add(Alias);
 
             foreach (var join in Join)
-                allAlias.AddRange(join.Value.GetAllAlias());
+                allAlias.AddRange(join.GetAllAlias());
 
             return allAlias;
         }

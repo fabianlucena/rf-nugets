@@ -9,6 +9,7 @@
         public static IsNull IsNull(Operator value) => new(value);
         public static IsNull IsNull(string column) => new(column);
         public static Eq Eq(Operator value1, Operator value2) => new(value1, value2);
+        public static Eq Eq(string column, Operator value) => new(column, value);
         public static Eq Eq(string column, object? value) => new(column, value);
         public static NE NE(Operator value1, Operator value2) => new(value1, value2);
         public static NE NE(string column, object? value) => new(column, value);
@@ -19,5 +20,10 @@
         public static And And(params Operator[] values) => new(values);
         public static GE GE(Operator value1, Operator value2) => new(value1, value2);
         public static GE GE(string column, object? value) => new(column, value);
+
+        public static ST_Intersects ST_Intersects(Column column1, Column column2) => new(column1, column2);
+        public static ST_Intersects ST_Intersects(string column1, string column2) => new(column1, column2);
+        public static ST_Contains ST_Contains(Column column1, Column column2) => new(column1, column2);
+        public static ST_Contains ST_Contains(string column1, string column2) => new(column1, column2);
     }
 }

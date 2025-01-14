@@ -7,6 +7,10 @@
             : base(op1, op2)
         { }
 
+        public Eq(string column, Operator value)
+            : base(column, value)
+        { }
+
         public Eq(string column, object? value)
             : base(column, value)
         { }

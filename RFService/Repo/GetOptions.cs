@@ -32,19 +32,22 @@ namespace RFService.Repo
 
         public GetOptions() { }
 
-        public GetOptions(GetOptions options)
+        public GetOptions(GetOptions? options)
             : base(options)
         {
-            RepoOptions = options.RepoOptions;
-            Offset = options.Offset;
-            Top = options.Top;
-            Buffered = options.Buffered;
-            Separator = options.Separator;
-            CommandTimeout = options.CommandTimeout;
-            CommandType = options.CommandType;
-            Filters = new (options.Filters);
-            OrderBy = options.OrderBy;
-            Options = new (options.Options);
+            if (options != null)
+            {
+                RepoOptions = options.RepoOptions;
+                Offset = options.Offset;
+                Top = options.Top;
+                Buffered = options.Buffered;
+                Separator = options.Separator;
+                CommandTimeout = options.CommandTimeout;
+                CommandType = options.CommandType;
+                Filters = new(options.Filters);
+                OrderBy = options.OrderBy;
+                Options = new(options.Options);
+            }
         }
 
         public GetOptions(RepoOptions repoOptions)
@@ -134,7 +137,7 @@ namespace RFService.Repo
 
         public GetOptions Include(string propertyName, string? alias = null)
         {
-            Join[propertyName] = new From(alias);
+            Join.Add(new From(alias: alias, propertyName: propertyName));
             return this;
         }
     }

@@ -8,9 +8,12 @@ using RFService.ILibs;
 using RFService.IRepo;
 using RFService.Libs;
 using RFService.Repo;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Data.SqlTypes;
+using System.Drawing;
 using System.Reflection;
 using System.Text.Json;
 
@@ -75,7 +78,7 @@ namespace RFDapper
         public void CreateTable()
         {
             var query = $@"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.schemas WHERE [name] = '{Schema}')
-                EXEC('CREATE SCHEMA {_driver.SanitizeSchema(Schema)} AUTHORIZATION {_driver.GetDefaultSchema()}');";
+                EXEC('CREATE SCHEMA {_driver.GetSchemaName(Schema)} AUTHORIZATION {_driver.GetDefaultSchema()}');";
             using var connection = new SqlConnection(ConnectionString);
             connection.Open();
             connection.Query(query);
@@ -237,6 +240,8 @@ namespace RFDapper
                         $"({sqlQuery1.Sql}) <> ({sqlQuery2.Sql})",
                     In => $"({sqlQuery1.Sql}) IN {sqlQuery2.Sql}",
                     NotIn => $"({sqlQuery1.Sql}) NOT IN {sqlQuery2.Sql}",
+                    ST_Intersects => $"{sqlQuery1.Sql}.STIntersects({sqlQuery2.Sql}) = 1",
+                    ST_Contains => $"{sqlQuery1.Sql}.STContains({sqlQuery2.Sql}) = 1",
                     _ => throw new UnknownBinaryOperatorException(op.GetType().Name),
                 };
                 return sqlQuery1;
@@ -282,122 +287,129 @@ namespace RFDapper
             return GetOperation(Op.And([.. operators]), options, usedNames);
         }
 
-        public SqlQuery? GetWhereFilter(GetOptions options)
+        public SqlQuery? GetWhereFilter(GetOptions options, List<string>? usedNames = null)
         {
             if (options.Filters.Count == 0)
                 return null;
 
-            var sqlQuery = GetFilterQuery(options.Filters, options, []);
+            var sqlQuery = GetFilterQuery(options.Filters, options, usedNames ?? []);
 
             return sqlQuery;
         }
 
-        public SqlQuery? GetWhereQuery(GetOptions options)
+        public SqlQuery? GetWhereQuery(GetOptions options, List<string>? usedNames = null)
         {
-            var filter = GetWhereFilter(options);
+            var filter = GetWhereFilter(options, usedNames);
             if (filter != null)
                 filter.Sql = "WHERE " + filter.Sql;
 
             return filter;
         }
 
-        private static (string, bool, TableAttribute)? GetForeignInfoForProperty(string name)
+        private string? GetTableNameForEntity(Type entity)
+        {
+            if (entity == null)
+                return null;
+
+            var tableAttribute = entity.GetCustomAttribute<TableAttribute>();
+            if (tableAttribute == null)
+                return null;
+
+            return _driver.GetTableName(tableAttribute.Name, tableAttribute.Schema);
+        }
+
+        private static string? GetForeignColumnName(string? propertyName)
         {
             var entityType = typeof(TEntity);
             var properties = entityType.GetProperties();
-            string? propertyName = null;
-            bool nullable = false;
-            ForeignKeyAttribute? foreign = null;
             foreach (var property in properties)
             {
-                foreign = property.GetCustomAttribute<ForeignKeyAttribute>();
-                if (foreign == null
-                    || foreign.Name != name
-                )
+                var foreign = property.GetCustomAttribute<ForeignKeyAttribute>();
+                if (foreign == null || foreign.Name != propertyName)
                     continue;
-                
-                propertyName = property.Name;
+
+                return property.Name;
+            }
+
+            return null;
+        }
+
+        private static bool IsForeignColumnNullable(string? propertyName)
+        {
+            var entityType = typeof(TEntity);
+            var properties = entityType.GetProperties();
+            foreach (var property in properties)
+            {
+                var foreign = property.GetCustomAttribute<ForeignKeyAttribute>();
+                if (foreign == null || foreign.Name != propertyName)
+                    continue;
 
                 var propertyType = property.PropertyType;
-                nullable = propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>);
-
-                break;
+                return propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>);
             }
 
-            if (propertyName == null || foreign == null)
-            {
-                return null;
-            }
-
-            var foreignPropertyType = entityType.GetProperty(foreign.Name);
-            if (foreignPropertyType == null)
-            {
-                return null;
-            }
-            var tableAttribute = foreignPropertyType.PropertyType.GetCustomAttribute<TableAttribute>();
-            if (tableAttribute == null)
-            {
-                return null;
-            }
-            return (propertyName, nullable, tableAttribute);
+            return false;
         }
 
         public SqlQueryParts GetSelectQueryParts(GetOptions options)
         {
+            options = new GetOptions(options);
             options.Alias = options.GetOrCreateAlias("t");
 
             var sqlSelect = $"SELECT [{options.Alias}].*";
             var sqlFrom = $" FROM [{Schema}].[{TableName}] [{options.Alias}]";
-            List<SqlQuery> wheres = [];
+            List<string> usedNames = [];
+            SqlQuery? sqlQuery;
 
             Data data = new();
             if (options != null)
             {
-                foreach (var join in options.Join)
+                foreach (var from in options.Join)
                 {
-                    var from = join.Value;
+                    Type? propertyType = string.IsNullOrEmpty(from.PropertyName)?
+                        null:
+                        typeof(TEntity)?.GetProperty(from.PropertyName)?.PropertyType;
+
+                    Type entity = from.Entity
+                        ?? propertyType
+                        ?? throw new NoEntityForJoinException();
+
+                    var joinType = from.Type
+                        ?? (IsForeignColumnNullable(from.PropertyName) ? "LEFT OUTER JOIN" : "INNER JOIN");
+
                     if (string.IsNullOrEmpty(from.Alias))
                         from.Alias = options.CreateAlias("t");
 
-                    var entityType = typeof(TEntity);
-
-                    var (foreignColumnName, nullable, foreignTable) = Dapper<TEntity>.GetForeignInfoForProperty(join.Key)
-                        ?? throw new Exception($"No foreign column for {join.Key}.");
-
-                    var tableName = foreignTable.Schema;
-                    if (!string.IsNullOrWhiteSpace(tableName))
+                    Operator? onOperation = from.On;
+                    if (onOperation == null)
                     {
-                        tableName = $"[{tableName}].";
-                    }
-                    else
-                    {
-                        tableName = "";
-                    }
-                    tableName += $"[{foreignTable.Name}]";
+                        if (string.IsNullOrWhiteSpace(from.PropertyName))
+                            throw new NoOnClauseForJoinWithEntityException();
 
-                    var foreignTableColumnKey = "Id";
-
-                    sqlSelect += $", NULL AS [{options.Separator}], [{from.Alias}].*";
-                    sqlFrom += $" {(nullable? "LEFT OUTER": "INNER")} JOIN {tableName} [{from.Alias}]"
-                        + $" ON [{from.Alias}].[{foreignTableColumnKey}] = [{options.Alias}].[{foreignColumnName}]";
-
-                    if (join.Value is GetOptions) {
-                        var joinWhere = GetWhereFilter((join.Value as GetOptions)!);
-                        if (joinWhere != null)
-                            wheres.Add(joinWhere);
+                        onOperation = Op.Eq(
+                            Op.Column($"{from.Alias}.Id"),
+                            Op.Column($"{options.Alias}.{Dapper<TEntity>.GetForeignColumnName(from.PropertyName)}")
+                        );
                     }
+
+                    sqlQuery = GetOperation(onOperation, options, usedNames);
+
+                    if (!string.IsNullOrWhiteSpace(from.PropertyName))
+                        sqlSelect += $", NULL AS {_driver.GetColumnAlias(options.Separator)}, {_driver.GetTableAlias(from.Alias)}.*";
+
+                    sqlFrom += $" {joinType} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
+                        + $" ON {sqlQuery.Sql}";
+
+                    foreach (var value in sqlQuery.Data.Values)
+                        data.Values.Add(value.Key, value.Value);
                 }
 
-                var mainWhere = GetWhereFilter(options);
-                if (mainWhere != null) 
-                    wheres.Add(mainWhere);
-                
-                if (wheres.Count > 0)
+                sqlQuery = GetWhereQuery(options, usedNames);
+                if (!string.IsNullOrWhiteSpace(sqlQuery?.Sql))
                 {
-                    sqlFrom += " WHERE " + String.Join(" AND ", wheres.Select(w => w.Sql));
-                    foreach (var where in wheres)
-                        foreach (var value in where.Data.Values)
-                            data.Values.Add(value.Key, value.Value);
+                    sqlFrom += " " + sqlQuery.Sql;
+                    foreach (var value in sqlQuery.Data.Values)
+                        data.Values.Add(value.Key, value.Value);
                 }
 
                 var orderBy = new List<string>(options.OrderBy);
@@ -692,7 +704,9 @@ namespace RFDapper
 
         public async Task<IEnumerable<TEntity>> GetListAsync(GetOptions options)
         {
-            if (options.Join.Count == 0)
+            var joins = options.Join.Where(i => !string.IsNullOrWhiteSpace(i.PropertyName))
+                .ToList();
+            if (joins.Count == 0)
             {
                 var sqlQuery = GetSelectQuery(options);
                 var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
@@ -717,12 +731,12 @@ namespace RFDapper
                 }
             }
 
-            if (options.Join.Count == 1)
+            if (joins.Count == 1)
             {
-                var join = options.Join.First();
+                var join = joins.First();
                 var type = typeof(TEntity);
-                var pIncluded1 = type.GetProperty(join.Key)
-                    ?? throw new Exception($"Error property {join.Key} does not exist");
+                var pIncluded1 = type.GetProperty(join.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join.PropertyName ?? "<NULL>"} does not exist");
 
                 var getListAsyncMethod = this.GetType().GetMethod("GetListWith1IncludesAsync")
                     ?? throw new Exception("Error to get GetListWith1IncludesAsync method");
@@ -731,7 +745,7 @@ namespace RFDapper
 
                 var task = (Task?)genericGetListAsyncMethod.Invoke(
                     this,
-                    [options]
+                    [options, joins]
                 )
                     ?? throw new Exception("No result for query");
 
@@ -740,15 +754,15 @@ namespace RFDapper
                     ?? throw new Exception("No result for query");
             }
 
-            if (options.Join.Count == 2) 
+            if (joins.Count == 2) 
             {
                 var type = typeof(TEntity);
-                var join1 = options.Join.First();
-                var pIncluded1 = type.GetProperty(join1.Key)
-                    ?? throw new Exception($"Error property {join1.Key} does not exist");
-                var join2 = options.Join.ElementAt(1);
-                var pIncluded2 = type.GetProperty(join2.Key)
-                    ?? throw new Exception($"Error property {join2.Key} does not exist");
+                var join1 = joins.First();
+                var pIncluded1 = type.GetProperty(join1.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join1.PropertyName ?? "<NULL>"} does not exist");
+                var join2 = joins.ElementAt(1);
+                var pIncluded2 = type.GetProperty(join2.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join2.PropertyName ?? "<NULL>"} does not exist");
 
                 var getListAsyncMethod = this.GetType().GetMethod("GetListWith2IncludesAsync")
                     ?? throw new Exception("Error to get GetListWith2IncludesAsync method");
@@ -757,7 +771,7 @@ namespace RFDapper
 
                 var task = (Task?)genericGetListAsyncMethod.Invoke(
                     this,
-                    [options]
+                    [options, joins]
                 )
                     ?? throw new Exception("No result for query");
 
@@ -769,16 +783,16 @@ namespace RFDapper
             throw new TooManyJoinsException();
         }
 
-        public async Task<IEnumerable<TEntity>> GetListWith1IncludesAsync<TIncluded1>(GetOptions options)
+        public async Task<IEnumerable<TEntity>> GetListWith1IncludesAsync<TIncluded1>(GetOptions options, List<From> joins)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
 
             var type = typeof(TEntity);
-            var join = options.Join.First();
-            var pIncluded1 = type.GetProperty(join.Key)
-                ?? throw new Exception($"Error property {join.Key} does not exist");
+            var join = joins.First();
+            var pIncluded1 = type.GetProperty(join.PropertyName ?? "")
+                ?? throw new Exception($"Error property {join.PropertyName ?? "<NULL>"} does not exist");
 
             var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
@@ -801,19 +815,19 @@ namespace RFDapper
             }
         }
 
-        public async Task<IEnumerable<TEntity>> GetListWith2IncludesAsync<TIncluded1, TIncluded2>(GetOptions options)
+        public async Task<IEnumerable<TEntity>> GetListWith2IncludesAsync<TIncluded1, TIncluded2>(GetOptions options, List<From> joins)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
 
             var type = typeof(TEntity);
-            var join1 = options.Join.First();
-            var pIncluded1 = type.GetProperty(join1.Key)
-                ?? throw new Exception($"Error property {join1.Key} does not exist");
-            var join2 = options.Join.ElementAt(1);
-             var pIncluded2 = type.GetProperty(join2.Key)
-                ?? throw new Exception($"Error property {join2.Key} does not exist");
+            var join1 = joins.First();
+            var pIncluded1 = type.GetProperty(join1.PropertyName ?? "")
+                ?? throw new Exception($"Error property {join1.PropertyName ?? "<NULL>"} does not exist");
+            var join2 = joins.ElementAt(1);
+             var pIncluded2 = type.GetProperty(join2.PropertyName ?? "")
+                ?? throw new Exception($"Error property {join2.PropertyName ?? "<NULL>"} does not exist");
 
             var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try

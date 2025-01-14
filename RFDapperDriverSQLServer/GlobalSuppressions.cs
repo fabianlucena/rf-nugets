@@ -5,8 +5,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Performance", "SYSLIB1045:Convert to 'GeneratedRegexAttribute'.", Justification = "<Pending>", Scope = "member", Target = "~F:RFDapperDriverSQLServer.SQLServerDD.SqareBracketColumn")]
-[assembly: SuppressMessage("Performance", "SYSLIB1045:Convert to 'GeneratedRegexAttribute'.", Justification = "<Pending>", Scope = "member", Target = "~F:RFDapperDriverSQLServer.SQLServerDD.SqareBracketTableAndColumn")]
-[assembly: SuppressMessage("Performance", "SYSLIB1045:Convert to 'GeneratedRegexAttribute'.", Justification = "<Pending>", Scope = "member", Target = "~F:RFDapperDriverSQLServer.SQLServerDD.SqareBracketTableAndFreeColumn")]
-[assembly: SuppressMessage("Performance", "SYSLIB1045:Convert to 'GeneratedRegexAttribute'.", Justification = "<Pending>", Scope = "member", Target = "~F:RFDapperDriverSQLServer.SQLServerDD.FreeTableAndSqareBracketColumn")]
-[assembly: SuppressMessage("Performance", "SYSLIB1045:Convert to 'GeneratedRegexAttribute'.", Justification = "<Pending>", Scope = "member", Target = "~F:RFDapperDriverSQLServer.SQLServerDD.OrderByColumnDirection")]
+[assembly: SuppressMessage("Performance", "SYSLIB1045:Convert to 'GeneratedRegexAttribute'.", Justification = "<Pending>", Scope = "member", Target = "~F:RFDapperDriverSQLServer.SQLServerDD.SqareBracketSingle")]
+[assembly: SuppressMessage("Performance", "SYSLIB1045:Convert to 'GeneratedRegexAttribute'.", Justification = "<Pending>", Scope = "member", Target = "~F:RFDapperDriverSQLServer.SQLServerDD.SqareBracketDouble")]
+[assembly: SuppressMessage("Performance", "SYSLIB1045:Convert to 'GeneratedRegexAttribute'.", Justification = "<Pending>", Scope = "member", Target = "~F:RFDapperDriverSQLServer.SQLServerDD.SqareBracketAndFree")]
+[assembly: SuppressMessage("Performance", "SYSLIB1045:Convert to 'GeneratedRegexAttribute'.", Justification = "<Pending>", Scope = "member", Target = "~F:RFDapperDriverSQLServer.SQLServerDD.FreeAndSqareBracket")]
