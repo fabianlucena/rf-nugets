@@ -52,9 +52,9 @@ namespace RFRBAC
             propertiesDecorators.AddDecorator("LoginAttributes", async (data, property, eventType) => {
                 var userId = ((LoginData)data).UserId;
                 var roles = await UserRoleService.GetAllRolesForUserIdAsync(userId);
-                var rolesId = roles.Select(i =>  i.Id);
+                var rolesId = roles.Select(i => i.Id);
                 var permissions = await RolePermissionService.GetPermissionsForRolesIdAsync(rolesId);
-                
+
                 property["roles"] = roles.Select(i => i.Name);
                 property["permissions"] = permissions.Select(i => i.Name);
             });
@@ -64,7 +64,10 @@ namespace RFRBAC
                 eventBus.AddListener("updated", "User", UpdateUserRoles);
                 eventBus.AddListener("created", "User", UpdateUserRoles);
             }
+        }
 
+        public static void ConfigureDataRFRBAC(IServiceProvider provider)
+        {
             ConfigureRFRBACAsync().Wait();
         }
 

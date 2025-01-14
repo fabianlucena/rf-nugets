@@ -5,10 +5,10 @@ namespace RFAuth_es
 {
     public static class Setup
     {
-        public static void ConfigureRFAuthEs(IServiceProvider provider)
-            => ConfigureRFAuthEsAsync(provider).Wait();
+        public static void ConfigureDataRFAuthEs(IServiceProvider provider)
+            => ConfigureDataRFAuthEsAsync(provider).Wait();
 
-        public static async Task ConfigureRFAuthEsAsync(IServiceProvider provider)
+        public static async Task ConfigureDataRFAuthEsAsync(IServiceProvider provider)
         {
             var addTranslationService = provider.GetService<IAddTranslationService>();
             if (addTranslationService != null)

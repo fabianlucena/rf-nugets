@@ -6,10 +6,10 @@ namespace RFAuth
 {
     public static class Setup
     {
-        public static void ConfigureRFAuth(IServiceProvider provider)
-            => ConfigureRFAuthAsync(provider).Wait();
+        public static void ConfigureDataRFAuth(IServiceProvider provider)
+            => ConfigureDataRFAuthAsync(provider).Wait();
 
-        public static async Task ConfigureRFAuthAsync(IServiceProvider provider)
+        public static async Task ConfigureDataRFAuthAsync(IServiceProvider provider)
         {
             var userTypeService = provider.GetService<IUserTypeService>() ??
                 throw new Exception("Can't get IUserTypeService");
