@@ -1,4 +1,3 @@
-using RFAuth.DTO;
 using RFAuth.IServices;
 using Microsoft.AspNetCore.Mvc;
 using RFAuth.Exceptions;
