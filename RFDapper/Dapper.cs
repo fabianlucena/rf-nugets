@@ -8,12 +8,9 @@ using RFService.ILibs;
 using RFService.IRepo;
 using RFService.Libs;
 using RFService.Repo;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Data.SqlTypes;
-using System.Drawing;
 using System.Reflection;
 using System.Text.Json;
 
@@ -621,6 +618,22 @@ namespace RFDapper
             pId?.SetValue(data, id);
         }
 
+        static public bool IsValidObject<T>(T data)
+        {
+            if (data == null)
+                throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
+
+            var type = data.GetType();
+            var pId = type.GetProperty("Id")
+                ?? throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
+
+            var oId = pId.GetValue(data);
+            if (oId is Int64 id)
+                return id != 0;
+
+            throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
+        }
+
         public async Task<TEntity> InsertAsync(TEntity data, RepoOptions? options = null)
         {
             var sqlQuery = GetInsertQuery(data);
@@ -804,7 +817,9 @@ namespace RFDapper
                     sqlQuery.Sql,
                     (TEntity row, TIncluded1 included) =>
                     {
-                        pIncluded1.SetValue(row, included);
+                        if (IsValidObject(included))
+                            pIncluded1.SetValue(row, included);
+
                         return row;
                     },
                     sqlQuery.Data.Values,
@@ -839,8 +854,12 @@ namespace RFDapper
                     sqlQuery.Sql,
                     (TEntity row, TIncluded1 included1, TIncluded2 included2) =>
                     {
-                        pIncluded1.SetValue(row, included1);
-                        pIncluded2.SetValue(row, included2);
+                        if (IsValidObject(included1))
+                            pIncluded1.SetValue(row, included1);
+
+                        if (IsValidObject(included2))
+                            pIncluded2.SetValue(row, included2);
+
                         return row;
                     },
                     sqlQuery.Data.Values,
