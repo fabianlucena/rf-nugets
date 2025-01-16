@@ -1,4 +1,5 @@
 ﻿using RFService.ILibs;
+using RFService.Libs;
 using System.Text.Json.Serialization;
 
 namespace RFRBAC.DTO
@@ -18,6 +19,6 @@ namespace RFRBAC.DTO
         public DateTime UpdatedAt { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public IDataDictionary? Attributes { get; set; }
+        public DataDictionary? Attributes { get; set; }
     }
 }
