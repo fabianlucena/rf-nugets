@@ -25,10 +25,12 @@ namespace RFDapper
 
         string? GetColumnType(string type, PropertyInfo property);
 
-        string? GetSQLColumnDefinition(PropertyInfo property);
+        string GetSqlSelectedProperty(PropertyInfo property, GetOptions options, string? defaultAlias = null);
 
-        string GetSQLOrderBy(string orderBy, GetOptions options);
+        string? GetSqlColumnDefinition(PropertyInfo property);
 
-        IEnumerable<string> GetSQLOrderBy(IEnumerable<string> orderBy, GetOptions options);
+        string GetSqlOrderBy(string orderBy, GetOptions options);
+
+        IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, GetOptions options);
     }
 }

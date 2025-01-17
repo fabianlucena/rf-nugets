@@ -1,10 +1,12 @@
-﻿namespace RFDapper
+﻿using RFService.Libs;
+
+namespace RFDapper
 {
     public class SqlQuery
     {
         public string Sql = "";
 
-        public Data Data = new();
+        public DataDictionary Data = [];
 
         public bool IsNull = false;
 

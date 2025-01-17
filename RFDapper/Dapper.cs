@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using RFDapper.Exceptions;
 using RFOperators;
 using RFService.ILibs;
@@ -22,7 +21,7 @@ namespace RFDapper
 
         public string SqlFrom = "";
 
-        public Data Data = new();
+        public DataDictionary Data = [];
     }
 
     public class Dapper<TEntity>
@@ -86,8 +85,10 @@ namespace RFDapper
             var postQueries = new List<string>();
             foreach (var property in properties)
             {
-                var propertyType = property.PropertyType;
-                var columnDefinition = _driver.GetSQLColumnDefinition(property);
+                if (GetForeignColumnName(typeof(TEntity), property.Name) != null)
+                    continue;
+
+                var columnDefinition = _driver.GetSqlColumnDefinition(property);
 
                 if (columnDefinition != null)
                 {
@@ -118,6 +119,7 @@ namespace RFDapper
                     var referenceColumn = property;
                     if (!foreignObjectType.IsClass)
                     {
+                        var propertyType = property.PropertyType;
                         if (!propertyType.IsClass)
                             throw new Exception($"Foreign is not and object{foreign.Name}");
 
@@ -225,8 +227,8 @@ namespace RFDapper
                 var sqlQuery1 = GetOperation(bop.Op1, options, usedNames);
                 var sqlQuery2 = GetOperation(bop.Op2, options, usedNames);
 
-                foreach (var kv in sqlQuery2.Data.Values)
-                    sqlQuery1.Data.Values[kv.Key] = kv.Value;
+                foreach (var kv in sqlQuery2.Data)
+                    sqlQuery1.Data[kv.Key] = kv.Value;
 
                 sqlQuery1.Sql = op switch
                 {
@@ -256,8 +258,8 @@ namespace RFDapper
                 {
                     var newSqlQuery = GetOperation(iop, options, usedNames);
                     sqls.Add(newSqlQuery.Sql);
-                    foreach (var kv in newSqlQuery.Data.Values)
-                        sqlQuery.Data.Values[kv.Key] = kv.Value;
+                    foreach (var kv in newSqlQuery.Data)
+                        sqlQuery.Data[kv.Key] = kv.Value;
                 }
 
                 sqlQuery.Sql = op switch
@@ -318,9 +320,8 @@ namespace RFDapper
             return _driver.GetTableName(tableAttribute.Name, tableAttribute.Schema);
         }
 
-        private static string? GetForeignColumnName(string? propertyName)
+        private static string? GetForeignColumnName(Type entityType, string propertyName)
         {
-            var entityType = typeof(TEntity);
             var properties = entityType.GetProperties();
             foreach (var property in properties)
             {
@@ -351,17 +352,37 @@ namespace RFDapper
             return false;
         }
 
+        static public List<string> GetSelectedColumns(
+            Type entityType,
+            IDriver driver,
+            GetOptions options,
+            string? defaultAlias = null)
+        {
+            var properties = entityType.GetProperties();
+            var columns = new List<string>();
+            foreach (var property in properties)
+            {
+                if (GetForeignColumnName(entityType, property.Name) != null)
+                    continue;
+
+                var column = driver.GetSqlSelectedProperty(property, options, defaultAlias);
+                columns.Add(column);
+            }
+
+            return columns;
+        }
+
         public SqlQueryParts GetSelectQueryParts(GetOptions options)
         {
             options = new GetOptions(options);
             options.Alias = options.GetOrCreateAlias("t");
 
-            var sqlSelect = $"SELECT [{options.Alias}].*";
+            var sqlColumns = GetSelectedColumns(typeof(TEntity), _driver, options);
             var sqlFrom = $" FROM [{Schema}].[{TableName}] [{options.Alias}]";
             List<string> usedNames = [];
             SqlQuery? sqlQuery;
 
-            Data data = new();
+            DataDictionary data = [];
             if (options != null)
             {
                 foreach (var from in options.Join)
@@ -388,28 +409,31 @@ namespace RFDapper
 
                         onOperation = Op.Eq(
                             Op.Column($"{from.Alias}.Id"),
-                            Op.Column($"{options.Alias}.{Dapper<TEntity>.GetForeignColumnName(from.PropertyName)}")
+                            Op.Column($"{options.Alias}.{GetForeignColumnName(typeof(TEntity), from.PropertyName)}")
                         );
                     }
 
                     sqlQuery = GetOperation(onOperation, options, usedNames);
 
                     if (!string.IsNullOrWhiteSpace(from.PropertyName))
-                        sqlSelect += $", NULL AS {_driver.GetColumnAlias(options.Separator)}, {_driver.GetTableAlias(from.Alias)}.*";
+                    {
+                        sqlColumns.Add("NULL AS " + _driver.GetColumnAlias(options.Separator));
+                        sqlColumns.AddRange(GetSelectedColumns(entity, _driver, options, from.Alias));
+                    }
 
                     sqlFrom += $" {joinType} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
                         + $" ON {sqlQuery.Sql}";
 
-                    foreach (var value in sqlQuery.Data.Values)
-                        data.Values.Add(value.Key, value.Value);
+                    foreach (var value in sqlQuery.Data)
+                        data.Add(value.Key, value.Value);
                 }
 
                 sqlQuery = GetWhereQuery(options, usedNames);
                 if (!string.IsNullOrWhiteSpace(sqlQuery?.Sql))
                 {
                     sqlFrom += " " + sqlQuery.Sql;
-                    foreach (var value in sqlQuery.Data.Values)
-                        data.Values.Add(value.Key, value.Value);
+                    foreach (var value in sqlQuery.Data)
+                        data.Add(value.Key, value.Value);
                 }
 
                 var orderBy = new List<string>(options.OrderBy);
@@ -427,7 +451,7 @@ namespace RFDapper
                 }
 
                 if (orderBy.Count > 0)
-                    sqlFrom += $" ORDER BY {String.Join(", ", _driver.GetSQLOrderBy(orderBy, options))}";
+                    sqlFrom += $" ORDER BY {string.Join(", ", _driver.GetSqlOrderBy(orderBy, options))}";
 
                 if (options.Offset != null || options.Top != null)
                     sqlFrom += $" OFFSET {options.Offset ?? 0} ROWS";
@@ -438,7 +462,7 @@ namespace RFDapper
 
             return new SqlQueryParts
             {
-                SqlSelect = sqlSelect,
+                SqlSelect = "SELECT " + string.Join(',', sqlColumns),
                 SqlFrom = sqlFrom,
                 Data = data,
             };
@@ -461,7 +485,7 @@ namespace RFDapper
             var properties = data.GetType().GetProperties();
             var columns = new List<string>();
             var valuesName = new List<string>();
-            var newData = new Data();
+            var newData = new DataDictionary();
             bool hasId = false;
 
             foreach (var p in properties)
@@ -477,9 +501,10 @@ namespace RFDapper
                     throw new Exception($"Unknown {name} property");
 
                 var propertyType = property.PropertyType;
+                var value = property.GetValue(data, null);
                 if (propertyType.IsClass
                     && propertyType.Name != "String"
-                    && propertyType.Name != "SqlGeography"
+                    && GetForeignColumnName(typeof(TEntity), name) != null
                 )
                     continue;
 
@@ -487,7 +512,7 @@ namespace RFDapper
                 name = $"[{name}]";
                 columns.Add(name);
                 valuesName.Add(varName);
-                newData.Values[varName] = property.GetValue(data, null);
+                newData[varName] = value;
             }
 
             var sql = $"INSERT INTO [{Schema}].[{TableName}]({string.Join(",", columns)}) VALUES ({string.Join(",", valuesName)});";
@@ -592,7 +617,7 @@ namespace RFDapper
             return new SqlQuery
             {
                 Sql = sql,
-                Data = { Values = values.Concat(sqlWhere.Data.Values).ToDataDictionary() },
+                Data = values.Concat(sqlWhere.Data).ToDataDictionary(),
             };
         }
 
@@ -607,7 +632,7 @@ namespace RFDapper
             return new SqlQuery
             {
                 Sql = sql,
-                Data = { Values = values.Concat(sqlWhere.Data.Values).ToDataDictionary() },
+                Data = values.Concat(sqlWhere.Data).ToDataDictionary(),
             };
         }
 
@@ -637,12 +662,12 @@ namespace RFDapper
         public async Task<TEntity> InsertAsync(TEntity data, RepoOptions? options = null)
         {
             var sqlQuery = GetInsertQuery(data);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
+            var jsonData = sqlQuery.Data.GetJson();
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
             var (connection, closeConnection) = OpenConnection(options);
             try
             {
-                var rows = await connection.QueryAsync<Int64>(sqlQuery.Sql, sqlQuery.Data.Values, options?.Transaction);
+                var rows = await connection.QueryAsync<Int64>(sqlQuery.Sql, sqlQuery.Data, options?.Transaction);
                 if (rows.Any())
                 {
                     Int64 id = rows.First();
@@ -661,14 +686,14 @@ namespace RFDapper
         {
             var sqlQueryParts = GetSelectQueryParts(options);
             var query = "SELECT COUNT(*) " + sqlQueryParts.SqlFrom;
-            var jsonData = JsonConvert.SerializeObject(sqlQueryParts.Data);
+            var jsonData = sqlQueryParts.Data.GetJson();
             Logger.LogDebug("{query}\n{jsonData}", query, jsonData);
             var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
                 return await connection.QuerySingleOrDefaultAsync<int>(
                     query,
-                    sqlQueryParts.Data.Values,
+                    sqlQueryParts.Data,
                     options.RepoOptions?.Transaction
                 );
             }
@@ -725,14 +750,14 @@ namespace RFDapper
             if (joins.Count == 0)
             {
                 var sqlQuery = GetSelectQuery(options);
-                var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
+                var jsonData = sqlQuery.Data.GetJson();
                 Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
                 var (connection, closeConnection) = OpenConnection(options.RepoOptions);
                 try
                 {
                     return await connection.QueryAsync<TEntity>(
                         sqlQuery.Sql,
-                        sqlQuery.Data.Values,
+                        sqlQuery.Data,
                         options.RepoOptions?.Transaction
                     );
                 }
@@ -802,7 +827,7 @@ namespace RFDapper
         public async Task<IEnumerable<TEntity>> GetListWith1IncludesAsync<TIncluded1>(GetOptions options, List<From> joins)
         {
             var sqlQuery = GetSelectQuery(options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
+            var jsonData = sqlQuery.Data.GetJson();
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
 
             var type = typeof(TEntity);
@@ -822,7 +847,7 @@ namespace RFDapper
 
                         return row;
                     },
-                    sqlQuery.Data.Values,
+                    sqlQuery.Data,
                     splitOn: options.Separator,
                     transaction: options.RepoOptions?.Transaction
                 );
@@ -836,7 +861,7 @@ namespace RFDapper
         public async Task<IEnumerable<TEntity>> GetListWith2IncludesAsync<TIncluded1, TIncluded2>(GetOptions options, List<From> joins)
         {
             var sqlQuery = GetSelectQuery(options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
+            var jsonData = sqlQuery.Data.GetJson();
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
 
             var type = typeof(TEntity);
@@ -862,7 +887,7 @@ namespace RFDapper
 
                         return row;
                     },
-                    sqlQuery.Data.Values,
+                    sqlQuery.Data,
                     splitOn: options.Separator,
                     transaction: options.RepoOptions?.Transaction
                 );
@@ -876,14 +901,14 @@ namespace RFDapper
         public async Task<int> UpdateAsync(IDataDictionary data, GetOptions options)
         {
             var sqlQuery = GetUpdateQuery(data, options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
+            var jsonData = sqlQuery.Data.GetJson();
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
             var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
                 return await connection.ExecuteAsync(
                     sqlQuery.Sql,
-                    sqlQuery.Data.Values,
+                    sqlQuery.Data,
                     options.RepoOptions?.Transaction
                 );
             }
@@ -901,14 +926,14 @@ namespace RFDapper
         public async Task<int> DeleteAsync(GetOptions options)
         {
             var sqlQuery = GetDeleteQuery(options);
-            var jsonData = JsonConvert.SerializeObject(sqlQuery.Data);
+            var jsonData = sqlQuery.Data.GetJson();
             Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
             var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
                 return await connection.ExecuteAsync(
                     sqlQuery.Sql,
-                    sqlQuery.Data.Values,
+                    sqlQuery.Data,
                     options.RepoOptions?.Transaction
                 );
             }
