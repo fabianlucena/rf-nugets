@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Options;
-using RFDapper;
+﻿using RFDapper;
 using RFDapperDriverSQLServer.Exceptions;
+using RFService.Libs;
 using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace RFDapperDriverSQLServer
 {
-    public partial class SQLServerDD
+    public class SQLServerDD(DQLServerDDOptions driverOptions)
         : IDriver
     {
         private readonly static Regex SqareBracketSingle= new(@"^\[.*\]$");
@@ -113,6 +113,7 @@ namespace RFDapperDriverSQLServer
 
             return tableAlias;
         }
+        
         public string GetColumnAlias(string columnAlias)
         {
             columnAlias = columnAlias.Trim();
@@ -176,12 +177,15 @@ namespace RFDapperDriverSQLServer
             return new()
             {
                 Sql = name,
-                Data = new Data { Values = { { name, data } } },
+                Data = new DataDictionary { { name, data } },
             };
         }
 
         public string? GetColumnType(string type, PropertyInfo property)
         {
+            if (driverOptions.ColumnTypes.TryGetValue(type, out var value) == true)
+                return value;
+
             switch (type)
             {
                 case "Int32": return "INT";
@@ -203,13 +207,19 @@ namespace RFDapperDriverSQLServer
             if (type.StartsWith("DECIMAL", StringComparison.CurrentCultureIgnoreCase))
                 return type;
 
-            if (!property.PropertyType.IsClass)
-                throw new UnknownColumnTypeException(type);
-
-            return null;
+            throw new UnknownColumnTypeException(type);
         }
 
-        public string? GetSQLColumnDefinition(PropertyInfo property)
+        public string GetSqlSelectedProperty(PropertyInfo property, GetOptions options, string? defaultAlias = null)
+        {
+            if (driverOptions.GetSqlSelectedProperty != null)
+                return driverOptions.GetSqlSelectedProperty(this, property, options, defaultAlias)
+                    ?? GetColumnName(property.Name, options, defaultAlias);
+
+            return GetColumnName(property.Name, options, defaultAlias);
+        }
+
+        public string? GetSqlColumnDefinition(PropertyInfo property)
         {
             var propertyType = property.PropertyType;
             var columnAttributes = propertyType.GetCustomAttribute<ColumnAttribute>();
@@ -253,7 +263,7 @@ namespace RFDapperDriverSQLServer
             return columnDefinition;
         }
 
-        public string GetSQLOrderBy(string orderBy, GetOptions options)
+        public string GetSqlOrderBy(string orderBy, GetOptions options)
         {
             orderBy = orderBy.Trim();
 
@@ -280,11 +290,11 @@ namespace RFDapperDriverSQLServer
             return $"{column} {direction}";
         }
 
-        public IEnumerable<string> GetSQLOrderBy(IEnumerable<string> orderBy, GetOptions options)
+        public IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, GetOptions options)
         {
             List<string> result = [];
             foreach (var orderByItem in orderBy)
-                result.Add(GetSQLOrderBy(orderByItem, options));
+                result.Add(GetSqlOrderBy(orderByItem, options));
 
             return result;
         }
