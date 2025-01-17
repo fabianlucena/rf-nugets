@@ -403,5 +403,42 @@ namespace RFService.Libs
 
             throw new Exception("Valor no implementado");
         }
+
+        public string GetJson()
+        {
+            try
+            {
+                return JsonSerializer.Serialize(this);
+            }
+            catch { }
+
+            var lines = new List<string>();
+            foreach (var kv in this)
+            {
+                string value;
+                try
+                {
+                    value = JsonSerializer.Serialize(kv.Value);
+                }
+                catch
+                {
+                    try
+                    {
+                        if (kv.Value == null)
+                            value = "null";
+                        else
+                            value = '"' + (kv.Value?.ToString()?.Replace("\"", "\\\"") ?? "") + '"';
+                    }
+                    catch
+                    {
+                        value = "\"*** Error to convert value ***\"";
+                    }
+                }
+
+                lines.Add($"\"{kv.Key.Replace("\"", "\\\"")}\":{value}");
+            }
+
+            return "{" + string.Join(",", lines) + "}";
+        }
     }
 }

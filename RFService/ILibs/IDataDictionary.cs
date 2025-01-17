@@ -31,5 +31,7 @@ namespace RFService.ILibs
             where T : new();
 
         public object? GetValue(object? element, bool camelize = false);
+
+        public string GetJson();
     }
 }
