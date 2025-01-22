@@ -31,12 +31,12 @@ namespace RFRBAC.Services
             var allRolesId = rolesId.ToList();
 
             options ??= new GetOptions();
-            options.Filters.Add(Op.NE("ParentId", allRolesId));
+            options.Filters.Add(Op.NotIn("ParentId", allRolesId));
             var newRolesId = await GetParentsIdForRolesIdAsync(rolesId, options);
             while (newRolesId.Any())
             {
                 allRolesId.AddRange(newRolesId);
-                options.Filters.Add(Op.NE("ParentId", allRolesId));
+                options.Filters.Add(Op.NotIn("ParentId", allRolesId));
                 newRolesId = await GetParentsIdForRolesIdAsync(rolesId, options);
             }
 
