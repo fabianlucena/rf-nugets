@@ -39,5 +39,12 @@ namespace RFService.Services
 
             return data;
         }
+
+        public Task<int> UpdateForUuidAsync(Guid uuid, IDataDictionary data, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.AddFilterUuid(uuid);
+            return UpdateAsync(data, options);
+        }
     }
 }

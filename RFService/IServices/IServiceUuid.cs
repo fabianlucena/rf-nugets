@@ -34,7 +34,7 @@ namespace RFService.IServices
 
         Task<TEntity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null);
 
-        public async Task<TEntity?> GetSingleOrDefaultForUuidAsync(Guid uuid, GetOptions? options = null)
+        async Task<TEntity?> GetSingleOrDefaultForUuidAsync(Guid uuid, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.AddFilter("Uuid", uuid);
@@ -42,12 +42,7 @@ namespace RFService.IServices
             return await GetSingleOrDefaultAsync(options);
         }
 
-        Task<int> UpdateForUuidAsync(Guid uuid, IDataDictionary data, GetOptions? options = null)
-        {
-            options ??= new GetOptions();
-            options.AddFilter("uuid", uuid);
-            return UpdateAsync(data, options);
-        }
+        Task<int> UpdateForUuidAsync(Guid uuid, IDataDictionary data, GetOptions? options = null);
 
         Task<int> DeleteForUuidAsync(Guid uuid, GetOptions? options = null)
         {

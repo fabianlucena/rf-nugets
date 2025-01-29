@@ -1,4 +1,5 @@
 ﻿using RFService.Entities;
+using RFService.ILibs;
 using RFService.IRepo;
 using RFService.IServices;
 using RFService.Repo;
@@ -30,6 +31,13 @@ namespace RFService.Services
                 data.Uuid = Guid.NewGuid();
 
             return data;
+        }
+
+        public Task<int> UpdateForUuidAsync(Guid uuid, IDataDictionary data, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.AddFilterUuid(uuid);
+            return UpdateAsync(data, options);
         }
     }
 }
