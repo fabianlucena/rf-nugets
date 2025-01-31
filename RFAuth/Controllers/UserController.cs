@@ -17,6 +17,7 @@ namespace RFAuth.Controllers
     public class UserController(
         ILogger<UserController> logger,
         IUserService userService,
+        IUserTypeService userTypeService,
         IPasswordService passwordService,
         IMapper mapper,
         IEventBus eventBus
@@ -29,6 +30,12 @@ namespace RFAuth.Controllers
             logger.LogInformation("Getting users");
 
             var options = GetOptions.CreateFromQuery(HttpContext);
+            if (!options.HasColumnFilter("TypeId"))
+            {
+                var userTypeIdUser = await userTypeService.GetSingleIdForNameAsync("user");
+                options.AddFilter("TypeId", userTypeIdUser);
+            }
+
             if (uuid != null)
                 options.AddFilter("Uuid", uuid);
 
