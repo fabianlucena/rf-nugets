@@ -70,7 +70,7 @@ namespace RFAuth.Controllers
                 }
             };
             await eventBus.FireAsync("updating", "User", eventData);
-            var result = await userService.UpdateForUuidAsync(uuid, data);
+            var result = await userService.UpdateForUuidAsync(data, uuid);
             await UpdatePassword(data);
             await eventBus.FireAsync("updated", "User", eventData);
 
@@ -156,7 +156,7 @@ namespace RFAuth.Controllers
             if (!data.TryGetNotNullString("Password", out var password))
                 return false;
         
-            await passwordService.CreateOrUpdateForUsernameAsync(username, password);
+            await passwordService.CreateOrUpdateForUsernameAsync(password, username);
 
             return true;
         }

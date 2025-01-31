@@ -42,7 +42,7 @@ namespace RFService.IServices
             return await GetSingleOrDefaultAsync(options);
         }
 
-        Task<int> UpdateForUuidAsync(Guid uuid, IDataDictionary data, GetOptions? options = null);
+        Task<int> UpdateForUuidAsync(IDataDictionary data, Guid uuid, GetOptions? options = null);
 
         Task<int> DeleteForUuidAsync(Guid uuid, GetOptions? options = null)
         {

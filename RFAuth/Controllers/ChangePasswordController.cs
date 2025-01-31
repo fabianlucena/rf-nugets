@@ -28,8 +28,8 @@ namespace RFAuth.Controllers
                 throw new BadCurrentPasswordException();
 
             await passwordService.UpdateForIdAsync(
-                password.Id,
-                new DataDictionary { { "Hash", passwordService.Hash(request.NewPassword) } }
+                new DataDictionary { { "Hash", passwordService.Hash(request.NewPassword) } },
+                password.Id
             );
 
             return Ok();

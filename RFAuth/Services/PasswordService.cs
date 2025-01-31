@@ -20,26 +20,31 @@ namespace RFAuth.Services
 
         public bool Verify(string rawPassword, string hash)
         {
+            if (hash.StartsWith("$plain$"))
+                return rawPassword == hash[7..];
+
             return BCrypt.Net.BCrypt.Verify(rawPassword, hash);
         }
 
         public bool Verify(string rawPassword, Password password)
-        {
-            return Verify(rawPassword, password.Hash);
-        }
+            => Verify(rawPassword, password.Hash);
 
         public async Task<Password> GetSingleForUserIdAsync(Int64 userId)
             => await repo.GetSingleAsync(new GetOptions { Filters = { { "UserId", userId } } });
 
+        
         public async Task<Password?> GetSingleOrDefaultForUserIdAsync(Int64 userId)
             => await repo.GetSingleOrDefaultAsync(new GetOptions { Filters = { { "UserId", userId } } });
 
+        
         public async Task<Password> GetSingleForUserAsync(User user)
             => await GetSingleForUserIdAsync(user.Id);
 
+        
         public async Task<Password?> GetSingleOrDefaultForUserAsync(User user)
             => await GetSingleOrDefaultForUserIdAsync(user.Id);
 
+        
         public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
         {
             if (data.TryGetValue("UserId", out object? value))
@@ -60,15 +65,14 @@ namespace RFAuth.Services
             return base.SanitizeDataForAutoGet(data);
         }
 
-
-        public async Task<int> UpdateForUserIdAsync(Int64 userId, IDataDictionary data, GetOptions? options = null)
+        public async Task<int> UpdateForUserIdAsync(IDataDictionary data, Int64 userId, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.AddFilter("UserId", userId);
             return await UpdateAsync(data, options);
         }
 
-        public async Task<bool> CreateOrUpdateForUserIdAsync(Int64 userId, string password)
+        public async Task<bool> CreateOrUpdateForUserIdAsync(string password, Int64 userId)
         {
             var pasaswordObj = await GetSingleOrDefaultForUserIdAsync(userId);
             if (pasaswordObj == null)
@@ -83,17 +87,17 @@ namespace RFAuth.Services
             }
 
             var result = await UpdateForUserIdAsync(
-                userId,
-                new DataDictionary { { "Hash", Hash(password) } }
+                new DataDictionary { { "Hash", Hash(password) } },
+                userId
             );
 
             return result > 0;
         }
 
-        public async Task<bool> CreateOrUpdateForUsernameAsync(string username, string password)
+        public async Task<bool> CreateOrUpdateForUsernameAsync(string password, string username)
         {
             var userId = await userService.GetSingleIdForUsernameAsync(username);
-            return await CreateOrUpdateForUserIdAsync(userId, password);
+            return await CreateOrUpdateForUserIdAsync(password, userId);
         }
     }
 }

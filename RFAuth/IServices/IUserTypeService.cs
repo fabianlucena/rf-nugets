@@ -5,7 +5,11 @@ namespace RFAuth.IServices
 {
     public interface IUserTypeService
         : IService<UserType>,
-            IServiceName<UserType>
+            IServiceId<UserType>,
+            IServiceUuid<UserType>,
+            IServiceIdUuid<UserType>,
+            IServiceName<UserType>,
+            IServiceIdUuidName<UserType>
     {
     }
 }

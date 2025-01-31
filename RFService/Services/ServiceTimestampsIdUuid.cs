@@ -40,7 +40,7 @@ namespace RFService.Services
             return data;
         }
 
-        public Task<int> UpdateForUuidAsync(Guid uuid, IDataDictionary data, GetOptions? options = null)
+        public Task<int> UpdateForUuidAsync(IDataDictionary data, Guid uuid, GetOptions? options = null)
         {
             options ??= new GetOptions();
             options.AddFilterUuid(uuid);

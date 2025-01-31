@@ -38,7 +38,7 @@ namespace RFService.IServices
 
         Task<IEnumerable<TEntity>> GetListForIdsAsync(IEnumerable<Int64> id, GetOptions? options = null);
 
-        Task<int> UpdateForIdAsync(Int64 id, IDataDictionary data, GetOptions? options = null);
+        Task<int> UpdateForIdAsync(IDataDictionary data, Int64 id, GetOptions? options = null);
 
         Task<int> DeleteForIdAsync(Int64 id, GetOptions? options = null);
     }
