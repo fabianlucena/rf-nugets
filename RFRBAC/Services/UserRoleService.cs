@@ -73,11 +73,16 @@ namespace RFRBAC.Services
         }
 
         public async Task UpdateRolesNameForUserNameAsync(
-            string username,
-            IEnumerable<string> rolesName
+            IEnumerable<string> rolesName,
+            string username
         )
         {
             var userId = await userService.GetSingleIdForUsernameAsync(username);
+            await UpdateRolesNameForUserIdAsync(rolesName, userId);
+        }
+
+        public async Task UpdateRolesNameForUserIdAsync(IEnumerable<string> rolesName, Int64 userId)
+        {
             var rolesId = await roleService.GetIdsForNamesAsync(rolesName);
             var existendRolesId = await GetRolesIdForUserIdAsync(userId);
             var noExistentRolesId = rolesId

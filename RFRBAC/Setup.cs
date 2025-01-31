@@ -86,7 +86,7 @@ namespace RFRBAC
             if (!data.TryGetNotNullStrings("Roles", out var rolesName))
                 return false;
 
-            await userRoleService.UpdateRolesNameForUserNameAsync(username, rolesName);
+            await userRoleService.UpdateRolesNameForUserNameAsync(rolesName, username);
 
             return true;
         }
