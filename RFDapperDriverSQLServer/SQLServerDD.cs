@@ -188,11 +188,12 @@ namespace RFDapperDriverSQLServer
 
             switch (type)
             {
+                case "Boolean": return "BIT";
+                case "DateTime": return "DATETIME";
+                case "Guid": return "UNIQUEIDENTIFIER";
                 case "Int32": return "INT";
                 case "Int64": return "BIGINT";
-                case "Guid": return "UNIQUEIDENTIFIER";
-                case "DateTime": return "DATETIME";
-                case "Boolean": return "BIT";
+                case "Single": return "FLOAT";
                 case "SqlGeography": return "GEOGRAPHY";
                 case "String":
                     var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
