@@ -102,7 +102,7 @@ namespace RFRBAC.Services
             {
                 Filters = {
                     { "userId", userId },
-                    { Op.NE("roleId", rolesId) }
+                    { Op.NotIn("roleId", rolesId) }
                 }
             });
         }
