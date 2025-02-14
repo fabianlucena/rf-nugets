@@ -12,7 +12,7 @@ namespace RFService.Services
         public override GetOptions SanitizeGetOptions(GetOptions options)
         {
             if (!options.HasColumnFilter("IsEnabled")
-                && (!options.Options.TryGetBool("IncludeDisabled", out bool includeDisabled) || !includeDisabled)
+                && !options.IncludeDisabled
             )
             {
                 options = new GetOptions(options);

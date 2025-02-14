@@ -2,6 +2,7 @@
 using RFOperators;
 using RFService.Libs;
 using System.Data;
+using System.Data.Common;
 using System.Text.RegularExpressions;
 
 namespace RFService.Repo
@@ -28,7 +29,9 @@ namespace RFService.Repo
 
         public List<string> OrderBy { get; set; } = [];
 
-        public DataDictionary Options { get; set; } = [];
+        public bool IncludeDisabled { get; set; } = false;
+
+        public bool IncludeDeleted { get; set; } = false;
 
         public GetOptions() { }
 
@@ -46,7 +49,8 @@ namespace RFService.Repo
                 CommandType = options.CommandType;
                 Filters = new(options.Filters);
                 OrderBy = options.OrderBy;
-                Options = new(options.Options);
+                IncludeDisabled = options.IncludeDisabled;
+                IncludeDeleted = options.IncludeDeleted;
             }
         }
 
@@ -86,10 +90,10 @@ namespace RFService.Repo
         public GetOptions AddFromQuery(IQueryCollection query)
         {
             if (query.TryGetBool("IncludeDisabled", out bool includeDisabled))
-                Options["IncludeDisabled"] = includeDisabled;
+                IncludeDisabled = includeDisabled;
 
             if (query.TryGetBool("IncludeDeleted", out bool includeDeleted))
-                Options["IncludeDeleted"] = includeDeleted;
+                IncludeDeleted = includeDeleted;
 
             var filters = query.GetStrings("$filter");
             foreach (var filter in filters)
@@ -131,6 +135,20 @@ namespace RFService.Repo
         public GetOptions AddFilter(Operator op)
         {
             Filters.Add(op);
+
+            return this;
+        }
+
+        public GetOptions SetFilter<T>(string column, object? value)
+            where T : Operator
+        {
+            if (!Filters.SetForColumn<T>(column, value))
+            {
+                var newFilter = (T?)Activator.CreateInstance(typeof(T), column, value)
+                    ?? throw new Exception("Unknown operator.");
+
+                AddFilter(newFilter);
+            }
 
             return this;
         }

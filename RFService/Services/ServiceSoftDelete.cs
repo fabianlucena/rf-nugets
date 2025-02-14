@@ -21,12 +21,10 @@ namespace RFService.Services
         public override GetOptions SanitizeGetOptions(GetOptions options)
         {
             if (!options.HasColumnFilter("DeletedAt")
-                && (!options.Options.TryGetValue("IncludeDeleted", out object? includeDeletedObj)
-                    || includeDeletedObj is not bool includeDeleted
-                    || !includeDeleted
-                )
+                && !options.IncludeDeleted
             )
             {
+                options = new GetOptions(options);
                 options.AddFilter("DeletedAt", null);
             }
 
