@@ -1,10 +1,7 @@
 ﻿namespace RFOperators
 {
-    public class Not
-        : Unary
+    public class Not(Operator value)
+        : Unary(value)
     {
-        public Not(Operator value)
-            : base(value)
-        { }
     }
 }

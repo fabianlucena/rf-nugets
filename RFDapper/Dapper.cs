@@ -217,6 +217,7 @@ namespace RFDapper
                     IsNull => $"({sqlQuery.Sql}) IS NULL",
                     IsNotNull => $"({sqlQuery.Sql}) IS NOT NULL",
                     Not => $"NOT ({sqlQuery.Sql})",
+                    MakeValid => $"({sqlQuery.Sql}).MakeValid()",
                     _ => throw new UnknownUnaryOperatorException(op.GetType().Name),
                 };
                 return sqlQuery;

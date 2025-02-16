@@ -5,8 +5,8 @@ namespace RFOperators
     public class ST_Contains
         : Binary
     {
-        public ST_Contains(Column column1, Column column2)
-            : base(column1, column2)
+        public ST_Contains(Operator value1, Operator value2)
+            : base(value1, value2)
         {
         }
 
