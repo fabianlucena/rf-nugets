@@ -1,11 +1,8 @@
-﻿using RFService.Repo;
-
-namespace RFService.IServices
+﻿namespace RFService.IServices
 {
     public interface IServiceUniqueTitle<TEntity>
         : IServiceTitle<TEntity>
         where TEntity : class
     {
-        
     }
 }
