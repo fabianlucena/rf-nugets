@@ -3,23 +3,9 @@
 namespace RFService.IServices
 {
     public interface IServiceUniqueTitle<TEntity>
-        : IService<TEntity>
+        : IServiceTitle<TEntity>
         where TEntity : class
     {
-        public async Task<TEntity> GetSingleForTitleAsync(string title, GetOptions? options = null)
-        {
-            options ??= new GetOptions();
-            options.AddFilter("Title", title);
-
-            return await GetSingleAsync(options);
-        }
-
-        public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, GetOptions? options = null)
-        {
-            options ??= new GetOptions();
-            options.AddFilter("Title", title);
-
-            return await GetSingleOrDefaultAsync(options);
-        }
+        
     }
 }

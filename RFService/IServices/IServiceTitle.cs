@@ -1,5 +1,6 @@
 ﻿using RFService.ILibs;
 using RFService.Libs;
+using RFService.Repo;
 
 namespace RFService.IServices
 {
@@ -19,6 +20,22 @@ namespace RFService.IServices
             }
 
             return data;
+        }
+
+        public async Task<TEntity> GetSingleForTitleAsync(string title, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.AddFilter("Title", title);
+
+            return await GetSingleAsync(options);
+        }
+
+        public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.AddFilter("Title", title);
+
+            return await GetSingleOrDefaultAsync(options);
         }
     }
 }

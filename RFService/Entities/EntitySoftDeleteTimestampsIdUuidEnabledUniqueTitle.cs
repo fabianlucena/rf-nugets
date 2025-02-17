@@ -1,12 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using RFService.Libs;
 
 namespace RFService.Entities
 {
+    [Index(nameof(Title), IsUnique = true)]
     public abstract class EntitySoftDeleteTimestampsIdUuidEnabledUniqueTitle
-        : EntitySoftDeleteTimestampsIdUuidEnabled
+        : EntitySoftDeleteTimestampsIdUuidEnabledTitle
     {
-        [Required]
-        [MaxLength(255)]
-        public required string Title { get; set; }
     }
 }

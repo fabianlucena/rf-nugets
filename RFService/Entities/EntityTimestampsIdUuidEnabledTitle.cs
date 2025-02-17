@@ -2,7 +2,8 @@
 
 namespace RFService.Entities
 {
-    public abstract class EntityTimestampsIdUuidEnabledTitle : EntityTimestampsIdUuidEnabled
+    public abstract class EntityTimestampsIdUuidEnabledTitle
+        : EntityTimestampsIdUuidEnabled
     {
         [Required]
         [MaxLength(255)]
