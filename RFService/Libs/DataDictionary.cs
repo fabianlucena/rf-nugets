@@ -63,8 +63,8 @@ namespace RFService.Libs
 
         public string? GetString(string key)
         {
-            if (!TryGetValue(key, out object? obj)
-                || obj is null
+            var obj = GetValue(this[key]);
+            if (obj is null
                 || obj is not string str
             )
             {
