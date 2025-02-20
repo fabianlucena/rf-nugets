@@ -61,6 +61,19 @@ namespace RFService.Libs
             return true;
         }
 
+        public string? GetString(string key)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+                || obj is not string str
+            )
+            {
+                return null;
+            }
+
+            return str;
+        }
+
         public bool TryGetNotNullString(string key, out string value)
         {
             if (!TryGetValue(key, out object? obj)
