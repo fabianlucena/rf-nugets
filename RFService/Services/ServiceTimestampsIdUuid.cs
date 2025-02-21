@@ -20,6 +20,9 @@ namespace RFService.Services
         public Task<TEntity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null)
             => GetSingleAsync(new GetOptions(options) { Filters = { { "Uuid", uuid } } });
 
+        public Task<IEnumerable<TEntity>> GetListForUuidsAsync(IEnumerable<Guid> uuids, GetOptions? options = null)
+            => GetListAsync(new GetOptions(options) { Filters = { { "Uuid", uuids } } });
+
         public async Task<Int64> GetSingleIdForUuidAsync(Guid uuid, GetOptions? options = null)
             => GetId(await GetSingleForUuidAsync(uuid, options));
 

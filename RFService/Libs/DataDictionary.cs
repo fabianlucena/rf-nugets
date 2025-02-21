@@ -91,8 +91,8 @@ namespace RFService.Libs
 
         public bool TryGetNotNullOrEmptyString(string key, out string value)
         {
-            if (!TryGetValue(key, out object? obj)
-                || obj is null
+            var obj = GetValue(this[key]);
+            if (obj is null
                 || obj is not string str
             )
             {
@@ -153,15 +153,27 @@ namespace RFService.Libs
         {
             if (!TryGetValue(key, out object? obj)
                 || obj is null
-                || obj is not bool val
             )
             {
                 value = default;
                 return false;
             }
 
-            value = val;
-            return true;
+            if (obj is bool val)
+            {
+                value = val;
+                return true;
+            }
+
+            obj = GetValue(obj);
+            if (obj is bool val1)
+            {
+                value = val1;
+                return true;
+            }
+
+            value = default;
+            return false;
         }
 
         public bool TryGetGuid(string key, out Guid value)
@@ -207,6 +219,8 @@ namespace RFService.Libs
                 value = [];
                 return false;
             }
+
+            obj = GetValue(obj);
 
             if (obj is Guid[] guids)
             {

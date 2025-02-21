@@ -32,6 +32,8 @@ namespace RFService.IServices
 
         Task<IEnumerable<Guid>> GetListUuidAsync(GetOptions options);
 
+        Task<IEnumerable<TEntity>> GetListForUuidsAsync(IEnumerable<Guid> uuids, GetOptions? options = null);
+
         Task<TEntity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null);
 
         async Task<TEntity?> GetSingleOrDefaultForUuidAsync(Guid uuid, GetOptions? options = null)
