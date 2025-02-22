@@ -47,7 +47,7 @@ namespace RFService.Repo
                 Separator = options.Separator;
                 CommandTimeout = options.CommandTimeout;
                 CommandType = options.CommandType;
-                Filters = new(options.Filters);
+                Filters = [.. options.Filters];
                 OrderBy = options.OrderBy;
                 IncludeDisabled = options.IncludeDisabled;
                 IncludeDeleted = options.IncludeDeleted;
