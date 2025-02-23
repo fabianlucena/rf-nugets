@@ -169,10 +169,11 @@ namespace RFDapperDriverSQLServer
         public SqlQuery GetValue(
             object? data,
             GetOptions options,
-            List<string> usedNames
+            List<string> usedNames,
+            string paramName
         )
         {
-            var name = GetParamName("", usedNames);
+            var name = GetParamName(paramName, usedNames);
 
             return new()
             {

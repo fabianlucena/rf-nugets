@@ -195,7 +195,8 @@ namespace RFDapper
         public SqlQuery GetOperation(
             Operator op,
             GetOptions options,
-            List<string> usedNames
+            List<string> usedNames,
+            string paramName
         )
         {
             if (op is Column col)
@@ -206,12 +207,12 @@ namespace RFDapper
                 if (val.Data == null)
                     return new SqlQuery { IsNull = true };
 
-                return _driver.GetValue(val.Data, options, usedNames);
+                return _driver.GetValue(val.Data, options, usedNames, paramName);
             }
 
             if (op is Unary uop)
             {
-                var sqlQuery = GetOperation(uop.Op, options, usedNames);
+                var sqlQuery = GetOperation(uop.Op, options, usedNames, paramName);
                 sqlQuery.Sql = op switch
                 {
                     IsNull => $"({sqlQuery.Sql}) IS NULL",
@@ -225,8 +226,8 @@ namespace RFDapper
 
             if (op is Binary bop)
             {
-                var sqlQuery1 = GetOperation(bop.Op1, options, usedNames);
-                var sqlQuery2 = GetOperation(bop.Op2, options, usedNames);
+                var sqlQuery1 = GetOperation(bop.Op1, options, usedNames, paramName);
+                var sqlQuery2 = GetOperation(bop.Op2, options, usedNames, paramName);
 
                 foreach (var kv in sqlQuery2.Data)
                     sqlQuery1.Data[kv.Key] = kv.Value;
@@ -259,7 +260,7 @@ namespace RFDapper
 
                 foreach (var iop in nop.Ops)
                 {
-                    var newSqlQuery = GetOperation(iop, options, usedNames);
+                    var newSqlQuery = GetOperation(iop, options, usedNames, paramName);
                     sqls.Add(newSqlQuery.Sql);
                     foreach (var kv in newSqlQuery.Data)
                         sqlQuery.Data[kv.Key] = kv.Value;
@@ -280,31 +281,32 @@ namespace RFDapper
         public SqlQuery GetFilterQuery(
             Operators operators,
             GetOptions options,
-            List<string> usedNames
+            List<string> usedNames,
+            string paramName
         )
         {
             if (operators.Count <= 0)
                 return new SqlQuery();
 
             if (operators.Count == 1)
-                return GetOperation(operators[0], options, usedNames);
+                return GetOperation(operators[0], options, usedNames, paramName);
 
-            return GetOperation(Op.And([.. operators]), options, usedNames);
+            return GetOperation(Op.And([.. operators]), options, usedNames, paramName);
         }
 
-        public SqlQuery? GetWhereFilter(GetOptions options, List<string>? usedNames = null)
+        public SqlQuery? GetWhereFilter(GetOptions options, List<string>? usedNames, string paramName)
         {
             if (options.Filters.Count == 0)
                 return null;
 
-            var sqlQuery = GetFilterQuery(options.Filters, options, usedNames ?? []);
+            var sqlQuery = GetFilterQuery(options.Filters, options, usedNames ?? [], paramName);
 
             return sqlQuery;
         }
 
-        public SqlQuery? GetWhereQuery(GetOptions options, List<string>? usedNames = null)
+        public SqlQuery? GetWhereQuery(GetOptions options, List<string>? usedNames, string paramName)
         {
-            var filter = GetWhereFilter(options, usedNames);
+            var filter = GetWhereFilter(options, usedNames, paramName);
             if (filter != null)
                 filter.Sql = "WHERE " + filter.Sql;
 
@@ -416,7 +418,7 @@ namespace RFDapper
                         );
                     }
 
-                    sqlQuery = GetOperation(onOperation, options, usedNames);
+                    sqlQuery = GetOperation(onOperation, options, usedNames, "select_param");
 
                     if (!string.IsNullOrWhiteSpace(from.PropertyName))
                     {
@@ -431,7 +433,7 @@ namespace RFDapper
                         data.Add(value.Key, value.Value);
                 }
 
-                sqlQuery = GetWhereQuery(options, usedNames);
+                sqlQuery = GetWhereQuery(options, usedNames, "where_param");
                 if (!string.IsNullOrWhiteSpace(sqlQuery?.Sql))
                 {
                     sqlFrom += " " + sqlQuery.Sql;
@@ -581,7 +583,7 @@ namespace RFDapper
         )
         {
             options.Alias = "";
-            var sqlWhere = GetWhereQuery(options)
+            var sqlWhere = GetWhereQuery(options, [], "where_param")
                 ?? throw new Exception("UPDATE without WHERE is forbidden");
 
             var entityType = typeof(TEntity);
@@ -603,7 +605,12 @@ namespace RFDapper
                         value = ConvertJsonElement(valueJsonElement.Value);
 
                     if (value is Operator op) {
-                        value = GetOperation(op, options, usedNames);
+                        var operation = GetOperation(op, options, usedNames, "data_" + name);
+                        foreach (var dataItem in operation.Data)
+                            values[dataItem.Key] = dataItem.Value;
+
+                        columns.Add($"[{name}]={operation.Sql}");
+                        continue;
                     }
                 }
                 var valueName = "data_" + name;
@@ -626,7 +633,7 @@ namespace RFDapper
 
         public SqlQuery GetDeleteQuery(GetOptions options)
         {
-            var sqlWhere = GetWhereQuery(options)
+            var sqlWhere = GetWhereQuery(options, [], "where_param")
                 ?? throw new Exception("DELETE without WHERE is forbidden");
 
             DataDictionary values = [];

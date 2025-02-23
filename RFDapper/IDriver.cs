@@ -21,7 +21,7 @@ namespace RFDapper
 
         string GetColumnAlias(string columnAlias);
 
-        SqlQuery GetValue(object? data, GetOptions options, List<string> usedNames);
+        SqlQuery GetValue(object? data, GetOptions options, List<string> usedNames, string paramName);
 
         string? GetColumnType(string type, PropertyInfo property);
 
