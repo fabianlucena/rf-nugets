@@ -245,6 +245,8 @@ namespace RFDapper
                     ST_Contains => $"{sqlQuery1.Sql}.STContains({sqlQuery2.Sql}) = 1",
                     Like => $"({sqlQuery1.Sql}) LIKE ({sqlQuery2.Sql})",
                     NotLike => $"({sqlQuery1.Sql}) NOT LIKE ({sqlQuery2.Sql})",
+                    GE => $"({sqlQuery1.Sql}) >= ({sqlQuery2.Sql})",
+                    Add => $"({sqlQuery1.Sql}) + ({sqlQuery2.Sql})",
                     _ => throw new UnknownBinaryOperatorException(op.GetType().Name),
                 };
                 return sqlQuery1;

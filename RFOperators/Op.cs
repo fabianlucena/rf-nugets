@@ -29,6 +29,8 @@
         public static NotLike NotLike(string column, Operator value) => new(column, value);
         public static NotLike NotLike(string column, object? value) => new(column, value);
 
+        public static Add Add(Operator value1, object? value2) => new(value1, value2);
+
         public static MakeValid MakeValid(Column column) => new(column);
         public static MakeValid MakeValid(string column) => new(column);
         public static ST_Intersects ST_Intersects(Operator value1, Operator value2) => new(value1, value2);
