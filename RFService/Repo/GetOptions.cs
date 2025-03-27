@@ -2,7 +2,6 @@
 using RFOperators;
 using RFService.Libs;
 using System.Data;
-using System.Data.Common;
 using System.Text.RegularExpressions;
 
 namespace RFService.Repo
@@ -153,9 +152,13 @@ namespace RFService.Repo
             return this;
         }
 
-        public GetOptions Include(string propertyName, string? alias = null)
+        public GetOptions Include(
+            string propertyName,
+            string? alias = null,
+            Operator? on = null
+        )
         {
-            Join.Add(new From(alias: alias, propertyName: propertyName));
+            Join.Add(new From(alias: alias, propertyName: propertyName, on: on));
             return this;
         }
     }
