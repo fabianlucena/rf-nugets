@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using System.Globalization;
+using System.Text.Json;
 
 namespace RFService.Libs
 {
@@ -34,7 +35,7 @@ namespace RFService.Libs
             if (!query.TryGetValue(name, out StringValues value))
                 return [];
 
-            return value.Select(i => i ?? "").ToList();
+            return [.. value.Select(i => i ?? "")];
         }
 
         static public string GetString(this IQueryCollection query, string name)
@@ -97,5 +98,11 @@ namespace RFService.Libs
                 i.Trim() == ""
             );
         }
+
+        static public Dictionary<string, string> ToDictionary(this IQueryCollection queryCollection)
+            => queryCollection.ToDictionary(q => q.Key, q => q.Value.ToString());
+
+        static public string SerializeToJson(this IQueryCollection queryCollection)
+            => JsonSerializer.Serialize(queryCollection.ToDictionary());
     }
 }
