@@ -860,6 +860,84 @@ namespace RFDapper
                     ?? throw new Exception("No result for query");
             }
 
+            if (joins.Count == 4)
+            {
+                var type = typeof(TEntity);
+                var join1 = joins.First();
+                var pIncluded1 = type.GetProperty(join1.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join1.PropertyName ?? "<NULL>"} does not exist");
+                var join2 = joins.ElementAt(1);
+                var pIncluded2 = type.GetProperty(join2.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join2.PropertyName ?? "<NULL>"} does not exist");
+                var join3 = joins.ElementAt(2);
+                var pIncluded3 = type.GetProperty(join3.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join3.PropertyName ?? "<NULL>"} does not exist");
+                var join4 = joins.ElementAt(3);
+                var pIncluded4 = type.GetProperty(join4.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join4.PropertyName ?? "<NULL>"} does not exist");
+
+                var getListAsyncMethod = this.GetType().GetMethod("GetListWith4IncludesAsync")
+                    ?? throw new Exception("Error to get GetListWith4IncludesAsync method");
+
+                var genericGetListAsyncMethod = getListAsyncMethod.MakeGenericMethod(
+                    pIncluded1.PropertyType,
+                    pIncluded2.PropertyType,
+                    pIncluded3.PropertyType,
+                    pIncluded4.PropertyType
+                );
+
+                var task = (Task?)genericGetListAsyncMethod.Invoke(
+                    this,
+                    [options, joins]
+                )
+                    ?? throw new Exception("No result for query");
+
+                var resultProperty = task.GetType().GetProperty("Result");
+                return (IEnumerable<TEntity>?)resultProperty?.GetValue(task)
+                    ?? throw new Exception("No result for query");
+            }
+            
+            if (joins.Count == 5)
+            {
+                var type = typeof(TEntity);
+                var join1 = joins.First();
+                var pIncluded1 = type.GetProperty(join1.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join1.PropertyName ?? "<NULL>"} does not exist");
+                var join2 = joins.ElementAt(1);
+                var pIncluded2 = type.GetProperty(join2.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join2.PropertyName ?? "<NULL>"} does not exist");
+                var join3 = joins.ElementAt(2);
+                var pIncluded3 = type.GetProperty(join3.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join3.PropertyName ?? "<NULL>"} does not exist");
+                var join4 = joins.ElementAt(3);
+                var pIncluded4 = type.GetProperty(join4.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join4.PropertyName ?? "<NULL>"} does not exist");
+                var join5 = joins.ElementAt(4);
+                var pIncluded5 = type.GetProperty(join5.PropertyName ?? "")
+                    ?? throw new Exception($"Error property {join5.PropertyName ?? "<NULL>"} does not exist");
+
+                var getListAsyncMethod = this.GetType().GetMethod("GetListWith5IncludesAsync")
+                    ?? throw new Exception("Error to get GetListWith5IncludesAsync method");
+
+                var genericGetListAsyncMethod = getListAsyncMethod.MakeGenericMethod(
+                    pIncluded1.PropertyType,
+                    pIncluded2.PropertyType,
+                    pIncluded3.PropertyType,
+                    pIncluded4.PropertyType,
+                    pIncluded5.PropertyType
+                );
+
+                var task = (Task?)genericGetListAsyncMethod.Invoke(
+                    this,
+                    [options, joins]
+                )
+                    ?? throw new Exception("No result for query");
+
+                var resultProperty = task.GetType().GetProperty("Result");
+                return (IEnumerable<TEntity>?)resultProperty?.GetValue(task)
+                    ?? throw new Exception("No result for query");
+            }
+
             throw new TooManyJoinsException();
         }
 
@@ -969,6 +1047,116 @@ namespace RFDapper
 
                         if (IsValidObject(included3))
                             pIncluded3.SetValue(row, included3);
+
+                        return row;
+                    },
+                    sqlQuery.Data,
+                    splitOn: options.Separator,
+                    transaction: options.RepoOptions?.Transaction
+                );
+            }
+            finally
+            {
+                closeConnection();
+            }
+        }
+
+        public async Task<IEnumerable<TEntity>> GetListWith4IncludesAsync<TIncluded1, TIncluded2, TIncluded3, TIncluded4>(GetOptions options, List<From> joins)
+        {
+            var sqlQuery = GetSelectQuery(options);
+            var jsonData = sqlQuery.Data.GetJson();
+            Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
+
+            var type = typeof(TEntity);
+            var join1 = joins.First();
+            var pIncluded1 = type.GetProperty(join1.PropertyName ?? "")
+                ?? throw new Exception($"Error property {join1.PropertyName ?? "<NULL>"} does not exist");
+            var join2 = joins.ElementAt(1);
+            var pIncluded2 = type.GetProperty(join2.PropertyName ?? "")
+               ?? throw new Exception($"Error property {join2.PropertyName ?? "<NULL>"} does not exist");
+            var join3 = joins.ElementAt(2);
+            var pIncluded3 = type.GetProperty(join3.PropertyName ?? "")
+               ?? throw new Exception($"Error property {join3.PropertyName ?? "<NULL>"} does not exist");
+            var join4 = joins.ElementAt(3);
+            var pIncluded4 = type.GetProperty(join4.PropertyName ?? "")
+               ?? throw new Exception($"Error property {join4.PropertyName ?? "<NULL>"} does not exist");
+
+            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
+            try
+            {
+                return await connection.QueryAsync<TEntity, TIncluded1, TIncluded2, TIncluded3, TIncluded4, TEntity>(
+                    sqlQuery.Sql,
+                    (TEntity row, TIncluded1 included1, TIncluded2 included2, TIncluded3 included3, TIncluded4 included4) =>
+                    {
+                        if (IsValidObject(included1))
+                            pIncluded1.SetValue(row, included1);
+
+                        if (IsValidObject(included2))
+                            pIncluded2.SetValue(row, included2);
+
+                        if (IsValidObject(included3))
+                            pIncluded3.SetValue(row, included3);
+
+                        if (IsValidObject(included4))
+                            pIncluded4.SetValue(row, included4);
+
+                        return row;
+                    },
+                    sqlQuery.Data,
+                    splitOn: options.Separator,
+                    transaction: options.RepoOptions?.Transaction
+                );
+            }
+            finally
+            {
+                closeConnection();
+            }
+        }
+
+        public async Task<IEnumerable<TEntity>> GetListWith5IncludesAsync<TIncluded1, TIncluded2, TIncluded3, TIncluded4, TIncluded5>(GetOptions options, List<From> joins)
+        {
+            var sqlQuery = GetSelectQuery(options);
+            var jsonData = sqlQuery.Data.GetJson();
+            Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
+
+            var type = typeof(TEntity);
+            var join1 = joins.First();
+            var pIncluded1 = type.GetProperty(join1.PropertyName ?? "")
+                ?? throw new Exception($"Error property {join1.PropertyName ?? "<NULL>"} does not exist");
+            var join2 = joins.ElementAt(1);
+            var pIncluded2 = type.GetProperty(join2.PropertyName ?? "")
+               ?? throw new Exception($"Error property {join2.PropertyName ?? "<NULL>"} does not exist");
+            var join3 = joins.ElementAt(2);
+            var pIncluded3 = type.GetProperty(join3.PropertyName ?? "")
+               ?? throw new Exception($"Error property {join3.PropertyName ?? "<NULL>"} does not exist");
+            var join4 = joins.ElementAt(3);
+            var pIncluded4 = type.GetProperty(join4.PropertyName ?? "")
+               ?? throw new Exception($"Error property {join4.PropertyName ?? "<NULL>"} does not exist");
+            var join5 = joins.ElementAt(4);
+            var pIncluded5 = type.GetProperty(join5.PropertyName ?? "")
+               ?? throw new Exception($"Error property {join5.PropertyName ?? "<NULL>"} does not exist");
+
+            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
+            try
+            {
+                return await connection.QueryAsync<TEntity, TIncluded1, TIncluded2, TIncluded3, TIncluded4, TIncluded5, TEntity>(
+                    sqlQuery.Sql,
+                    (TEntity row, TIncluded1 included1, TIncluded2 included2, TIncluded3 included3, TIncluded4 included4, TIncluded5 included5) =>
+                    {
+                        if (IsValidObject(included1))
+                            pIncluded1.SetValue(row, included1);
+
+                        if (IsValidObject(included2))
+                            pIncluded2.SetValue(row, included2);
+
+                        if (IsValidObject(included3))
+                            pIncluded3.SetValue(row, included3);
+
+                        if (IsValidObject(included4))
+                            pIncluded4.SetValue(row, included4);
+
+                        if (IsValidObject(included5))
+                            pIncluded5.SetValue(row, included5);
 
                         return row;
                     },
