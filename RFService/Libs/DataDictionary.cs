@@ -226,6 +226,14 @@ namespace RFService.Libs
             return true;
         }
 
+        public Guid? GetGuidOrNull(string key)
+        {
+            if (!TryGetGuid(key, out Guid value))
+                return null;
+
+            return value;
+        }
+
         public bool TryGetGuids(string key, out IEnumerable<Guid> value)
         {
             if (!TryGetValue(key, out object? obj)
