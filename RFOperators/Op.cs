@@ -19,6 +19,7 @@
         public static In In(string column, object? value) => new(column, value);
         public static NotIn NotIn(Operator value1, Operator value2) => new(value1, value2);
         public static NotIn NotIn(string column, object? value) => new(column, value);
+        public static Or Or(params Operator[] values) => new(values);
         public static And And(params Operator[] values) => new(values);
         public static GE GE(Operator value1, Operator value2) => new(value1, value2);
         public static GE GE(string column, object? value) => new(column, value);
