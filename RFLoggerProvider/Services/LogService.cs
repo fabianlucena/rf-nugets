@@ -12,8 +12,8 @@ namespace RFLoggerProvider.Services
 {
     public class LogService(
         IRepo<Log> repo,
-        ILogLevelService transactionLogLevelService,
-        ILogActionService transactionLogActionService,
+        ILogLevelService logLevelService,
+        ILogActionService logActionService,
         IHttpContextAccessor httpContextAccessor
     )
         : ServiceIdUuid<IRepo<Log>, Log>(repo),
@@ -93,8 +93,8 @@ namespace RFLoggerProvider.Services
 
         public async Task<Log> AddAsync(LLevel level, LAction action, string message, object? data = null, bool? dataRequest = null)
         {
-            var levelId = await transactionLogLevelService.GetSingleIdForNameOrCreateAsync(level.ToString(), new LogLevel { Name = level.ToString() });
-            var actionId = await transactionLogActionService.GetSingleIdForNameOrCreateAsync(action.ToString(), new Entities.LogAction { Name = action.ToString() });
+            var levelId = await logLevelService.GetSingleIdForNameOrCreateAsync(level.ToString(), new LogLevel { Name = level.ToString() });
+            var actionId = await logActionService.GetSingleIdForNameOrCreateAsync(action.ToString(), new Entities.LogAction { Name = action.ToString() });
 
             return await AddAsync(levelId, actionId, message, data, dataRequest);
         }
