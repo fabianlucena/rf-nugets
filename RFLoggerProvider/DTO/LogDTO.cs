@@ -1,8 +1,8 @@
 ﻿using RFAuth.DTO;
 
-namespace RFTransactionLog.DTO
+namespace RFLoggerProvider.DTO
 {
-    public class TransactionLogDTO
+    public class LogDTO
     {
         public Guid Uuid { get; set; }
 

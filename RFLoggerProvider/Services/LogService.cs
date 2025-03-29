@@ -1,26 +1,27 @@
 ﻿using RFService.Services;
 using RFService.IRepo;
-using RFTransactionLog.Entities;
-using RFTransactionLog.IServices;
 using RFService.Repo;
 using System.Text.Json;
 using RFService.Libs;
 using Microsoft.AspNetCore.Http;
+using RFLoggerProvider.Entities;
+using RFLoggerProvider.IServices;
+using RFLogger.Types;
 
-namespace RFTransactionLog.Services
+namespace RFLoggerProvider.Services
 {
-    public class TransactionLogService(
-        IRepo<TransactionLog> repo,
+    public class LogService(
+        IRepo<Log> repo,
         ILogLevelService transactionLogLevelService,
         ILogActionService transactionLogActionService,
         IHttpContextAccessor httpContextAccessor
     )
-        : ServiceIdUuid<IRepo<TransactionLog>, TransactionLog>(repo),
-            ITransactionLogService
+        : ServiceIdUuid<IRepo<Log>, Log>(repo),
+            ILogService
     {
         private HttpContext? HttpContext => httpContextAccessor?.HttpContext;
 
-        public override Task<TransactionLog> ValidateForCreationAsync(TransactionLog data)
+        public override Task<Log> ValidateForCreationAsync(Log data)
         {
             if (data.LogTimestamp == default)
                 data.LogTimestamp = DateTime.UtcNow;
@@ -35,7 +36,7 @@ namespace RFTransactionLog.Services
             return base.ValidateForCreationAsync(data);
         }
 
-        public override Task<IEnumerable<TransactionLog>> GetListAsync(GetOptions? options)
+        public override Task<IEnumerable<Log>> GetListAsync(GetOptions? options)
         {
             options ??= new GetOptions();
             options.OrderBy.Add("LogTimestamp DESC");
@@ -43,7 +44,7 @@ namespace RFTransactionLog.Services
             return base.GetListAsync(options);
         }
 
-        public async Task<TransactionLog> AddAsync(Int64 levelId, Int64 actionId, string message, object? data = null, bool? dataRequest = null)
+        public async Task<Log> AddAsync(Int64 levelId, Int64 actionId, string message, object? data = null, bool? dataRequest = null)
         {
             string? jsonData = (data != null) ?
                 JsonSerializer.Serialize(data) :
@@ -81,7 +82,7 @@ namespace RFTransactionLog.Services
                 jsonData = JsonSerializer.Serialize(newData);
             }
 
-            return await CreateAsync(new TransactionLog
+            return await CreateAsync(new Log
             {
                 LevelId = levelId,
                 ActionId = actionId,
@@ -90,7 +91,7 @@ namespace RFTransactionLog.Services
             });
         }
 
-        public async Task<TransactionLog> AddAsync(TLLevel level, TLAction action, string message, object? data = null, bool? dataRequest = null)
+        public async Task<Log> AddAsync(LLevel level, LAction action, string message, object? data = null, bool? dataRequest = null)
         {
             var levelId = await transactionLogLevelService.GetSingleIdForNameOrCreateAsync(level.ToString(), new LogLevel { Name = level.ToString() });
             var actionId = await transactionLogActionService.GetSingleIdForNameOrCreateAsync(action.ToString(), new Entities.LogAction { Name = action.ToString() });
@@ -98,7 +99,7 @@ namespace RFTransactionLog.Services
             return await AddAsync(levelId, actionId, message, data, dataRequest);
         }
 
-        public Task<TransactionLog> AddInfoAsync(TLAction action, string message, object? data = null, bool? dataRequest = null)
-            => AddAsync(TLLevel.INFO, action, message, data, dataRequest);
+        public Task<Log> AddInfoAsync(LAction action, string message, object? data = null, bool? dataRequest = null)
+            => AddAsync(LLevel.INFO, action, message, data, dataRequest);
     }
 }

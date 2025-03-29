@@ -1,16 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RFTransactionLog.IServices;
-using RFTransactionLog.Services;
+using RFLoggerProvider.IServices;
+using RFLoggerProvider.Services;
 
-namespace RFTransactionLog
+namespace RFLoggerProvider
 {
     public static class MvcServiceCollectionExtensions
     {
-        public static void AddRFTransactionLog(this IServiceCollection services)
+        public static void AddRFLoggerProvider(this IServiceCollection services)
         {
             services.AddScoped<ILogLevelService, LogLevelService>();
             services.AddScoped<ILogActionService, LogActionService>();
-            services.AddScoped<ITransactionLogService, TransactionLogService>();
+            services.AddScoped<ILogService, LogService>();
 
             services.AddAutoMapper(typeof(MappingProfile).Assembly);
         }

@@ -1,12 +1,12 @@
-using RFAuth.Entities;
 using RFService.Entities;
+using RFAuth.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RFTransactionLog.Entities
+namespace RFLoggerProvider.Entities
 {
     [Table("TransactionsLog", Schema = "log")]
-    public class TransactionLog
+    public class Log
         : EntityIdUuid
     {
         [Required]

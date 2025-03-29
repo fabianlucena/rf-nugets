@@ -1,9 +1,9 @@
 ﻿using RFService.Services;
 using RFService.IRepo;
-using RFTransactionLog.Entities;
-using RFTransactionLog.IServices;
+using RFLoggerProvider.Entities;
+using RFLoggerProvider.IServices;
 
-namespace RFTransactionLog.Services
+namespace RFLoggerProvider.Services
 {
     public class LogLevelService(IRepo<LogLevel> repo)
         : ServiceIdUuidName<IRepo<LogLevel>, LogLevel>(repo),

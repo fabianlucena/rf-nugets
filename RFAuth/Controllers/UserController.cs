@@ -9,6 +9,7 @@ using RFService.Repo;
 using RFService.Authorization;
 using RFService.IServices;
 using RFService.Libs;
+using RFLogger.IServices;
 
 namespace RFAuth.Controllers
 {
@@ -19,6 +20,7 @@ namespace RFAuth.Controllers
         IUserService userService,
         IUserTypeService userTypeService,
         IPasswordService passwordService,
+        ILoggerService loggerService,
         IMapper mapper,
         IEventBus eventBus
     ) : ControllerBase
@@ -38,6 +40,8 @@ namespace RFAuth.Controllers
 
             if (uuid != null)
                 options.AddFilter("Uuid", uuid);
+
+            await loggerService.AddInfoGetAsync("Get users", new { uuid });
 
             var userList = await userService.GetListAsync(options);
             var userAttributesList = userList.Select(mapper.Map<User, UserAttributes>);

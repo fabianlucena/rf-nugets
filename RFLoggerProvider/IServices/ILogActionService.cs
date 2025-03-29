@@ -1,7 +1,7 @@
+using RFLoggerProvider.Entities;
 using RFService.IServices;
-using RFTransactionLog.Entities;
 
-namespace RFTransactionLog.IServices
+namespace RFLoggerProvider.IServices
 {
     public interface ILogActionService
         : IService<LogAction>,

@@ -22,7 +22,6 @@ namespace RFRBAC.Authorization
                 return;
             }
 
-            // Obtener el atributo aplicado
             var permissionAttribute = (PermissionAttribute?)Attribute.GetCustomAttribute(
                 controllerActionDescriptor.MethodInfo,
                 typeof(PermissionAttribute)

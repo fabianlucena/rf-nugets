@@ -1,6 +1,6 @@
-﻿namespace RFTransactionLog.DTO
+﻿namespace RFLoggerProvider.DTO
 {
-    public class LogLevelDTO
+    public class LogActionDTO
     {
         public Guid Uuid { get; set; }
 
