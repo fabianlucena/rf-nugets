@@ -15,17 +15,17 @@ namespace RFAuth.Controllers
     ) : ControllerBase
     {
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] LoginRequest data)
+        public async Task<IActionResult> PostAsync([FromBody] LoginRequest request)
         {
-            var dataCopy = new LoginRequest()
+            var data = new LoginRequest()
             {
-                Username = data.Username,
-                Password = "***",
-                DeviceToken = data.DeviceToken
+                Username = request.Username,
+                Password = "****",
+                DeviceToken = request.DeviceToken
             };
-            await loggerService.AddInfoGetAsync("Login", new { dataCopy });
+            await loggerService.AddInfoGetAsync("Login", new { data });
 
-            var loginData = await loginService.LoginAsync(data);
+            var loginData = await loginService.LoginAsync(request);
             loginData.Attributes = await loginService.DecorateItemAsync(
                 loginData,
                 "LoginAttributes",

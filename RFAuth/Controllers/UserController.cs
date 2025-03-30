@@ -69,27 +69,27 @@ namespace RFAuth.Controllers
 
         [HttpPatch("{uuid}")]
         [Permission("user.edit")]
-        public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary data)
+        public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary request)
         {
             logger.LogInformation("Updating user");
 
-            var dataCopy = new DataDictionary(data);
-            if (dataCopy.ContainsKey("password"))
-                dataCopy["password"] = "***";
-            await loggerService.AddInfoEditAsync("Update user", new { uuid, dataCopy });
+            var data = new DataDictionary(request);
+            if (data.ContainsKey("password"))
+                data["password"] = "****";
+            await loggerService.AddInfoEditAsync("Update user", new { uuid, data });
 
-            data = data.GetPascalized();
+            request = request.GetPascalized();
 
             var eventData = new EventData {
-                Data = data,
+                Data = request,
                 Filter = new DataDictionary {
                     { "Uuid", uuid }
                 }
             };
 
             await eventBus.FireAsync("updating", "User", eventData);
-            var result = await userService.UpdateForUuidAsync(data, uuid);
-            await UpdatePassword(data);
+            var result = await userService.UpdateForUuidAsync(request, uuid);
+            await UpdatePassword(request);
             await eventBus.FireAsync("updated", "User", eventData);
 
             if (result <= 0)
@@ -102,20 +102,20 @@ namespace RFAuth.Controllers
 
         [HttpPost]
         [Permission("user.add")]
-        public async Task<IActionResult> PostAsync([FromBody] DataDictionary data)
+        public async Task<IActionResult> PostAsync([FromBody] DataDictionary request)
         {
             logger.LogInformation("Creating user");
 
-            var dataCopy = new DataDictionary(data);
-            if (dataCopy.ContainsKey("password"))
-                dataCopy["password"] = "***";
-            await loggerService.AddInfoAddAsync("Add user", new { dataCopy });
+            var data = new DataDictionary(request);
+            if (data.ContainsKey("password"))
+                data["password"] = "****";
+            await loggerService.AddInfoAddAsync("Add user", new { data });
 
-            data = data.GetPascalized();
-            var eventData = new EventData { Data = data };
+            request = request.GetPascalized();
+            var eventData = new EventData { Data = request };
             await eventBus.FireAsync("creating", "User", eventData);
-            var result = await userService.CreateAsync(data.ToObject<User>());
-            await UpdatePassword(data);
+            var result = await userService.CreateAsync(request.ToObject<User>());
+            await UpdatePassword(request);
             await eventBus.FireAsync("created", "User", eventData);
 
             if (result == null)
