@@ -5,7 +5,7 @@ namespace RFService.Repo
 {
     public class From
     {
-        public string? Type { get; set; }
+        public JoinType? Type { get; set; } = null;
 
         public string? PropertyName { get; set; }
 
@@ -33,7 +33,7 @@ namespace RFService.Repo
         public From(
             string? propertyName = null,
             string? alias = null,
-            string? type = null,
+            JoinType? type = null,
             Type? entity = null,
             Operator? on = null
         )

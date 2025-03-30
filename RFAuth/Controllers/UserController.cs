@@ -73,13 +73,17 @@ namespace RFAuth.Controllers
         {
             logger.LogInformation("Updating user");
 
+            await loggerService.AddInfoEditAsync("Update user", new { uuid, data });
+
             data = data.GetPascalized();
+
             var eventData = new EventData {
                 Data = data,
                 Filter = new DataDictionary {
                     { "Uuid", uuid }
                 }
             };
+
             await eventBus.FireAsync("updating", "User", eventData);
             var result = await userService.UpdateForUuidAsync(data, uuid);
             await UpdatePassword(data);
@@ -98,6 +102,8 @@ namespace RFAuth.Controllers
         public async Task<IActionResult> PostAsync([FromBody] DataDictionary data)
         {
             logger.LogInformation("Creating user");
+
+            await loggerService.AddInfoAddAsync("Add user", new { data });
 
             data = data.GetPascalized();
             var eventData = new EventData { Data = data };
@@ -119,6 +125,8 @@ namespace RFAuth.Controllers
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid uuid)
         {
             logger.LogInformation("Deleting user");
+
+            await loggerService.AddInfoDeleteAsync("Delete user", new { uuid });
 
             var eventData = new EventData
             {
@@ -144,6 +152,8 @@ namespace RFAuth.Controllers
         public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
         {
             logger.LogInformation("Restoring user");
+            
+            await loggerService.AddInfoDeleteAsync("Restore user", new { uuid });
 
             var eventData = new EventData { Filter = new DataDictionary { { "Uuid", uuid } } };
 

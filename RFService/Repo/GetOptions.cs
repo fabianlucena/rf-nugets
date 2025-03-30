@@ -155,7 +155,7 @@ namespace RFService.Repo
         public GetOptions Include(
             string propertyName,
             string? alias = null,
-            string? type = null,
+            JoinType? type = null,
             Operator? on = null
         )
         {

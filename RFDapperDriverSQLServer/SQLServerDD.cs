@@ -265,6 +265,17 @@ namespace RFDapperDriverSQLServer
             return columnDefinition;
         }
 
+        public string GetJoinType(JoinType joinType)
+        {
+            return joinType switch
+            {
+                JoinType.Inner => "INNER JOIN",
+                JoinType.Left => "LEFT OUTER JOIN",
+                JoinType.Right => "RIGHT OUTER JOIN",
+                _ => throw new UnknownJoinTypeException(joinType.ToString()),
+            };
+        }
+
         public string GetSqlOrderBy(string orderBy, GetOptions options)
         {
             orderBy = orderBy.Trim();

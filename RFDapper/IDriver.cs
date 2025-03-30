@@ -29,6 +29,8 @@ namespace RFDapper
 
         string? GetSqlColumnDefinition(PropertyInfo property);
 
+        string GetJoinType(JoinType joinType);
+
         string GetSqlOrderBy(string orderBy, GetOptions options);
 
         IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, GetOptions options);

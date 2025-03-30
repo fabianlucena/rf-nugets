@@ -401,7 +401,7 @@ namespace RFDapper
                         ?? throw new NoEntityForJoinException();
 
                     var joinType = from.Type
-                        ?? (IsForeignColumnNullable(from.PropertyName) ? "LEFT OUTER JOIN" : "INNER JOIN");
+                        ?? (IsForeignColumnNullable(from.PropertyName) ? JoinType.Left : JoinType.Inner);
 
                     if (string.IsNullOrEmpty(from.Alias))
                         from.Alias = options.CreateAlias("t");
@@ -426,7 +426,7 @@ namespace RFDapper
                         sqlColumns.AddRange(GetSelectedColumns(entity, _driver, options, from.Alias));
                     }
 
-                    sqlFrom += $" {joinType} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
+                    sqlFrom += $" {_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
                         + $" ON {sqlQuery.Sql}";
 
                     foreach (var value in sqlQuery.Data)
