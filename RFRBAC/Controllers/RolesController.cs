@@ -8,6 +8,8 @@ using RFRBAC.IServices;
 using RFRBAC.DTO;
 using RFRBAC.Entities;
 using RFService.Libs;
+using RFLogger.Services;
+using RFLogger.IServices;
 
 namespace RFRBAC.Controllers
 {
@@ -16,6 +18,7 @@ namespace RFRBAC.Controllers
     public class RolesController(
         ILogger<RolesController> logger,
         IRoleService roleService,
+        ILoggerService loggerService,
         IMapper mapper
     ) : ControllerBase
     {
@@ -24,6 +27,8 @@ namespace RFRBAC.Controllers
         public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
         {
             logger.LogInformation("Getting roles");
+
+            await loggerService.AddInfoGetAsync("Get roles", new { uuid });
 
             var query = HttpContext.Request.Query.GetPascalized();
             var options = GetOptions.CreateFromQuery(query);

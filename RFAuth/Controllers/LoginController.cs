@@ -2,6 +2,7 @@ using AutoMapper;
 using RFAuth.DTO;
 using RFAuth.IServices;
 using Microsoft.AspNetCore.Mvc;
+using RFLogger.IServices;
 
 namespace RFAuth.Controllers
 {
@@ -9,13 +10,22 @@ namespace RFAuth.Controllers
     [Route("v1/login")]
     public class LoginController(
         ILoginService loginService,
+        ILoggerService loggerService,
         IMapper mapper
     ) : ControllerBase
     {
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] LoginRequest request)
+        public async Task<IActionResult> PostAsync([FromBody] LoginRequest data)
         {
-            var loginData = await loginService.LoginAsync(request);
+            var dataCopy = new LoginRequest()
+            {
+                Username = data.Username,
+                Password = "***",
+                DeviceToken = data.DeviceToken
+            };
+            await loggerService.AddInfoGetAsync("Login", new { dataCopy });
+
+            var loginData = await loginService.LoginAsync(data);
             loginData.Attributes = await loginService.DecorateItemAsync(
                 loginData,
                 "LoginAttributes",

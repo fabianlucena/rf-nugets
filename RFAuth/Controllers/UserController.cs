@@ -31,6 +31,8 @@ namespace RFAuth.Controllers
         {
             logger.LogInformation("Getting users");
 
+            await loggerService.AddInfoGetAsync("Get users", new { uuid });
+
             var options = GetOptions.CreateFromQuery(HttpContext);
             if (!options.HasColumnFilter("TypeId"))
             {
@@ -40,8 +42,6 @@ namespace RFAuth.Controllers
 
             if (uuid != null)
                 options.AddFilter("Uuid", uuid);
-
-            await loggerService.AddInfoGetAsync("Get users", new { uuid });
 
             var userList = await userService.GetListAsync(options);
             var userAttributesList = userList.Select(mapper.Map<User, UserAttributes>);
@@ -73,7 +73,10 @@ namespace RFAuth.Controllers
         {
             logger.LogInformation("Updating user");
 
-            await loggerService.AddInfoEditAsync("Update user", new { uuid, data });
+            var dataCopy = new DataDictionary(data);
+            if (dataCopy.ContainsKey("password"))
+                dataCopy["password"] = "***";
+            await loggerService.AddInfoEditAsync("Update user", new { uuid, dataCopy });
 
             data = data.GetPascalized();
 
@@ -103,7 +106,10 @@ namespace RFAuth.Controllers
         {
             logger.LogInformation("Creating user");
 
-            await loggerService.AddInfoAddAsync("Add user", new { data });
+            var dataCopy = new DataDictionary(data);
+            if (dataCopy.ContainsKey("password"))
+                dataCopy["password"] = "***";
+            await loggerService.AddInfoAddAsync("Add user", new { dataCopy });
 
             data = data.GetPascalized();
             var eventData = new EventData { Data = data };
