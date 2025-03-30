@@ -155,10 +155,11 @@ namespace RFService.Repo
         public GetOptions Include(
             string propertyName,
             string? alias = null,
+            string? type = null,
             Operator? on = null
         )
         {
-            Join.Add(new From(alias: alias, propertyName: propertyName, on: on));
+            Join.Add(new From(propertyName: propertyName, alias: alias, type: type, on: on));
             return this;
         }
     }

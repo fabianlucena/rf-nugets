@@ -41,7 +41,7 @@ namespace RFAuth.Controllers
             if (uuid != null)
                 options.AddFilter("Uuid", uuid);
 
-            _ = loggerService.AddInfoGetAsync("Get users", new { uuid });
+            await loggerService.AddInfoGetAsync("Get users", new { uuid });
 
             var userList = await userService.GetListAsync(options);
             var userAttributesList = userList.Select(mapper.Map<User, UserAttributes>);

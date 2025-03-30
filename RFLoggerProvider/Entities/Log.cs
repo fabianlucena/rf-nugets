@@ -13,15 +13,15 @@ namespace RFLoggerProvider.Entities
         public DateTime LogTimestamp { get; set; } = default;
 
         [ForeignKey("Level")]
-        public long LevelId { get; set; }
+        public Int64? LevelId { get; set; }
         public LogLevel? Level { get; set; }
 
         [ForeignKey("Action")]
-        public long? ActionId { get; set; }
+        public Int64? ActionId { get; set; }
         public LogAction? Action { get; set; }
 
         [ForeignKey("Session")]
-        public long? SessionId { get; set; }
+        public Int64? SessionId { get; set; }
         public Session? Session { get; set; }
 
         [ForeignKey("User")]
