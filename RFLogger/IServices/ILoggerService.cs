@@ -6,10 +6,18 @@ namespace RFLogger.IServices
     {
         void AddProvider(LoggerProvider provider);
 
-        Task<IEnumerable<object>> AddAsync(LLevel level, LAction action, string message, object? data = null);
+        Task<IEnumerable<object?>> AddAsync(LLevel level, LAction action, string message, object? data = null, IDictionary<string, object>? options = null);
 
-        Task<IEnumerable<object>> AddInfoAsync(LAction action, string message, object? data = null);
+        Task<IEnumerable<object?>> AddInfoAsync(LAction action, string message, object? data = null, IDictionary<string, object>? options = null);
 
-        Task<IEnumerable<object>> AddInfoGetAsync(string message, object? data = null);
+        Task<IEnumerable<object?>> AddInfoGetAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+
+        Task<IEnumerable<object?>> AddInfoAddAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+
+        Task<IEnumerable<object?>> AddInfoEditAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+
+        Task<IEnumerable<object?>> AddInfoDeleteAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+
+        Task<IEnumerable<object?>> AddInfoRestoreAsync(string message, object? data = null, IDictionary<string, object>? options = null);
     }
 }

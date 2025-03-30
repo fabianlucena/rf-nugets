@@ -11,19 +11,31 @@ namespace RFLogger.Services
         public void AddProvider(LoggerProvider provider)
             => Providers.Add(provider);
 
-        public async Task<IEnumerable<object>> AddAsync(LLevel level, LAction action, string message, object? data = null)
+        public async Task<IEnumerable<object?>> AddAsync(LLevel level, LAction action, string message, object? data = null, IDictionary<string, object>? options = null)
         {
-            List<object> result = [];
+            List<object?> result = [];
             foreach (var provider in Providers)
-                result.Add(await provider(level, action, message, data));
+                result.Add(await provider(level, action, message, data, options));
 
             return result;
         }
 
-        public Task<IEnumerable<object>> AddInfoAsync(LAction action, string message, object? data = null)
-            => AddAsync(LLevel.INFO, action, message, data);
+        public Task<IEnumerable<object?>> AddInfoAsync(LAction action, string message, object? data = null, IDictionary<string, object>? options = null)
+            => AddAsync(LLevel.INFO, action, message, data, options);
 
-        public Task<IEnumerable<object>> AddInfoGetAsync(string message, object? data = null)
-            => AddInfoAsync(LAction.GET, message, data);
+        public Task<IEnumerable<object?>> AddInfoGetAsync(string message, object? data = null, IDictionary<string, object>? options = null)
+            => AddInfoAsync(LAction.GET, message, data, options);
+
+        public Task<IEnumerable<object?>> AddInfoAddAsync(string message, object? data = null, IDictionary<string, object>? options = null)
+            => AddInfoAsync(LAction.ADD, message, data, options);
+
+        public Task<IEnumerable<object?>> AddInfoEditAsync(string message, object? data = null, IDictionary<string, object>? options = null)
+            => AddInfoAsync(LAction.EDIT, message, data, options);
+
+        public Task<IEnumerable<object?>> AddInfoDeleteAsync(string message, object? data = null, IDictionary<string, object>? options = null)
+            => AddInfoAsync(LAction.DELETE, message, data, options);
+
+        public Task<IEnumerable<object?>> AddInfoRestoreAsync(string message, object? data = null, IDictionary<string, object>? options = null)
+            => AddInfoAsync(LAction.RESTORE, message, data, options);
     }
 }
