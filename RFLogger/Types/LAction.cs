@@ -7,5 +7,6 @@
         EDIT,
         DELETE,
         RESTORE,
+        NONE,
     }
 }

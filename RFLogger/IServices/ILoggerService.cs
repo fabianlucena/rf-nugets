@@ -19,5 +19,9 @@ namespace RFLogger.IServices
         Task<IEnumerable<object?>> AddInfoDeleteAsync(string message, object? data = null, IDictionary<string, object>? options = null);
 
         Task<IEnumerable<object?>> AddInfoRestoreAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+
+        Task<IEnumerable<object?>> AddErrorAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+
+        Task<IEnumerable<object?>> AddExceptionAsync(string message, object? data = null, IDictionary<string, object>? options = null);
     }
 }
