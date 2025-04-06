@@ -4,6 +4,12 @@
     {
         void AddTranslator(IL10nTranslator translator);
 
-        Task<string> _(string key, params string[] args);
+        void AddTranslation(string language, string context, string text, string translation);
+
+        Task<string> _(string text, params string[] args);
+
+#pragma warning disable IDE1006 // Naming Styles
+        Task<string> _c(string context, string text, params string[] args);
+#pragma warning restore IDE1006 // Naming Styles
     }
 }
