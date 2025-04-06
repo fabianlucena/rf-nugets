@@ -1,20 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RFLocalizer.IServices;
+using RFL10n;
 
 namespace RFAuth_es
 {
     public static class Setup
     {
         public static void ConfigureDataRFAuthEs(IServiceProvider provider)
-            => ConfigureDataRFAuthEsAsync(provider).Wait();
-
-        public static async Task ConfigureDataRFAuthEsAsync(IServiceProvider provider)
         {
-            var addTranslationService = provider.GetService<IAddTranslationService>();
-            if (addTranslationService != null)
-            {
-                await addTranslationService.AddAsync("es", "exception", "Unknown username.", "Nombre de usuario desconocido.");
-            }
+            var l10n = provider.GetRequiredService<IL10n>();
+            l10n.AddTranslation("es", "exception", "Unknown username.", "Nombre de usuario desconocido.");
         }
     }
 }

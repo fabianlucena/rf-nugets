@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RFAuth\RFAuth.csproj" />
+    <ProjectReference Include="..\RFL10n\RFL10n.csproj" />
   </ItemGroup>
 
 </Project>
