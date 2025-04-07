@@ -7,6 +7,7 @@ namespace RFL10n
         : IL10n
     {
         static private readonly List<IL10nTranslator> Translators = [];
+        static private readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> Cache = [];
         static private readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> Translations = [];
 
         private readonly string[] Languages = [
@@ -36,6 +37,23 @@ namespace RFL10n
 
         public void AddTranslator(IL10nTranslator translator)
             => Translators.Add(translator);
+
+        public static void AddToCache(string language, string context, string text, string translation)
+        {
+            if (!Cache.TryGetValue(language, out var tables))
+            {
+                tables = [];
+                Cache[language] = tables;
+            }
+
+            if (!tables.TryGetValue(context, out var table))
+            {
+                table = [];
+                tables[context] = table;
+            }
+
+            table[text] = translation;
+        }
 
         public void AddTranslation(string language, string context, string text, string translation)
         {
@@ -71,7 +89,7 @@ namespace RFL10n
         {
             foreach (var language in Languages)
             {
-                if (Translations.TryGetValue(language, out var tables)
+                if (Cache.TryGetValue(language, out var tables)
                     && tables.TryGetValue(context, out var table)
                     && table.TryGetValue(text, out var translation))
                 {
@@ -83,9 +101,16 @@ namespace RFL10n
                     var result = await translator.GetTranslationAsync(provider, text, language, context);
                     if (result != null)
                     {
-                        AddTranslation(language, context, text, result);
+                        AddToCache(language, context, text, result);
                         return result;
                     }
+                }
+
+                if (Translations.TryGetValue(language, out tables)
+                    && tables.TryGetValue(context, out table)
+                    && table.TryGetValue(text, out translation))
+                {
+                    return translation;
                 }
             }
 
