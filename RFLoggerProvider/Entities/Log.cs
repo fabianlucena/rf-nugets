@@ -16,6 +16,10 @@ namespace RFLoggerProvider.Entities
         public Int64? LevelId { get; set; }
         public LogLevel? Level { get; set; }
 
+        [ForeignKey("Module")]
+        public Int64? ModuleId { get; set; }
+        public LogModule? Module { get; set; }
+
         [ForeignKey("Action")]
         public Int64? ActionId { get; set; }
         public LogAction? Action { get; set; }

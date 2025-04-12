@@ -8,6 +8,7 @@ namespace RFAuth
     {
         public static void AddRFAuth(this IServiceCollection services)
         {
+            services.AddScoped<IRFAuthLoggerService, RFAuthLoggerService>();
             services.AddScoped<IUserTypeService, UserTypeService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPasswordService, PasswordService>();

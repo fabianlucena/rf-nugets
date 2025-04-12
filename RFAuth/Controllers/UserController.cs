@@ -9,7 +9,6 @@ using RFService.Repo;
 using RFService.Authorization;
 using RFService.IServices;
 using RFService.Libs;
-using RFLogger.IServices;
 
 namespace RFAuth.Controllers
 {
@@ -20,7 +19,7 @@ namespace RFAuth.Controllers
         IUserService userService,
         IUserTypeService userTypeService,
         IPasswordService passwordService,
-        ILoggerService loggerService,
+        IRFAuthLoggerService loggerService,
         IMapper mapper,
         IEventBus eventBus
     ) : ControllerBase

@@ -3,7 +3,7 @@
 namespace RFAuth.Exceptions
 {
     public class BadCurrentPasswordException()
-        : HttpException(401, "Bad current password")
+        : HttpException(401, "Bad current password.")
     {
     }
 }

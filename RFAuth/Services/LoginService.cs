@@ -3,7 +3,6 @@ using RFAuth.Exceptions;
 using RFAuth.IServices;
 using RFHttpExceptions.Exceptions;
 using RFService.IServices;
-using System.Globalization;
 
 namespace RFAuth.Services
 {

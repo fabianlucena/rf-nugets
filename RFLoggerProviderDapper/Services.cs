@@ -10,10 +10,12 @@ namespace RFLoggerProviderDapper
         public static void AddRFLoggerProviderDapper(this IServiceCollection services)
         {
             services.AddScoped<Dapper<LogLevel>, Dapper<LogLevel>>();
+            services.AddScoped<Dapper<LogModule>, Dapper<LogModule>>();
             services.AddScoped<Dapper<LogAction>, Dapper<LogAction>>();
             services.AddScoped<Dapper<Log>, Dapper<Log>>();
 
             services.AddScoped<IRepo<LogLevel>, Dapper<LogLevel>>();
+            services.AddScoped<IRepo<LogModule>, Dapper<LogModule>>();
             services.AddScoped<IRepo<LogAction>, Dapper<LogAction>>();
             services.AddScoped<IRepo<Log>, Dapper<Log>>();
         }

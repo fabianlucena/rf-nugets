@@ -3,7 +3,7 @@
 namespace RFAuth.Exceptions
 {
     public class UnknownDeviceException()
-        : HttpException(401)
+        : HttpException(401, "Unknown device.")
     {
     }
 }

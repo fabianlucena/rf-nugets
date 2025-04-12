@@ -1,5 +1,7 @@
 ﻿using System.Globalization;
 using static System.Net.Mime.MediaTypeNames;
+using System.Transactions;
+using System.Xml.Linq;
 
 namespace RFL10n
 {
@@ -70,6 +72,40 @@ namespace RFL10n
             }
 
             table[text] = translation;
+        }
+
+        public void AddTranslationsFromFile(string language, string context, string filename)
+        {
+            try
+            {
+                string translations = File.ReadAllText(filename).Trim();
+                if (string.IsNullOrEmpty(translations))
+                    throw new Exception($"The file {filename} dos not have translations.");
+
+                if (!Translations.TryGetValue(language, out var tables))
+                {
+                    tables = [];
+                    Translations[language] = tables;
+                }
+
+                if (!tables.TryGetValue(context, out var table))
+                {
+                    table = [];
+                    tables[context] = table;
+                }
+
+                string[] lines = translations.Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < lines.Length; i += 2)
+                {
+                    string clave = lines[i].Trim();
+                    string valor = lines[i + 1].Trim();
+                    table[clave] = valor;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+            }
         }
 
         public async Task<string> _(string text, params string[] args)

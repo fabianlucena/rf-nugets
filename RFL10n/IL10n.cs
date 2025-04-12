@@ -6,6 +6,8 @@
 
         void AddTranslation(string language, string context, string text, string translation);
 
+        void AddTranslationsFromFile(string language, string context, string filename);
+
         Task<string> _(string text, params string[] args);
 
 #pragma warning disable IDE1006 // Naming Styles

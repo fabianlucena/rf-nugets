@@ -12,4 +12,10 @@
     <ProjectReference Include="..\RFL10n\RFL10n.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="rfauth_es.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

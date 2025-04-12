@@ -2,7 +2,6 @@ using RFAuth.IServices;
 using Microsoft.AspNetCore.Mvc;
 using RFAuth.Exceptions;
 using Microsoft.AspNetCore.Http;
-using RFLogger.IServices;
 
 namespace RFAuth.Controllers
 {
@@ -10,7 +9,7 @@ namespace RFAuth.Controllers
     [Route("v1/logout")]
     public class LogoutController(
         ISessionService sessionService,
-        ILoggerService loggerService
+        IRFAuthLoggerService loggerService
     ) : ControllerBase
     {
         [HttpPost]

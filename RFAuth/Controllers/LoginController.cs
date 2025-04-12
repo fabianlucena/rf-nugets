@@ -2,7 +2,6 @@ using AutoMapper;
 using RFAuth.DTO;
 using RFAuth.IServices;
 using Microsoft.AspNetCore.Mvc;
-using RFLogger.IServices;
 
 namespace RFAuth.Controllers
 {
@@ -10,7 +9,7 @@ namespace RFAuth.Controllers
     [Route("v1/login")]
     public class LoginController(
         ILoginService loginService,
-        ILoggerService loggerService,
+        IRFAuthLoggerService loggerService,
         IMapper mapper
     ) : ControllerBase
     {

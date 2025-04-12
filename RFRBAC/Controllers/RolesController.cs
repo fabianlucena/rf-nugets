@@ -8,8 +8,6 @@ using RFRBAC.IServices;
 using RFRBAC.DTO;
 using RFRBAC.Entities;
 using RFService.Libs;
-using RFLogger.Services;
-using RFLogger.IServices;
 
 namespace RFRBAC.Controllers
 {
@@ -18,7 +16,7 @@ namespace RFRBAC.Controllers
     public class RolesController(
         ILogger<RolesController> logger,
         IRoleService roleService,
-        ILoggerService loggerService,
+        IRFRBACLoggerService loggerService,
         IMapper mapper
     ) : ControllerBase
     {

@@ -8,7 +8,7 @@ namespace RFAuth_es
         public static void ConfigureDataRFAuthEs(IServiceProvider provider)
         {
             var l10n = provider.GetRequiredService<IL10n>();
-            l10n.AddTranslation("es", "exception", "Unknown username.", "Nombre de usuario desconocido.");
+            l10n.AddTranslationsFromFile("es", "", "translations.txt");
         }
     }
 }

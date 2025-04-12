@@ -6,22 +6,22 @@ namespace RFLogger.IServices
     {
         void AddProvider(LoggerProvider provider);
 
-        Task<IEnumerable<object?>> AddAsync(LLevel level, LAction action, string message, object? data = null, IDictionary<string, object>? options = null);
+        Task<IEnumerable<object?>> AddAsync(LLevel level, string module, LAction action, string message, object? data = null, IDictionary<string, object>? options = null);
 
-        Task<IEnumerable<object?>> AddInfoAsync(LAction action, string message, object? data = null, IDictionary<string, object>? options = null);
+        Task<IEnumerable<object?>> AddInfoAsync(string module, LAction action, string message, object? data = null, IDictionary<string, object>? options = null);
 
-        Task<IEnumerable<object?>> AddInfoGetAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+        Task<IEnumerable<object?>> AddInfoGetAsync(string module, string message, object? data = null, IDictionary<string, object>? options = null);
 
-        Task<IEnumerable<object?>> AddInfoAddAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+        Task<IEnumerable<object?>> AddInfoAddAsync(string module, string message, object? data = null, IDictionary<string, object>? options = null);
 
-        Task<IEnumerable<object?>> AddInfoEditAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+        Task<IEnumerable<object?>> AddInfoEditAsync(string module, string message, object? data = null, IDictionary<string, object>? options = null);
 
-        Task<IEnumerable<object?>> AddInfoDeleteAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+        Task<IEnumerable<object?>> AddInfoDeleteAsync(string module, string message, object? data = null, IDictionary<string, object>? options = null);
 
-        Task<IEnumerable<object?>> AddInfoRestoreAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+        Task<IEnumerable<object?>> AddInfoRestoreAsync(string module, string message, object? data = null, IDictionary<string, object>? options = null);
 
-        Task<IEnumerable<object?>> AddErrorAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+        Task<IEnumerable<object?>> AddErrorAsync(string module, string message, object? data = null, IDictionary<string, object>? options = null);
 
-        Task<IEnumerable<object?>> AddExceptionAsync(string message, object? data = null, IDictionary<string, object>? options = null);
+        Task<IEnumerable<object?>> AddExceptionAsync(string module, string message, object? data = null, IDictionary<string, object>? options = null);
     }
 }

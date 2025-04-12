@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFAuth.IServices;
+using RFAuth.Services;
 using RFRBAC.IServices;
 using RFRBAC.Services;
 
@@ -10,6 +11,7 @@ namespace RFRBAC
         public static void AddRFRBAC(this IServiceCollection services)
         {
             services.AddHttpContextAccessor();
+            services.AddScoped<IRFRBACLoggerService, RFRBACLoggerService>();
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IRoleParentService, RoleParentService>();

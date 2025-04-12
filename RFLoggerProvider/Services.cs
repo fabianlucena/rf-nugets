@@ -9,6 +9,7 @@ namespace RFLoggerProvider
         public static void AddRFLoggerProvider(this IServiceCollection services)
         {
             services.AddScoped<ILogLevelService, LogLevelService>();
+            services.AddScoped<ILogModuleService, LogModuleService>();
             services.AddScoped<ILogActionService, LogActionService>();
             services.AddScoped<ILogService, LogService>();
 

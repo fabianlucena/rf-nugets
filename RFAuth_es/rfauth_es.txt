@@ -1,0 +1,53 @@
+﻿Add user
+Agregar usuario
+
+Autologin
+Autologin
+
+Bad authorization scheme.
+Esquema de autorización incorrecto.
+
+Bad current password.
+Contraseña actual incorrecta.
+
+Bad password.
+Contraseña incorrecta.
+
+Change password
+Cambiar contraseña
+
+Check login
+Verificar ingreso
+
+Delete user
+Eliminar usuario
+
+Get users
+Obteneer usuarios
+
+Login
+Ingresar
+
+Logout
+Salir
+
+No authorization header.
+No hay cabecera de autorización.
+
+No session user data.
+No hay datos de usuario en la sesión.
+
+Restore user
+Restarurar usuario
+
+Session closed.
+Sesión cerrada.
+
+Unknown device
+Dispositivo desconocido.
+
+Unknown username.
+Nombre de usuario desconocido.
+
+Update user
+Actualizar usuarios

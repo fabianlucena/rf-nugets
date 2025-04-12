@@ -5,7 +5,6 @@ using RFAuth.Exceptions;
 using Microsoft.AspNetCore.Http;
 using RFService.Authorization;
 using RFService.Libs;
-using RFLogger.IServices;
 
 namespace RFAuth.Controllers
 {
@@ -13,7 +12,7 @@ namespace RFAuth.Controllers
     [Route("v1/change-password")]
     public class ChangePasswordController(
         IPasswordService passwordService,
-        ILoggerService loggerService
+        IRFAuthLoggerService loggerService
     ) : ControllerBase
     {
         [HttpPost]

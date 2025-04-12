@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using RFAuth.Exceptions;
-using RFLogger.IServices;
+using RFAuth.IServices;
 
 namespace RFAuth.Controllers
 {
     [ApiController]
     [Route("v1/login-check")]
     public class LoginCheckController(
-        ILoggerService loggerService
+        IRFAuthLoggerService loggerService
     ) : ControllerBase
     {
         [HttpPost]

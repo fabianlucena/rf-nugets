@@ -12,7 +12,8 @@ namespace RFAuth
         public static async Task ConfigureDataRFAuthAsync(IServiceProvider provider)
         {
             var userTypeService = provider.GetService<IUserTypeService>() ??
-                throw new Exception("Can't get IUserTypeService");
+                throw new Exception("Can't get IUserTypeService.");
+
             var userType = await userTypeService.GetOrCreateAsync(new UserType
                 {
                     Name = "user",
@@ -21,7 +22,8 @@ namespace RFAuth
                 });
 
             var userService = provider.GetService<IUserService>() ??
-                throw new Exception("Can't get IUserService");
+                throw new Exception("Can't get IUserService.");
+
             var user = await userService.GetOrCreateAsync(new User
                 {
                     TypeId = userType.Id,
@@ -30,7 +32,8 @@ namespace RFAuth
                 });
 
             var passwordService = provider.GetService<IPasswordService>() ??
-                throw new Exception("Can't get IPasswordService");
+                throw new Exception("Can't get IPasswordService.");
+
             await passwordService.CreateIfNotExistsAsync(new Password
             {
                 UserId = user.Id,
