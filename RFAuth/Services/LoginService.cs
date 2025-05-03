@@ -26,13 +26,15 @@ namespace RFAuth.Services
             if (string.IsNullOrWhiteSpace(request.Password))
                 throw new HttpArgumentNullOrEmptyException(nameof(request.Password));
 
+            Thread.Sleep(1000);
+
             var user = await userService.GetSingleOrDefaultForUsernameAsync(request.Username.Trim())
-                ?? throw new UnknownUsernameException();
+                ?? throw new InvalidCredentialsException();
 
             var password = await passwordService.GetSingleForUserAsync(user);
             var check = passwordService.Verify(request.Password.Trim(), password);
             if (!check)
-                throw new BadPasswordException();
+                throw new InvalidCredentialsException();
 
             var device = await deviceService.GetSingleForTokenOrCreateAsync(request.DeviceToken);
             var session = await sessionService.CreateForUserAndDeviceAsync(user, device);
