@@ -2,15 +2,15 @@
 
 namespace RFHttpExceptions.Exceptions
 {
-    public class HttpException(int statusCode, string? FormatMessage = null, params string[] ParamsList)
+    public class HttpException(int statusCode, string FormatMessage = "", params string[] ParamsList)
         : Exception(), IHttpException
     {
         public int StatusCode { get => statusCode; }
-        override public string? Message { get => GetMessage(); }
+        override public string Message { get => GetMessage(); }
 
-        public string? GetMessage()
+        public string GetMessage()
         {
-            if (FormatMessage == null || ParamsList.Length == 0)
+            if (FormatMessage == "" || ParamsList.Length == 0)
                 return FormatMessage;
             else
             {
