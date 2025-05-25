@@ -14,7 +14,7 @@ namespace RFService.Repo
 
         public Operator? On { get; set; }
 
-        public List<From> Join { get; set; } = [];
+        public FromList Join { get; set; } = [];
 
         public From(From? from)
         {
