@@ -1,5 +1,4 @@
 ﻿using RFOperators;
-using RFService.Entities;
 
 namespace RFService.Repo
 {
@@ -28,6 +27,18 @@ namespace RFService.Repo
                 On = from.On;
                 Join = from.Join;
             }
+        }
+
+        public From(
+            Type entity,
+            string? propertyName = null
+        )
+        {
+            Type = null;
+            PropertyName = propertyName;
+            Entity = entity;
+            Alias = null;
+            On = null;
         }
 
         public From(
