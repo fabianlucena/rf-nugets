@@ -43,9 +43,14 @@ namespace RFHttpExceptionsL10n.Middlewares
             var message = exception.Message;
             if (!string.IsNullOrEmpty(message))
             {
-                var l10n = provider.GetService<IL10n>();
-                if (l10n != null)
-                    message = await l10n._("exception", exception.Message);
+                try
+                {
+                    using var scope = provider.CreateScope();
+                    var l10n = scope.ServiceProvider.GetService<IL10n>();
+                    if (l10n != null)
+                        message = await l10n._c("exception", exception.Message);
+                }
+                catch { }
             }
 
             var result = new
