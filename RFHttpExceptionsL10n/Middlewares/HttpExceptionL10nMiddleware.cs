@@ -1,18 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RFHttpExceptions.IExceptions;
-using RFLocalizer.IServices;
+using RFL10n;
 
-namespace RFHttpExceptionsLocale.Middlewares
+namespace RFHttpExceptionsL10n.Middlewares
 {
-    public class HttpExceptionLocaleMiddleware(
+    public class HttpExceptionL10nMiddleware(
         RequestDelegate next,
-        ILogger<HttpExceptionLocaleMiddleware> logger
+        ILogger<HttpExceptionL10nMiddleware> logger,
+        IServiceProvider provider
     )
     {
         public async Task InvokeAsync(
-            HttpContext context,
-            ILocalizerFactoryService localizerFactoryService
+            HttpContext context
         )
         {
             try
@@ -21,14 +22,13 @@ namespace RFHttpExceptionsLocale.Middlewares
             }
             catch (Exception exception)
             {
-                await HandleExceptionAsync(context, exception, localizerFactoryService);
+                await HandleExceptionAsync(context, exception);
             }
         }
 
         private async Task HandleExceptionAsync(
             HttpContext context,
-            Exception exception,
-            ILocalizerFactoryService localizerFactoryService
+            Exception exception
         )
         {
             logger.LogError(exception, "An unexpected error occurred.");
@@ -40,15 +40,18 @@ namespace RFHttpExceptionsLocale.Middlewares
             else
                 context.Response.StatusCode = 500;
 
-            var localizer = localizerFactoryService.GetLocalizerForAcceptLanguage(
-                context.Request.Headers.AcceptLanguage,
-                "exception"
-            );
+            var message = exception.Message;
+            if (!string.IsNullOrEmpty(message))
+            {
+                var l10n = provider.GetService<IL10n>();
+                if (l10n != null)
+                    message = await l10n._("exception", exception.Message);
+            }
 
             var result = new
             {
                 Error = exception.GetType().Name,
-                Message = localizer[exception.Message],
+                Message = message,
             };
 
             await context.Response.WriteAsJsonAsync(result);

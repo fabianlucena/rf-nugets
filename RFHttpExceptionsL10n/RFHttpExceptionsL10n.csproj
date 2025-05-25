@@ -7,12 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\RFL10n\RFL10n.csproj" />
     <ProjectReference Include="..\RFHttpExceptions\RFHttpExceptions.csproj" />
-    <ProjectReference Include="..\RFLocalizer\RFLocalizer.csproj" />
   </ItemGroup>
 
 </Project>
