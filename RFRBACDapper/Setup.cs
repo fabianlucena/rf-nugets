@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFDapper;
-using RFRBAC.DTO;
 using RFRBAC.Entities;
 
 namespace RFRBACDapper
