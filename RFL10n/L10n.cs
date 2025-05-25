@@ -108,6 +108,24 @@ namespace RFL10n
             }
         }
 
+        public void AddTranslationsFromPath(string path)
+        {
+            if (!Directory.Exists(path))
+                throw new DirectoryNotFoundException($"The directory {path} does not exist.");
+
+            foreach (var file in Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories))
+            {
+                var filename = Path.GetFileNameWithoutExtension(file);
+                var parts = filename.Split('_');
+                if (parts.Length == 2)
+                {
+                    var language = parts[0];
+                    var context = parts[1];
+                    AddTranslationsFromFile(language, context, file);
+                }
+            }
+        }
+
         public async Task<string> _(string text, params string[] args)
         {
             var translation = (await GetTranslation(text)) ?? text;
