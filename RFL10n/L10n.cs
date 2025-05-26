@@ -1,7 +1,4 @@
 ﻿using System.Globalization;
-using static System.Net.Mime.MediaTypeNames;
-using System.Transactions;
-using System.Xml.Linq;
 
 namespace RFL10n
 {
