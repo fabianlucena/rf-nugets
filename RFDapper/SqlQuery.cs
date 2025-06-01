@@ -10,6 +10,8 @@ namespace RFDapper
 
         public bool IsNull = false;
 
+        public int Precedence = 0;
+
         public SqlQuery() { }
     }
 }

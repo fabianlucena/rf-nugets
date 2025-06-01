@@ -199,68 +199,100 @@ namespace RFDapper
             string paramName
         )
         {
+            var sqlQuery = new SqlQuery { Precedence = op.Precedence };
+
             if (op is Column col)
-                return new SqlQuery { Sql = _driver.GetColumnName(col.Name, options) };
+            {
+                sqlQuery.Sql = _driver.GetColumnName(col.Name, options);
+                return sqlQuery;
+            }
 
             if (op is Value val)
             {
                 if (val.Data == null)
-                    return new SqlQuery { IsNull = true };
+                {
+                    sqlQuery.IsNull = true;
+                    return sqlQuery;
+                }
 
-                return _driver.GetValue(val.Data, options, usedNames, paramName);
+                sqlQuery = _driver.GetValue(val.Data, options, usedNames, paramName);
+                sqlQuery.Precedence = op.Precedence;
+                return sqlQuery;
             }
 
             if (op is Unary uop)
             {
-                var sqlQuery = GetOperation(uop.Op, options, usedNames, paramName);
+                var innerSqlQuery = GetOperation(uop.Op, options, usedNames, paramName);
+                var sql = innerSqlQuery.Sql;
+                if (innerSqlQuery.Precedence > sqlQuery.Precedence)
+                    sql = $"({sql})";
+
                 sqlQuery.Sql = op switch
                 {
-                    IsNull => $"({sqlQuery.Sql}) IS NULL",
-                    IsNotNull => $"({sqlQuery.Sql}) IS NOT NULL",
-                    Not => $"NOT ({sqlQuery.Sql})",
-                    MakeValid => $"({sqlQuery.Sql}).MakeValid()",
+                    IsNull => $"{sql} IS NULL",
+                    IsNotNull => $"{sql} IS NOT NULL",
+                    Not => $"NOT {sql}",
+                    MakeValid => $"{sql}.MakeValid()",
                     _ => throw new UnknownUnaryOperatorException(op.GetType().Name),
                 };
+
+                foreach (var kv in innerSqlQuery.Data)
+                    sqlQuery.Data[kv.Key] = kv.Value;
+
                 return sqlQuery;
             }
 
             if (op is Binary bop)
             {
                 var sqlQuery1 = GetOperation(bop.Op1, options, usedNames, paramName);
+                var sql1 = sqlQuery1.Sql;
+                if (sqlQuery1.Precedence > sqlQuery.Precedence)
+                    sql1 = $"({sql1})";
+
                 var sqlQuery2 = GetOperation(bop.Op2, options, usedNames, paramName);
+                var sql2 = sqlQuery2.Sql;
+                if (sqlQuery2.Precedence > sqlQuery.Precedence)
+                    sql2 = $"({sql2})";
 
-                foreach (var kv in sqlQuery2.Data)
-                    sqlQuery1.Data[kv.Key] = kv.Value;
-
-                sqlQuery1.Sql = op switch
+                sqlQuery.Sql = op switch
                 {
-                    Eq => sqlQuery2.IsNull?
-                        $"({sqlQuery1.Sql}) IS NULL":
-                        $"({sqlQuery1.Sql}) = ({sqlQuery2.Sql})",
+                    Eq => sqlQuery2.IsNull ?
+                        $"{sql1} IS NULL" :
+                        $"{sql1} = {sql2}",
                     NE => sqlQuery2.IsNull ?
-                        $"({sqlQuery1.Sql}) IS NOT NULL" :
-                        $"({sqlQuery1.Sql}) <> ({sqlQuery2.Sql})",
-                    In => $"({sqlQuery1.Sql}) IN {sqlQuery2.Sql}",
-                    NotIn => $"({sqlQuery1.Sql}) NOT IN {sqlQuery2.Sql}",
-                    ST_Intersects => $"{sqlQuery1.Sql}.STIntersects({sqlQuery2.Sql}) = 1",
-                    ST_Contains => $"{sqlQuery1.Sql}.STContains({sqlQuery2.Sql}) = 1",
-                    Like => $"({sqlQuery1.Sql}) LIKE ({sqlQuery2.Sql})",
-                    NotLike => $"({sqlQuery1.Sql}) NOT LIKE ({sqlQuery2.Sql})",
-                    GE => $"({sqlQuery1.Sql}) >= ({sqlQuery2.Sql})",
-                    Add => $"({sqlQuery1.Sql}) + ({sqlQuery2.Sql})",
+                        $"{sql1} IS NOT NULL" :
+                        $"{sql1} <> {sql2}",
+                    In => $"{sql1} IN {sql2}",
+                    NotIn => $"{sql1} NOT IN {sql2}",
+                    ST_Intersects => GetSTIntersectsQuery(sqlQuery1, sqlQuery2),
+                    ST_Contains => GetSTContainsQuery(sqlQuery1, sqlQuery2),
+                    Like => $"{sql1} LIKE {sql2}",
+                    NotLike => $"{sql1} NOT LIKE {sql2}",
+                    GE => $"{sql1} >= {sql2}",
+                    Add => $"{sql1} + {sql2}",
                     _ => throw new UnknownBinaryOperatorException(op.GetType().Name),
                 };
-                return sqlQuery1;
+
+                foreach (var kv in sqlQuery1.Data)
+                    sqlQuery.Data[kv.Key] = kv.Value;
+
+                foreach (var kv in sqlQuery2.Data)
+                    sqlQuery.Data[kv.Key] = kv.Value;
+
+                return sqlQuery;
             }
 
             if (op is NAry nop)
             {
-                SqlQuery sqlQuery = new();
                 List<string> sqls = [];
 
                 foreach (var iop in nop.Ops)
                 {
                     var newSqlQuery = GetOperation(iop, options, usedNames, paramName);
+                    var newSql = newSqlQuery.Sql;
+                    if (newSqlQuery.Precedence > sqlQuery.Precedence)
+                        newSql = $"({newSql})";
+
                     sqls.Add(newSqlQuery.Sql);
                     foreach (var kv in newSqlQuery.Data)
                         sqlQuery.Data[kv.Key] = kv.Value;
@@ -268,14 +300,35 @@ namespace RFDapper
 
                 sqlQuery.Sql = op switch
                 {
-                    And => "(" + string.Join(") AND (", sqls) + ")",
-                    Or => "(" + string.Join(") OR (", sqls) + ")",
+                    And => string.Join(" AND ", sqls),
+                    Or => string.Join(" OR ", sqls),
                     _ => throw new UnknownNAryOperatorException(op.GetType().Name),
                 };
+
                 return sqlQuery;
             }
 
             throw new UnknownOperationException(op.GetType().Name);
+        }
+
+        private readonly Access AccessOperator = new(new Value(null), new Value(null));
+
+        public string GetSTIntersectsQuery(SqlQuery sqlQuery1, SqlQuery sqlQuery2)
+        {
+            var sql1 = sqlQuery1.Sql;
+            if (sqlQuery1.Precedence > AccessOperator.Precedence)
+                sql1 = $"({sql1})";
+
+            return $"{sql1}.STIntersects({sqlQuery2.Sql}) = 1";
+        }
+
+        public string GetSTContainsQuery(SqlQuery sqlQuery1, SqlQuery sqlQuery2)
+        {
+            var sql1 = sqlQuery1.Sql;
+            if (sqlQuery1.Precedence > AccessOperator.Precedence)
+                sql1 = $"({sql1})";
+
+            return $"{sql1}.STContains({sqlQuery2.Sql}) = 1";
         }
 
         public SqlQuery GetFilterQuery(
@@ -713,7 +766,6 @@ namespace RFDapper
             }
         }
 
-
         public async Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options)
         {
             options = new GetOptions(options) { Top = 2 };
@@ -957,7 +1009,7 @@ namespace RFDapper
             {
                 return await connection.QueryAsync<TEntity, TIncluded1, TEntity>(
                     sqlQuery.Sql,
-                    (TEntity row, TIncluded1 included) =>
+                    (row, included) =>
                     {
                         if (IsValidObject(included))
                             pIncluded1.SetValue(row, included);
@@ -994,7 +1046,7 @@ namespace RFDapper
             {
                 return await connection.QueryAsync<TEntity, TIncluded1, TIncluded2, TEntity>(
                     sqlQuery.Sql,
-                    (TEntity row, TIncluded1 included1, TIncluded2 included2) =>
+                    (row, included1, included2) =>
                     {
                         if (IsValidObject(included1))
                             pIncluded1.SetValue(row, included1);
@@ -1037,7 +1089,7 @@ namespace RFDapper
             {
                 return await connection.QueryAsync<TEntity, TIncluded1, TIncluded2, TIncluded3, TEntity>(
                     sqlQuery.Sql,
-                    (TEntity row, TIncluded1 included1, TIncluded2 included2, TIncluded3 included3) =>
+                    (row, included1, included2, included3) =>
                     {
                         if (IsValidObject(included1))
                             pIncluded1.SetValue(row, included1);
@@ -1086,7 +1138,7 @@ namespace RFDapper
             {
                 return await connection.QueryAsync<TEntity, TIncluded1, TIncluded2, TIncluded3, TIncluded4, TEntity>(
                     sqlQuery.Sql,
-                    (TEntity row, TIncluded1 included1, TIncluded2 included2, TIncluded3 included3, TIncluded4 included4) =>
+                    (row, included1, included2, included3, included4) =>
                     {
                         if (IsValidObject(included1))
                             pIncluded1.SetValue(row, included1);
@@ -1141,7 +1193,7 @@ namespace RFDapper
             {
                 return await connection.QueryAsync<TEntity, TIncluded1, TIncluded2, TIncluded3, TIncluded4, TIncluded5, TEntity>(
                     sqlQuery.Sql,
-                    (TEntity row, TIncluded1 included1, TIncluded2 included2, TIncluded3 included3, TIncluded4 included4, TIncluded5 included5) =>
+                    (row, included1, included2, included3, included4, included5) =>
                     {
                         if (IsValidObject(included1))
                             pIncluded1.SetValue(row, included1);
