@@ -3,6 +3,8 @@
     public class MakeValid
         : Unary
     {
+        public override int Precedence { get; } = 0;
+
         public MakeValid(Column column)
             : base(column)
         {

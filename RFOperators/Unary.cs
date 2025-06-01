@@ -1,6 +1,6 @@
 ﻿namespace RFOperators
 {
-    public class Unary
+    public abstract class Unary
         : Operator
     {
         public Operator Op { get; }

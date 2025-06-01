@@ -5,6 +5,8 @@ namespace RFOperators
     public class ST_Contains
         : Binary
     {
+        public override int Precedence { get; } = 100;
+
         public ST_Contains(Operator value1, Operator value2)
             : base(value1, value2)
         {

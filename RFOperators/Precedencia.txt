@@ -1,0 +1,27 @@
+﻿ 1  ()
+ 2	INTERVAL
+ 3	BINARY, COLLATE
+ 4	(int)++, (int)--, [], ., ->, (type){list}
+ 5	++(int), --(int)
+ 6	Unary: +, -, !, ~, (type), * (indirection), & (address), siseof, _Alignof
+ 7  conversión
+ 8	Concatenation
+ 9	^ (power)
+10  *, /, %, DIV, MOD
+11  -, + (binary)
+12	<<, >>
+13	<, <=, >, >=
+14  ==, !=
+15	&
+16	^ (XOR)
+17	|
+18	IS [NOT] NULL, LIKE, [NOT] IN, REGEXP, IN, MEMBER OF
+19	[NOT] BETWEEN, CASE, WHEN, THEN, ELSE
+20	Not equal to
+21	NOT logical condition
+22	AND, &&
+23	XOR
+24	OR, ||
+25	?:	
+26	=, := (Assignment), +=, -=, *=, *=, /=, %=, <<=, >>=, &=, ^=, |=
+27	, (Coma)

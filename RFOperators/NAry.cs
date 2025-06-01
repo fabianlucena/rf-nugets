@@ -1,6 +1,6 @@
 ﻿namespace RFOperators
 {
-    public class NAry(params Operator[] ops)
+    public abstract class NAry(params Operator[] ops)
         : Operator
     {
         public Operator[] Ops { get; } = ops;

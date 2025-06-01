@@ -1,9 +1,9 @@
 ﻿namespace RFOperators
 {
-    public class Binary
+    public abstract class Binary
         : Operator
     {
-        public Operator Op1 { get; private set;  }
+        public Operator Op1 { get; private set; }
         public Operator Op2 { get; private set; }
 
         public Binary(Operator op1, Operator op2)

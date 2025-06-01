@@ -3,6 +3,8 @@
     public class NE
         : Binary
     {
+        public override int Precedence { get; } = 14;
+
         public NE(Operator op1, Operator op2)
             : base(op1, op2)
         { }

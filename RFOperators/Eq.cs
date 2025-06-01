@@ -3,6 +3,8 @@
     public class Eq
         : Binary
     {
+        public override int Precedence { get; } = 14;
+
         public Eq(Operator op1, Operator op2)
             : base(op1, op2)
         { }

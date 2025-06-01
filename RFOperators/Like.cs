@@ -3,6 +3,8 @@
     public class Like
         : Binary
     {
+        public override int Precedence { get; } = 18;
+
         public Like(Operator op1, Operator op2)
             : base(op1, op2)
         { }

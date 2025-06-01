@@ -5,6 +5,8 @@ namespace RFOperators
     public class ST_Intersects
         : Binary
     {
+        public override int Precedence { get; } = 100;
+
         public ST_Intersects(Operator value1, Operator value2)
             : base(value1, value2)
         {
