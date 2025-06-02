@@ -2,13 +2,8 @@
 
 namespace RFService.Data
 {
-    public class DataRowsResult
+    public class DataRowsResult(IEnumerable rows)
     {
-        public IEnumerable Rows { get; set; }
-
-        public DataRowsResult(IEnumerable rows)
-        {
-            Rows = rows;
-        }
+        public IEnumerable Rows { get; set; } = rows;
     }
 }
