@@ -29,6 +29,13 @@ namespace RFService.Services
             return GetSingleAsync(options);
         }
 
+        public async virtual Task<Int64> GetSingleIdAsync(GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            var item = await GetSingleAsync(options);
+            return GetId(item);
+        }
+
         public virtual Task<TEntity?> GetSingleOrDefaultForIdAsync(Int64 id, GetOptions? options = null)
         {
             options ??= new GetOptions();
