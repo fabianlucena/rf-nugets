@@ -38,5 +38,13 @@ namespace RFService.Services
                 options
             );
         }
+
+        public Task<int> RestoreAsync(GetOptions options)
+        {
+            return UpdateAsync(
+                new DataDictionary { { "DeletedAt", null } },
+                options
+            );
+        }
     }
 }

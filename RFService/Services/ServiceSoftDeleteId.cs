@@ -67,5 +67,12 @@ namespace RFService.Services
             options.AddFilter("Id", id);
             return DeleteAsync(options);
         }
+
+        public virtual Task<int> RestoreForIdAsync(Int64 id, GetOptions? options = null)
+        {
+            options ??= new GetOptions();
+            options.AddFilter("Id", id);
+            return RestoreAsync(options);
+        }
     }
 }
