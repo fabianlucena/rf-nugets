@@ -1,15 +1,18 @@
 ﻿using RFService.Repo;
+using System.Data.Common;
 using System.Reflection;
 
 namespace RFDapper
 {
     public interface IDriver
     {
+        public DbConnection OpenConnection();
+
         string GetDefaultSchema();
 
         string GetSchemaName(string schema);
 
-        string SanitizeVarname(string varname);
+        string SanitizeVarName(string varname);
 
         string GetParamName(string paramName, List<string> usedNames);
 

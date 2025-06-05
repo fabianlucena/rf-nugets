@@ -10,6 +10,7 @@ using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Data.Common;
 using System.Reflection;
 using System.Text.Json;
 
@@ -34,7 +35,6 @@ namespace RFDapper
         private readonly string _schema = "dbo";
 
         public ILogger<Dapper<TEntity>> Logger { get => _logger; }
-        public string ConnectionString { get => DBConnectionString.Get<TEntity>(); }
         public string TableName { get => _tableName; }
         public string Schema { get => _schema; }
 
@@ -65,8 +65,7 @@ namespace RFDapper
             if (options?.Connection != null)
                 return (options.Connection, () => { });
 
-            var connection = new SqlConnection(ConnectionString);
-            connection.Open();
+            var connection = _driver.OpenConnection();
 
             return (connection, () => connection.Dispose());
         }
@@ -75,8 +74,7 @@ namespace RFDapper
         {
             var query = $@"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.schemas WHERE [name] = '{Schema}')
                 EXEC('CREATE SCHEMA {_driver.GetSchemaName(Schema)} AUTHORIZATION {_driver.GetDefaultSchema()}');";
-            using var connection = new SqlConnection(ConnectionString);
-            connection.Open();
+            using var connection = _driver.OpenConnection();
             connection.Query(query);
 
             var entityType = typeof(TEntity);
@@ -436,7 +434,7 @@ namespace RFDapper
             options.Alias = options.GetOrCreateAlias("t");
 
             var sqlColumns = GetSelectedColumns(typeof(TEntity), _driver, options);
-            var sqlFrom = $" FROM [{Schema}].[{TableName}] [{options.Alias}]";
+            var sqlFrom = $" FROM {_driver.GetTableName(TableName, Schema)} {_driver.GetTableAlias(options.Alias)}";
             List<string> usedNames = [];
             SqlQuery? sqlQuery;
 
