@@ -77,7 +77,7 @@ namespace RFL10n
             {
                 string translations = File.ReadAllText(filename).Trim();
                 if (string.IsNullOrEmpty(translations))
-                    throw new Exception($"The file {filename} dos not have translations.");
+                    return;
 
                 if (!Translations.TryGetValue(language, out var tables))
                 {
