@@ -9,6 +9,7 @@ namespace RFService
         public static void AddRFService(this IServiceCollection services)
         {
             services.AddSingleton<IEventBus, EventBus>();
+            services.AddSingleton<IPropertiesDecorators, PropertiesDecorators>();
         }
     }
 }
