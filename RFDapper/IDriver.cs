@@ -16,7 +16,7 @@ namespace RFDapper
 
         string GetParamName(string paramName, List<string> usedNames);
 
-        string GetColumnName(string key, GetOptions options, string? defaultAlias = null);
+        string GetColumnName(string key, GetOptions? options = null, string? defaultAlias = null);
 
         string GetTableName(string tableName, string? defaultScheme = null);
 
@@ -37,5 +37,7 @@ namespace RFDapper
         string GetSqlOrderBy(string orderBy, GetOptions options);
 
         IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, GetOptions options);
+
+        string GetSelectLastIdQuery();
     }
 }

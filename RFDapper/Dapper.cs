@@ -565,15 +565,14 @@ namespace RFDapper
                     continue;
 
                 var varName = "@" + name;
-                name = $"[{name}]";
-                columns.Add(name);
+                columns.Add(_driver.GetColumnName(name));
                 valuesName.Add(varName);
                 newData[varName] = value;
             }
 
-            var sql = $"INSERT INTO [{Schema}].[{TableName}]({string.Join(",", columns)}) VALUES ({string.Join(",", valuesName)});";
+            var sql = $"INSERT INTO {_driver.GetTableName(TableName, Schema)} ({string.Join(",", columns)}) VALUES ({string.Join(",", valuesName)});";
             if (hasId)
-                sql += " SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
+                sql += _driver.GetSelectLastIdQuery();
 
             return new SqlQuery
             {

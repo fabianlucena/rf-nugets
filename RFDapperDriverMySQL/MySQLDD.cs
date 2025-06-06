@@ -122,7 +122,7 @@ namespace RFDapperDriverMySQL
             return columnAlias;
         }
 
-        public string GetColumnName(string columnName, GetOptions options, string? defaultAlias = null)
+        public string GetColumnName(string columnName, GetOptions? options = null, string? defaultAlias = null)
         {
             columnName = columnName.Trim();
             if (QuotedSingle.IsMatch(columnName)
@@ -148,7 +148,7 @@ namespace RFDapperDriverMySQL
                 columnName = $"`{parts[index]}`.{columnName}";
             else if (!string.IsNullOrEmpty(defaultAlias))
                 columnName = $"`{defaultAlias}`.{columnName}";
-            else if (!string.IsNullOrEmpty(options.Alias))
+            else if (!string.IsNullOrEmpty(options?.Alias))
                 columnName = $"`{options.Alias}`.{columnName}";
 
             return columnName;
@@ -299,5 +299,8 @@ namespace RFDapperDriverMySQL
 
             return result;
         }
+
+        public string GetSelectLastIdQuery()
+            => "SELECT LAST_INSERT_ID();";
     }
 }

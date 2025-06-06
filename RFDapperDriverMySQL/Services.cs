@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dapper;
+using Microsoft.Extensions.DependencyInjection;
 using RFDapper;
 
 namespace RFDapperDriverMySQL
@@ -8,6 +9,8 @@ namespace RFDapperDriverMySQL
         public static void AddRFDapperDriverMySQL(this IServiceCollection services, MySQLDDOptions options)
         {
             services.AddScoped<IDriver>(provider => new MySQLDD(options));
+
+            SqlMapper.AddTypeHandler(new GuidTypeHandler());
         }
     }
 }
