@@ -41,7 +41,7 @@ namespace RFService.IServices
             if (decorators == null)
                 return list;
 
-            list = list.ToList();
+            list = [.. list];
             foreach (var decorator in decorators)
             {
                 foreach (var row in list)

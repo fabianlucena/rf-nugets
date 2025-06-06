@@ -11,7 +11,7 @@ using RFService.Libs;
 namespace RFAuth.Services
 {
     public class SessionService(IRepo<Session> repo)
-        : ServiceSoftDeleteTimestampsIdUuid<IRepo<Session>, Session>(repo),
+        : ServiceTimestampsIdUuid<IRepo<Session>, Session>(repo),
             ISessionService
     {
         public override async Task<Session> ValidateForCreationAsync(Session data)

@@ -2,7 +2,8 @@
 
 namespace RFService.Libs
 {
-    public class PropertiesDecorators : IPropertiesDecorators
+    public class PropertiesDecorators
+        : IPropertiesDecorators
     {
         static readonly Dictionary<string, List<PropertyDecorator>> attributesDecorators = [];
 

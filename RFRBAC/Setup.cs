@@ -66,7 +66,9 @@ namespace RFRBAC
             }
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
         public static void ConfigureDataRFRBAC(IServiceProvider provider)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             ConfigureRFRBACAsync().Wait();
         }

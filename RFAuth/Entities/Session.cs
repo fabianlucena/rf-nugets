@@ -9,7 +9,7 @@ namespace RFAuth.Entities
     [Index(nameof(Token), IsUnique = true)]
     [Index(nameof(AutoLoginToken), IsUnique = true)]
     public class Session
-        : EntitySoftDeleteTimestampsIdUuid
+        : EntityTimestampsIdUuid
     {
         [Required]
         [ForeignKey("User")]
