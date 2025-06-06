@@ -8,7 +8,8 @@ namespace RFRBAC.Entities
 {
     [Table("Users_Roles", Schema = "auth")]
     [Index(nameof(UserId), nameof(RoleId), IsUnique = true)]
-    public class UserRole : EntityTimestamps
+    public class UserRole
+        : EntityTimestamps
     {
         [Required]
         [ForeignKey("User")]

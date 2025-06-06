@@ -75,9 +75,9 @@ namespace RFDapperDriverMySQL
             var index = parts.Length - 1;
             index--;
             if (index >= 0)
-                tableName = $"`{parts[index]}__{tableName}`";
+                tableName = $"`{parts[index]}{driverOptions.SchemeSeparator}{tableName}`";
             else if (!string.IsNullOrEmpty(defaultScheme))
-                tableName = $"`{defaultScheme}__{tableName}`";
+                tableName = $"`{defaultScheme}{driverOptions.SchemeSeparator}{tableName}`";
 
             return tableName;
         }

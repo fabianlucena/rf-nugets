@@ -8,6 +8,8 @@ namespace RFDapperDriverMySQL
     {
         public string? ConnectionString { get; set; }
 
+        public string SchemeSeparator { get; set; } = "__";
+
         public Dictionary<string, string> ColumnTypes { get; set; } = [];
 
         public Func<IDriver, PropertyInfo, GetOptions, string?, string?>? GetSqlSelectedProperty { get; set; } = null;
