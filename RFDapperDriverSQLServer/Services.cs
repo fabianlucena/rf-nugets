@@ -5,7 +5,7 @@ namespace RFDapperDriverSQLServer
 {
     public static class MvcServiceCollectionExtensions
     {
-        public static void AddRFDapperDriverSQLServer(this IServiceCollection services, DQLServerDDOptions options)
+        public static void AddRFDapperDriverSQLServer(this IServiceCollection services, SQLServerDDOptions options)
         {
             services.AddScoped<IDriver>(provider => new SQLServerDD(options));
         }
