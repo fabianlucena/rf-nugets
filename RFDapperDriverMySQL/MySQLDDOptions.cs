@@ -6,7 +6,7 @@ namespace RFDapperDriverMySQL
 {
     public class MySQLDDOptions
     {
-        public required string ConnectionString { get; set; }
+        public string? ConnectionString { get; set; }
 
         public Dictionary<string, string> ColumnTypes { get; set; } = [];
 

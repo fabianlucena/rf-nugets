@@ -19,9 +19,9 @@ namespace RFDapperDriverMySQL
         private readonly static Regex QuotedAndFree = new(@"^`.*`\.[\w][\w\d]*$");
         private readonly static Regex FreeAndQuoted = new(@"^[\w][\w\d]\.`.*`*$");
 
-        public DbConnection OpenConnection()
+        public DbConnection OpenConnection(string? connectionString = null)
         {
-            var connection = new MySqlConnection(driverOptions.ConnectionString);
+            var connection = new MySqlConnection(connectionString ?? driverOptions.ConnectionString);
             connection.Open();
 
             return connection;
@@ -32,21 +32,6 @@ namespace RFDapperDriverMySQL
 
         public string GetSchemaName(string schema)
         {
-            /*schema = schema.Trim();
-            if (SqareBracketSingle.IsMatch(schema))
-                return schema;
-
-            if (schema.Contains('`'))
-                throw new InvalidSchemaNameException(schema);
-
-            var parts = schema.Split('.');
-            if (parts.Length > 1)
-                throw new InvalidTableNameException(schema);
-
-            var index = parts.Length - 1;
-
-            schema = $"[{parts[index]}]";*/
-
             return "";
         }
 
