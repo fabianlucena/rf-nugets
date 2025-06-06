@@ -4,8 +4,10 @@ using System.Reflection;
 
 namespace RFDapperDriverSQLServer
 {
-    public class DQLServerDDOptions
+    public class SQLServerDDOptions
     {
+        public string? ConnectionString { get; set; }
+
         public Dictionary<string, string> ColumnTypes { get; set; } = [];
 
         public Func<IDriver, PropertyInfo, GetOptions, string?, string?>? GetSqlSelectedProperty { get; set; } = null;

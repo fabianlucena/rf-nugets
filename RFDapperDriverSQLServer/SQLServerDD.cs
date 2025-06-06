@@ -1,21 +1,35 @@
-﻿using RFDapper;
+﻿using Microsoft.Data.SqlClient;
+using RFDapper;
 using RFDapperDriverSQLServer.Exceptions;
 using RFService.Libs;
 using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Common;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace RFDapperDriverSQLServer
 {
-    public class SQLServerDD(DQLServerDDOptions driverOptions)
+    public class SQLServerDD(SQLServerDDOptions driverOptions)
         : IDriver
     {
         private readonly static Regex SqareBracketSingle= new(@"^\[.*\]$");
         private readonly static Regex SqareBracketDouble = new(@"^\[.*\]\.\[.*\]$");
         private readonly static Regex SqareBracketAndFree = new(@"^\[.*\]\.[\w][\w\d]*$");
         private readonly static Regex FreeAndSqareBracket = new(@"^[\w][\w\d]\.\[.*\]*$");
+
+        public DbConnection OpenConnection(string? connectionString = null)
+        {
+            connectionString ??= driverOptions.ConnectionString;
+            if (string.IsNullOrEmpty(connectionString))
+                throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty.");
+
+            var connection = new SqlConnection(connectionString);
+            connection.Open();
+
+            return connection;
+        }
 
         public string GetDefaultSchema()
             => "[dbo]";
@@ -40,7 +54,7 @@ namespace RFDapperDriverSQLServer
             return schema;
         }
 
-        public string SanitizeVarname(string name)
+        public string SanitizeVarName(string name)
             => name.Replace('.', '_');
 
         public string GetParamName(string paramName, List<string> usedNames)
@@ -101,11 +115,11 @@ namespace RFDapperDriverSQLServer
                 return tableAlias;
 
             if (tableAlias.Contains('[') || tableAlias.Contains(']'))
-                throw new InvalidTableNameException(tableAlias);
+                throw new InvalidTableAliasException(tableAlias);
 
             var parts = tableAlias.Split('.');
             if (parts.Length > 1)
-                throw new InvalidTableNameException(tableAlias);
+                throw new InvalidTableAliasException(tableAlias);
 
             var index = parts.Length - 1;
 
