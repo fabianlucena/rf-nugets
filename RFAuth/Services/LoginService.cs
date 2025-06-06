@@ -31,7 +31,9 @@ namespace RFAuth.Services
             var user = await userService.GetSingleOrDefaultForUsernameAsync(request.Username.Trim())
                 ?? throw new InvalidCredentialsException();
 
-            var password = await passwordService.GetSingleForUserAsync(user);
+            var password = await passwordService.GetSingleOrDefaultForUserAsync(user)
+                ?? throw new InvalidCredentialsException();
+
             var check = passwordService.Verify(request.Password.Trim(), password);
             if (!check)
                 throw new InvalidCredentialsException();
