@@ -11,8 +11,6 @@ namespace RFUserEmail
         public static void AddRFUserEmail(this IServiceCollection services)
         {
             services.AddScoped<IUserEmailService, UserEmailService>();
-
-            services.AddSingleton<IPropertiesDecorators, PropertiesDecorators>();
         }
     }
 }
