@@ -148,7 +148,7 @@ namespace RFDapperDriverSQLServer
             return columnAlias;
         }
 
-        public string GetColumnName(string columnName, GetOptions options, string? defaultAlias = null)
+        public string GetColumnName(string columnName, GetOptions? options, string? defaultAlias = null)
         {
             columnName = columnName.Trim();
             if (SqareBracketSingle.IsMatch(columnName)
@@ -174,7 +174,7 @@ namespace RFDapperDriverSQLServer
                 columnName = $"[{parts[index]}].{columnName}";
             else if (!string.IsNullOrEmpty(defaultAlias))
                 columnName = $"[{defaultAlias}].{columnName}";
-            else if (!string.IsNullOrEmpty(options.Alias))
+            else if (!string.IsNullOrEmpty(options?.Alias))
                 columnName = $"[{options.Alias}].{columnName}";
 
             return columnName;

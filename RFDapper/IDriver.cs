@@ -16,7 +16,7 @@ namespace RFDapper
 
         string GetParamName(string paramName, List<string> usedNames);
 
-        string GetColumnName(string key, GetOptions? options = null, string? defaultAlias = null);
+        string GetColumnName(string columnName, GetOptions? options = null, string? defaultAlias = null);
 
         string GetTableName(string tableName, string? defaultScheme = null);
 
