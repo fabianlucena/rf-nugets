@@ -325,5 +325,8 @@ namespace RFDapperDriverSQLServer
 
             return result;
         }
+
+        public string GetSelectLastIdQuery()
+            => "SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
     }
 }
