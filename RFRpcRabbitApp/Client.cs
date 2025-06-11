@@ -1,0 +1,107 @@
+﻿using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using RFRpcRabbitApp.Types;
+using System.Collections.Concurrent;
+using System.Text;
+
+namespace RFRpcRabbitApp
+{
+    public class RpcClient
+        : IAsyncDisposable
+    {
+        private Options Options { get; }
+        private ConnectionFactory ConnectionFactory { get; }
+        private ConcurrentDictionary<string, TaskCompletionSource<Response>> CallbackMapper { get; } = [];
+
+        public RpcClient(Options? options = null)
+        {
+            Options = options ?? new Options();
+            ConnectionFactory = new ConnectionFactory
+            {
+                HostName = Options.HostName,
+                Port = Options.Port,
+                Ssl = Options.Ssl,
+                UserName = Options.UserName,
+                Password = Options.Password,
+            };
+        }
+
+        public static RpcClient Create(Options? options = null)
+            => new(options);
+
+        private IConnection? Connection;
+        private IChannel? Channel;
+        private string? ReplyQueueName;
+
+        public async Task StartAsync()
+        {
+            Connection = await ConnectionFactory.CreateConnectionAsync();
+            Channel = await Connection.CreateChannelAsync();
+
+            QueueDeclareOk queueDeclareResult = await Channel.QueueDeclareAsync();
+            ReplyQueueName = queueDeclareResult.QueueName;
+            var consumer = new AsyncEventingBasicConsumer(Channel);
+
+            consumer.ReceivedAsync += (model, ea) =>
+            {
+                string? correlationId = ea.BasicProperties.CorrelationId;
+
+                if (!string.IsNullOrEmpty(correlationId)
+                    && CallbackMapper.TryRemove(correlationId, out var tcs)
+                )
+                    tcs.TrySetResult(new Response(ea.Body.ToArray()));
+
+                return Task.CompletedTask;
+            };
+
+            await Channel.BasicConsumeAsync(ReplyQueueName, true, consumer);
+        }
+
+        public async Task<Response> CallAsync(string routingKey, Request? request = null, CancellationToken cancellationToken = default)
+        {
+            if (Channel is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            string correlationId = Guid.NewGuid().ToString();
+            var props = new BasicProperties
+            {
+                CorrelationId = correlationId,
+                ReplyTo = ReplyQueueName
+            };
+
+            var tcs = new TaskCompletionSource<Response>(TaskCreationOptions.RunContinuationsAsynchronously);
+            CallbackMapper.TryAdd(correlationId, tcs);
+
+            await Channel.BasicPublishAsync(
+                exchange: string.Empty,
+                routingKey: routingKey,
+                mandatory: true,
+                basicProperties: props,
+                body: request?.Data,
+                cancellationToken: CancellationToken.None
+            );
+
+            using CancellationTokenRegistration ctr =
+                cancellationToken.Register(() =>
+                {
+                    CallbackMapper.TryRemove(correlationId, out _);
+                    tcs.SetCanceled();
+                });
+
+            return await tcs.Task;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (Channel is not null)
+                await Channel.CloseAsync();
+
+            if (Connection is not null)
+                await Connection.CloseAsync();
+
+            GC.SuppressFinalize(this);
+        }
+    }
+}
