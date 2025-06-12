@@ -11,6 +11,10 @@ namespace RFRpcRabbitApp
         private Options Options { get; }
         private ConnectionFactory ConnectionFactory { get; }
 
+        private IConnection? _connection = null;
+        private IChannel? _channel = null;
+
+
         public App(Options? options = null)
         {
             Options = options ?? new Options();
@@ -43,10 +47,10 @@ namespace RFRpcRabbitApp
                 .Where(m => m.GetCustomAttribute(queueType) != null);
         }
 
-        public async void MapControllers()
+        public async Task MapControllersAsync()
         {
-            using var connection = await ConnectionFactory.CreateConnectionAsync();
-            using var channel = await connection.CreateChannelAsync();
+            _connection ??= await ConnectionFactory.CreateConnectionAsync();
+            _channel ??= await _connection.CreateChannelAsync();
 
             var controllers = GetControllers();
             foreach (var controller in controllers)
@@ -67,22 +71,13 @@ namespace RFRpcRabbitApp
                     if (methodInfo == null)
                         continue;
 
-                    await channel.QueueDeclareAsync(queue: queue, durable: false, exclusive: false, autoDelete: false, arguments: null);
-                    await channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                    await _channel.QueueDeclareAsync(queue: queue, durable: false, exclusive: false, autoDelete: false, arguments: null);
+                    await _channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
 
-                    var consumer = new AsyncEventingBasicConsumer(channel);
+                    var consumer = new AsyncEventingBasicConsumer(_channel);
                     consumer.ReceivedAsync += async (sender, ea) =>
                     {
-                        AsyncEventingBasicConsumer cons = (AsyncEventingBasicConsumer)sender;
-                        IChannel ch = cons.Channel;
-
                         byte[] body = ea.Body.ToArray();
-                        IReadOnlyBasicProperties props = ea.BasicProperties;
-                        var replyProps = new BasicProperties
-                        {
-                            CorrelationId = props.CorrelationId
-                        };
-
                         Response? response = null;
                         try
                         {
@@ -90,33 +85,69 @@ namespace RFRpcRabbitApp
                             var methodInfo = controller.GetMethod(method.Name, BindingFlags.Public | BindingFlags.Instance)
                                 ?? throw new InvalidOperationException($"Method {method.Name} not found in controller {controller.Name}");
 
-                            response = (Response?)methodInfo.Invoke(instance, [new Request(body)]);
+                            var asyncResult = methodInfo.Invoke(instance, [new Request(body)]);
+                            object? result;
+                            if (asyncResult is Task task)
+                            {
+                                await task.ConfigureAwait(false);
+                                result = task.GetType().GetProperty("Result")?.GetValue(task);
+                            }
+                            else
+                                result = asyncResult;
+
+                            if (result != null)
+                            {
+                                response = result as Response
+                                    ?? new Response(result);
+                            }
                         }
                         catch (Exception e)
                         {
                             Console.WriteLine($" [.] {e.Message}");
                         }
-                        finally
+
+                        AsyncEventingBasicConsumer cons = (AsyncEventingBasicConsumer)sender;
+                        IChannel ch = cons.Channel;
+                        if (!ch.IsOpen)
                         {
-                            await ch.BasicPublishAsync(
-                                exchange: string.Empty,
-                                routingKey: props.ReplyTo!,
-                                mandatory: true,
-                                basicProperties: replyProps,
-                                body: response?.Data
-                            );
-                            await ch.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
+                            Console.WriteLine($" [.] Channel {queue} is closed or disposed.");
+                            return;
                         }
+
+                        IReadOnlyBasicProperties props = ea.BasicProperties;
+                        var replyProps = new BasicProperties
+                        {
+                            CorrelationId = props.CorrelationId
+                        };
+
+                        await ch.BasicPublishAsync(
+                            exchange: string.Empty,
+                            routingKey: props.ReplyTo!,
+                            mandatory: true,
+                            basicProperties: replyProps,
+                            body: response?.GetBytes()
+                        );
+                        await ch.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
                     };
 
-                    await channel.BasicConsumeAsync(queue, false, consumer);
+                    await _channel.BasicConsumeAsync(queue, false, consumer);
                 }
             }
+
         }
 
         public void Run()
         {
-            Thread.Sleep(Timeout.Infinite);
+            RunAsync()
+                .GetAwaiter()
+                .GetResult();
+        }
+
+        public async Task RunAsync()
+        {
+            await MapControllersAsync();
+            Console.WriteLine(" [x] Awaiting RPC requests...");
+            await Task.Delay(Timeout.Infinite);
         }
     }
 }

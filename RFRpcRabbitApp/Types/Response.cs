@@ -1,21 +1,15 @@
-﻿using System.Text;
-
-namespace RFRpcRabbitApp.Types
+﻿namespace RFRpcRabbitApp.Types
 {
     public class Response
+        : DataTransfer
     {
-        public byte[] Data { get; }
-
         public Response(byte[] data)
-            => Data = data;
+            : base (data) { }
 
-        public Response(string text)
-            => Data = Encoding.UTF8.GetBytes(text);
+        public Response(string data)
+            : base(data) { }
 
-        public string GetString()
-            => Encoding.UTF8.GetString(Data);
-
-        public override string ToString()
-            => GetString();
+        public Response(object? data)
+            : base(data) { }
     }
 }

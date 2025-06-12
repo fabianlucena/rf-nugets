@@ -45,7 +45,6 @@ namespace RFRpcRabbitApp
             consumer.ReceivedAsync += (model, ea) =>
             {
                 string? correlationId = ea.BasicProperties.CorrelationId;
-
                 if (!string.IsNullOrEmpty(correlationId)
                     && CallbackMapper.TryRemove(correlationId, out var tcs)
                 )
