@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using RFDapper.Exceptions;
 using RFOperators;
@@ -10,7 +9,6 @@ using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Data.Common;
 using System.Reflection;
 using System.Text.Json;
 
@@ -428,6 +426,59 @@ namespace RFDapper
             return columns;
         }
 
+        public (string, DataDictionary) GetJoinQuery(GetOptions options, List<string> usedNames, List<string>? sqlColumns = null)
+        {
+            string join = "";
+            DataDictionary data = [];
+            foreach (var from in options.Join)
+            {
+                Type? propertyType = string.IsNullOrEmpty(from.PropertyName) ?
+                    null :
+                    typeof(TEntity)?.GetProperty(from.PropertyName)?.PropertyType;
+
+                Type entity = from.Entity
+                    ?? propertyType
+                    ?? throw new NoEntityForJoinException();
+
+                var joinType = from.Type
+                    ?? (IsForeignColumnNullable(from.PropertyName) ? JoinType.Left : JoinType.Inner);
+
+                if (string.IsNullOrEmpty(from.Alias))
+                    from.Alias = options.CreateAlias("t");
+
+                Operator? onOperation = from.On;
+                if (onOperation == null)
+                {
+                    if (string.IsNullOrWhiteSpace(from.PropertyName))
+                        throw new NoOnClauseForJoinWithEntityException();
+
+                    onOperation = Op.Eq(
+                        Op.Column($"{from.Alias}.Id"),
+                        Op.Column($"{options.Alias}.{GetForeignColumnName(typeof(TEntity), from.PropertyName)}")
+                    );
+                }
+
+                SqlQuery? sqlQuery = GetOperation(onOperation, options, usedNames, "select_param");
+
+                if (sqlColumns != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(from.PropertyName))
+                    {
+                        sqlColumns.Add("NULL AS " + _driver.GetColumnAlias(options.Separator));
+                        sqlColumns.AddRange(GetSelectedColumns(entity, _driver, options, from.Alias));
+                    }
+                }
+
+                join += $" {_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
+                    + $" ON {sqlQuery.Sql}";
+
+                foreach (var value in sqlQuery.Data)
+                    data.Add(value.Key, value.Value);
+            }
+
+            return (join, data);
+        }
+
         public SqlQueryParts GetSelectQueryParts(GetOptions options)
         {
             options = new GetOptions(options);
@@ -441,48 +492,15 @@ namespace RFDapper
             DataDictionary data = [];
             if (options != null)
             {
-                foreach (var from in options.Join)
-                {
-                    Type? propertyType = string.IsNullOrEmpty(from.PropertyName)?
-                        null:
-                        typeof(TEntity)?.GetProperty(from.PropertyName)?.PropertyType;
+                (string joins, DataDictionary joinData) = GetJoinQuery(
+                    options,
+                    usedNames,
+                    sqlColumns
+                );
 
-                    Type entity = from.Entity
-                        ?? propertyType
-                        ?? throw new NoEntityForJoinException();
-
-                    var joinType = from.Type
-                        ?? (IsForeignColumnNullable(from.PropertyName) ? JoinType.Left : JoinType.Inner);
-
-                    if (string.IsNullOrEmpty(from.Alias))
-                        from.Alias = options.CreateAlias("t");
-
-                    Operator? onOperation = from.On;
-                    if (onOperation == null)
-                    {
-                        if (string.IsNullOrWhiteSpace(from.PropertyName))
-                            throw new NoOnClauseForJoinWithEntityException();
-
-                        onOperation = Op.Eq(
-                            Op.Column($"{from.Alias}.Id"),
-                            Op.Column($"{options.Alias}.{GetForeignColumnName(typeof(TEntity), from.PropertyName)}")
-                        );
-                    }
-
-                    sqlQuery = GetOperation(onOperation, options, usedNames, "select_param");
-
-                    if (!string.IsNullOrWhiteSpace(from.PropertyName))
-                    {
-                        sqlColumns.Add("NULL AS " + _driver.GetColumnAlias(options.Separator));
-                        sqlColumns.AddRange(GetSelectedColumns(entity, _driver, options, from.Alias));
-                    }
-
-                    sqlFrom += $" {_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
-                        + $" ON {sqlQuery.Sql}";
-
-                    foreach (var value in sqlQuery.Data)
-                        data.Add(value.Key, value.Value);
-                }
+                sqlFrom += joins;
+                foreach (var value in joinData)
+                    data.Add(value.Key, value.Value);
 
                 sqlQuery = GetWhereQuery(options, usedNames, "where_param");
                 if (!string.IsNullOrWhiteSpace(sqlQuery?.Sql))
@@ -632,7 +650,7 @@ namespace RFDapper
             GetOptions options
         )
         {
-            options.Alias = "";
+            options.Alias = options.GetOrCreateAlias("t");
             var sqlWhere = GetWhereQuery(options, [], "where_param")
                 ?? throw new Exception("UPDATE without WHERE is forbidden");
 
@@ -644,7 +662,8 @@ namespace RFDapper
             foreach (var item in data)
             {
                 var name = item.Key;
-                if (entityType.GetProperty(name) == null)
+                var property = entityType.GetProperty(name);
+                if (property == null)
                     continue;
 
                 var value = item.Value;
@@ -659,20 +678,35 @@ namespace RFDapper
                         foreach (var dataItem in operation.Data)
                             values[dataItem.Key] = dataItem.Value;
 
-                        columns.Add($"[{name}]={operation.Sql}");
+                        if (property.PropertyType == typeof(bool))
+                            operation = _driver.GetBool(operation);
+
+                        columns.Add($"{_driver.GetColumnName(name)}={operation.Sql}");
                         continue;
                     }
                 }
                 var valueName = "data_" + name;
                 values[valueName] = value;
-                columns.Add($"[{name}]=@{valueName}");
+                columns.Add($"{_driver.GetColumnName(name)}=@{valueName}");
             }
 
             if (columns.Count <= 0)
                 throw new NothingToUpdateException();
 
-            var sql = $"UPDATE [{Schema}].[{TableName}]"
-                + $" SET {string.Join(",", columns)} "
+            options.Alias = options.GetOrCreateAlias("t");
+            var sqlFrom = $" FROM {_driver.GetTableName(TableName, Schema)} {_driver.GetTableAlias(options.Alias)}";
+            (string joins, DataDictionary joinData) = GetJoinQuery(
+                options,
+                usedNames
+            );
+
+            sqlFrom += joins;
+            foreach (var value in joinData)
+                data.Add(value.Key, value.Value);
+
+            var sql = $"UPDATE {_driver.GetTableAlias(options.Alias)}"
+                + $" SET {string.Join(",", columns)}"
+                + sqlFrom + " "
                 + sqlWhere.Sql;
             return new SqlQuery
             {

@@ -156,10 +156,11 @@ namespace RFService.Repo
             string propertyName,
             string? alias = null,
             JoinType? type = null,
-            Operator? on = null
+            Operator? on = null,
+            Type? entity = null
         )
         {
-            Join.Add(new From(propertyName: propertyName, alias: alias, type: type, on: on));
+            Join.Add(new From(propertyName: propertyName, alias: alias, type: type, on: on, entity: entity));
             return this;
         }
     }
