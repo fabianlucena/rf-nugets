@@ -1,6 +1,6 @@
-﻿using RFRpcRabbitApp.Types;
+﻿using RFRpcRabbitMQApp.Types;
 
-namespace RFRpcRabbitApp
+namespace RFRpcRabbitMQApp
 {
     public class ControllerBase
     {

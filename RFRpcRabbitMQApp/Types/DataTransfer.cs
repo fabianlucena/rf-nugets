@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-namespace RFRpcRabbitApp.Types
+namespace RFRpcRabbitMQApp.Types
 {
     public class DataTransfer
     {

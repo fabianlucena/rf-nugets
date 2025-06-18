@@ -1,4 +1,4 @@
-﻿namespace RFRpcRabbitApp.Types
+﻿namespace RFRpcRabbitMQApp.Types
 {
     public class Result
     {

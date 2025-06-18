@@ -1,6 +1,7 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.Extensions.Configuration;
+using RabbitMQ.Client;
 
-namespace RFRpcRabbitApp
+namespace RFRpcRabbitMQApp
 {
     public class Options
     {
@@ -9,5 +10,10 @@ namespace RFRpcRabbitApp
         public string UserName { get; set; } = "guest";
         public string Password { get; set; } = "guest";
         public SslOption Ssl { get; set; } = new();
+
+        public Options(IConfiguration configuration)
+        {
+
+        }
     }
 }

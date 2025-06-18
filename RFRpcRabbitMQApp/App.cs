@@ -1,10 +1,11 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.Extensions.Configuration;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using RFRpcRabbitApp.Attributes;
-using RFRpcRabbitApp.Types;
+using RFRpcRabbitMQApp.Attributes;
+using RFRpcRabbitMQApp.Types;
 using System.Reflection;
 
-namespace RFRpcRabbitApp
+namespace RFRpcRabbitMQApp
 {
     public class App
     {
@@ -14,10 +15,9 @@ namespace RFRpcRabbitApp
         private IConnection? _connection = null;
         private IChannel? _channel = null;
 
-
-        public App(Options? options = null)
+        public App(Options options)
         {
-            Options = options ?? new Options();
+            Options = options;
             ConnectionFactory = new ConnectionFactory
             {
                 HostName = Options.HostName,
@@ -28,8 +28,11 @@ namespace RFRpcRabbitApp
             };
         }
 
-        public static App Create(Options? options = null)
+        public static App Create(Options options)
             => new(options);
+
+        public static App Create(IConfiguration configuration)
+            => new(new Options(configuration));
 
         public static IEnumerable<Type> GetControllers()
         {

@@ -1,4 +1,4 @@
-﻿namespace RFRpcRabbitApp
+﻿namespace RFRpcRabbitMQApp
 {
     public class Controller
         : ControllerBase

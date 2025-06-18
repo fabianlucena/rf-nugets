@@ -1,10 +1,9 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using RFRpcRabbitApp.Types;
+using RFRpcRabbitMQApp.Types;
 using System.Collections.Concurrent;
-using System.Text;
 
-namespace RFRpcRabbitApp
+namespace RFRpcRabbitMQApp
 {
     public class RpcClient
         : IAsyncDisposable
@@ -13,9 +12,9 @@ namespace RFRpcRabbitApp
         private ConnectionFactory ConnectionFactory { get; }
         private ConcurrentDictionary<string, TaskCompletionSource<Response>> CallbackMapper { get; } = [];
 
-        public RpcClient(Options? options = null)
+        public RpcClient(Options options)
         {
-            Options = options ?? new Options();
+            Options = options;
             ConnectionFactory = new ConnectionFactory
             {
                 HostName = Options.HostName,
@@ -26,7 +25,7 @@ namespace RFRpcRabbitApp
             };
         }
 
-        public static RpcClient Create(Options? options = null)
+        public static RpcClient Create(Options options)
             => new(options);
 
         private IConnection? Connection;

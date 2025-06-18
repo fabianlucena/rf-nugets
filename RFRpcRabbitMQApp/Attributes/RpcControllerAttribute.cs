@@ -1,4 +1,4 @@
-﻿namespace RFRpcRabbitApp.Attributes
+﻿namespace RFRpcRabbitMQApp.Attributes
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class RpcController()
