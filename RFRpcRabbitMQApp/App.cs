@@ -12,16 +12,16 @@ namespace RFRpcRabbitMQApp
     public class App
     {
         public RabbitMQOptions Options { get; }
-        private IServiceProvider ServiceProvider { get; }
+        private IServiceCollection Services { get; }
         private ConnectionFactory ConnectionFactory { get; }
 
         private IConnection? _connection = null;
         private IChannel? _channel = null;
 
-        public App(RabbitMQOptions options, IServiceProvider serviceProvider)
+        public App(RabbitMQOptions options, IServiceCollection services)
         {
             Options = options;
-            ServiceProvider = serviceProvider;
+            Services = services;
             ConnectionFactory = new ConnectionFactory
             {
                 HostName = Options.HostName,
@@ -32,14 +32,14 @@ namespace RFRpcRabbitMQApp
             };
         }
 
-        public static App Create(RabbitMQOptions options, IServiceProvider serviceProvider)
-            => new(options, serviceProvider);
+        public static App Create(RabbitMQOptions options, IServiceCollection services)
+            => new(options, services);
 
-        public static App Create(IConfiguration configuration, IServiceProvider serviceProvider)
+        public static App Create(IConfiguration configuration, IServiceCollection services)
         {
             var options = new RabbitMQOptions(configuration.GetSection("RabbitMQ"));
             options.Configure(configuration.GetSection("RpcRabbitMQ"));
-            return new(options, serviceProvider);
+            return new(options, services);
         }
 
         public static IEnumerable<Type> GetControllers()
@@ -65,6 +65,10 @@ namespace RFRpcRabbitMQApp
 
             var controllers = GetControllers();
             foreach (var controller in controllers)
+                Services.AddScoped(controller);
+
+            var serviceProvider = Services.BuildServiceProvider();
+            foreach (var controller in controllers)
             {
                 var methods = GetMethods(controller);
                 foreach (var method in methods)
@@ -77,7 +81,7 @@ namespace RFRpcRabbitMQApp
                     if (string.IsNullOrEmpty(queue))
                         continue;
 
-                    var instance = ServiceProvider.GetRequiredService(controller);
+                    var instance = serviceProvider.GetRequiredService(controller);
                     var methodInfo = controller.GetMethod(method.Name, BindingFlags.Public | BindingFlags.Instance);
                     if (methodInfo == null)
                         continue;
@@ -92,7 +96,9 @@ namespace RFRpcRabbitMQApp
                         Response? response = null;
                         try
                         {
-                            var instance = ServiceProvider.GetRequiredService(controller);
+                            using var scope = serviceProvider.CreateScope();
+
+                            var instance = scope.ServiceProvider.GetRequiredService(controller);
                             var methodInfo = controller.GetMethod(method.Name, BindingFlags.Public | BindingFlags.Instance)
                                 ?? throw new InvalidOperationException($"Method {method.Name} not found in controller {controller.Name}");
 
@@ -144,21 +150,19 @@ namespace RFRpcRabbitMQApp
                     await _channel.BasicConsumeAsync(queue, false, consumer);
                 }
             }
-
         }
 
-        public void Run(Action? onComplete = null)
+        public void Run(Action<App>? onRun = null)
         {
-            RunAsync(onComplete)
+            RunAsync(onRun)
                 .GetAwaiter()
                 .GetResult();
         }
 
-        public async Task RunAsync(Action? onComplete = null)
+        public async Task RunAsync(Action<App>? onRun = null)
         {
             await MapControllersAsync();
-            Console.WriteLine(" [x] Awaiting RPC requests...");
-            onComplete?.Invoke();
+            onRun?.Invoke(this);
 
             bool isTest = AppDomain.CurrentDomain.GetAssemblies()
                 .Any(a => a.FullName is not null
@@ -169,7 +173,7 @@ namespace RFRpcRabbitMQApp
                 );
 
             if (isTest)
-                Console.WriteLine($" [x] Test environment detected.");
+                Console.WriteLine($" [.] Test mode detected.");
             else
                 await Task.Delay(Timeout.Infinite);
         }
