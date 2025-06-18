@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RFRabbitMQ;
 using RFRpcRabbitMQApp.Attributes;
 using RFRpcRabbitMQApp.Types;
 using System.Reflection;
@@ -9,15 +11,17 @@ namespace RFRpcRabbitMQApp
 {
     public class App
     {
-        private Options Options { get; }
+        public RabbitMQOptions Options { get; }
+        private IServiceProvider ServiceProvider { get; }
         private ConnectionFactory ConnectionFactory { get; }
 
         private IConnection? _connection = null;
         private IChannel? _channel = null;
 
-        public App(Options options)
+        public App(RabbitMQOptions options, IServiceProvider serviceProvider)
         {
             Options = options;
+            ServiceProvider = serviceProvider;
             ConnectionFactory = new ConnectionFactory
             {
                 HostName = Options.HostName,
@@ -28,11 +32,15 @@ namespace RFRpcRabbitMQApp
             };
         }
 
-        public static App Create(Options options)
-            => new(options);
+        public static App Create(RabbitMQOptions options, IServiceProvider serviceProvider)
+            => new(options, serviceProvider);
 
-        public static App Create(IConfiguration configuration)
-            => new(new Options(configuration));
+        public static App Create(IConfiguration configuration, IServiceProvider serviceProvider)
+        {
+            var options = new RabbitMQOptions(configuration.GetSection("RabbitMQ"));
+            options.Configure(configuration.GetSection("RpcRabbitMQ"));
+            return new(options, serviceProvider);
+        }
 
         public static IEnumerable<Type> GetControllers()
         {
@@ -69,7 +77,7 @@ namespace RFRpcRabbitMQApp
                     if (string.IsNullOrEmpty(queue))
                         continue;
 
-                    var instance = Activator.CreateInstance(controller);
+                    var instance = ServiceProvider.GetRequiredService(controller);
                     var methodInfo = controller.GetMethod(method.Name, BindingFlags.Public | BindingFlags.Instance);
                     if (methodInfo == null)
                         continue;
@@ -84,7 +92,7 @@ namespace RFRpcRabbitMQApp
                         Response? response = null;
                         try
                         {
-                            var instance = Activator.CreateInstance(controller);
+                            var instance = ServiceProvider.GetRequiredService(controller);
                             var methodInfo = controller.GetMethod(method.Name, BindingFlags.Public | BindingFlags.Instance)
                                 ?? throw new InvalidOperationException($"Method {method.Name} not found in controller {controller.Name}");
 
@@ -139,18 +147,31 @@ namespace RFRpcRabbitMQApp
 
         }
 
-        public void Run()
+        public void Run(Action? onComplete = null)
         {
-            RunAsync()
+            RunAsync(onComplete)
                 .GetAwaiter()
                 .GetResult();
         }
 
-        public async Task RunAsync()
+        public async Task RunAsync(Action? onComplete = null)
         {
             await MapControllersAsync();
             Console.WriteLine(" [x] Awaiting RPC requests...");
-            await Task.Delay(Timeout.Infinite);
+            onComplete?.Invoke();
+
+            bool isTest = AppDomain.CurrentDomain.GetAssemblies()
+                .Any(a => a.FullName is not null
+                    && (a.FullName.StartsWith("xunit")
+                        || a.FullName.StartsWith("NUnit")
+                        || a.FullName.Contains("Microsoft.VisualStudio.TestPlatform")
+                    )
+                );
+
+            if (isTest)
+                Console.WriteLine($" [x] Test environment detected.");
+            else
+                await Task.Delay(Timeout.Infinite);
         }
     }
 }
