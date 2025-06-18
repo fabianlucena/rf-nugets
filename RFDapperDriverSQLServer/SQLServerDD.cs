@@ -196,6 +196,15 @@ namespace RFDapperDriverSQLServer
             };
         }
 
+        public SqlQuery GetBool(SqlQuery sqlQuery)
+        {
+            return new()
+            {
+                Sql = "CASE WHEN " + sqlQuery.Sql + " THEN 1 ELSE 0 END",
+                Data = sqlQuery.Data,
+            };
+        }
+
         public string? GetColumnType(string type, PropertyInfo property)
         {
             if (driverOptions.ColumnTypes.TryGetValue(type, out var value) == true)

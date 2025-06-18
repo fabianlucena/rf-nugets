@@ -26,6 +26,8 @@ namespace RFDapper
 
         SqlQuery GetValue(object? data, GetOptions options, List<string> usedNames, string paramName);
 
+        SqlQuery GetBool(SqlQuery sqlQuery);
+
         string? GetColumnType(string type, PropertyInfo property);
 
         string GetSqlSelectedProperty(PropertyInfo property, GetOptions options, string? defaultAlias = null);
