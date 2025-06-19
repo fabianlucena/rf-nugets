@@ -170,6 +170,9 @@ namespace RFDapperDriverMySQL
             };
         }
 
+        public SqlQuery GetBool(SqlQuery sqlQuery)
+            => sqlQuery;
+
         public string? GetColumnType(string type, PropertyInfo property)
         {
             if (driverOptions.ColumnTypes.TryGetValue(type, out var value) == true)
