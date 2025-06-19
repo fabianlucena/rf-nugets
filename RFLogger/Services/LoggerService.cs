@@ -6,7 +6,7 @@ namespace RFLogger.Services
     public class LoggerService
         : ILoggerService
     {
-        private readonly List<LoggerProvider> Providers = [];
+        private static readonly List<LoggerProvider> Providers = [];
 
         public void AddProvider(LoggerProvider provider)
             => Providers.Add(provider);
