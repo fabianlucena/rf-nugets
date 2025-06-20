@@ -312,14 +312,6 @@ namespace RFDapperDriverMySQL
                 return $"LIMIT {options.Offset}, 18446744073709551615";
 
             return "";
-
-
-            /*OFFSET {options.Offset ?? 0} ROWS";
-
-sqlFrom += $" OFFSET {options.Offset ?? 0} ROWS";
-
-if (options.Top != null)
-    sqlFrom += $" FETCH NEXT {options.Top} ROWS ONLY";*/
         }
 
         public string GetSelectLastIdQuery()
