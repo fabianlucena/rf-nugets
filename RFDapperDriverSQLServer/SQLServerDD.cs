@@ -329,10 +329,29 @@ namespace RFDapperDriverSQLServer
         public IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, GetOptions options)
         {
             List<string> result = [];
-            foreach (var orderByItem in orderBy)
-                result.Add(GetSqlOrderBy(orderByItem, options));
+
+            if (orderBy.Any())
+            {
+                foreach (var orderByItem in orderBy)
+                    result.Add(GetSqlOrderBy(orderByItem, options));
+            }
+            else if (options.Top != null || options.Offset != null)
+            {
+                result.Add(GetSqlOrderBy("Id", options));
+            }
 
             return result;
+        }
+
+        public string GetSqlLimit(GetOptions options)
+        {
+            if (options.Top != null)
+                return $"OFFSET {options.Offset ?? 0} ROWS FETCH NEXT {options.Top} ROWS ONLY";
+
+            if (options.Offset != null)
+                return $"OFFSET {options.Offset} ROWS";
+
+            return "";
         }
 
         public string GetSelectLastIdQuery()

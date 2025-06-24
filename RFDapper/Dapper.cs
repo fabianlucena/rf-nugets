@@ -528,10 +528,14 @@ namespace RFDapper
                     sqlFrom += $" ORDER BY {string.Join(", ", _driver.GetSqlOrderBy(orderBy, options))}";
 
                 if (options.Offset != null || options.Top != null)
-                    sqlFrom += $" OFFSET {options.Offset ?? 0} ROWS";
+                    sqlFrom += " " + _driver.GetSqlLimit(options);
+                
+                /*OFFSET {options.Offset ?? 0} ROWS";
+
+                sqlFrom += $" OFFSET {options.Offset ?? 0} ROWS";
 
                 if (options.Top != null)
-                    sqlFrom += $" FETCH NEXT {options.Top} ROWS ONLY";
+                    sqlFrom += $" FETCH NEXT {options.Top} ROWS ONLY";*/
             }
 
             return new SqlQueryParts

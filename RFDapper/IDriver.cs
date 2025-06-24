@@ -40,6 +40,8 @@ namespace RFDapper
 
         IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, GetOptions options);
 
+        string GetSqlLimit(GetOptions options);
+
         string GetSelectLastIdQuery();
     }
 }
