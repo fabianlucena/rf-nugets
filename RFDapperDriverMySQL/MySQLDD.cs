@@ -303,6 +303,17 @@ namespace RFDapperDriverMySQL
             return result;
         }
 
+        public string GetSqlLimit(GetOptions options)
+        {
+            if (options.Top != null)
+                return $"LIMIT {options.Offset ?? 0}, {options.Top}";
+
+            if (options.Offset != null)
+                return $"LIMIT {options.Offset}, 18446744073709551615";
+
+            return "";
+        }
+
         public string GetSelectLastIdQuery()
             => "SELECT LAST_INSERT_ID();";
     }
