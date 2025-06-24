@@ -6,6 +6,8 @@ using RFRabbitMQ;
 using RFRpcRabbitMQApp.Attributes;
 using RFRpcRabbitMQApp.Types;
 using System.Reflection;
+using System.Text;
+using System.Text.Json;
 
 namespace RFRpcRabbitMQApp
 {
@@ -92,17 +94,41 @@ namespace RFRpcRabbitMQApp
                     var consumer = new AsyncEventingBasicConsumer(_channel);
                     consumer.ReceivedAsync += async (sender, ea) =>
                     {
-                        byte[] body = ea.Body.ToArray();
                         Response? response = null;
                         try
                         {
                             using var scope = serviceProvider.CreateScope();
 
-                            var instance = scope.ServiceProvider.GetRequiredService(controller);
-                            var methodInfo = controller.GetMethod(method.Name, BindingFlags.Public | BindingFlags.Instance)
-                                ?? throw new InvalidOperationException($"Method {method.Name} not found in controller {controller.Name}");
+                            var instance = scope.ServiceProvider.GetRequiredService(controller) as Controller
+                                ?? throw new InvalidOperationException($"Controller {controller.Name} is not derivated from Controller class.");
 
-                            var asyncResult = methodInfo.Invoke(instance, [new Request(body)]);
+                            var methodInfo = controller.GetMethod(method.Name, BindingFlags.Public | BindingFlags.Instance)
+                                ?? throw new InvalidOperationException($"Method {method.Name} not found in controller {controller.Name}.");
+
+                            instance.Sender = sender;
+                            instance.AsyncEventArgs = ea;
+                            instance.Body = ea.Body.ToArray();
+
+                            List<object?> parameters = [];
+                            var jsonBody = Encoding.UTF8.GetString(instance.Body ?? []);
+                            if (!string.IsNullOrEmpty(jsonBody))
+                            {
+                                var parameterInfos = methodInfo.GetParameters();
+                                foreach (var paramInfo in parameterInfos)
+                                {
+                                    Type paramType = paramInfo.ParameterType;
+                                    if (paramType == null)
+                                        continue;
+
+                                    object? deserialized = JsonSerializer.Deserialize(jsonBody, paramType);
+                                    if (deserialized == null)
+                                        continue;
+
+                                    parameters.Add(deserialized);
+                                }
+                            }
+
+                            var asyncResult = methodInfo.Invoke(instance, [..parameters]);
                             object? result;
                             if (asyncResult is Task task)
                             {
