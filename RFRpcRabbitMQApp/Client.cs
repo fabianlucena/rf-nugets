@@ -56,7 +56,7 @@ namespace RFRpcRabbitMQApp
             await Channel.BasicConsumeAsync(ReplyQueueName, true, consumer);
         }
 
-        public async Task<Response> CallAsync(string routingKey, Request? request = null, CancellationToken cancellationToken = default)
+        public async Task<Response> CallAsync(string routingKey, object? data = null, CancellationToken cancellationToken = default)
         {
             if (Channel is null)
             {
@@ -72,6 +72,16 @@ namespace RFRpcRabbitMQApp
 
             var tcs = new TaskCompletionSource<Response>(TaskCreationOptions.RunContinuationsAsynchronously);
             CallbackMapper.TryAdd(correlationId, tcs);
+
+            var request = data switch
+            {
+                null => null,
+                string str => new Request(str),
+                byte[] bytes => new Request(bytes),
+                Request req => req,
+                DataTransfer dat => dat,
+                _ => new DataTransfer(data)
+            };
 
             await Channel.BasicPublishAsync(
                 exchange: string.Empty,
