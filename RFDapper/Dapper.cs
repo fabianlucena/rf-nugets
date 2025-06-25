@@ -30,11 +30,11 @@ namespace RFDapper
         private readonly ILogger<Dapper<TEntity>> _logger;
         private readonly IDriver _driver;
         private readonly string _tableName;
-        private readonly string _schema = "dbo";
+        private readonly string? _schema = null;
 
         public ILogger<Dapper<TEntity>> Logger { get => _logger; }
         public string TableName { get => _tableName; }
-        public string Schema { get => _schema; }
+        public string Schema { get => _schema ?? _driver.GetDefaultSchema(); }
 
         public Dapper(
             ILogger<Dapper<TEntity>> logger,
