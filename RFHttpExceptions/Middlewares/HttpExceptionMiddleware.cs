@@ -37,9 +37,15 @@ namespace RFHttpExceptions.Middlewares
             else
                 context.Response.StatusCode = 500;
 
+            string errorType = exception.GetType()
+                ?.GetProperty("Error")
+                ?.GetValue(exception)
+                as string
+                ?? exception.GetType().Name;
+
             await context.Response.WriteAsJsonAsync(new
             {
-                Error = exception.GetType().Name,
+                Error = errorType,
                 exception.Message,
             });
         }

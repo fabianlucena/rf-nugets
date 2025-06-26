@@ -3,6 +3,7 @@ using RabbitMQ.Client.Events;
 using RFRabbitMQ;
 using RFRpcRabbitMQApp.Types;
 using System.Collections.Concurrent;
+using System.Text.Json;
 
 namespace RFRpcRabbitMQApp
 {
@@ -100,6 +101,21 @@ namespace RFRpcRabbitMQApp
                 });
 
             return await tcs.Task;
+        }
+
+        public async Task<T> CallAsync<T>(string routingKey, object? data = null, CancellationToken cancellationToken = default)
+        {
+            var response = await CallAsync(routingKey, data, cancellationToken);
+            var jsonResult = response.ToString();
+            var result = JsonSerializer.Deserialize<T>(jsonResult);
+            if (result == null)
+            {
+                var type = typeof(T);
+                if (type.IsValueType && Nullable.GetUnderlyingType(type) == null)
+                    throw new RpcException(500, "Invalid format response.");
+            }
+
+            return result!;
         }
 
         public async ValueTask DisposeAsync()
