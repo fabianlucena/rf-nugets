@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RFRabbitMQ;
@@ -16,6 +17,7 @@ namespace RFRpcRabbitMQApp
         public RabbitMQOptions Options { get; }
         private IServiceCollection Services { get; }
         private ConnectionFactory ConnectionFactory { get; }
+        public ILogger Logger { get; set; }
 
         private IConnection? _connection = null;
         private IChannel? _channel = null;
@@ -32,6 +34,9 @@ namespace RFRpcRabbitMQApp
                 UserName = Options.UserName,
                 Password = Options.Password,
             };
+
+            using ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            Logger = loggerFactory.CreateLogger<App>();
         }
 
         public static App Create(RabbitMQOptions options, IServiceCollection services)
@@ -146,14 +151,23 @@ namespace RFRpcRabbitMQApp
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine($" [.] {e.Message}");
+                            Logger.LogError(e, "{Error}: {Message}", e.GetType().Name, e.Message);
+                            response = new Response(
+                                new Result
+                                {
+                                    Ok = false,
+                                    Error = e.GetType().Name,
+                                    Message = e.Message,
+                                    StatusCode = 500
+                                }
+                            );
                         }
 
                         AsyncEventingBasicConsumer cons = (AsyncEventingBasicConsumer)sender;
                         IChannel ch = cons.Channel;
                         if (!ch.IsOpen)
                         {
-                            Console.WriteLine($" [.] Channel {queue} is closed or disposed.");
+                            Logger.LogWarning("Channel {Queue} is closed or disposed.", queue);
                             return;
                         }
 
@@ -198,9 +212,7 @@ namespace RFRpcRabbitMQApp
                     )
                 );
 
-            if (isTest)
-                Console.WriteLine($" [.] Test mode detected.");
-            else
+            if (!isTest)
                 await Task.Delay(Timeout.Infinite);
         }
     }
