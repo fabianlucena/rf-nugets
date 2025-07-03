@@ -11,6 +11,8 @@ namespace RFHttpAction.IServices
 
         Task<HttpAction?> GetSingleOrDefaultForTokenAsync(string token);
 
+        Task CloseForIdAsync(Int64 id);
+
         string GetUrl(HttpAction action);
     }
 }

@@ -4,6 +4,7 @@ using RFHttpAction.IServices;
 using RFHttpAction.Entities;
 using RFService.Repo;
 using RFHttpAction.Util;
+using RFService.Libs;
 
 namespace RFHttpAction.Services
 {
@@ -34,6 +35,14 @@ namespace RFHttpAction.Services
         public Task<HttpAction> GetSingleForTokenAsync(string token)
         {
             return GetSingleAsync(new GetOptions { Filters = { { "Token", token } } });
+        }
+
+        public async Task CloseForIdAsync(Int64 id)
+        {
+            await UpdateForIdAsync(
+                new DataDictionary { { "ClosedAt", DateTime.UtcNow } },
+                id
+            );
         }
 
         public string GetUrl(HttpAction action)
