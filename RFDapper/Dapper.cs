@@ -698,7 +698,7 @@ namespace RFDapper
                 throw new NothingToUpdateException();
 
             options.Alias = options.GetOrCreateAlias("t");
-            var sqlFrom = $" FROM {_driver.GetTableName(TableName, Schema)} {_driver.GetTableAlias(options.Alias)}";
+            var sqlFrom = _driver.GetTableName(TableName, Schema) + " " + _driver.GetTableAlias(options.Alias);
             (string joins, DataDictionary joinData) = GetJoinQuery(
                 options,
                 usedNames
@@ -708,10 +708,21 @@ namespace RFDapper
             foreach (var value in joinData)
                 data.Add(value.Key, value.Value);
 
-            var sql = $"UPDATE {_driver.GetTableAlias(options.Alias)}"
-                + $" SET {string.Join(",", columns)}"
-                + sqlFrom + " "
-                + sqlWhere.Sql;
+            var sql = "UPDATE ";
+            if (_driver.UseUpdateFrom)
+            {
+                sql += _driver.GetTableAlias(options.Alias)
+                    + $" SET {string.Join(",", columns)}"
+                    + $" FROM {sqlFrom} "
+                    + sqlWhere.Sql;
+            }
+            else
+            {
+                sql += sqlFrom
+                    + $" SET {string.Join(",", columns)} "
+                    + sqlWhere.Sql;
+            }
+
             return new SqlQuery
             {
                 Sql = sql,

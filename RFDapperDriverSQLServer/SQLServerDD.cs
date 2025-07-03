@@ -19,6 +19,8 @@ namespace RFDapperDriverSQLServer
         private readonly static Regex SqareBracketAndFree = new(@"^\[.*\]\.[\w][\w\d]*$");
         private readonly static Regex FreeAndSqareBracket = new(@"^[\w][\w\d]\.\[.*\]*$");
 
+        public bool UseUpdateFrom => true;
+
         public DbConnection OpenConnection(string? connectionString = null)
         {
             connectionString ??= driverOptions.ConnectionString;

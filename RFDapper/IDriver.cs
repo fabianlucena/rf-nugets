@@ -6,6 +6,8 @@ namespace RFDapper
 {
     public interface IDriver
     {
+        bool UseUpdateFrom { get; }
+
         public DbConnection OpenConnection(string? connectionString = null);
 
         string GetDefaultSchema();
