@@ -23,6 +23,8 @@ namespace RFService.IServices
 
         Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options);
 
+        Task<TEntity?> GetSingleOrCreateAsync(GetOptions options, Func<TEntity> dataFactory);
+
         Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options);
 
         IDataDictionary SanitizeDataForAutoGet(IDataDictionary data);
