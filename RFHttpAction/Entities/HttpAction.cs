@@ -7,7 +7,8 @@ namespace RFHttpAction.Entities
 {
     [Table("HttpActions", Schema = "action")]
     [Index(nameof(Token), IsUnique = true)]
-    public class HttpAction : EntityTimestampsIdUuid
+    public class HttpAction
+        : EntityTimestampsIdUuid
     {
         [Required]
         [ForeignKey("Type")]
@@ -19,5 +20,7 @@ namespace RFHttpAction.Entities
 
         [MaxLength(255)]
         public string Token { get; set; } = "";
+        
+        public DateTime? ClosedAt { get; set; }
     }
 }
