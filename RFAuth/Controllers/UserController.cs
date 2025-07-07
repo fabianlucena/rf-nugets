@@ -1,14 +1,14 @@
 using AutoMapper;
-using RFAuth.Entities;
-using RFAuth.DTO;
-using RFAuth.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using RFService.Data;
-using RFService.Repo;
+using RFAuth.DTO;
+using RFAuth.Entities;
+using RFAuth.IServices;
 using RFService.Authorization;
+using RFService.Data;
 using RFService.IServices;
 using RFService.Libs;
+using RFService.Repo;
 
 namespace RFAuth.Controllers
 {
@@ -79,11 +79,9 @@ namespace RFAuth.Controllers
 
             request = request.GetPascalized();
 
-            var eventData = new EventData {
-                Data = request,
-                Filter = new DataDictionary {
-                    { "Uuid", uuid }
-                }
+            var eventData = new DataDictionary {
+                { "Data", request },
+                { "Filter", new DataDictionary {{ "Uuid", uuid }}},
             };
 
             await eventBus.FireAsync("updating", "User", eventData);
@@ -111,7 +109,7 @@ namespace RFAuth.Controllers
             await loggerService.AddInfoAddAsync("Add user", new { data });
 
             request = request.GetPascalized();
-            var eventData = new EventData { Data = request };
+            var eventData = new DataDictionary { { "Data", request } };
             await eventBus.FireAsync("creating", "User", eventData);
             var result = await userService.CreateAsync(request.ToObject<User>());
             await UpdatePassword(request);
@@ -133,13 +131,7 @@ namespace RFAuth.Controllers
 
             await loggerService.AddInfoDeleteAsync("Delete user", new { uuid });
 
-            var eventData = new EventData
-            {
-                Filter = new DataDictionary {
-                    { "Uuid", uuid }
-                }
-            };
-            
+            var eventData = new DataDictionary { { "Filter", new DataDictionary { { "Uuid", uuid } } } };
             await eventBus.FireAsync("updating", "User", eventData);
             var result = await userService.DeleteForUuidAsync(uuid);
             await eventBus.FireAsync("updated", "User", eventData);
@@ -160,8 +152,7 @@ namespace RFAuth.Controllers
             
             await loggerService.AddInfoDeleteAsync("Restore user", new { uuid });
 
-            var eventData = new EventData { Filter = new DataDictionary { { "Uuid", uuid } } };
-
+            var eventData = new DataDictionary { { "Filter", new DataDictionary { { "Uuid", uuid } } } };
             await eventBus.FireAsync("restoring", "User", eventData);
             var result = await userService.RestoreForUuidAsync(uuid);
             await eventBus.FireAsync("restored", "User", eventData);

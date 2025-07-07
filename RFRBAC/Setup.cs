@@ -75,10 +75,15 @@ namespace RFRBAC
 
         public static async Task<bool> UpdateUserRoles(Event evt)
         {
-            if (userRoleService == null)
+            if (userRoleService == null || evt.Data == null)
                 return false;
 
-            var data = evt.Data?.Data;
+            if (evt.Data is not DataDictionary bundle)
+                return false;
+
+            if (!bundle.TryGet("Data", out DataDictionary data))
+                return false;
+
             if (data == null)
                 return false;
 

@@ -1,0 +1,1 @@
+﻿global using Listener = System.Func<RFService.Libs.Event, System.Threading.Tasks.Task>;

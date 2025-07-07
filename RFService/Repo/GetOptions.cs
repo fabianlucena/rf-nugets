@@ -2,7 +2,8 @@
 using RFOperators;
 using RFService.Libs;
 using System.Data;
-using System.Text.RegularExpressions;
+using System.Globalization;
+using static ODataParser;
 
 namespace RFService.Repo
 {
@@ -100,17 +101,46 @@ namespace RFService.Repo
                 if (string.IsNullOrEmpty(filter))
                     continue;
 
-                string pattern = @"^([\w\.]+)\s+eq\s+(.*)$";
-
-                Regex regex = new(pattern);
-                Match match = regex.Match(filter);
-                if (!match.Success)
-                    throw new UnknownFilterException(filter);
-
-                AddFilter(match.Groups[1].Value, match.Groups[2].Value);
+                var tree = ODataParser.ParseOData(filter);
+                AddFilter(ODataTreeToFilter(tree));
             }
 
             return this;
+        }
+
+        static Operator ODataTreeToFilter(Nodo nodo)
+        {
+            switch (nodo)
+            {
+                case Comparation c:
+                    var field = c.Field;
+                    field = char.ToUpper(field[0], CultureInfo.InvariantCulture) + field[1..];
+
+                    return c.Operator switch
+                    {
+                        "eq" => Op.Eq(field, c.Value),
+                        "ne" => Op.NE(field, c.Value),
+                        "gt" => Op.GT(field, c.Value),
+                        "lt" => Op.LT(field, c.Value),
+                        "ge" => Op.GE(field, c.Value),
+                        "le" => Op.LE(field, c.Value),
+                        _ => throw new Exception($"Unknown operator: {c.Operator}"),
+                    };
+
+                case Function:
+                    //Console.WriteLine($"Función: {f.Name}({f.Field}, '{f.Argument}')");
+                    throw new Exception("OData function not yet implemented.");
+
+                case ODataParser.Binary b:
+                    return b.Operator switch
+                    {
+                        "and" => Op.And(ODataTreeToFilter(b.Left), ODataTreeToFilter(b.Right)),
+                        "or" => Op.Or(ODataTreeToFilter(b.Left), ODataTreeToFilter(b.Right)),
+                        _ => throw new Exception($"Unknown operator: {b.Operator}"),
+                    };
+
+                default: throw new Exception("Unknown OData node.");
+            };
         }
 
         public bool HasColumnFilter(string column)
