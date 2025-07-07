@@ -6,6 +6,6 @@
 
         public string Entity { get; set; } = string.Empty;
 
-        public EventData? Data { get; set; } = null;
+        public object? Data { get; set; } = null;
     }
 }

@@ -37,10 +37,32 @@ namespace RFService.Libs
             return true;
         }
 
+        public bool RemoveListener(
+            string eventType,
+            string entity,
+            Listener listener
+        )
+        {
+            if (string.IsNullOrWhiteSpace(eventType))
+                throw new NullEventTypeException();
+
+            eventType = eventType.Trim().ToLower();
+            if (!_listeners.TryGetValue(eventType, out Dictionary<string, List<Listener>>? entitiesListeners))
+                return false;
+
+            entity = entity.Trim();
+            if (!entitiesListeners.TryGetValue(entity, out List<Listener>? listeners))
+                return false;
+
+            listeners.Remove(listener);
+
+            return true;
+        }
+
         public async Task FireAsync(
             string eventType,
             string entity,
-            EventData? data = null)
+            object? data = null)
         {
             eventType = eventType.Trim().ToLower();
             if (string.IsNullOrWhiteSpace(eventType))
