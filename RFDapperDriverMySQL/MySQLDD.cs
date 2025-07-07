@@ -19,6 +19,8 @@ namespace RFDapperDriverMySQL
         private readonly static Regex QuotedAndFree = new(@"^`.*`\.[\w][\w\d]*$");
         private readonly static Regex FreeAndQuoted = new(@"^[\w][\w\d]\.`.*`*$");
 
+        public bool UseUpdateFrom => false;
+
         public DbConnection OpenConnection(string? connectionString = null)
         {
             var connection = new MySqlConnection(connectionString ?? driverOptions.ConnectionString);

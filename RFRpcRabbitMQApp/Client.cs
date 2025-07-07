@@ -3,6 +3,7 @@ using RabbitMQ.Client.Events;
 using RFRabbitMQ;
 using RFRpcRabbitMQApp.Types;
 using System.Collections.Concurrent;
+using System.Text.Json;
 
 namespace RFRpcRabbitMQApp
 {
@@ -56,7 +57,7 @@ namespace RFRpcRabbitMQApp
             await Channel.BasicConsumeAsync(ReplyQueueName, true, consumer);
         }
 
-        public async Task<Response> CallAsync(string routingKey, Request? request = null, CancellationToken cancellationToken = default)
+        public async Task<Response> CallAsync(string routingKey, object? data = null, CancellationToken cancellationToken = default)
         {
             if (Channel is null)
             {
@@ -72,6 +73,16 @@ namespace RFRpcRabbitMQApp
 
             var tcs = new TaskCompletionSource<Response>(TaskCreationOptions.RunContinuationsAsynchronously);
             CallbackMapper.TryAdd(correlationId, tcs);
+
+            var request = data switch
+            {
+                null => null,
+                string str => new Request(str),
+                byte[] bytes => new Request(bytes),
+                Request req => req,
+                DataTransfer dat => dat,
+                _ => new DataTransfer(data)
+            };
 
             await Channel.BasicPublishAsync(
                 exchange: string.Empty,
@@ -90,6 +101,21 @@ namespace RFRpcRabbitMQApp
                 });
 
             return await tcs.Task;
+        }
+
+        public async Task<T> CallAsync<T>(string routingKey, object? data = null, CancellationToken cancellationToken = default)
+        {
+            var response = await CallAsync(routingKey, data, cancellationToken);
+            var jsonResult = response.ToString();
+            var result = JsonSerializer.Deserialize<T>(jsonResult);
+            if (result == null)
+            {
+                var type = typeof(T);
+                if (type.IsValueType && Nullable.GetUnderlyingType(type) == null)
+                    throw new RpcException(500, "Invalid format response.");
+            }
+
+            return result!;
         }
 
         public async ValueTask DisposeAsync()

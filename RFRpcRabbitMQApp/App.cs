@@ -1,11 +1,14 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RFRabbitMQ;
 using RFRpcRabbitMQApp.Attributes;
 using RFRpcRabbitMQApp.Types;
 using System.Reflection;
+using System.Text;
+using System.Text.Json;
 
 namespace RFRpcRabbitMQApp
 {
@@ -14,6 +17,7 @@ namespace RFRpcRabbitMQApp
         public RabbitMQOptions Options { get; }
         private IServiceCollection Services { get; }
         private ConnectionFactory ConnectionFactory { get; }
+        public ILogger Logger { get; set; }
 
         private IConnection? _connection = null;
         private IChannel? _channel = null;
@@ -30,6 +34,9 @@ namespace RFRpcRabbitMQApp
                 UserName = Options.UserName,
                 Password = Options.Password,
             };
+
+            using ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            Logger = loggerFactory.CreateLogger<App>();
         }
 
         public static App Create(RabbitMQOptions options, IServiceCollection services)
@@ -92,17 +99,41 @@ namespace RFRpcRabbitMQApp
                     var consumer = new AsyncEventingBasicConsumer(_channel);
                     consumer.ReceivedAsync += async (sender, ea) =>
                     {
-                        byte[] body = ea.Body.ToArray();
                         Response? response = null;
                         try
                         {
                             using var scope = serviceProvider.CreateScope();
 
-                            var instance = scope.ServiceProvider.GetRequiredService(controller);
-                            var methodInfo = controller.GetMethod(method.Name, BindingFlags.Public | BindingFlags.Instance)
-                                ?? throw new InvalidOperationException($"Method {method.Name} not found in controller {controller.Name}");
+                            var instance = scope.ServiceProvider.GetRequiredService(controller) as Controller
+                                ?? throw new InvalidOperationException($"Controller {controller.Name} is not derivated from Controller class.");
 
-                            var asyncResult = methodInfo.Invoke(instance, [new Request(body)]);
+                            var methodInfo = controller.GetMethod(method.Name, BindingFlags.Public | BindingFlags.Instance)
+                                ?? throw new InvalidOperationException($"Method {method.Name} not found in controller {controller.Name}.");
+
+                            instance.Sender = sender;
+                            instance.AsyncEventArgs = ea;
+                            instance.Body = ea.Body.ToArray();
+
+                            List<object?> parameters = [];
+                            var jsonBody = Encoding.UTF8.GetString(instance.Body ?? []);
+                            if (!string.IsNullOrEmpty(jsonBody))
+                            {
+                                var parameterInfos = methodInfo.GetParameters();
+                                foreach (var paramInfo in parameterInfos)
+                                {
+                                    Type paramType = paramInfo.ParameterType;
+                                    if (paramType == null)
+                                        continue;
+
+                                    object? deserialized = JsonSerializer.Deserialize(jsonBody, paramType);
+                                    if (deserialized == null)
+                                        continue;
+
+                                    parameters.Add(deserialized);
+                                }
+                            }
+
+                            var asyncResult = methodInfo.Invoke(instance, [..parameters]);
                             object? result;
                             if (asyncResult is Task task)
                             {
@@ -120,14 +151,23 @@ namespace RFRpcRabbitMQApp
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine($" [.] {e.Message}");
+                            Logger.LogError(e, "{Error}: {Message}", e.GetType().Name, e.Message);
+                            response = new Response(
+                                new Result
+                                {
+                                    Ok = false,
+                                    Error = e.GetType().Name,
+                                    Message = e.Message,
+                                    StatusCode = 500
+                                }
+                            );
                         }
 
                         AsyncEventingBasicConsumer cons = (AsyncEventingBasicConsumer)sender;
                         IChannel ch = cons.Channel;
                         if (!ch.IsOpen)
                         {
-                            Console.WriteLine($" [.] Channel {queue} is closed or disposed.");
+                            Logger.LogWarning("Channel {Queue} is closed or disposed.", queue);
                             return;
                         }
 
@@ -172,9 +212,7 @@ namespace RFRpcRabbitMQApp
                     )
                 );
 
-            if (isTest)
-                Console.WriteLine($" [.] Test mode detected.");
-            else
+            if (!isTest)
                 await Task.Delay(Timeout.Infinite);
         }
     }

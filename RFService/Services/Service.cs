@@ -41,6 +41,10 @@ namespace RFService.Services
         public virtual Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options)
             => repo.GetSingleOrDefaultAsync(SanitizeGetOptions(options));
 
+        public virtual async Task<TEntity?> GetSingleOrCreateAsync(GetOptions options, Func<TEntity> dataFactory)
+            => await GetSingleOrDefaultAsync(options)
+                ?? await CreateAsync(dataFactory());
+
         public virtual Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options)
             => repo.GetFirstOrDefaultAsync(SanitizeGetOptions(options));
 

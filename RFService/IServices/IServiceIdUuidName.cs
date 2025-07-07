@@ -43,6 +43,14 @@ namespace RFService.IServices
             return GetId(item);
         }
 
+        public async Task<Int64> GetSingleIdForNameOrCreateAsync(string name, Func<TEntity> dataFactory, GetOptions? options = null)
+        {
+            var item = await GetSingleOrDefaultForNameAsync(name, options);
+            item ??= await CreateAsync(dataFactory(), options);
+
+            return GetId(item);
+        }
+
         public async Task<IEnumerable<TEntity>> GetListForNamesAsync(IEnumerable<string> names, GetOptions? options = null)
         {
             options ??= new GetOptions();
