@@ -21,8 +21,14 @@
         public static NotIn NotIn(string column, object? value) => new(column, value);
         public static Or Or(params Operator[] values) => new(values);
         public static And And(params Operator[] values) => new(values);
+        public static GT GT(Operator value1, Operator value2) => new(value1, value2);
+        public static GT GT(string column, object? value) => new(column, value);
         public static GE GE(Operator value1, Operator value2) => new(value1, value2);
         public static GE GE(string column, object? value) => new(column, value);
+        public static LT LT(Operator value1, Operator value2) => new(value1, value2);
+        public static LT LT(string column, object? value) => new(column, value);
+        public static LE LE(Operator value1, Operator value2) => new(value1, value2);
+        public static LE LE(string column, object? value) => new(column, value);
         public static Like Like(Operator value1, Operator value2) => new(value1, value2);
         public static Like Like(string column, Operator value) => new(column, value);
         public static Like Like(string column, object? value) => new(column, value);

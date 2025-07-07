@@ -264,7 +264,10 @@ namespace RFDapper
                     ST_Contains => GetSTContainsQuery(sqlQuery1, sqlQuery2),
                     Like => $"{sql1} LIKE {sql2}",
                     NotLike => $"{sql1} NOT LIKE {sql2}",
+                    GT => $"{sql1} > {sql2}",
                     GE => $"{sql1} >= {sql2}",
+                    LT => $"{sql1} < {sql2}",
+                    LE => $"{sql1} <= {sql2}",
                     Add => $"{sql1} + {sql2}",
                     _ => throw new UnknownBinaryOperatorException(op.GetType().Name),
                 };
@@ -289,7 +292,7 @@ namespace RFDapper
                     if (newSqlQuery.Precedence > sqlQuery.Precedence)
                         newSql = $"({newSql})";
 
-                    sqls.Add(newSqlQuery.Sql);
+                    sqls.Add(newSql);
                     foreach (var kv in newSqlQuery.Data)
                         sqlQuery.Data[kv.Key] = kv.Value;
                 }
