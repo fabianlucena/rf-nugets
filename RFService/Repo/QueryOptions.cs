@@ -29,9 +29,7 @@ namespace RFService.Repo
 
         public List<string> OrderBy { get; set; } = [];
 
-        public bool IncludeDisabled { get; set; } = false;
-
-        public bool IncludeDeleted { get; set; } = false;
+        public Dictionary<string, bool> Switches { get; set; } = [];
 
         public QueryOptions() { }
 
@@ -49,8 +47,7 @@ namespace RFService.Repo
                 CommandType = options.CommandType;
                 Filters = [.. options.Filters];
                 OrderBy = options.OrderBy;
-                IncludeDisabled = options.IncludeDisabled;
-                IncludeDeleted = options.IncludeDeleted;
+                Switches = new Dictionary<string, bool>(options.Switches);
             }
         }
 
@@ -78,7 +75,10 @@ namespace RFService.Repo
 
         public static QueryOptions CreateFromQuery(HttpContext httpContext)
             => CreateFromQuery(httpContext.Request.Query.GetPascalized());
-        
+
+        public bool GetSwitch(string key, bool defaultValue = false)
+            => Switches.TryGetValue(key, out bool value) && value || defaultValue;
+
         public QueryOptions AddFilterUuid(Guid? uuid)
         {
             if (uuid != null)
@@ -90,10 +90,10 @@ namespace RFService.Repo
         public QueryOptions AddFromQuery(IQueryCollection query)
         {
             if (query.TryGetBool("IncludeDisabled", out bool includeDisabled))
-                IncludeDisabled = includeDisabled;
+                Switches["IncludeDisabled"] = includeDisabled;
 
             if (query.TryGetBool("IncludeDeleted", out bool includeDeleted))
-                IncludeDeleted = includeDeleted;
+                Switches["IncludeDeleted"] = includeDeleted;
 
             var filters = query.GetStrings("$filter");
             foreach (var filter in filters)

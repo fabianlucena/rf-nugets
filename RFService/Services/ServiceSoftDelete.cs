@@ -21,7 +21,7 @@ namespace RFService.Services
         public override QueryOptions SanitizeQueryOptions(QueryOptions options)
         {
             if (!options.HasColumnFilter("DeletedAt")
-                && !options.IncludeDeleted
+                && !options.GetSwitch("IncludeDeleted", false)
             )
             {
                 options = new QueryOptions(options);

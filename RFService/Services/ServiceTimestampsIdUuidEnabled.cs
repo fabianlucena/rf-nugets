@@ -12,7 +12,7 @@ namespace RFService.Services
         public override QueryOptions SanitizeQueryOptions(QueryOptions options)
         {
             if (!options.HasColumnFilter("IsEnabled")
-                && !options.IncludeDisabled
+                && !options.GetSwitch("IncludeDisabled", false)
             )
             {
                 options = new QueryOptions(options);

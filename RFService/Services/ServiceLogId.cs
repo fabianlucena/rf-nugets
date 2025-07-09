@@ -95,9 +95,9 @@ namespace RFService.Services
             if (uuidProp != null && (!uuidProp.CanWrite || uuidProp.PropertyType != typeof(Guid)))
                 uuidProp = null;
 
-            var listOptions = new QueryOptions(options) { IncludeDisabled = true };
+            var listOptions = new QueryOptions(options) { Switches = { { "IncludeDisabled", true } } };
             if (data.TryGetValue("DeletedAt", out object? value) && value == null)
-                listOptions.IncludeDeleted = true;
+                listOptions.Switches["IncludeDeleted"] = true;
 
             var result = 0;
             var list = await GetListAsync(listOptions);
