@@ -37,6 +37,9 @@ namespace RFService.Services
             if (data.Id != 0)
                 throw new ForbiddenIdForCreationException();
 
+            if (data.UpdatedAt == default)
+                data.UpdatedAt = DateTime.UtcNow;
+
             return data;
         }
 
