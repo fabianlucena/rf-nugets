@@ -24,7 +24,7 @@ namespace RFService.IServices
             return data;
         }
 
-        Task<int> RestoreAsync(GetOptions options, DataDictionary? data)
+        Task<int> RestoreAsync(QueryOptions options, DataDictionary? data)
         {
             data ??= [];
             data["DeletedAt"] = null;

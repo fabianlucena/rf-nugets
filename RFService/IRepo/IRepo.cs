@@ -10,18 +10,18 @@ namespace RFService.IRepo
 
         Task<TEntity> InsertAsync(TEntity data, RepoOptions? options = null);
 
-        Task<int> GetCountAsync(GetOptions options);
+        Task<int> GetCountAsync(QueryOptions options);
 
-        Task<TEntity> GetSingleAsync(GetOptions options);
+        Task<TEntity> GetSingleAsync(QueryOptions options);
 
-        Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options);
+        Task<TEntity?> GetSingleOrDefaultAsync(QueryOptions options);
 
-        Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options);
+        Task<TEntity?> GetFirstOrDefaultAsync(QueryOptions options);
 
-        Task<IEnumerable<TEntity>> GetListAsync(GetOptions options);
+        Task<IEnumerable<TEntity>> GetListAsync(QueryOptions options);
 
-        Task<int> UpdateAsync(IDataDictionary data, GetOptions options);
+        Task<int> UpdateAsync(IDataDictionary data, QueryOptions options);
 
-        Task<int> DeleteAsync(GetOptions options);
+        Task<int> DeleteAsync(QueryOptions options);
     }
 }

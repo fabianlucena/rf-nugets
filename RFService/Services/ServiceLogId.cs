@@ -16,18 +16,18 @@ namespace RFService.Services
     {
         public Int64 GetId(TEntity item) => item.Id;
 
-        public override GetOptions SanitizeGetOptions(GetOptions options)
+        public override QueryOptions SanitizeQueryOptions(QueryOptions options)
         {
             if (!options.HasColumnFilter("UpdatedOfId"))
             {
-                options = new GetOptions(options);
+                options = new QueryOptions(options);
                 options.AddFilter("UpdatedOfId", null);
             }
 
-            return base.SanitizeGetOptions(options);
+            return base.SanitizeQueryOptions(options);
         }
 
-        public async Task<IEnumerable<Int64>> GetListIdAsync(GetOptions options)
+        public async Task<IEnumerable<Int64>> GetListIdAsync(QueryOptions options)
             => (await GetListAsync(options)).Select(GetId);
 
         public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
@@ -48,35 +48,35 @@ namespace RFService.Services
                 ((IServiceLogId<TEntity>)this).SanitizeLogIdForAutoGet(data)
             );
 
-        public virtual Task<TEntity> GetSingleForIdAsync(Int64 id, GetOptions? options = null)
+        public virtual Task<TEntity> GetSingleForIdAsync(Int64 id, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Id", id);
             return GetSingleAsync(options);
         }
 
-        public async virtual Task<Int64> GetSingleIdAsync(GetOptions? options = null)
+        public async virtual Task<Int64> GetSingleIdAsync(QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             var item = await GetSingleAsync(options);
             return GetId(item);
         }
 
-        public virtual Task<TEntity?> GetSingleOrDefaultForIdAsync(Int64 id, GetOptions? options = null)
+        public virtual Task<TEntity?> GetSingleOrDefaultForIdAsync(Int64 id, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Id", id);
             return GetSingleOrDefaultAsync(options);
         }
 
-        public virtual Task<IEnumerable<TEntity>> GetListForIdsAsync(IEnumerable<Int64> id, GetOptions? options = null)
+        public virtual Task<IEnumerable<TEntity>> GetListForIdsAsync(IEnumerable<Int64> id, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Id", id);
             return GetListAsync(options);
         }
 
-        public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, GetOptions options)
+        public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, QueryOptions options)
         {
             data = await base.ValidateForUpdateAsync(data, options);
 
@@ -86,7 +86,7 @@ namespace RFService.Services
             return data;
         }
 
-        public override async Task<int> UpdateAsync(IDataDictionary data, GetOptions options)
+        public override async Task<int> UpdateAsync(IDataDictionary data, QueryOptions options)
         {
             data = await ValidateForUpdateAsync(data, options);
 
@@ -95,7 +95,7 @@ namespace RFService.Services
             if (uuidProp != null && (!uuidProp.CanWrite || uuidProp.PropertyType != typeof(Guid)))
                 uuidProp = null;
 
-            var listOptions = new GetOptions(options) { IncludeDisabled = true };
+            var listOptions = new QueryOptions(options) { IncludeDisabled = true };
             if (data.TryGetValue("DeletedAt", out object? value) && value == null)
                 listOptions.IncludeDeleted = true;
 
@@ -117,16 +117,16 @@ namespace RFService.Services
             return result;
         }
 
-        public virtual Task<int> UpdateForIdAsync(IDataDictionary data, Int64 id, GetOptions? options = null)
+        public virtual Task<int> UpdateForIdAsync(IDataDictionary data, Int64 id, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Id", id);
             return UpdateAsync(data, options);
         }
 
-        public virtual Task<int> DeleteForIdAsync(Int64 id, GetOptions? options = null)
+        public virtual Task<int> DeleteForIdAsync(Int64 id, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Id", id);
             return DeleteAsync(options);
         }

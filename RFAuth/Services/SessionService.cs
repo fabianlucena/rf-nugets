@@ -50,7 +50,7 @@ namespace RFAuth.Services
 
         public async Task<Session> CreateForAutoLoginTokenAndDeviceAsync(string autoLoginToken, Device device)
         {
-            var session = await GetSingleAsync(new GetOptions
+            var session = await GetSingleAsync(new QueryOptions
             {
                 Filters = {
                     { "AutoLoginToken", autoLoginToken }
@@ -69,13 +69,13 @@ namespace RFAuth.Services
         {
             return (await UpdateAsync(
                 new DataDictionary { { "ClosedAt", DateTime.UtcNow } },
-                new GetOptions { Filters = { { "Id", id} } }
+                new QueryOptions { Filters = { { "Id", id} } }
             )) > 0;
         }
 
         public Task<Session?> GetForTokenOrDefaultAsync(string token)
         {
-            return repo.GetSingleOrDefaultAsync(new GetOptions { Filters = { { "Token", token } } });
+            return repo.GetSingleOrDefaultAsync(new QueryOptions { Filters = { { "Token", token } } });
         }
     }
 }

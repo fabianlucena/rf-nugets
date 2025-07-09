@@ -12,21 +12,21 @@ namespace RFService.IServices
 
         Task<TEntity> ValidateForCreationAsync(TEntity data);
 
-        Task<TEntity> CreateAsync(TEntity data, GetOptions? options = null);
+        Task<TEntity> CreateAsync(TEntity data, QueryOptions? options = null);
 
-        GetOptions SanitizeGetOptions(GetOptions options);
+        QueryOptions SanitizeQueryOptions(QueryOptions options);
 
-        Task<int> GetCountAsync(GetOptions options);
+        Task<int> GetCountAsync(QueryOptions options);
 
-        Task<IEnumerable<TEntity>> GetListAsync(GetOptions options);
+        Task<IEnumerable<TEntity>> GetListAsync(QueryOptions options);
 
-        Task<TEntity> GetSingleAsync(GetOptions options);
+        Task<TEntity> GetSingleAsync(QueryOptions options);
 
-        Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options);
+        Task<TEntity?> GetSingleOrDefaultAsync(QueryOptions options);
 
-        Task<TEntity?> GetSingleOrCreateAsync(GetOptions options, Func<TEntity> dataFactory);
+        Task<TEntity?> GetSingleOrCreateAsync(QueryOptions options, Func<TEntity> dataFactory);
 
-        Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options);
+        Task<TEntity?> GetFirstOrDefaultAsync(QueryOptions options);
 
         IDataDictionary SanitizeDataForAutoGet(IDataDictionary data);
 
@@ -36,10 +36,10 @@ namespace RFService.IServices
 
         Task CreateIfNotExistsAsync(TEntity data);
 
-        Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, GetOptions options);
+        Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, QueryOptions options);
 
-        Task<int> UpdateAsync(IDataDictionary data, GetOptions options);
+        Task<int> UpdateAsync(IDataDictionary data, QueryOptions options);
 
-        Task<int> DeleteAsync(GetOptions options, DataDictionary? data = null);
+        Task<int> DeleteAsync(QueryOptions options, DataDictionary? data = null);
     }
 }

@@ -18,27 +18,27 @@ namespace RFService.Services
                 ((IServiceSoftDelete<TEntity>)this).SanitizeSoftDeleteForAutoGet(data)
             );
 
-        public override GetOptions SanitizeGetOptions(GetOptions options)
+        public override QueryOptions SanitizeQueryOptions(QueryOptions options)
         {
             if (!options.HasColumnFilter("DeletedAt")
                 && !options.IncludeDeleted
             )
             {
-                options = new GetOptions(options);
+                options = new QueryOptions(options);
                 options.AddFilter("DeletedAt", null);
             }
 
-            return base.SanitizeGetOptions(options);
+            return base.SanitizeQueryOptions(options);
         }
 
-        public override Task<int> DeleteAsync(GetOptions options, DataDictionary? data = null)
+        public override Task<int> DeleteAsync(QueryOptions options, DataDictionary? data = null)
         {
             data ??= [];
             data["DeletedAt"] = DateTime.UtcNow;
             return UpdateAsync(data, options);
         }
 
-        public Task<int> RestoreAsync(GetOptions options, DataDictionary? data = null)
+        public Task<int> RestoreAsync(QueryOptions options, DataDictionary? data = null)
         {
             data ??= [];
             data["DeletedAt"] = null;

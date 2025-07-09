@@ -30,18 +30,18 @@ namespace RFService.IServices
             return data;
         }
 
-        Task<IEnumerable<Int64>> GetListIdAsync(GetOptions options);
+        Task<IEnumerable<Int64>> GetListIdAsync(QueryOptions options);
 
-        Task<TEntity> GetSingleForIdAsync(Int64 id, GetOptions? options = null);
+        Task<TEntity> GetSingleForIdAsync(Int64 id, QueryOptions? options = null);
 
-        Task<Int64> GetSingleIdAsync(GetOptions? options = null);
+        Task<Int64> GetSingleIdAsync(QueryOptions? options = null);
 
-        Task<TEntity?> GetSingleOrDefaultForIdAsync(Int64 id, GetOptions? options = null);
+        Task<TEntity?> GetSingleOrDefaultForIdAsync(Int64 id, QueryOptions? options = null);
 
-        Task<IEnumerable<TEntity>> GetListForIdsAsync(IEnumerable<Int64> id, GetOptions? options = null);
+        Task<IEnumerable<TEntity>> GetListForIdsAsync(IEnumerable<Int64> id, QueryOptions? options = null);
 
-        Task<int> UpdateForIdAsync(IDataDictionary data, Int64 id, GetOptions? options = null);
+        Task<int> UpdateForIdAsync(IDataDictionary data, Int64 id, QueryOptions? options = null);
 
-        Task<int> DeleteForIdAsync(Int64 id, GetOptions? options = null);
+        Task<int> DeleteForIdAsync(Int64 id, QueryOptions? options = null);
     }
 }

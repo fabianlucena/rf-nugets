@@ -32,9 +32,9 @@ namespace RFService.Services
             return data;
         }
 
-        public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, GetOptions? options = null)
+        public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Title", title);
 
             return await GetSingleOrDefaultAsync(options);

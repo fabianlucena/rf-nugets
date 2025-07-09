@@ -18,7 +18,7 @@ namespace RFDBLocalizer.Services
             string source
         )
         {
-            var options = new GetOptions();
+            var options = new QueryOptions();
             options.Include("Language", "l")
                 .Include("Context", "c")
                 .Include("Source", "s")

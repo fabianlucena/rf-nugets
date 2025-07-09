@@ -24,12 +24,12 @@ namespace RFService.IServices
             return data;
         }
 
-        Task<int> RestoreAsync(GetOptions options)
+        Task<int> RestoreAsync(QueryOptions options)
             => UpdateAsync(new DataDictionary { { "Id" , null } }, options);
 
-        Task<int> RestoreForIdAsync(Int64 id, GetOptions? options = null)
+        Task<int> RestoreForIdAsync(Int64 id, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Id", id);
             return RestoreAsync(options);
         }

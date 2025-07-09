@@ -22,7 +22,7 @@ namespace RFService.Services
             return data;
         }
 
-        public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, GetOptions options)
+        public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, QueryOptions options)
         {
             data = await base.ValidateForUpdateAsync(data, options);
 

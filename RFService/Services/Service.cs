@@ -20,33 +20,33 @@ namespace RFService.Services
         public virtual async Task<TEntity> ValidateForCreationAsync(TEntity data)
             => await Task.Run(() => data);
 
-        public virtual async Task<TEntity> CreateAsync(TEntity data, GetOptions? options = null)
+        public virtual async Task<TEntity> CreateAsync(TEntity data, QueryOptions? options = null)
         {
             data = await ValidateForCreationAsync(data);
             return await repo.InsertAsync(data);
         }
 
-        public virtual GetOptions SanitizeGetOptions(GetOptions options)
+        public virtual QueryOptions SanitizeQueryOptions(QueryOptions options)
             => options;
 
-        public virtual Task<int> GetCountAsync(GetOptions options)
-            => repo.GetCountAsync(SanitizeGetOptions(options));
+        public virtual Task<int> GetCountAsync(QueryOptions options)
+            => repo.GetCountAsync(SanitizeQueryOptions(options));
 
-        public virtual Task<IEnumerable<TEntity>> GetListAsync(GetOptions options)
-            => repo.GetListAsync(SanitizeGetOptions(options));
+        public virtual Task<IEnumerable<TEntity>> GetListAsync(QueryOptions options)
+            => repo.GetListAsync(SanitizeQueryOptions(options));
 
-        public virtual Task<TEntity> GetSingleAsync(GetOptions options)
-            => repo.GetSingleAsync(SanitizeGetOptions(options));
+        public virtual Task<TEntity> GetSingleAsync(QueryOptions options)
+            => repo.GetSingleAsync(SanitizeQueryOptions(options));
 
-        public virtual Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options)
-            => repo.GetSingleOrDefaultAsync(SanitizeGetOptions(options));
+        public virtual Task<TEntity?> GetSingleOrDefaultAsync(QueryOptions options)
+            => repo.GetSingleOrDefaultAsync(SanitizeQueryOptions(options));
 
-        public virtual async Task<TEntity?> GetSingleOrCreateAsync(GetOptions options, Func<TEntity> dataFactory)
+        public virtual async Task<TEntity?> GetSingleOrCreateAsync(QueryOptions options, Func<TEntity> dataFactory)
             => await GetSingleOrDefaultAsync(options)
                 ?? await CreateAsync(dataFactory());
 
-        public virtual Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options)
-            => repo.GetFirstOrDefaultAsync(SanitizeGetOptions(options));
+        public virtual Task<TEntity?> GetFirstOrDefaultAsync(QueryOptions options)
+            => repo.GetFirstOrDefaultAsync(SanitizeQueryOptions(options));
 
         public virtual IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
             => data;
@@ -74,7 +74,7 @@ namespace RFService.Services
             foreach (var kv in autoGetData)
                 filters.Add(kv.Key, kv.Value);
 
-            return GetFirstOrDefaultAsync(new GetOptions { Filters = filters });
+            return GetFirstOrDefaultAsync(new QueryOptions { Filters = filters });
         }
 
         public virtual async Task<TEntity> GetOrCreateAsync(TEntity data)
@@ -89,16 +89,16 @@ namespace RFService.Services
         public virtual Task CreateIfNotExistsAsync(TEntity data)
             => GetOrCreateAsync(data);
 
-        public virtual async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, GetOptions options)
+        public virtual async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, QueryOptions options)
             => await Task.Run(() => data);
 
-        public virtual async Task<int> UpdateAsync(IDataDictionary data, GetOptions options)
+        public virtual async Task<int> UpdateAsync(IDataDictionary data, QueryOptions options)
         {
             data = await ValidateForUpdateAsync(data, options);
             return await repo.UpdateAsync(data, options);
         }
 
-        public virtual Task<int> DeleteAsync(GetOptions options, DataDictionary? data = null)
+        public virtual Task<int> DeleteAsync(QueryOptions options, DataDictionary? data = null)
             => repo.DeleteAsync(options);
     }
 }

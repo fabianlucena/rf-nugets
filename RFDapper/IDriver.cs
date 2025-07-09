@@ -18,7 +18,7 @@ namespace RFDapper
 
         string GetParamName(string paramName, List<string> usedNames);
 
-        string GetColumnName(string columnName, GetOptions? options = null, string? defaultAlias = null);
+        string GetColumnName(string columnName, QueryOptions? options = null, string? defaultAlias = null);
 
         string GetTableName(string tableName, string? defaultScheme = null);
 
@@ -26,23 +26,23 @@ namespace RFDapper
 
         string GetColumnAlias(string columnAlias);
 
-        SqlQuery GetValue(object? data, GetOptions options, List<string> usedNames, string paramName);
+        SqlQuery GetValue(object? data, QueryOptions options, List<string> usedNames, string paramName);
 
         SqlQuery GetBool(SqlQuery sqlQuery);
 
         string? GetColumnType(string type, PropertyInfo property);
 
-        string GetSqlSelectedProperty(PropertyInfo property, GetOptions options, string? defaultAlias = null);
+        string GetSqlSelectedProperty(PropertyInfo property, QueryOptions options, string? defaultAlias = null);
 
         string? GetSqlColumnDefinition(PropertyInfo property);
 
         string GetJoinType(JoinType joinType);
 
-        string GetSqlOrderBy(string orderBy, GetOptions options);
+        string GetSqlOrderBy(string orderBy, QueryOptions options);
 
-        IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, GetOptions options);
+        IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, QueryOptions options);
 
-        string GetSqlLimit(GetOptions options);
+        string GetSqlLimit(QueryOptions options);
 
         string GetSelectLastIdQuery();
     }

@@ -20,13 +20,13 @@ namespace RFUserEmail.Services
         {
             await UpdateAsync(
                 new DataDictionary { { "IsVerified", true } },
-                new GetOptions { Filters = { { "Id", id } } }
+                new QueryOptions { Filters = { { "Id", id } } }
             );
         }
 
-        public virtual Task<UserEmail?> GetSingleOrDefaultForUserIdAsync(Int64 userId, GetOptions? options = null)
+        public virtual Task<UserEmail?> GetSingleOrDefaultForUserIdAsync(Int64 userId, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("UserId", userId);
             return GetSingleOrDefaultAsync(options);
         }

@@ -18,9 +18,9 @@ namespace RFRBAC.Services
     {
         public async Task<IEnumerable<Int64>> GetPermissionsIdForRolesIdAsync(
             IEnumerable<Int64> rolesId,
-            GetOptions? options = null)
+            QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("RoleId", rolesId);
             var rolesPermissions = await GetListAsync(options);
             return rolesPermissions.Select(i => i.PermissionId);
@@ -28,7 +28,7 @@ namespace RFRBAC.Services
 
         public async Task<IEnumerable<Permission>> GetPermissionsForRolesIdAsync(
             IEnumerable<Int64> rolesId,
-            GetOptions? options = null)
+            QueryOptions? options = null)
         {
             var permissionsId = await GetPermissionsIdForRolesIdAsync(rolesId, options);
             return await permissionService.GetListForIdsAsync(permissionsId);
@@ -36,12 +36,12 @@ namespace RFRBAC.Services
 
         public async Task<IEnumerable<Permission>> GetPermissionsForRoleIdListAsync(
             IEnumerable<Int64> rolesId,
-            GetOptions? options = null
+            QueryOptions? options = null
         )
         {
             var permissionsId = await GetPermissionsIdForRolesIdAsync(rolesId);
 
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Id", permissionsId);
 
             return await permissionService.GetListAsync(options);
@@ -49,7 +49,7 @@ namespace RFRBAC.Services
 
         public async Task<IEnumerable<Permission>> GetAllPermissionsForUserIdAsync(
             Int64 userId,
-            GetOptions? options = null
+            QueryOptions? options = null
         )
         {
             var allRolesId = await userRoleService.GetAllRolesIdForUserIdAsync(userId);
@@ -58,7 +58,7 @@ namespace RFRBAC.Services
 
         public async Task<IEnumerable<Permission>> GetAllPermissionsForUsersIdAsync(
             IEnumerable<Int64> usersId,
-            GetOptions? options = null
+            QueryOptions? options = null
         )
         {
             var allRolesId = await userRoleService.GetAllRolesIdForUsersIdAsync(usersId);
@@ -96,7 +96,7 @@ namespace RFRBAC.Services
 
                 var requiredPermissionsId = requiredPermissions.Select(x => x.Id);
 
-                var currentPermissionsId = (await GetListAsync(new GetOptions
+                var currentPermissionsId = (await GetListAsync(new QueryOptions
                     {
                         Filters = {
                             { "RoleId", roleId },

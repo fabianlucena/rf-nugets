@@ -11,21 +11,21 @@ namespace RFRBAC.IServices
         : IService<UserRole>,
             IServiceTimestamps<UserRole>
     {
-        Task<IEnumerable<Int64>> GetRolesIdAsync(GetOptions options);
+        Task<IEnumerable<Int64>> GetRolesIdAsync(QueryOptions options);
 
-        Task<IEnumerable<Int64>> GetRolesIdForUserIdAsync(Int64 userId, GetOptions? options = null);
+        Task<IEnumerable<Int64>> GetRolesIdForUserIdAsync(Int64 userId, QueryOptions? options = null);
 
-        Task<IEnumerable<Int64>> GetRolesIdForUsersIdAsync(IEnumerable<Int64> usersId, GetOptions? options = null);
+        Task<IEnumerable<Int64>> GetRolesIdForUsersIdAsync(IEnumerable<Int64> usersId, QueryOptions? options = null);
 
-        Task<IEnumerable<Int64>> GetAllRolesIdForUserIdAsync(Int64 userId, GetOptions? options = null);
+        Task<IEnumerable<Int64>> GetAllRolesIdForUserIdAsync(Int64 userId, QueryOptions? options = null);
 
-        Task<IEnumerable<Int64>> GetAllRolesIdForUsersIdAsync(IEnumerable<Int64> usersId, GetOptions? options = null);
+        Task<IEnumerable<Int64>> GetAllRolesIdForUsersIdAsync(IEnumerable<Int64> usersId, QueryOptions? options = null);
 
-        Task<IEnumerable<Role>> GetRolesForUserIdAsync(Int64 userId, GetOptions? options = null);
+        Task<IEnumerable<Role>> GetRolesForUserIdAsync(Int64 userId, QueryOptions? options = null);
 
-        Task<IEnumerable<Role>> GetAllRolesForUserIdAsync(Int64 userId, GetOptions? options = null);
+        Task<IEnumerable<Role>> GetAllRolesForUserIdAsync(Int64 userId, QueryOptions? options = null);
 
-        async Task<IEnumerable<string>> GetAllRolesNameForUserIdAsync(Int64 userId, GetOptions? options = null)
+        async Task<IEnumerable<string>> GetAllRolesNameForUserIdAsync(Int64 userId, QueryOptions? options = null)
             => (await GetAllRolesForUserIdAsync(userId, options)).Select(i => i.Name);
 
         async Task<bool> UserIdHasAnyRoleAsync(Int64 userId, params string[] checkingRoles)
@@ -40,7 +40,7 @@ namespace RFRBAC.IServices
 
         async Task<bool> UserIdHasRoleIdAsync(Int64 userId, Int64 roleId)
         {
-            var userRole = await GetFirstOrDefaultAsync(new GetOptions
+            var userRole = await GetFirstOrDefaultAsync(new QueryOptions
             {
                 Filters = {
                     { "UserId", userId },

@@ -6,7 +6,7 @@ namespace RFUserEmail.IServices
 {
     public interface IUserEmailService : IServiceId<UserEmail>
     {
-        Task<UserEmail?> GetSingleOrDefaultForUserIdAsync(Int64 userId, GetOptions? options = null);
+        Task<UserEmail?> GetSingleOrDefaultForUserIdAsync(Int64 userId, QueryOptions? options = null);
 
         Task SetIsVerifiedForIdAsync(bool isVerified, Int64 id);
     }

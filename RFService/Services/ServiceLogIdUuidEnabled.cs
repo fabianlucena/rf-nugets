@@ -9,17 +9,17 @@ namespace RFService.Services
         where TRepo : IRepo<TEntity>
         where TEntity : EntityLogIdUuidEnabled
     {
-        public override GetOptions SanitizeGetOptions(GetOptions options)
+        public override QueryOptions SanitizeQueryOptions(QueryOptions options)
         {
             if (!options.HasColumnFilter("IsEnabled")
                 && !options.IncludeDisabled
             )
             {
-                options = new GetOptions(options);
+                options = new QueryOptions(options);
                 options.AddFilter("IsEnabled", true);
             }
 
-            return base.SanitizeGetOptions(options);
+            return base.SanitizeQueryOptions(options);
         }
     }
 }

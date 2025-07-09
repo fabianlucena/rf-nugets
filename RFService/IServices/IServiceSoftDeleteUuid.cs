@@ -7,9 +7,9 @@ namespace RFService.IServices
         : IServiceSoftDelete<TEntity>
         where TEntity : class
     {
-        Task<int> RestoreForUuidAsync(Guid uuid, GetOptions? options = null, DataDictionary? data = null)
+        Task<int> RestoreForUuidAsync(Guid uuid, QueryOptions? options = null, DataDictionary? data = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("uuid", uuid);
             return RestoreAsync(options, data);
         }

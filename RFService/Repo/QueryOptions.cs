@@ -7,7 +7,7 @@ using static ODataParser;
 
 namespace RFService.Repo
 {
-    public class GetOptions
+    public class QueryOptions
         : From,
             IDisposable
     {
@@ -33,9 +33,9 @@ namespace RFService.Repo
 
         public bool IncludeDeleted { get; set; } = false;
 
-        public GetOptions() { }
+        public QueryOptions() { }
 
-        public GetOptions(GetOptions? options)
+        public QueryOptions(QueryOptions? options)
             : base(options)
         {
             if (options != null)
@@ -54,12 +54,12 @@ namespace RFService.Repo
             }
         }
 
-        public GetOptions(RepoOptions repoOptions)
+        public QueryOptions(RepoOptions repoOptions)
         {
             RepoOptions = repoOptions;
         }
 
-        ~GetOptions()
+        ~QueryOptions()
             => Dispose();
 
         public void Dispose()
@@ -68,18 +68,18 @@ namespace RFService.Repo
             GC.SuppressFinalize(this);
         }
 
-        public static GetOptions CreateFromQuery(IQueryCollection query)
+        public static QueryOptions CreateFromQuery(IQueryCollection query)
         {
-            GetOptions options = new();
+            QueryOptions options = new();
             options.AddFromQuery(query);
 
             return options;
         }
 
-        public static GetOptions CreateFromQuery(HttpContext httpContext)
+        public static QueryOptions CreateFromQuery(HttpContext httpContext)
             => CreateFromQuery(httpContext.Request.Query.GetPascalized());
         
-        public GetOptions AddFilterUuid(Guid? uuid)
+        public QueryOptions AddFilterUuid(Guid? uuid)
         {
             if (uuid != null)
                 AddFilterIfNotExists("Uuid", uuid);
@@ -87,7 +87,7 @@ namespace RFService.Repo
             return this;
         }
 
-        public GetOptions AddFromQuery(IQueryCollection query)
+        public QueryOptions AddFromQuery(IQueryCollection query)
         {
             if (query.TryGetBool("IncludeDisabled", out bool includeDisabled))
                 IncludeDisabled = includeDisabled;
@@ -146,7 +146,7 @@ namespace RFService.Repo
         public bool HasColumnFilter(string column)
             => Filters.Any(filter => filter.HasColumn(column));
 
-        public GetOptions AddFilterIfNotExists(string column, object? value)
+        public QueryOptions AddFilterIfNotExists(string column, object? value)
         {
             if (!HasColumnFilter(column))
                 AddFilter(column, value);
@@ -154,21 +154,21 @@ namespace RFService.Repo
             return this;
         }
 
-        public GetOptions AddFilter(string column, object? value)
+        public QueryOptions AddFilter(string column, object? value)
         {
             Filters.Add(column, value);
 
             return this;
         }
 
-        public GetOptions AddFilter(Operator op)
+        public QueryOptions AddFilter(Operator op)
         {
             Filters.Add(op);
 
             return this;
         }
 
-        public GetOptions SetFilter<T>(string column, object? value)
+        public QueryOptions SetFilter<T>(string column, object? value)
             where T : Operator
         {
             if (!Filters.SetForColumn<T>(column, value))
@@ -182,7 +182,7 @@ namespace RFService.Repo
             return this;
         }
 
-        public GetOptions Include(
+        public QueryOptions Include(
             string propertyName,
             string? alias = null,
             JoinType? type = null,
