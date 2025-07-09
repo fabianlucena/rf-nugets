@@ -1,4 +1,5 @@
 ﻿using RFService.ILibs;
+using RFService.Libs;
 using RFService.Repo;
 using System.Data;
 
@@ -39,6 +40,6 @@ namespace RFService.IServices
 
         Task<int> UpdateAsync(IDataDictionary data, GetOptions options);
 
-        Task<int> DeleteAsync(GetOptions options);
+        Task<int> DeleteAsync(GetOptions options, DataDictionary? data = null);
     }
 }

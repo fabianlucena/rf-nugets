@@ -98,7 +98,7 @@ namespace RFService.Services
             return await repo.UpdateAsync(data, options);
         }
 
-        public virtual Task<int> DeleteAsync(GetOptions options)
+        public virtual Task<int> DeleteAsync(GetOptions options, DataDictionary? data = null)
             => repo.DeleteAsync(options);
     }
 }

@@ -31,20 +31,18 @@ namespace RFService.Services
             return base.SanitizeGetOptions(options);
         }
 
-        public override Task<int> DeleteAsync(GetOptions options)
+        public override Task<int> DeleteAsync(GetOptions options, DataDictionary? data = null)
         {
-            return UpdateAsync(
-                new DataDictionary { { "DeletedAt", DateTime.UtcNow } },
-                options
-            );
+            data ??= [];
+            data["DeletedAt"] = DateTime.UtcNow;
+            return UpdateAsync(data, options);
         }
 
-        public Task<int> RestoreAsync(GetOptions options)
+        public Task<int> RestoreAsync(GetOptions options, DataDictionary? data = null)
         {
-            return UpdateAsync(
-                new DataDictionary { { "DeletedAt", null } },
-                options
-            );
+            data ??= [];
+            data["DeletedAt"] = null;
+            return UpdateAsync(data, options);
         }
     }
 }

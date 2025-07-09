@@ -46,11 +46,11 @@ namespace RFService.IServices
 
         Task<int> UpdateForUuidAsync(IDataDictionary data, Guid uuid, GetOptions? options = null);
 
-        Task<int> DeleteForUuidAsync(Guid uuid, GetOptions? options = null)
+        Task<int> DeleteForUuidAsync(Guid uuid, GetOptions? options = null, DataDictionary? data = null)
         {
             options ??= new GetOptions();
             options.AddFilter("uuid", uuid);
-            return DeleteAsync(options);
+            return DeleteAsync(options, data);
         }
     }
 }

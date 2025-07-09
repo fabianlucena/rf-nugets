@@ -24,7 +24,11 @@ namespace RFService.IServices
             return data;
         }
 
-        Task<int> RestoreAsync(GetOptions options)
-            => UpdateAsync(new DataDictionary { { "DeletedAt" , null } }, options);
+        Task<int> RestoreAsync(GetOptions options, DataDictionary? data)
+        {
+            data ??= [];
+            data["DeletedAt"] = null;
+            return UpdateAsync(data, options);
+        }
     }
 }
