@@ -12,6 +12,6 @@ namespace RFDapperDriverMySQL
 
         public Dictionary<string, string> ColumnTypes { get; set; } = [];
 
-        public Func<IDriver, PropertyInfo, GetOptions, string?, string?>? GetSqlSelectedProperty { get; set; } = null;
+        public Func<IDriver, PropertyInfo, QueryOptions, string?, string?>? GetSqlSelectedProperty { get; set; } = null;
     }
 }
