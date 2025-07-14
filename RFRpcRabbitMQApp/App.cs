@@ -125,11 +125,47 @@ namespace RFRpcRabbitMQApp
                                     if (paramType == null)
                                         continue;
 
-                                    object? deserialized = JsonSerializer.Deserialize(jsonBody, paramType);
-                                    if (deserialized == null)
-                                        continue;
+                                    object? deserialized = null;
+                                    if (paramType.IsPrimitive ||
+                                        paramType == typeof(string) ||
+                                        paramType == typeof(decimal) ||
+                                        paramType == typeof(DateTime) ||
+                                        paramType == typeof(Guid) ||
+                                        paramType.IsEnum
+                                    )
+                                    {
+                                        try
+                                        {
+                                            using var doc = JsonDocument.Parse(jsonBody);
 
-                                    parameters.Add(deserialized);
+                                            JsonElement root = doc.RootElement;
+
+                                            if (root.ValueKind == JsonValueKind.Object && paramInfo.Name != null &&
+                                                root.TryGetProperty(paramInfo.Name, out JsonElement elem))
+                                            {
+                                                if (paramType.IsEnum)
+                                                    deserialized = Enum.Parse(paramType, elem.GetString() ?? "", ignoreCase: true);
+                                                else 
+                                                    deserialized = Convert.ChangeType(elem.ToString(), paramType);
+                                            }
+                                            else if (root.ValueKind == JsonValueKind.String || root.ValueKind == JsonValueKind.Number || root.ValueKind == JsonValueKind.True || root.ValueKind == JsonValueKind.False)
+                                            {
+                                                deserialized = Convert.ChangeType(root.ToString(), paramType);
+                                            }
+
+                                        }
+                                        catch
+                                        {
+                                            continue; // skip si la conversión falla
+                                        }
+                                    }
+                                    else
+                                    {
+                                        deserialized = JsonSerializer.Deserialize(jsonBody, paramType);
+                                    }
+
+                                    if (deserialized != null)
+                                        parameters.Add(deserialized);
                                 }
                             }
 
