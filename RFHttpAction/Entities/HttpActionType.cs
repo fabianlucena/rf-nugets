@@ -4,7 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace RFHttpAction.Entities
 {
     [Table("HttpActionsTypes", Schema = "action")]
-    public class HttpActionType : EntityTimestampsIdUuidEnabledNameTitleTranslatable
+    public class HttpActionType
+        : EntityTimestampsIdUuidEnabledNameTitleTranslatable
     {
     }
 }

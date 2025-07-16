@@ -18,7 +18,12 @@ namespace RFHttpAction.Services
 
             if (string.IsNullOrEmpty(data.Token))
             {
-                data.Token = Token.GetString(64);
+                string token;
+                do
+                {
+                    token = Token.GetString(64);
+                } while (await GetSingleOrDefaultForTokenAsync(token) != null);
+                data.Token = token;
             };
 
             return data;
