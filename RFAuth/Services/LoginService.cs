@@ -26,6 +26,7 @@ namespace RFAuth.Services
             return new LoginData
             {
                 Username = user.Username,
+                FullName = user.FullName,
                 AuthorizationToken = session.Token,
                 AutoLoginToken = session.AutoLoginToken,
                 DeviceToken = device.Token,
