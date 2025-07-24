@@ -6,7 +6,7 @@ namespace RFService.Libs
     public class EventBus
         : IEventBus
     {
-        private readonly Dictionary<string, Dictionary<string, List<Listener>>> _listeners = [];
+        static private readonly Dictionary<string, Dictionary<string, List<Listener>>> _listeners = [];
 
         public bool AddListener(
             string eventType,
@@ -67,7 +67,6 @@ namespace RFService.Libs
             eventType = eventType.Trim().ToLower();
             if (string.IsNullOrWhiteSpace(eventType))
                 return;
-
 
             if (!_listeners.TryGetValue(eventType, out Dictionary<string, List<Listener>>? entitiesListeners))
                 return;
