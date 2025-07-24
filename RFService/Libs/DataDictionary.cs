@@ -63,8 +63,8 @@ namespace RFService.Libs
 
         public string? GetString(string key)
         {
-            var obj = GetValue(this[key]);
-            if (obj is null
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
                 || obj is not string str
             )
             {
@@ -72,6 +72,32 @@ namespace RFService.Libs
             }
 
             return str;
+        }
+
+        public bool TryGetString(string key, out string? value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = null;
+
+                return false;
+            }
+
+            var val = GetValue(obj);
+            if (val is not null
+                && val is string str
+            )
+            {
+                value = str;
+            }
+            else
+            {
+                value = null;
+            }
+
+            return true;
         }
 
         public bool TryGetNotNullString(string key, out string value)
@@ -163,6 +189,16 @@ namespace RFService.Libs
 
             value = newValue;
             return true;
+        }
+
+        public bool? GetBool(string key)
+        {
+            if (TryGetBool(key, out bool value))
+            {
+                return value;
+            }
+
+            return null;
         }
 
         public bool TryGetBool(string key, out bool value)
