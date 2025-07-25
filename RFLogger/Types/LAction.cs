@@ -8,5 +8,6 @@
         DELETE,
         RESTORE,
         NONE,
+        OTHER
     }
 }

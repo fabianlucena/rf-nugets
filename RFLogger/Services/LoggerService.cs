@@ -38,6 +38,9 @@ namespace RFLogger.Services
         public Task<IEnumerable<object?>> AddInfoRestoreAsync(string module, string message, object? data = null, IDictionary<string, object>? options = null)
             => AddInfoAsync(module, LAction.RESTORE, message, data, options);
 
+        public Task<IEnumerable<object?>> AddWarningAsync(string module, string message, object? data = null, IDictionary<string, object>? options = null)
+            => AddAsync(LLevel.WARNING, module, LAction.NONE, message, data, options);
+
         public Task<IEnumerable<object?>> AddErrorAsync(string module, string message, object? data = null, IDictionary<string, object>? options = null)
             => AddAsync(LLevel.ERROR, module, LAction.NONE, message, data, options);
         
