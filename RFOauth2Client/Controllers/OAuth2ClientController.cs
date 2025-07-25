@@ -34,7 +34,8 @@ namespace RFOauth2Client.Controllers
         public async Task<IActionResult> GetCallbackAsync(
             [FromRoute] string route,
             [FromQuery] string code,
-            [FromQuery] string? deviceToken
+            [FromQuery] string? deviceToken,
+            [FromQuery] string? state
         )
         {
             logger.LogInformation("OAuth2 callback received.");
@@ -52,7 +53,8 @@ namespace RFOauth2Client.Controllers
                 actionName,
                 new DataDictionary { 
                     { "deviceToken", deviceToken },
-                    { "code", code }
+                    { "code", code },
+                    { "state", state },
                 }
             );
 

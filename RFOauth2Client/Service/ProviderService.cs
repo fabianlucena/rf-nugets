@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RFHttpExceptions.Exceptions;
+using RFLogger.IServices;
 using RFOauth2Client.DTO;
 using RFOauth2Client.IServices;
 using RFService.IServices;
@@ -14,67 +15,67 @@ namespace RFOauth2Client.Service
     public class ProviderService(IServiceProvider serviceProvider)
         : IProviderService
     {
+        static private List<Provider>? ConfigurationProviders = null;
+
         public async Task<IEnumerable<Provider>> GetListAsync()
         {
-            var configuration = serviceProvider.GetService<IConfiguration>();
-            return configuration
-                ?.GetSection("OAuth2Providers")
-                ?.Get<Dictionary<string, ProviderData>>()
-                ?.Select(kvp => new Provider
+            if (ConfigurationProviders == null)
+            {
+                ConfigurationProviders = [];
+
+                var configuration = serviceProvider.GetService<IConfiguration>();
+                var providersSection = configuration?.GetSection("OAuth2Providers");
+
+                if (providersSection != null)
                 {
-                    Name = kvp.Key,
-                    ClientId = kvp.Value.ClientId,
-                    ClientSecret = kvp.Value.ClientSecret,
-                    Actions = kvp.Value.Actions
-                })
-                ?? [];
+                    foreach (var child in providersSection.GetChildren())
+                    {
+                        ConfigurationProviders.Add(new Provider {
+                            Name = child.GetValue<string?>("name") ?? "",
+                            Disabled = child.GetValue<bool?>("disabled") ?? false,
+                            ClientId = child.GetValue<string?>("clientId") ?? "",
+                            ClientSecret = child.GetValue<string?>("clientSecret") ?? "",
+                            Actions = new DataDictionary(child.GetSection("actions")),
+                        });
+                    }
+                }
+            }
+
+            return ConfigurationProviders;
         }
 
         public async Task<IEnumerable<AuthorizeProvider>> GetListAuthorizeAsync()
         {
             return (await GetListAsync())
-                .Where(provider => !string.IsNullOrEmpty(provider.Name)
+                .Where(provider => !provider.Disabled
+                    && !string.IsNullOrEmpty(provider.Name)
                     && !string.IsNullOrEmpty(provider.ClientId)
                     && !string.IsNullOrEmpty(provider.ClientSecret)
-                    && provider.Actions != null
-                    && provider.Actions.GetSection("token").Exists()
-                    && provider.Actions.GetSection("authorize").Exists()
-                    && !string.IsNullOrEmpty(provider.Actions.GetSection("authorize")["redirect_uri"])
-                    && !string.IsNullOrEmpty(provider.Actions.GetSection("authorize")["url"])
+                    && provider.Actions.ContainsKey("token")
+                    && provider.Actions.TryGet<DataDictionary>("authorize", out var authorizeAction)
+                    && authorizeAction != null
+                    && !string.IsNullOrEmpty(authorizeAction.GetString("redirect_uri"))
+                    && !string.IsNullOrEmpty(authorizeAction.GetString("url"))
                 )
                 .Select(provider => {
-                    var actionData = provider.Actions!.GetSection("authorize");
+                    provider.Actions.TryGet<DataDictionary>("authorize", out var authorizeAction);
                     return new AuthorizeProvider
                     {
-                        Label = actionData["label"] ?? "Login",
+                        Name = provider.Name,
+                        Label = authorizeAction.GetString("label") ?? "Login",
                         ClientId = provider.ClientId,
-                        ResponseType = actionData["response_type"] ?? "code",
-                        RedirectUri = actionData["redirect_uri"]!,
-                        Scope = actionData["scope"] ?? string.Empty,
-                        Url = actionData["url"] ?? string.Empty
+                        ResponseType = authorizeAction.GetString("response_type") ?? "code",
+                        RedirectUri = authorizeAction.GetString("redirect_uri")!,
+                        Scope = authorizeAction.GetString("scope") ?? string.Empty,
+                        Url = authorizeAction.GetString("url") ?? string.Empty
                     };
                 });
-
         }
 
         public async Task<Provider?> GetSingleOrDefaultByNameAsync(string name)
         {
-            var configuration = serviceProvider.GetService<IConfiguration>();
-            var providerData = configuration
-                ?.GetSection("OAuth2Providers")
-                ?.GetSection(name)
-                ?.Get<ProviderData>();
-
-            if (providerData == null)
-                return null;
-
-            return new Provider
-            {
-                Name = name,
-                ClientId = providerData.ClientId,
-                ClientSecret = providerData.ClientSecret,
-                Actions = providerData.Actions
-            };
+            return (await GetListAsync())
+                .FirstOrDefault(p => p.Name == name);
         }
 
         public async Task<object?> CallbackAsync(string name, string actionName, DataDictionary? data)
@@ -88,28 +89,25 @@ namespace RFOauth2Client.Service
             throw new HttpException(400, $"Action '{actionName}' is not supported for provider '{name}'.");
         }
 
-        public static async Task<string?> GetToken(ProviderData provider, string code)
+        public static async Task<string?> GetToken(Provider provider, string code)
         {
             if (provider == null)
                 throw new ArgumentNullException(nameof(provider), "Provider cannot be null.");
 
-            if (provider.Actions == null)
-                throw new ArgumentNullException(nameof(provider.Actions), "Provider actions is null.");  
-
-            var actionData = provider.Actions.GetSection("token");
-            if (actionData == null || !actionData.Exists())
-                throw new HttpException(404, $"Action 'token' not found in provider.");
+            if (!provider.Actions.TryGet<DataDictionary>("token", out var tokenAction)
+                || tokenAction == null)
+                throw new HttpException(404, $"Action 'token' not found in provider '{provider.Name}'.");
             
-            var tokenUrl = actionData["url"];
+            var tokenUrl = tokenAction.GetString("url");
             if (string.IsNullOrEmpty(tokenUrl))
                 throw new HttpException(400, $"No token URL in action.");
 
-            var redirect_uri = actionData["redirect_uri"];
+            var redirect_uri = tokenAction.GetString("redirect_uri");
             if (string.IsNullOrEmpty(redirect_uri))
             {
-                var authorizeActionData = provider.Actions.GetSection("authorize");
-                if (authorizeActionData != null)
-                    redirect_uri = authorizeActionData["redirect_uri"];
+                provider.Actions.TryGet<DataDictionary>("authorize", out var authorizeAction);
+                if (authorizeAction.TryGetNotNullOrEmptyString("redirect_uri", out var newRedirectUri))
+                    redirect_uri = newRedirectUri;
 
                 if (string.IsNullOrEmpty(redirect_uri))
                     throw new HttpException(400, $"No redirect_uri URL in action.");
@@ -139,9 +137,9 @@ namespace RFOauth2Client.Service
             return accessToken;
         }
 
-        public static async Task<HttpResponseMessage> Get(IConfigurationSection actionData, string accessToken)
+        public static async Task<HttpResponseMessage> Get(DataDictionary actionData, string accessToken)
         {
-            var userInfoUrl = actionData["url"];
+            var userInfoUrl = actionData.GetString("url");
             if (string.IsNullOrEmpty(userInfoUrl))
                 throw new HttpException(400, $"No user info URL in action.");
 
@@ -154,7 +152,7 @@ namespace RFOauth2Client.Service
             return response;
         }
 
-        public static async Task<T?> Get<T>(IConfigurationSection actionData, string accessToken)
+        public static async Task<T?> Get<T>(DataDictionary actionData, string accessToken)
         {
             var response = await Get(actionData, accessToken);
             var body = await response.Content.ReadAsStringAsync();
@@ -165,18 +163,15 @@ namespace RFOauth2Client.Service
 
         public static async Task<UserInfo?> GetUserInfo(Provider provider, string accessToken)
         {
-            var actionData = provider.Actions?.GetSection("userInfo");
-            if (!actionData.Exists())
+            if (!provider.Actions.TryGet<DataDictionary>("userInfo", out var userInfoAction)
+                || userInfoAction == null)
                 throw new HttpException(404, $"Action 'userInfo' not found in provider '{provider.Name}'.");
 
-            return await Get<UserInfo>(actionData, accessToken);
+            return await Get<UserInfo>(userInfoAction, accessToken);
         }
 
         public async Task<object?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data)
         {
-            if (provider.Actions == null)
-                throw new ArgumentNullException(nameof(provider.Actions), "Provider actions is null.");
-
             var accessToken = await GetToken(provider, data?.GetString("code") ?? "");
             if (string.IsNullOrEmpty(accessToken))
                 throw new HttpException(400, $"No access token received.");
@@ -189,37 +184,39 @@ namespace RFOauth2Client.Service
                 return null;
 
             var evtData = new DataDictionary {
-                { "Username", userInfo.Username ?? userInfo.Email ?? userInfo.Name },
-                { "FullName", userInfo.FullName ?? userInfo.Name ?? userInfo.Username ?? userInfo.Email },
+                { "Username", RFString.FirstNonEmpty(userInfo.Username, userInfo.Email, userInfo.Name) },
+                { "FullName", RFString.FirstNonEmpty(userInfo.FullName, userInfo.Name, userInfo.Username, userInfo.Email) },
                 { "Email", userInfo.Email },
                 { "DeviceToken", data?.GetString("deviceToken") },
             };
 
-            var tokenActionData = provider.Actions.GetSection("token");
-            if (tokenActionData.Exists())
+            if (provider.Actions.TryGet<DataDictionary>("token", out var tokenAction)
+                && tokenAction != null)
             {
-                var selfServiceRegistration = tokenActionData.GetValue<bool?>("selfServiceRegistration");
+                var selfServiceRegistration = tokenAction.GetBool("selfServiceRegistration");
                 if (selfServiceRegistration != null)
                 {
                     evtData["SelfServiceRegistration"] = selfServiceRegistration;
                 }
 
-                var mandatoryRoles = tokenActionData.GetValue<bool?>("mandatoryRoles");
+                var mandatoryRoles = tokenAction.GetBool("mandatoryRoles");
                 if (mandatoryRoles != null)
                 {
                     evtData["MandatoryRoles"] = mandatoryRoles;
                 }
 
                 List<string> roles = [];
-                var rolesFrom = tokenActionData.GetSection("rolesFrom");
-                if (rolesFrom.Exists())
+                if (tokenAction.TryGet<DataDictionary>("rolesFrom", out var rolesFrom)
+                    && rolesFrom != null)
                 {
                     List<string>? rolesFromAccessTokenList;
-                    var rolesFromAccessTokenSection = rolesFrom.GetSection("access_token");
-                    if (rolesFromAccessTokenSection.GetChildren().Any())
-                        rolesFromAccessTokenList = rolesFromAccessTokenSection.Get<List<string>>();
+
+                    if (rolesFrom.TryGet<List<string>>("access_token", out var access_tokenList) && access_tokenList != null)
+                        rolesFromAccessTokenList = access_tokenList;
+                    else if (rolesFrom.TryGet<string>("access_token", out var access_token) && !string.IsNullOrEmpty(access_token))
+                        rolesFromAccessTokenList = [access_token];
                     else
-                        rolesFromAccessTokenList = [rolesFromAccessTokenSection.Value];
+                        rolesFromAccessTokenList = null;
 
                     if (rolesFromAccessTokenList != null)
                     {
@@ -258,7 +255,18 @@ namespace RFOauth2Client.Service
             var evtOptions = new DataDictionary { { "Data", evtData } };
             await eventBus.FireAsync("login", evtOptions);
 
-            return evtOptions["Response"];
+            if (evtOptions.TryGet<object?>("Response", out var response))
+                return response;
+            else
+            {
+                var logger = serviceProvider.GetService<ILoggerService>();
+                logger?.AddWarningAsync(
+                    "RFOAuth2Client",
+                    "No 'Result' for event 'login'. Check for login event listener installed."
+                );
+            }
+
+            return null;
         }
     }
 }
