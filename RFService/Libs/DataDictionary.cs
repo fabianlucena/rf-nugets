@@ -1,4 +1,5 @@
-﻿using RFService.ILibs;
+﻿using Microsoft.Extensions.Configuration;
+using RFService.ILibs;
 using System.Collections;
 using System.Globalization;
 using System.Text.Json;
@@ -15,6 +16,33 @@ namespace RFService.Libs
         public DataDictionary(IDictionary<string, object?>? data)
             : base(data ?? new Dictionary<string, object?>())
         { }
+
+        public DataDictionary(IConfigurationSection? data)
+        {
+            if (data != null)
+            {
+                foreach (var child in data.GetChildren())
+                {
+                    if (child.GetChildren().Any())
+                    {
+                        this[child.Key] = new DataDictionary(child);
+                    }
+                    else
+                    {
+                        object? value = child.Value;
+
+                        if (value is null)
+                            value = null;
+                        else if (bool.TryParse(child.Value, out var boolResult))
+                            value = boolResult;
+                        else if (int.TryParse(child.Value, out var intResult))
+                            value = intResult;
+
+                        this[child.Key] = value;
+                    }
+                }
+            }
+        }
 
         public DataDictionary GetPascalized()
         {
