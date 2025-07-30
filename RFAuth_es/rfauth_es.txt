@@ -46,7 +46,7 @@ Restarurar usuario
 Session closed.
 Sesión cerrada.
 
-Unknown device
+Unknown device.
 Dispositivo desconocido.
 
 Unknown username.
