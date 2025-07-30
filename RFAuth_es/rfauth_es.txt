@@ -25,6 +25,9 @@ Eliminar usuario
 Get users
 Obteneer usuarios
 
+Invalid credentials.
+Credenciales inválidas.
+
 Login
 Ingresar
 
