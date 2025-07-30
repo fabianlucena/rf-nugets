@@ -8,17 +8,24 @@ namespace RFHttpExceptions.Exceptions
         public int StatusCode { get => statusCode; }
         override public string Message { get => GetMessage(); }
 
-        public string GetMessage()
+        public static string DoFormatMessage(string formatMessage, params string[] paramsList)
         {
-            if (FormatMessage == "" || ParamsList.Length == 0)
-                return FormatMessage;
+            if (formatMessage == "" || paramsList.Length == 0)
+                return formatMessage;
             else
             {
-                var message = FormatMessage;
-                for (int i = 0; i < ParamsList.Length; i++)
-                    message = message.Replace($"{{{i}}}", ParamsList[i]);
+                var message = formatMessage;
+                for (int i = 0; i < paramsList.Length; i++)
+                    message = message.Replace($"{{{i}}}", paramsList[i]);
+
                 return message;
             }
         }
+
+        public string GetMessage()
+            => DoFormatMessage(FormatMessage, ParamsList);
+        
+        public async Task<string> GetL10nMessage(Func<string, string[], Task<string>> translator)
+            => await translator(FormatMessage, ParamsList);
     }
 }

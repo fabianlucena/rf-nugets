@@ -10,4 +10,8 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RFL10n\RFL10n.csproj" />
+  </ItemGroup>
+
 </Project>
