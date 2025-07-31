@@ -13,6 +13,8 @@ namespace RFService.ILibs
 
         public bool TryGetInt64(string key, out long value);
 
+        public bool TryGetString(string key, out string? value);
+
         public bool TryGetNotNullString(string key, out string value);
 
         public bool TryGetNotNullOrEmptyString(string key, out string value);
