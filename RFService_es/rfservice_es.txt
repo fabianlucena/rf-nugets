@@ -1,2 +1,5 @@
-﻿Title cannot be null or empty.
+﻿A row with the name "{0}" already exists.
+Ya existe una fila con el nombre "{0}".
+
+Title cannot be null or empty.
 El título no puede ser nulo o vacío.
