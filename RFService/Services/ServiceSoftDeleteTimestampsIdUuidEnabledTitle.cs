@@ -25,7 +25,7 @@ namespace RFService.Services
 
             var entity = await GetSingleOrDefaultForTitleAsync(data.Title);
             if (entity != null)
-                throw new ARowWithTheNameAlreadyExistsException(data.Title);
+                throw new ARowWithTheTitleAlreadyExistsException(data.Title);
 
             data = await base.ValidateForCreationAsync(data);
 
