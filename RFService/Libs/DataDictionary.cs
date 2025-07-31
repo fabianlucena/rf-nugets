@@ -65,13 +65,13 @@ namespace RFService.Libs
         public bool IsNullValue(string key)
         {
             return TryGetValue(key, out object? obj)
-                || obj is null;
+                && obj is null;
         }
 
         public bool IsNotNullValue(string key)
         {
             return TryGetValue(key, out object? obj)
-                || obj is not null;
+                && obj is not null;
         }
 
         public bool TryGetInt64(string key, out Int64 value)

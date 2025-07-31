@@ -32,6 +32,14 @@ namespace RFService.Services
             return data;
         }
 
+        public async Task<TEntity?> GetFirstOrDefaultForTitleAsync(string title, QueryOptions? options = null)
+        {
+            options ??= new QueryOptions();
+            options.AddFilter("Title", title);
+
+            return await GetFirstOrDefaultAsync(options);
+        }
+
         public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, QueryOptions? options = null)
         {
             options ??= new QueryOptions();
