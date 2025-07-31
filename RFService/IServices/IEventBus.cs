@@ -12,9 +12,9 @@
         bool RemvoeListener(string eventType, Listener listener)
             => RemoveListener(eventType, "", listener);
 
-        Task FireAsync(string eventType, string entity, object? data);
+        Task FireAsync(string eventType, string entity, object? data, dynamic? metadata = null);
 
-        Task FireAsync(string eventType, object? data = null)
-            => FireAsync(eventType, "", data);
+        Task FireAsync(string eventType, object? data = null, dynamic? metadata = null)
+            => FireAsync(eventType, "", data, metadata);
     }
 }

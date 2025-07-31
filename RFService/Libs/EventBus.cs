@@ -62,7 +62,9 @@ namespace RFService.Libs
         public async Task FireAsync(
             string eventType,
             string entity,
-            object? data = null)
+            object? data = null,
+            dynamic? metadata = null
+        )
         {
             eventType = eventType.Trim().ToLower();
             if (string.IsNullOrWhiteSpace(eventType))
@@ -82,6 +84,7 @@ namespace RFService.Libs
                     Type = eventType,
                     Entity = entity,
                     Data = data,
+                    Metadata = metadata
                 });
             }
         }
