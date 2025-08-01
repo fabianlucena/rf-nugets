@@ -1,5 +1,26 @@
 ﻿A row with the name "{0}" already exists.
 Ya existe una fila con el nombre "{0}".
 
+A row with the title "{0}" already exists.
+Ya existe una fila con el título "{0}".
+
+Event type parameter cannot be null or empty.
+El parámetro tipo de evento no puede ser nulo o vacío.
+
+Item for name "{0}" is not found.
+El elemento con el nombre "{0}" no se encuentra.
+
+Item for UUID "{0}" is not found.
+El elemento con el UUID "{0}" no se encuentra.
+
+Item with the ID "{0}" is not found.
+El elemento con el ID "{0}" no se encuentra.
+
+Providing an ID is not allowed during creation.
+Proporcionar un ID no está permitido durante la creación.
+
 Title cannot be null or empty.
 El título no puede ser nulo o vacío.
+
+Unknown filter: {0}.
+Filtro desconocido: {0}.
