@@ -7,7 +7,7 @@ namespace RFUserEmailVerified.IServices
     public interface IUserEmailVerifiedService
         : IServiceId<UserEmailVerified>
     {
-        Task<UserEmailVerified?> GetSingleOrDefaultForUserIdAsync(long userId, GetOptions? options = null);
+        Task<UserEmailVerified?> GetSingleOrDefaultForUserIdAsync(long userId, QueryOptions? options = null);
 
         Task SetIsVerifiedForIdAsync(bool isVerified, long id);
     }
