@@ -1,14 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RFHttpExceptions.IExceptions;
-using RFL10n;
 
 namespace RFHttpExceptions.Middlewares
 {
     public class HttpExceptionMiddleware(
-        ILogger<HttpExceptionMiddleware> logger,
-        IServiceProvider serviceProvider
+        ILogger<HttpExceptionMiddleware> logger
     )
         : IMiddleware
     {
@@ -40,20 +37,11 @@ namespace RFHttpExceptions.Middlewares
 
                 try
                 {
-                    using var scope = serviceProvider.CreateScope();
-                    var il10n = serviceProvider.GetService<IL10n>();
-                    if (il10n == null)
-                    {
-                        message = exception.Message;
-                    }
-                    else
-                    {
-                        message = await httpException.GetL10nMessage(il10n._);
-                    }
+                    message = exception.Message;
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Error while translating exception message.");
+                    logger.LogError(e, "Error getting exception message.");
                     message = exception.Message;
                 }
             }
@@ -69,11 +57,13 @@ namespace RFHttpExceptions.Middlewares
                 as string
                 ?? exception.GetType().Name;
 
-            await context.Response.WriteAsJsonAsync(new
+            var result = new
             {
                 Error = errorType,
-                message,
-            });
+                Message = message,
+            };
+
+            await context.Response.WriteAsJsonAsync(result);
         }
     }
 }
