@@ -760,13 +760,15 @@ namespace RFDapper
             if (data == null)
                 throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
 
+            return true;
+
             var type = data.GetType();
-            var pId = type.GetProperty("Id")
+            /*var pId = type.GetProperty("Id")
                 ?? throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
 
             var oId = pId.GetValue(data);
             if (oId is Int64 id)
-                return id != 0;
+                return id != 0;*/
 
             throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
         }
