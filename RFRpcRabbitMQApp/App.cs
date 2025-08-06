@@ -187,6 +187,7 @@ namespace RFRpcRabbitMQApp
                         }
                         catch (Exception e)
                         {
+                            e = e.InnerException ?? e;
                             Logger.LogError(e, "{Error}: {Message}", e.GetType().Name, e.Message);
                             response = new Response(
                                 new Result
