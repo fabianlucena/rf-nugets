@@ -56,7 +56,7 @@ namespace RFHttpExceptionsL10n.Middlewares
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Error getting exception message.");
+                    logger.LogError(e, "Error translating exception message.");
                     message = exception.Message;
                 }
             }

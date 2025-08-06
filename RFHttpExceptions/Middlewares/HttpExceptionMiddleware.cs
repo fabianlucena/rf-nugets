@@ -5,11 +5,11 @@ using RFHttpExceptions.IExceptions;
 namespace RFHttpExceptions.Middlewares
 {
     public class HttpExceptionMiddleware(
+        RequestDelegate next,
         ILogger<HttpExceptionMiddleware> logger
     )
-        : IMiddleware
     {
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        public async Task InvokeAsync(HttpContext context)
         {
             try
             {
