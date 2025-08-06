@@ -110,7 +110,7 @@ namespace RFDapperDriverMySQL
             if (QuotedSingle.IsMatch(columnAlias))
                 return columnAlias;
 
-            if (columnAlias.Contains('[') || columnAlias.Contains(']'))
+            if (columnAlias.Contains('`') || columnAlias.Contains('`'))
                 throw new InvalidColumnAliasException(columnAlias);
 
             var parts = columnAlias.Split('.');
@@ -119,7 +119,7 @@ namespace RFDapperDriverMySQL
 
             var index = parts.Length - 1;
 
-            columnAlias = $"[{parts[index]}]";
+            columnAlias = $"`{parts[index]}`";
 
             return columnAlias;
         }
