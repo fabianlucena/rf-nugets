@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RFRabbitMQ\RFRabbitMQ.csproj" />
+    <ProjectReference Include="..\RFRabbitMQClient\RFRabbitMQClient.csproj" />
   </ItemGroup>
 
 </Project>

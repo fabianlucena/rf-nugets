@@ -5,10 +5,11 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RFRabbitMQ;
 using RFRpcRabbitMQApp.Attributes;
-using RFRpcRabbitMQApp.Types;
+using RFRabbitMQClient.Types;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using RFRpcRabbitMQApp.Types;
 
 namespace RFRpcRabbitMQApp
 {
