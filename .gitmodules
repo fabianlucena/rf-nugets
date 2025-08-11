@@ -1,3 +1,9 @@
 [submodule "rfn-rabbitmq"]
 	path = rfn-rabbitmq
 	url = https://github.com/fabianlucena/rfn-rabbitmq.git
+[submodule "rfn-rabbitmq-client"]
+	path = rfn-rabbitmq-client
+	url = https://github.com/fabianlucena/rfn-rabbitmq-client.git
+[submodule "rfn-rabbitmq-rpc-app"]
+	path = rfn-rabbitmq-rpc-app
+	url = https://github.com/fabianlucena/rfn-rabbitmq-rpc-app.git
