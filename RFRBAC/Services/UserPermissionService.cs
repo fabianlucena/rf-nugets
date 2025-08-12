@@ -11,7 +11,7 @@ namespace RFRBAC.Services
     {
         public async Task<IEnumerable<Permission>> GetAllPermissionsForUserIdAsync(
             Int64 userId,
-            GetOptions? options = null
+            QueryOptions? options = null
         )
         {
             var allRolesId = await userRoleService.GetAllRolesIdForUserIdAsync(userId);
@@ -20,7 +20,7 @@ namespace RFRBAC.Services
 
         public async Task<IEnumerable<Permission>> GetAllPermissionsForUsersIdAsync(
             IEnumerable<Int64> usersId,
-            GetOptions? options = null
+            QueryOptions? options = null
         )
         {
             var allRolesId = await userRoleService.GetAllRolesIdForUsersIdAsync(usersId);
@@ -29,7 +29,7 @@ namespace RFRBAC.Services
 
         public async Task<IEnumerable<string>> GetAllPermissionsNameForUserIdAsync(
             Int64 usersId,
-            GetOptions? options = null
+            QueryOptions? options = null
         )
         {
             var allPermissions = await GetAllPermissionsForUserIdAsync(usersId, options);

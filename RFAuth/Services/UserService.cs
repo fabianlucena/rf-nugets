@@ -22,7 +22,7 @@ namespace RFAuth.Services
 
         public async Task<User> GetSingleForUsernameAsync(string username)
         {
-            return await repo.GetSingleAsync(new GetOptions
+            return await repo.GetSingleAsync(new QueryOptions
             {
                 Filters = { { "Username", username } }
             });
@@ -30,7 +30,7 @@ namespace RFAuth.Services
 
         public async Task<User?> GetSingleOrDefaultForUsernameAsync(string username)
         {
-            return await repo.GetSingleOrDefaultAsync(new GetOptions
+            return await repo.GetSingleOrDefaultAsync(new QueryOptions
             {
                 Filters = { { "Username", username } }
             });

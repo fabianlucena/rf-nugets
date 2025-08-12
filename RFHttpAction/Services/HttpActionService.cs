@@ -18,7 +18,12 @@ namespace RFHttpAction.Services
 
             if (string.IsNullOrEmpty(data.Token))
             {
-                data.Token = Token.GetString(64);
+                string token;
+                do
+                {
+                    token = Token.GetString(64);
+                } while (await GetSingleOrDefaultForTokenAsync(token) != null);
+                data.Token = token;
             };
 
             return data;
@@ -26,7 +31,7 @@ namespace RFHttpAction.Services
 
         public async Task<HttpAction?> GetSingleOrDefaultForTokenAsync(string token)
         {
-            return await repo.GetSingleOrDefaultAsync(new GetOptions
+            return await repo.GetSingleOrDefaultAsync(new QueryOptions
             {
                 Filters = { { "Token", token } }
             });
@@ -34,7 +39,7 @@ namespace RFHttpAction.Services
 
         public Task<HttpAction> GetSingleForTokenAsync(string token)
         {
-            return GetSingleAsync(new GetOptions { Filters = { { "Token", token } } });
+            return GetSingleAsync(new QueryOptions { Filters = { { "Token", token } } });
         }
 
         public async Task CloseForIdAsync(Int64 id)

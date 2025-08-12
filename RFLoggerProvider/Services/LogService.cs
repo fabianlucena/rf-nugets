@@ -36,9 +36,9 @@ namespace RFLoggerProvider.Services
             return base.ValidateForCreationAsync(data);
         }
 
-        public override Task<IEnumerable<Log>> GetListAsync(GetOptions? options)
+        public override Task<IEnumerable<Log>> GetListAsync(QueryOptions? options)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.OrderBy.Add("LogTimestamp DESC");
 
             return base.GetListAsync(options);

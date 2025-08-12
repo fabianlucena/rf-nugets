@@ -7,14 +7,12 @@ using RFL10n;
 namespace RFHttpExceptionsL10n.Middlewares
 {
     public class HttpExceptionL10nMiddleware(
-        RequestDelegate next,
         ILogger<HttpExceptionL10nMiddleware> logger,
         IServiceProvider provider
     )
+        : IMiddleware
     {
-        public async Task InvokeAsync(
-            HttpContext context
-        )
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try
             {
@@ -35,27 +33,48 @@ namespace RFHttpExceptionsL10n.Middlewares
 
             context.Response.ContentType = "application/json";
 
+            string message;
             if (exception is IHttpException httpException)
-                context.Response.StatusCode = httpException.StatusCode;
-            else
-                context.Response.StatusCode = 500;
-
-            var message = exception.Message;
-            if (!string.IsNullOrEmpty(message))
             {
+                context.Response.StatusCode = httpException.StatusCode;
+
                 try
                 {
                     using var scope = provider.CreateScope();
                     var l10n = scope.ServiceProvider.GetService<IL10n>();
                     if (l10n != null)
-                        message = await l10n._c("exception", exception.Message);
+                    {
+                        message = httpException.FormatMessage(
+                            await l10n._c("exception", httpException.MessageFormat),
+                            httpException.Parameters
+                        );
+                    }
+                    else
+                    {
+                        message = httpException.Message;
+                    }
                 }
-                catch { }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Error translating exception message.");
+                    message = exception.Message;
+                }
             }
+            else
+            {
+                context.Response.StatusCode = 500;
+                message = exception.Message;
+            }
+
+            string errorType = exception.GetType()
+                ?.GetProperty("Error")
+                ?.GetValue(exception)
+                as string
+                ?? exception.GetType().Name;
 
             var result = new
             {
-                Error = exception.GetType().Name,
+                Error = errorType,
                 Message = message,
             };
 

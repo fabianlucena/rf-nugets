@@ -30,11 +30,11 @@ namespace RFAuth.Services
             => Verify(rawPassword, password.Hash);
 
         public async Task<Password> GetSingleForUserIdAsync(Int64 userId)
-            => await repo.GetSingleAsync(new GetOptions { Filters = { { "UserId", userId } } });
+            => await repo.GetSingleAsync(new QueryOptions { Filters = { { "UserId", userId } } });
 
         
         public async Task<Password?> GetSingleOrDefaultForUserIdAsync(Int64 userId)
-            => await repo.GetSingleOrDefaultAsync(new GetOptions { Filters = { { "UserId", userId } } });
+            => await repo.GetSingleOrDefaultAsync(new QueryOptions { Filters = { { "UserId", userId } } });
 
         
         public async Task<Password> GetSingleForUserAsync(User user)
@@ -65,9 +65,9 @@ namespace RFAuth.Services
             return base.SanitizeDataForAutoGet(data);
         }
 
-        public async Task<int> UpdateForUserIdAsync(IDataDictionary data, Int64 userId, GetOptions? options = null)
+        public async Task<int> UpdateForUserIdAsync(IDataDictionary data, Int64 userId, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("UserId", userId);
             return await UpdateAsync(data, options);
         }

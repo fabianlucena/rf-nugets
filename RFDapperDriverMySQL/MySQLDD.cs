@@ -110,7 +110,7 @@ namespace RFDapperDriverMySQL
             if (QuotedSingle.IsMatch(columnAlias))
                 return columnAlias;
 
-            if (columnAlias.Contains('[') || columnAlias.Contains(']'))
+            if (columnAlias.Contains('`') || columnAlias.Contains('`'))
                 throw new InvalidColumnAliasException(columnAlias);
 
             var parts = columnAlias.Split('.');
@@ -119,12 +119,12 @@ namespace RFDapperDriverMySQL
 
             var index = parts.Length - 1;
 
-            columnAlias = $"[{parts[index]}]";
+            columnAlias = $"`{parts[index]}`";
 
             return columnAlias;
         }
 
-        public string GetColumnName(string columnName, GetOptions? options = null, string? defaultAlias = null)
+        public string GetColumnName(string columnName, QueryOptions? options = null, string? defaultAlias = null)
         {
             columnName = columnName.Trim();
             if (QuotedSingle.IsMatch(columnName)
@@ -158,7 +158,7 @@ namespace RFDapperDriverMySQL
 
         public SqlQuery GetValue(
             object? data,
-            GetOptions options,
+            QueryOptions options,
             List<string> usedNames,
             string paramName
         )
@@ -205,7 +205,7 @@ namespace RFDapperDriverMySQL
             throw new UnknownColumnTypeException(type);
         }
 
-        public string GetSqlSelectedProperty(PropertyInfo property, GetOptions options, string? defaultAlias = null)
+        public string GetSqlSelectedProperty(PropertyInfo property, QueryOptions options, string? defaultAlias = null)
         {
             if (driverOptions.GetSqlSelectedProperty != null)
                 return driverOptions.GetSqlSelectedProperty(this, property, options, defaultAlias)
@@ -269,7 +269,7 @@ namespace RFDapperDriverMySQL
             };
         }
 
-        public string GetSqlOrderBy(string orderBy, GetOptions options)
+        public string GetSqlOrderBy(string orderBy, QueryOptions options)
         {
             orderBy = orderBy.Trim();
 
@@ -296,7 +296,7 @@ namespace RFDapperDriverMySQL
             return $"{column} {direction}";
         }
 
-        public IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, GetOptions options)
+        public IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, QueryOptions options)
         {
             List<string> result = [];
             foreach (var orderByItem in orderBy)
@@ -305,7 +305,7 @@ namespace RFDapperDriverMySQL
             return result;
         }
 
-        public string GetSqlLimit(GetOptions options)
+        public string GetSqlLimit(QueryOptions options)
         {
             if (options.Top != null)
                 return $"LIMIT {options.Offset ?? 0}, {options.Top}";

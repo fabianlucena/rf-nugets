@@ -25,6 +25,9 @@ Eliminar usuario
 Get users
 Obteneer usuarios
 
+Invalid credentials.
+Credenciales inválidas.
+
 Login
 Ingresar
 
@@ -43,7 +46,7 @@ Restarurar usuario
 Session closed.
 Sesión cerrada.
 
-Unknown device
+Unknown device.
 Dispositivo desconocido.
 
 Unknown username.

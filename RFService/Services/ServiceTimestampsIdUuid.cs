@@ -14,16 +14,16 @@ namespace RFService.Services
     {
         public Guid GetUuid(TEntity item) => item.Uuid;
 
-        public async Task<IEnumerable<Guid>> GetListUuidAsync(GetOptions options)
+        public async Task<IEnumerable<Guid>> GetListUuidAsync(QueryOptions options)
             => (await GetListAsync(options)).Select(GetUuid);
 
-        public Task<TEntity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null)
-            => GetSingleAsync(new GetOptions(options) { Filters = { { "Uuid", uuid } } });
+        public Task<TEntity> GetSingleForUuidAsync(Guid uuid, QueryOptions? options = null)
+            => GetSingleAsync(new QueryOptions(options) { Filters = { { "Uuid", uuid } } });
 
-        public Task<IEnumerable<TEntity>> GetListForUuidsAsync(IEnumerable<Guid> uuids, GetOptions? options = null)
-            => GetListAsync(new GetOptions(options) { Filters = { { "Uuid", uuids } } });
+        public Task<IEnumerable<TEntity>> GetListForUuidsAsync(IEnumerable<Guid> uuids, QueryOptions? options = null)
+            => GetListAsync(new QueryOptions(options) { Filters = { { "Uuid", uuids } } });
 
-        public async Task<Int64> GetSingleIdForUuidAsync(Guid uuid, GetOptions? options = null)
+        public async Task<Int64> GetSingleIdForUuidAsync(Guid uuid, QueryOptions? options = null)
             => GetId(await GetSingleForUuidAsync(uuid, options));
 
         public override IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
@@ -43,9 +43,9 @@ namespace RFService.Services
             return data;
         }
 
-        public Task<int> UpdateForUuidAsync(IDataDictionary data, Guid uuid, GetOptions? options = null)
+        public Task<int> UpdateForUuidAsync(IDataDictionary data, Guid uuid, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilterUuid(uuid);
             return UpdateAsync(data, options);
         }

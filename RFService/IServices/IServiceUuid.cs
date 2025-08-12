@@ -30,27 +30,27 @@ namespace RFService.IServices
             return data;
         }
 
-        Task<IEnumerable<Guid>> GetListUuidAsync(GetOptions options);
+        Task<IEnumerable<Guid>> GetListUuidAsync(QueryOptions options);
 
-        Task<IEnumerable<TEntity>> GetListForUuidsAsync(IEnumerable<Guid> uuids, GetOptions? options = null);
+        Task<IEnumerable<TEntity>> GetListForUuidsAsync(IEnumerable<Guid> uuids, QueryOptions? options = null);
 
-        Task<TEntity> GetSingleForUuidAsync(Guid uuid, GetOptions? options = null);
+        Task<TEntity> GetSingleForUuidAsync(Guid uuid, QueryOptions? options = null);
 
-        async Task<TEntity?> GetSingleOrDefaultForUuidAsync(Guid uuid, GetOptions? options = null)
+        async Task<TEntity?> GetSingleOrDefaultForUuidAsync(Guid uuid, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Uuid", uuid);
 
             return await GetSingleOrDefaultAsync(options);
         }
 
-        Task<int> UpdateForUuidAsync(IDataDictionary data, Guid uuid, GetOptions? options = null);
+        Task<int> UpdateForUuidAsync(IDataDictionary data, Guid uuid, QueryOptions? options = null);
 
-        Task<int> DeleteForUuidAsync(Guid uuid, GetOptions? options = null)
+        Task<int> DeleteForUuidAsync(Guid uuid, QueryOptions? options = null, DataDictionary? data = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("uuid", uuid);
-            return DeleteAsync(options);
+            return DeleteAsync(options, data);
         }
     }
 }

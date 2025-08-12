@@ -30,7 +30,7 @@ namespace RFAuth.Services
 
         public async Task<Device?> GetSingleOrDefaultForTokenAsync(string token)
         {
-            return await repo.GetSingleOrDefaultAsync(new GetOptions
+            return await repo.GetSingleOrDefaultAsync(new QueryOptions
             {
                 Filters = { { "Token", token } }
             });
@@ -38,7 +38,7 @@ namespace RFAuth.Services
 
         public async Task<Device> GetSingleForTokenAsync(string token)
         {
-            return await repo.GetSingleAsync(new GetOptions
+            return await repo.GetSingleAsync(new QueryOptions
             {
                 Filters = { { "Token", token } }
             });

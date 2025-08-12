@@ -14,10 +14,10 @@ namespace RFRBAC.Services
     {
         public async Task<IEnumerable<Int64>> GetParentsIdForRolesIdAsync(
             IEnumerable<Int64> rolesId,
-            GetOptions? options = null
+            QueryOptions? options = null
         )
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("RoleId", rolesId);
             var rolesParents = await GetListAsync(options);
             return rolesParents.Select(i => i.ParentId);
@@ -25,12 +25,12 @@ namespace RFRBAC.Services
 
         public async Task<IEnumerable<Int64>> GetAllRolesIdForRolesIdAsync(
             IEnumerable<Int64> rolesId,
-            GetOptions? options = null
+            QueryOptions? options = null
         )
         {
             var allRolesId = rolesId.ToList();
 
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.Filters.Add(Op.NotIn("ParentId", allRolesId));
             var newRolesId = await GetParentsIdForRolesIdAsync(rolesId, options);
             while (newRolesId.Any())

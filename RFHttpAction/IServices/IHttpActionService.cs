@@ -5,6 +5,7 @@ namespace RFHttpAction.IServices
 {
     public interface IHttpActionService
         : IServiceTimestamps<HttpAction>,
+            IServiceUuid<HttpAction>,
             IServiceId<HttpAction>
     {
         Task<HttpAction> GetSingleForTokenAsync(string token);

@@ -22,17 +22,17 @@ namespace RFService.IServices
             return data;
         }
 
-        public async Task<TEntity> GetSingleForTitleAsync(string title, GetOptions? options = null)
+        public async Task<TEntity> GetSingleForTitleAsync(string title, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Title", title);
 
             return await GetSingleAsync(options);
         }
 
-        public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, GetOptions? options = null)
+        public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Title", title);
 
             return await GetSingleOrDefaultAsync(options);

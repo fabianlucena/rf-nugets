@@ -17,17 +17,17 @@ namespace RFService.Services
                 ((IServiceName<TEntity>)this).SanitizeNameForAutoGet(data)
             );
 
-        public async Task<TEntity> GetSingleForNameAsync(string name, GetOptions? options = null)
+        public async Task<TEntity> GetSingleForNameAsync(string name, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Name", name);
 
             return await GetSingleAsync(options);
         }
 
-        public async Task<TEntity?> GetSingleOrDefaultForNameAsync(string name, GetOptions? options = null)
+        public async Task<TEntity?> GetSingleOrDefaultForNameAsync(string name, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Name", name);
 
             return await GetSingleOrDefaultAsync(options);

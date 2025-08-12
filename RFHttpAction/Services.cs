@@ -11,6 +11,8 @@ namespace RFHttpAction
             services.AddScoped<IHttpActionTypeService, HttpActionTypeService>();
             services.AddScoped<IHttpActionService, HttpActionService>();
             services.AddScoped<IHttpActionListeners, HttpActionListeners>();
+
+            services.AddAutoMapper(typeof(MappingProfile).Assembly);
         }
     }
 }

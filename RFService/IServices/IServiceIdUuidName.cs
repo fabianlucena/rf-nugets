@@ -9,7 +9,7 @@ namespace RFService.IServices
             IServiceId<TEntity>
         where TEntity : Entity
     {
-        public async Task<Int64> GetSingleIdForNameAsync(string name, GetOptions? options = null, Func<string, TEntity>? creator = null)
+        public async Task<Int64> GetSingleIdForNameAsync(string name, QueryOptions? options = null, Func<string, TEntity>? creator = null)
         {
             var item = await GetSingleOrDefaultForNameAsync(name, options);
             if (item == null)
@@ -26,7 +26,7 @@ namespace RFService.IServices
             return GetId(item);
         }
 
-        public async Task<Int64?> GetSingleOrDefaultIdForNameAsync(string name, GetOptions? options = null)
+        public async Task<Int64?> GetSingleOrDefaultIdForNameAsync(string name, QueryOptions? options = null)
         {
             var item = await GetSingleOrDefaultForNameAsync(name, options);
             if (item == null)
@@ -35,7 +35,7 @@ namespace RFService.IServices
             return GetId(item);
         }
 
-        public async Task<Int64> GetSingleIdForNameOrCreateAsync(string name, TEntity data, GetOptions? options = null)
+        public async Task<Int64> GetSingleIdForNameOrCreateAsync(string name, TEntity data, QueryOptions? options = null)
         {
             var item = await GetSingleOrDefaultForNameAsync(name, options);
             item ??= await CreateAsync(data, options);
@@ -43,7 +43,7 @@ namespace RFService.IServices
             return GetId(item);
         }
 
-        public async Task<Int64> GetSingleIdForNameOrCreateAsync(string name, Func<TEntity> dataFactory, GetOptions? options = null)
+        public async Task<Int64> GetSingleIdForNameOrCreateAsync(string name, Func<TEntity> dataFactory, QueryOptions? options = null)
         {
             var item = await GetSingleOrDefaultForNameAsync(name, options);
             item ??= await CreateAsync(dataFactory(), options);
@@ -51,15 +51,15 @@ namespace RFService.IServices
             return GetId(item);
         }
 
-        public async Task<IEnumerable<TEntity>> GetListForNamesAsync(IEnumerable<string> names, GetOptions? options = null)
+        public async Task<IEnumerable<TEntity>> GetListForNamesAsync(IEnumerable<string> names, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("Name", names);
 
             return await GetListAsync(options);
         }
 
-        public async Task<IEnumerable<Int64>> GetIdsForNamesAsync(IEnumerable<string> names, GetOptions? options = null)
+        public async Task<IEnumerable<Int64>> GetIdsForNamesAsync(IEnumerable<string> names, QueryOptions? options = null)
             => (await GetListForNamesAsync(names, options)).Select(GetId);
     }
 }

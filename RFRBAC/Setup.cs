@@ -164,7 +164,7 @@ namespace RFRBAC
             }
 
             var currentPermissionName = (await PermissionService
-                .GetListAsync(new GetOptions { Filters = { { "Name", permissionsName } } }))
+                .GetListAsync(new QueryOptions { Filters = { { "Name", permissionsName } } }))
                 .Select(i => i.Name);
             var newPermissionsName = permissionsName.Except(currentPermissionName);
 

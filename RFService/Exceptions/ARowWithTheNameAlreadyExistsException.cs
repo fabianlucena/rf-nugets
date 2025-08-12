@@ -3,7 +3,7 @@
 namespace RFService.Exceptions
 {
     public class ARowWithTheNameAlreadyExistsException(string name)
-        : HttpException(400, $"A row with the name \"{name}\" already exists.")
+        : HttpException(400, "A row with the name \"{0}\" already exists.", name)
     {
     }
 }

@@ -9,9 +9,7 @@ namespace RFHttpExceptions.Middlewares
         ILogger<HttpExceptionMiddleware> logger
     )
     {
-        public async Task InvokeAsync(
-            HttpContext context
-        )
+        public async Task InvokeAsync(HttpContext context)
         {
             try
             {
@@ -32,10 +30,26 @@ namespace RFHttpExceptions.Middlewares
 
             context.Response.ContentType = "application/json";
 
+            string message;
             if (exception is IHttpException httpException)
+            {
                 context.Response.StatusCode = httpException.StatusCode;
+
+                try
+                {
+                    message = exception.Message;
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Error getting exception message.");
+                    message = exception.Message;
+                }
+            }
             else
+            {
                 context.Response.StatusCode = 500;
+                message = exception.Message;
+            }
 
             string errorType = exception.GetType()
                 ?.GetProperty("Error")
@@ -43,11 +57,13 @@ namespace RFHttpExceptions.Middlewares
                 as string
                 ?? exception.GetType().Name;
 
-            await context.Response.WriteAsJsonAsync(new
+            var result = new
             {
                 Error = errorType,
-                exception.Message,
-            });
+                Message = message,
+            };
+
+            await context.Response.WriteAsJsonAsync(result);
         }
     }
 }

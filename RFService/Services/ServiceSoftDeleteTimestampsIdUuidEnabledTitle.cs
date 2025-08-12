@@ -25,16 +25,24 @@ namespace RFService.Services
 
             var entity = await GetSingleOrDefaultForTitleAsync(data.Title);
             if (entity != null)
-                throw new ARowWithTheNameAlreadyExistsException(data.Title);
+                throw new ARowWithTheTitleAlreadyExistsException(data.Title);
 
             data = await base.ValidateForCreationAsync(data);
 
             return data;
         }
 
-        public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, GetOptions? options = null)
+        public async Task<TEntity?> GetFirstOrDefaultForTitleAsync(string title, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
+            options.AddFilter("Title", title);
+
+            return await GetFirstOrDefaultAsync(options);
+        }
+
+        public async Task<TEntity?> GetSingleOrDefaultForTitleAsync(string title, QueryOptions? options = null)
+        {
+            options ??= new QueryOptions();
             options.AddFilter("Title", title);
 
             return await GetSingleOrDefaultAsync(options);

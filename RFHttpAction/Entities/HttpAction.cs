@@ -6,7 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace RFHttpAction.Entities
 {
     [Table("HttpActions", Schema = "action")]
-    [Index(nameof(Token), IsUnique = true)]
     public class HttpAction
         : EntityTimestampsIdUuid
     {
@@ -15,7 +14,7 @@ namespace RFHttpAction.Entities
         public required Int64 TypeId { get; set; }
         public HttpActionType? Type { get; set; }
 
-        [MaxLength(255)]
+        [MaxLength(-1)]
         public string? Data { get; set; }
 
         [MaxLength(255)]

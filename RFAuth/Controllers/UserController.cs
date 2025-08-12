@@ -32,7 +32,7 @@ namespace RFAuth.Controllers
 
             await loggerService.AddInfoGetAsync("Get users", new { uuid });
 
-            var options = GetOptions.CreateFromQuery(HttpContext);
+            var options = QueryOptions.CreateFromQuery(HttpContext);
             if (!options.HasColumnFilter("TypeId"))
             {
                 var userTypeIdUser = await userTypeService.GetSingleIdForNameAsync("user");

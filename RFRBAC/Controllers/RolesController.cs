@@ -29,7 +29,7 @@ namespace RFRBAC.Controllers
             await loggerService.AddInfoGetAsync("Get roles", new { uuid });
 
             var query = HttpContext.Request.Query.GetPascalized();
-            var options = GetOptions.CreateFromQuery(query);
+            var options = QueryOptions.CreateFromQuery(query);
             if (uuid != null)
                 options.AddFilter("uuid", uuid);
 

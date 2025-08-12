@@ -1,4 +1,5 @@
-﻿using RFService.ILibs;
+﻿using Microsoft.Extensions.Configuration;
+using RFService.ILibs;
 using System.Collections;
 using System.Globalization;
 using System.Text.Json;
@@ -15,6 +16,33 @@ namespace RFService.Libs
         public DataDictionary(IDictionary<string, object?>? data)
             : base(data ?? new Dictionary<string, object?>())
         { }
+
+        public DataDictionary(IConfigurationSection? data)
+        {
+            if (data != null)
+            {
+                foreach (var child in data.GetChildren())
+                {
+                    if (child.GetChildren().Any())
+                    {
+                        this[child.Key] = new DataDictionary(child);
+                    }
+                    else
+                    {
+                        object? value = child.Value;
+
+                        if (value is null)
+                            value = null;
+                        else if (bool.TryParse(child.Value, out var boolResult))
+                            value = boolResult;
+                        else if (int.TryParse(child.Value, out var intResult))
+                            value = intResult;
+
+                        this[child.Key] = value;
+                    }
+                }
+            }
+        }
 
         public DataDictionary GetPascalized()
         {
@@ -37,13 +65,13 @@ namespace RFService.Libs
         public bool IsNullValue(string key)
         {
             return TryGetValue(key, out object? obj)
-                || obj is null;
+                && obj is null;
         }
 
         public bool IsNotNullValue(string key)
         {
             return TryGetValue(key, out object? obj)
-                || obj is not null;
+                && obj is not null;
         }
 
         public bool TryGetInt64(string key, out Int64 value)
@@ -63,8 +91,8 @@ namespace RFService.Libs
 
         public string? GetString(string key)
         {
-            var obj = GetValue(this[key]);
-            if (obj is null
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
                 || obj is not string str
             )
             {
@@ -72,6 +100,32 @@ namespace RFService.Libs
             }
 
             return str;
+        }
+
+        public bool TryGetString(string key, out string? value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = null;
+
+                return false;
+            }
+
+            var val = GetValue(obj);
+            if (val is not null
+                && val is string str
+            )
+            {
+                value = str;
+            }
+            else
+            {
+                value = null;
+            }
+
+            return true;
         }
 
         public bool TryGetNotNullString(string key, out string value)
@@ -163,6 +217,16 @@ namespace RFService.Libs
 
             value = newValue;
             return true;
+        }
+
+        public bool? GetBool(string key)
+        {
+            if (TryGetBool(key, out bool value))
+            {
+                return value;
+            }
+
+            return null;
         }
 
         public bool TryGetBool(string key, out bool value)

@@ -1,4 +1,5 @@
 ﻿using RFAuth.DTO;
+using RFAuth.Entities;
 using RFAuth.Exceptions;
 using RFAuth.IServices;
 using RFHttpExceptions.Exceptions;
@@ -17,6 +18,21 @@ namespace RFAuth.Services
             IServiceDecorated
     {
         public IPropertiesDecorators PropertiesDecorators { get; } = propertiesDecorators;
+
+        public async Task<LoginData> CreateSessionAsync(User user, Device device)
+        {
+            var session = await sessionService.CreateForUserAndDeviceAsync(user, device);
+
+            return new LoginData
+            {
+                Username = user.Username,
+                FullName = user.FullName,
+                AuthorizationToken = session.Token,
+                AutoLoginToken = session.AutoLoginToken,
+                DeviceToken = device.Token,
+                UserId = session.UserId,
+            };
+        }
 
         public async Task<LoginData> LoginAsync(LoginRequest request)
         {
@@ -38,17 +54,10 @@ namespace RFAuth.Services
             if (!check)
                 throw new InvalidCredentialsException();
 
-            var device = await deviceService.GetSingleForTokenOrCreateAsync(request.DeviceToken);
-            var session = await sessionService.CreateForUserAndDeviceAsync(user, device);
+            var device = await deviceService.GetSingleForTokenOrCreateAsync(request.DeviceToken)
+                ?? throw new UnknownDeviceException();
 
-            return new LoginData
-            {
-                Username = user.Username,
-                AuthorizationToken = session.Token,
-                AutoLoginToken = session.AutoLoginToken,
-                DeviceToken = device.Token,
-                UserId = session.UserId,
-            };
+            return await CreateSessionAsync(user, device);
         }
 
         public async Task<LoginData> AutoLoginAsync(AutoLoginRequest request)
@@ -63,16 +72,10 @@ namespace RFAuth.Services
                 ?? throw new UnknownDeviceException();
 
             var session = await sessionService.CreateForAutoLoginTokenAndDeviceAsync(request.AutoLoginToken, device);
-            var user = await userService.GetSingleForIdAsync(session.UserId);
+            var user = await userService.GetSingleOrDefaultForIdAsync(session.UserId)
+                ?? throw new InvalidCredentialsException();
 
-            return new LoginData
-            {
-                Username = user.Username,
-                AuthorizationToken = session.Token,
-                AutoLoginToken = session.AutoLoginToken,
-                DeviceToken = device.Token,
-                UserId = session.UserId
-            };
+            return await CreateSessionAsync(user, device);
         }
     }
 }

@@ -8,6 +8,6 @@ namespace RFRBAC.IServices
         : IService<RoleParent>,
             IServiceTimestamps<RoleParent>
     {
-        Task<IEnumerable<Int64>> GetAllRolesIdForRolesIdAsync(IEnumerable<Int64> rolesId, GetOptions? options = null);
+        Task<IEnumerable<Int64>> GetAllRolesIdForRolesIdAsync(IEnumerable<Int64> rolesId, QueryOptions? options = null);
     }
 }

@@ -150,7 +150,7 @@ namespace RFDapperDriverSQLServer
             return columnAlias;
         }
 
-        public string GetColumnName(string columnName, GetOptions? options, string? defaultAlias = null)
+        public string GetColumnName(string columnName, QueryOptions? options, string? defaultAlias = null)
         {
             columnName = columnName.Trim();
             if (SqareBracketSingle.IsMatch(columnName)
@@ -184,7 +184,7 @@ namespace RFDapperDriverSQLServer
 
         public SqlQuery GetValue(
             object? data,
-            GetOptions options,
+            QueryOptions options,
             List<string> usedNames,
             string paramName
         )
@@ -237,7 +237,7 @@ namespace RFDapperDriverSQLServer
             throw new UnknownColumnTypeException(type);
         }
 
-        public string GetSqlSelectedProperty(PropertyInfo property, GetOptions options, string? defaultAlias = null)
+        public string GetSqlSelectedProperty(PropertyInfo property, QueryOptions options, string? defaultAlias = null)
         {
             if (driverOptions.GetSqlSelectedProperty != null)
                 return driverOptions.GetSqlSelectedProperty(this, property, options, defaultAlias)
@@ -301,7 +301,7 @@ namespace RFDapperDriverSQLServer
             };
         }
 
-        public string GetSqlOrderBy(string orderBy, GetOptions options)
+        public string GetSqlOrderBy(string orderBy, QueryOptions options)
         {
             orderBy = orderBy.Trim();
 
@@ -328,7 +328,7 @@ namespace RFDapperDriverSQLServer
             return $"{column} {direction}";
         }
 
-        public IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, GetOptions options)
+        public IEnumerable<string> GetSqlOrderBy(IEnumerable<string> orderBy, QueryOptions options)
         {
             List<string> result = [];
 
@@ -345,7 +345,7 @@ namespace RFDapperDriverSQLServer
             return result;
         }
 
-        public string GetSqlLimit(GetOptions options)
+        public string GetSqlLimit(QueryOptions options)
         {
             if (options.Top != null)
                 return $"OFFSET {options.Offset ?? 0} ROWS FETCH NEXT {options.Top} ROWS ONLY";

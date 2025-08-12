@@ -28,8 +28,8 @@ namespace RFService.IServices
             return data;
         }
 
-        Task<TEntity> GetSingleForNameAsync(string name, GetOptions? options = null);
+        Task<TEntity> GetSingleForNameAsync(string name, QueryOptions? options = null);
 
-        Task<TEntity?> GetSingleOrDefaultForNameAsync(string name, GetOptions? options = null);
+        Task<TEntity?> GetSingleOrDefaultForNameAsync(string name, QueryOptions? options = null);
     }
 }

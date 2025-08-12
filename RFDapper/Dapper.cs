@@ -190,7 +190,7 @@ namespace RFDapper
 
         public SqlQuery GetOperation(
             Operator op,
-            GetOptions options,
+            QueryOptions options,
             List<string> usedNames,
             string paramName
         )
@@ -332,7 +332,7 @@ namespace RFDapper
 
         public SqlQuery GetFilterQuery(
             Operators operators,
-            GetOptions options,
+            QueryOptions options,
             List<string> usedNames,
             string paramName
         )
@@ -346,7 +346,7 @@ namespace RFDapper
             return GetOperation(Op.And([.. operators]), options, usedNames, paramName);
         }
 
-        public SqlQuery? GetWhereFilter(GetOptions options, List<string>? usedNames, string paramName)
+        public SqlQuery? GetWhereFilter(QueryOptions options, List<string>? usedNames, string paramName)
         {
             if (options.Filters.Count == 0)
                 return null;
@@ -356,7 +356,7 @@ namespace RFDapper
             return sqlQuery;
         }
 
-        public SqlQuery? GetWhereQuery(GetOptions options, List<string>? usedNames, string paramName)
+        public SqlQuery? GetWhereQuery(QueryOptions options, List<string>? usedNames, string paramName)
         {
             var filter = GetWhereFilter(options, usedNames, paramName);
             if (filter != null)
@@ -412,7 +412,7 @@ namespace RFDapper
         static public List<string> GetSelectedColumns(
             Type entityType,
             IDriver driver,
-            GetOptions options,
+            QueryOptions options,
             string? defaultAlias = null)
         {
             var properties = entityType.GetProperties();
@@ -429,7 +429,7 @@ namespace RFDapper
             return columns;
         }
 
-        public (string, DataDictionary) GetJoinQuery(GetOptions options, List<string> usedNames, List<string>? sqlColumns = null)
+        public (string, DataDictionary) GetJoinQuery(QueryOptions options, List<string> usedNames, List<string>? sqlColumns = null)
         {
             string join = "";
             DataDictionary data = [];
@@ -482,9 +482,9 @@ namespace RFDapper
             return (join, data);
         }
 
-        public SqlQueryParts GetSelectQueryParts(GetOptions options)
+        public SqlQueryParts GetSelectQueryParts(QueryOptions options)
         {
-            options = new GetOptions(options);
+            options = new QueryOptions(options);
             options.Alias = options.GetOrCreateAlias("t");
 
             var sqlColumns = GetSelectedColumns(typeof(TEntity), _driver, options);
@@ -549,7 +549,7 @@ namespace RFDapper
             };
         }
 
-        public SqlQuery GetSelectQuery(GetOptions options)
+        public SqlQuery GetSelectQuery(QueryOptions options)
         {
             var parts = GetSelectQueryParts(options);
 
@@ -654,7 +654,7 @@ namespace RFDapper
 
         public SqlQuery GetUpdateQuery(
             IDataDictionary data,
-            GetOptions options
+            QueryOptions options
         )
         {
             options.Alias = options.GetOrCreateAlias("t");
@@ -733,7 +733,7 @@ namespace RFDapper
             };
         }
 
-        public SqlQuery GetDeleteQuery(GetOptions options)
+        public SqlQuery GetDeleteQuery(QueryOptions options)
         {
             var sqlWhere = GetWhereQuery(options, [], "where_param")
                 ?? throw new Exception("DELETE without WHERE is forbidden");
@@ -755,20 +755,31 @@ namespace RFDapper
             pId?.SetValue(data, id);
         }
 
-        static public bool IsValidObject<T>(T data)
+        static public bool IsValidObject<T>(T data, bool throwException = true)
         {
             if (data == null)
-                throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
+            {
+                if (throwException)
+                    throw new InvalidObjectBecauseIsNullException();
+
+                return false;
+            }
 
             var type = data.GetType();
-            var pId = type.GetProperty("Id")
-                ?? throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
+            var pId = type.GetProperty("Id");
+            if (pId == null)
+                return true;
 
             var oId = pId.GetValue(data);
-            if (oId is Int64 id)
-                return id != 0;
+            if (oId is not Int64 id)
+            {
+                if (throwException)
+                    throw new InvalidObjectBecauseTheIdIsNotALongValueException();
 
-            throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
+                return false;
+            }
+
+            return id != 0;
         }
 
         public async Task<TEntity> InsertAsync(TEntity data, RepoOptions? options = null)
@@ -794,7 +805,7 @@ namespace RFDapper
             }
         }
 
-        public async Task<int> GetCountAsync(GetOptions options)
+        public async Task<int> GetCountAsync(QueryOptions options)
         {
             var sqlQueryParts = GetSelectQueryParts(options);
             var query = "SELECT COUNT(*) " + sqlQueryParts.SqlFrom;
@@ -815,9 +826,9 @@ namespace RFDapper
             }
         }
 
-        public async Task<TEntity?> GetSingleOrDefaultAsync(GetOptions options)
+        public async Task<TEntity?> GetSingleOrDefaultAsync(QueryOptions options)
         {
-            options = new GetOptions(options) { Top = 2 };
+            options = new QueryOptions(options) { Top = 2 };
             var list = await GetListAsync(options);
             var count = list.Count();
             if (count == 0)
@@ -829,9 +840,9 @@ namespace RFDapper
             return list.First();
         }
 
-        public async Task<TEntity?> GetFirstOrDefaultAsync(GetOptions options)
+        public async Task<TEntity?> GetFirstOrDefaultAsync(QueryOptions options)
         {
-            options = new GetOptions(options) { Top = 1 };
+            options = new QueryOptions(options) { Top = 1 };
             var list = await GetListAsync(options);
             var count = list.Count();
             if (count == 0)
@@ -840,9 +851,9 @@ namespace RFDapper
             return list.First();
         }
 
-        public async Task<TEntity> GetSingleAsync(GetOptions options)
+        public async Task<TEntity> GetSingleAsync(QueryOptions options)
         {
-            options = new GetOptions(options) { Top = 2 };
+            options = new QueryOptions(options) { Top = 2 };
             var list = await GetListAsync(options);
             var count = list.Count();
             if (count == 0)
@@ -854,7 +865,7 @@ namespace RFDapper
             return list.First();
         }
 
-        public async Task<IEnumerable<TEntity>> GetListAsync(GetOptions options)
+        public async Task<IEnumerable<TEntity>> GetListAsync(QueryOptions options)
         {
             var joins = options.Join.Where(i => !string.IsNullOrWhiteSpace(i.PropertyName))
                 .ToList();
@@ -1042,7 +1053,7 @@ namespace RFDapper
             throw new TooManyJoinsException();
         }
 
-        public async Task<IEnumerable<TEntity>> GetListWith1IncludesAsync<TIncluded1>(GetOptions options, List<From> joins)
+        public async Task<IEnumerable<TEntity>> GetListWith1IncludesAsync<TIncluded1>(QueryOptions options, List<From> joins)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = sqlQuery.Data.GetJson();
@@ -1076,7 +1087,7 @@ namespace RFDapper
             }
         }
 
-        public async Task<IEnumerable<TEntity>> GetListWith2IncludesAsync<TIncluded1, TIncluded2>(GetOptions options, List<From> joins)
+        public async Task<IEnumerable<TEntity>> GetListWith2IncludesAsync<TIncluded1, TIncluded2>(QueryOptions options, List<From> joins)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = sqlQuery.Data.GetJson();
@@ -1116,7 +1127,7 @@ namespace RFDapper
             }
         }
 
-        public async Task<IEnumerable<TEntity>> GetListWith3IncludesAsync<TIncluded1, TIncluded2, TIncluded3>(GetOptions options, List<From> joins)
+        public async Task<IEnumerable<TEntity>> GetListWith3IncludesAsync<TIncluded1, TIncluded2, TIncluded3>(QueryOptions options, List<From> joins)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = sqlQuery.Data.GetJson();
@@ -1162,7 +1173,7 @@ namespace RFDapper
             }
         }
 
-        public async Task<IEnumerable<TEntity>> GetListWith4IncludesAsync<TIncluded1, TIncluded2, TIncluded3, TIncluded4>(GetOptions options, List<From> joins)
+        public async Task<IEnumerable<TEntity>> GetListWith4IncludesAsync<TIncluded1, TIncluded2, TIncluded3, TIncluded4>(QueryOptions options, List<From> joins)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = sqlQuery.Data.GetJson();
@@ -1214,7 +1225,7 @@ namespace RFDapper
             }
         }
 
-        public async Task<IEnumerable<TEntity>> GetListWith5IncludesAsync<TIncluded1, TIncluded2, TIncluded3, TIncluded4, TIncluded5>(GetOptions options, List<From> joins)
+        public async Task<IEnumerable<TEntity>> GetListWith5IncludesAsync<TIncluded1, TIncluded2, TIncluded3, TIncluded4, TIncluded5>(QueryOptions options, List<From> joins)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = sqlQuery.Data.GetJson();
@@ -1272,7 +1283,7 @@ namespace RFDapper
             }
         }
 
-        public async Task<int> UpdateAsync(IDataDictionary data, GetOptions options)
+        public async Task<int> UpdateAsync(IDataDictionary data, QueryOptions options)
         {
             var sqlQuery = GetUpdateQuery(data, options);
             var jsonData = sqlQuery.Data.GetJson();
@@ -1297,7 +1308,7 @@ namespace RFDapper
             }
         }
 
-        public async Task<int> DeleteAsync(GetOptions options)
+        public async Task<int> DeleteAsync(QueryOptions options)
         {
             var sqlQuery = GetDeleteQuery(options);
             var jsonData = sqlQuery.Data.GetJson();
