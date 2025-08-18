@@ -61,7 +61,7 @@ namespace RFAuth.Controllers
 
             var response = userAttributesList.Select(mapper.Map<UserAttributes, UserResponse>);
 
-            logger.LogInformation("Users getted");
+            logger.LogInformation("Users retrieved");
 
             return Ok(new DataRowsResult(response));
         }
