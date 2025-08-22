@@ -7,14 +7,12 @@ using RFL10n;
 namespace RFHttpExceptionsL10n.Middlewares
 {
     public class HttpExceptionL10nMiddleware(
-        RequestDelegate next,
         ILogger<HttpExceptionL10nMiddleware> logger,
         IServiceProvider provider
     )
+        : IMiddleware
     {
-        public async Task InvokeAsync(
-            HttpContext context
-        )
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try
             {
@@ -31,34 +29,67 @@ namespace RFHttpExceptionsL10n.Middlewares
             Exception exception
         )
         {
-            logger.LogError(exception, "An unexpected error occurred.");
-
-            context.Response.ContentType = "application/json";
-
-            if (exception is IHttpException httpException)
-                context.Response.StatusCode = httpException.StatusCode;
-            else
-                context.Response.StatusCode = 500;
-
-            var message = exception.Message;
-            if (!string.IsNullOrEmpty(message))
+            string message;
+            string errorType;
+            try
             {
-                try
+                if (exception is IHttpException httpException)
                 {
-                    using var scope = provider.CreateScope();
-                    var l10n = scope.ServiceProvider.GetService<IL10n>();
-                    if (l10n != null)
-                        message = await l10n._c("exception", exception.Message);
+                    context.Response.StatusCode = httpException.StatusCode;
+
+                    try
+                    {
+                        using var scope = provider.CreateScope();
+                        var l10n = scope.ServiceProvider.GetService<IL10n>();
+                        if (l10n != null)
+                        {
+                            message = httpException.FormatMessage(
+                                await l10n._c("exception", httpException.MessageFormat),
+                                httpException.Parameters
+                            );
+                        }
+                        else
+                        {
+                            message = httpException.Message;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, "Error translating exception message.");
+                        message = exception.Message;
+                    }
                 }
-                catch { }
+                else
+                {
+                    context.Response.StatusCode = 500;
+                    message = exception.Message;
+                }
+
+                errorType = exception.GetType()
+                    ?.GetProperty("Error")
+                    ?.GetValue(exception)
+                    as string
+                    ?? exception.GetType().Name;
+            }
+            catch (Exception)
+            {
+                errorType = "UnknownError";
+                message = "An unexpected error occurred.";
             }
 
             var result = new
             {
-                Error = exception.GetType().Name,
+                Error = errorType,
                 Message = message,
             };
 
+            try
+            {
+                logger.LogError(exception, "{type}: {message}", errorType, message);
+            }
+            catch (Exception) { }
+
+            context.Response.ContentType = "application/json";
             await context.Response.WriteAsJsonAsync(result);
         }
     }

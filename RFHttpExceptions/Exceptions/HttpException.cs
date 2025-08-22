@@ -2,13 +2,15 @@
 
 namespace RFHttpExceptions.Exceptions
 {
-    public class HttpException(int statusCode, string FormatMessage = "", params string[] ParamsList)
+    public class HttpException(int statusCode, string messageFormat = "", params string[] parameters)
         : Exception(), IHttpException
     {
         public int StatusCode { get => statusCode; }
+        public string MessageFormat { get => messageFormat; }
+        public string[] Parameters{ get => parameters; }
         override public string Message { get => GetMessage(); }
 
-        public static string DoFormatMessage(string formatMessage, params string[] paramsList)
+        public string FormatMessage(string formatMessage, params string[] paramsList)
         {
             if (formatMessage == "" || paramsList.Length == 0)
                 return formatMessage;
@@ -23,9 +25,6 @@ namespace RFHttpExceptions.Exceptions
         }
 
         public string GetMessage()
-            => DoFormatMessage(FormatMessage, ParamsList);
-        
-        public async Task<string> GetL10nMessage(Func<string, string[], Task<string>> translator)
-            => await translator(FormatMessage, ParamsList);
+            => FormatMessage(MessageFormat, Parameters);
     }
 }

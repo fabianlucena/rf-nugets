@@ -13,12 +13,12 @@ namespace RFUserEmailVerified.Services
     {
         public async Task SetIsVerifiedForIdAsync(bool isVerified, long id)
         {
-            await UpdateAsync(new DataDictionary { { "IsVerified", true } }, new GetOptions { Filters = { { "Id", id } } });
+            await UpdateAsync(new DataDictionary { { "IsVerified", true } }, new QueryOptions { Filters = { { "Id", id } } });
         }
 
-        public virtual Task<UserEmailVerified?> GetSingleOrDefaultForUserIdAsync(long userId, GetOptions? options = null)
+        public virtual Task<UserEmailVerified?> GetSingleOrDefaultForUserIdAsync(long userId, QueryOptions? options = null)
         {
-            options ??= new GetOptions();
+            options ??= new QueryOptions();
             options.AddFilter("UserId", userId);
             return GetSingleOrDefaultAsync(options);
         }

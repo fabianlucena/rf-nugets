@@ -48,7 +48,7 @@ namespace RFUserEmailVerified.Controllers
             if (userId == null || userId == 0)
                 throw new NoAuthorizationHeaderException();
 
-            var userEmail = await userEmailVerifiedService.GetSingleOrDefaultAsync(new GetOptions { Filters = { { "UserId", userId } } })
+            var userEmail = await userEmailVerifiedService.GetSingleOrDefaultAsync(new QueryOptions { Filters = { { "UserId", userId } } })
                 ?? throw new UserDoesNotHaveEmailException();
 
             if (userEmail.IsVerified)

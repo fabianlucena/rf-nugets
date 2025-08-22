@@ -755,20 +755,31 @@ namespace RFDapper
             pId?.SetValue(data, id);
         }
 
-        static public bool IsValidObject<T>(T data)
+        static public bool IsValidObject<T>(T data, bool throwException = true)
         {
             if (data == null)
-                throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
+            {
+                if (throwException)
+                    throw new InvalidObjectBecauseIsNullException();
+
+                return false;
+            }
 
             var type = data.GetType();
-            var pId = type.GetProperty("Id")
-                ?? throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
+            var pId = type.GetProperty("Id");
+            if (pId == null)
+                return true;
 
             var oId = pId.GetValue(data);
-            if (oId is Int64 id)
-                return id != 0;
+            if (oId is not Int64 id)
+            {
+                if (throwException)
+                    throw new InvalidObjectBecauseTheIdIsNotALongValueException();
 
-            throw new CannotCheckObjectValitityBecauseTheObjectDoesNotHaveIdException();
+                return false;
+            }
+
+            return id != 0;
         }
 
         public async Task<TEntity> InsertAsync(TEntity data, RepoOptions? options = null)
