@@ -93,7 +93,14 @@ namespace RFService.Libs
         {
             if (!TryGetValue(key, out object? obj)
                 || obj is null
-                || obj is not string str
+            )
+            {
+                return null;
+            }
+
+            var val = GetValue(obj);
+            if (val is null
+                || val is not string str
             )
             {
                 return null;
