@@ -374,8 +374,6 @@ namespace RFDapperDriverSQLServer
             => "SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
 
         public string GetDataLength(string sql)
-        {
-            return $"DATALENGTH({sql})";
-        }
+            => $"DATALENGTH({sql})";
     }
 }
