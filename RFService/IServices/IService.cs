@@ -41,5 +41,7 @@ namespace RFService.IServices
         Task<int> UpdateAsync(IDataDictionary data, QueryOptions options);
 
         Task<int> DeleteAsync(QueryOptions options, DataDictionary? data = null);
+
+        Task<Int64> GetInt64Async(QueryOptions options);
     }
 }

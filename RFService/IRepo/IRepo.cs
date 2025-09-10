@@ -23,5 +23,7 @@ namespace RFService.IRepo
         Task<int> UpdateAsync(IDataDictionary data, QueryOptions options);
 
         Task<int> DeleteAsync(QueryOptions options);
+
+        Task<Int64> GetInt64Async(QueryOptions options);
     }
 }

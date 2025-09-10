@@ -229,6 +229,8 @@ namespace RFDapper
                     IsNotNull => $"{sql} IS NOT NULL",
                     Not => $"NOT {sql}",
                     MakeValid => $"{sql}.MakeValid()",
+                    Sum => $"SUM({sql})",
+                    DataLength => _driver.GetDataLength(sql),
                     _ => throw new UnknownUnaryOperatorException(op.GetType().Name),
                 };
 
@@ -409,27 +411,56 @@ namespace RFDapper
             return false;
         }
 
-        static public List<string> GetSelectedColumns(
+        public List<string> GetSelectedColumns(
             Type entityType,
             IDriver driver,
             QueryOptions options,
-            string? defaultAlias = null)
+            List<string> usedNames,
+            string paramName,
+            string? defaultAlias = null
+        )
         {
-            var properties = entityType.GetProperties();
             var columns = new List<string>();
-            foreach (var property in properties)
-            {
-                if (GetForeignColumnName(entityType, property.Name) != null)
-                    continue;
 
-                var column = driver.GetSqlSelectedProperty(property, options, defaultAlias);
-                columns.Add(column);
+            if (options.Select != null)
+            {
+                foreach (var operation in options.Select)
+                {
+                    SqlQuery sqlQuery;
+                    if (operation is As withAlias)
+                    {
+                        sqlQuery = GetOperation(withAlias.Op, options, usedNames, paramName);
+                        sqlQuery.Sql += " AS " + driver.GetColumnAlias(withAlias.Alias);
+                    }
+                    else
+                    {
+                        sqlQuery = GetOperation(operation, options, usedNames, paramName);
+                    }
+
+                    columns.Add(sqlQuery.Sql);
+                }
+            }
+            else
+            {
+                var properties = entityType.GetProperties();
+                foreach (var property in properties)
+                {
+                    if (GetForeignColumnName(entityType, property.Name) != null)
+                        continue;
+
+                    var column = driver.GetSqlSelectedProperty(property, options, defaultAlias);
+                    columns.Add(column);
+                }
             }
 
             return columns;
         }
 
-        public (string, DataDictionary) GetJoinQuery(QueryOptions options, List<string> usedNames, List<string>? sqlColumns = null)
+        public (string, DataDictionary) GetJoinQuery(
+            QueryOptions options,
+            List<string> usedNames,
+            List<string>? sqlColumns = null
+        )
         {
             string join = "";
             DataDictionary data = [];
@@ -468,7 +499,7 @@ namespace RFDapper
                     if (!string.IsNullOrWhiteSpace(from.PropertyName))
                     {
                         sqlColumns.Add("NULL AS " + _driver.GetColumnAlias(options.Separator));
-                        sqlColumns.AddRange(GetSelectedColumns(entity, _driver, options, from.Alias));
+                        sqlColumns.AddRange(GetSelectedColumns(entity, _driver, options, usedNames, "select_param", from.Alias));
                     }
                 }
 
@@ -487,9 +518,9 @@ namespace RFDapper
             options = new QueryOptions(options);
             options.Alias = options.GetOrCreateAlias("t");
 
-            var sqlColumns = GetSelectedColumns(typeof(TEntity), _driver, options);
-            var sqlFrom = $" FROM {_driver.GetTableName(TableName, Schema)} {_driver.GetTableAlias(options.Alias)}";
             List<string> usedNames = [];
+            var sqlColumns = GetSelectedColumns(typeof(TEntity), _driver, options, usedNames, "select_param");
+            var sqlFrom = $" FROM {_driver.GetTableName(TableName, Schema)} {_driver.GetTableAlias(options.Alias)}";
             SqlQuery? sqlQuery;
 
             DataDictionary data = [];
@@ -498,7 +529,7 @@ namespace RFDapper
                 (string joins, DataDictionary joinData) = GetJoinQuery(
                     options,
                     usedNames,
-                    sqlColumns
+                    options.Select == null ? sqlColumns : null
                 );
 
                 sqlFrom += joins;
@@ -532,13 +563,6 @@ namespace RFDapper
 
                 if (options.Offset != null || options.Top != null)
                     sqlFrom += " " + _driver.GetSqlLimit(options);
-                
-                /*OFFSET {options.Offset ?? 0} ROWS";
-
-                sqlFrom += $" OFFSET {options.Offset ?? 0} ROWS";
-
-                if (options.Top != null)
-                    sqlFrom += $" FETCH NEXT {options.Top} ROWS ONLY";*/
             }
 
             return new SqlQueryParts
@@ -1326,6 +1350,30 @@ namespace RFDapper
             {
                 closeConnection();
             }
+        }
+
+        public async Task<Int64> GetInt64Async(QueryOptions options)
+        {
+            var sqlQuery = GetSelectQuery(options);
+            var jsonData = sqlQuery.Data.GetJson();
+            Logger.LogDebug("{query}\n{jsonData}", sqlQuery.Sql, jsonData);
+            var (connection, closeConnection) = OpenConnection(options.RepoOptions);
+            try
+            {
+                var rows = await connection.QueryAsync<Int64>(
+                    sqlQuery.Sql,
+                    sqlQuery.Data,
+                    options?.RepoOptions.Transaction
+                );
+                if (rows.Any())
+                    return rows.First();
+            }
+            finally
+            {
+                closeConnection();
+            }
+
+            throw new NoRowsException();
         }
     }
 }

@@ -13,6 +13,8 @@ namespace RFService.Repo
     {
         public RepoOptions RepoOptions { get; set; } = new RepoOptions();
 
+        public IEnumerable<Operator>? Select { get; set; } = null;
+
         public int? Offset { get; set; }
 
         public int? Top { get; set; }
@@ -39,6 +41,7 @@ namespace RFService.Repo
             if (options != null)
             {
                 RepoOptions = options.RepoOptions;
+                Select = options.Select;
                 Offset = options.Offset;
                 Top = options.Top;
                 Buffered = options.Buffered;

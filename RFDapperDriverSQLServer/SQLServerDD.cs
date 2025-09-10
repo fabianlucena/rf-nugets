@@ -221,14 +221,28 @@ namespace RFDapperDriverSQLServer
                 case "Int64": return "BIGINT";
                 case "Single": return "FLOAT";
                 case "SqlGeography": return "GEOGRAPHY";
+
                 case "String":
-                    var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
-                        ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
+                    {
+                        var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
+                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
 
-                    if (length.HasValue && length.Value > 0)
-                        return $"NVARCHAR({length.Value})";
+                        if (length.HasValue && length.Value > 0)
+                            return $"NVARCHAR({length.Value})";
 
-                    return "NVARCHAR(MAX)";
+                        return "NVARCHAR(MAX)";
+                    }
+
+                case "Byte[]":
+                    {
+                        var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
+                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
+
+                        if (length.HasValue && length.Value > 0)
+                            return $"VARBINARY({length.Value})";
+
+                        return "VARBINARY(MAX)";
+                    }
             }
 
             if (type.StartsWith("DECIMAL", StringComparison.CurrentCultureIgnoreCase))
@@ -358,5 +372,10 @@ namespace RFDapperDriverSQLServer
 
         public string GetSelectLastIdQuery()
             => "SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
+
+        public string GetDataLength(string sql)
+        {
+            return $"DATALENGTH({sql})";
+        }
     }
 }
