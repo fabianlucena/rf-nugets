@@ -1352,7 +1352,7 @@ namespace RFDapper
             }
         }
 
-        public async Task<Int64> GetInt64Async(QueryOptions options)
+        public async Task<Int64?> GetInt64Async(QueryOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = sqlQuery.Data.GetJson();
@@ -1360,7 +1360,7 @@ namespace RFDapper
             var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
-                var rows = await connection.QueryAsync<Int64>(
+                var rows = await connection.QueryAsync<Int64?>(
                     sqlQuery.Sql,
                     sqlQuery.Data,
                     options?.RepoOptions.Transaction

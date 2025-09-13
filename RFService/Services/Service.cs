@@ -101,7 +101,7 @@ namespace RFService.Services
         public virtual Task<int> DeleteAsync(QueryOptions options, DataDictionary? data = null)
             => repo.DeleteAsync(options);
 
-        public virtual Task<Int64> GetInt64Async(QueryOptions options)
+        public virtual Task<Int64?> GetInt64Async(QueryOptions options)
             => repo.GetInt64Async(options);
     }
 }
