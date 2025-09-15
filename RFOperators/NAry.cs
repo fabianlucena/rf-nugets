@@ -8,11 +8,11 @@
         public override bool HasColumn(string column)
             => Ops.Any(op => op.HasColumn(column));
 
-        public override bool SetForColumn<T>(string column, object? value)
+        public override bool SetForColumn(string column, object? value)
         {
             foreach (var filter in Ops)
             {
-                var result = filter.SetForColumn<T>(column, value);
+                var result = filter.SetForColumn(column, value);
                 if (result)
                     return true;
             }

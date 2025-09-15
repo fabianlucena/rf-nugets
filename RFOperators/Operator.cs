@@ -6,6 +6,6 @@
 
         public abstract bool HasColumn(string column);
 
-        public abstract bool SetForColumn<T>(string column, object? value);
+        public abstract bool SetForColumn(string column, object? value);
     }
 }
