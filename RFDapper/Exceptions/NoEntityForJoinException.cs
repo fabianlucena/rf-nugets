@@ -3,6 +3,6 @@
 namespace RFDapper.Exceptions
 {
     public class NoEntityForJoinException()
-        : HttpException(500, $"No On clause for join with entity.")
+        : HttpException(500, $"No entity for join.")
     { }
 }

@@ -3,6 +3,6 @@
 namespace RFDapper.Exceptions
 {
     public class TooManyRowsException()
-        : HttpException(500, $"Query returns too many rows.")
+        : HttpException(500, $"Query returned too many rows.")
     { }
 }

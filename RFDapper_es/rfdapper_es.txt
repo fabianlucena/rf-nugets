@@ -1,0 +1,38 @@
+﻿Invalid object because the ID is not a long value.
+Objeto inválido porque el ID no es un valor del tipo long.
+
+Invalid object because the object is null.
+Objeto inválido porque el objeto es nulo.
+
+No data to update.
+No hay datos para actualizar.
+
+No entity for join.
+No hay entidad para la unión (join).
+
+No On clause for join with entity.
+No hay cláusula On para la unión (join) con la entidad.
+
+Query returned no rows.
+La consulta no devolvió filas.
+
+Query returned too many rows.
+La consulta devolvió demasiadas filas.
+
+There are too many joins.
+Hay demasiadas uniones (joins).
+
+Unknown binary operation: {0}.
+Operación binaria desconocida: {0}.
+
+Unknown n-ary operation: {0}.
+Operación n-aria desconocida: {0}.
+
+Unknown operation: {0}.
+Operación desconocida: {0}.
+
+Unknown unary operation: {0}.
+Operación unaria desconocida: {0}.
+
+Unknown value type for column {0}, value {1}.
+Tipo de valor desconocido para la columna {0}, valor {1}.
