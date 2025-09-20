@@ -1,6 +1,8 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Dapper;
+using Npgsql;
 using RFDapper;
-using RFDapperDriverSQLServer.Exceptions;
+using RFDapperDriverPostgreSQL.Exceptions;
+using RFOperators;
 using RFService.Libs;
 using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
@@ -9,15 +11,15 @@ using System.Data.Common;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace RFDapperDriverSQLServer
+namespace RFDapperDriverPostgreSQL
 {
-    public class SQLServerDD(SQLServerDDOptions driverOptions)
+    public class PostgreSQLDD(PostgreSQLDDOptions driverOptions)
         : IDriver
     {
-        private readonly static Regex SqareBracketSingle= new(@"^\[.*\]$");
-        private readonly static Regex SqareBracketDouble = new(@"^\[.*\]\.\[.*\]$");
-        private readonly static Regex SqareBracketAndFree = new(@"^\[.*\]\.[\w][\w\d]*$");
-        private readonly static Regex FreeAndSqareBracket = new(@"^[\w][\w\d]\.\[.*\]*$");
+        private readonly static Regex SqareBracketSingle= new("^\".*\"$");
+        private readonly static Regex SqareBracketDouble = new("^\".*\"\\.\".*\"$");
+        private readonly static Regex SqareBracketAndFree = new("^\".*\"\\.[\\w][\\w\\d]*$");
+        private readonly static Regex FreeAndSqareBracket = new("^[\\w][\\w\\d]\\.\".*\"*$");
 
         public bool UseUpdateFrom => true;
 
@@ -27,14 +29,14 @@ namespace RFDapperDriverSQLServer
             if (string.IsNullOrEmpty(connectionString))
                 throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty.");
 
-            var connection = new SqlConnection(connectionString);
+            var connection = new NpgsqlConnection(connectionString);
             connection.Open();
 
             return connection;
         }
 
         public string GetDefaultSchema()
-            => "[dbo]";
+            => "\"public\"";
 
         public string GetSchemaName(string schema)
         {
@@ -42,7 +44,7 @@ namespace RFDapperDriverSQLServer
             if (SqareBracketSingle.IsMatch(schema))
                 return schema;
 
-            if (schema.Contains('[') || schema.Contains(']'))
+            if (schema.Contains('"') || schema.Contains('"'))
                 throw new InvalidSchemaNameException(schema);
 
             var parts = schema.Split('.');
@@ -51,15 +53,14 @@ namespace RFDapperDriverSQLServer
 
             var index = parts.Length - 1;
 
-            schema = $"[{parts[index]}]";
+            schema = $"\"{parts[index]}\"";
 
             return schema;
         }
 
         public string GetCreateSchemaIfNotExistsQuery(string schemaName)
-            => $@"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.schemas WHERE [name] = '{schemaName}')
-                EXEC('CREATE SCHEMA {GetSchemaName(schemaName)} AUTHORIZATION {GetDefaultSchema()}');";
-
+            => $"CREATE SCHEMA IF NOT EXISTS {GetSchemaName(schemaName)};"; 
+        
         public string SanitizeVarName(string name)
             => name.Replace('.', '_');
 
@@ -94,7 +95,7 @@ namespace RFDapperDriverSQLServer
             )
                 return tableName;
 
-            if (tableName.Contains('[') || tableName.Contains(']'))
+            if (tableName.Contains('"') || tableName.Contains('"'))
                 throw new InvalidTableNameException(tableName);
 
             var parts = tableName.Split('.');
@@ -103,13 +104,13 @@ namespace RFDapperDriverSQLServer
 
             var index = parts.Length - 1;
 
-            tableName = $"[{parts[index]}]";
+            tableName = $"\"{parts[index]}\"";
             index--;
 
             if (index >= 0)
-                tableName = $"[{parts[index]}].{tableName}";
+                tableName = $"\"{parts[index]}\".{tableName}";
             else if (!string.IsNullOrEmpty(defaultScheme))
-                tableName = $"[{defaultScheme}].{tableName}";
+                tableName = $"\"{defaultScheme}\".{tableName}";
 
             return tableName;
         }
@@ -120,7 +121,7 @@ namespace RFDapperDriverSQLServer
             if (SqareBracketSingle.IsMatch(tableAlias))
                 return tableAlias;
 
-            if (tableAlias.Contains('[') || tableAlias.Contains(']'))
+            if (tableAlias.Contains('"') || tableAlias.Contains('"'))
                 throw new InvalidTableAliasException(tableAlias);
 
             var parts = tableAlias.Split('.');
@@ -129,7 +130,7 @@ namespace RFDapperDriverSQLServer
 
             var index = parts.Length - 1;
 
-            tableAlias = $"[{parts[index]}]";
+            tableAlias = $"\"{parts[index]}\"";
 
             return tableAlias;
         }
@@ -140,7 +141,7 @@ namespace RFDapperDriverSQLServer
             if (SqareBracketSingle.IsMatch(columnAlias))
                 return columnAlias;
 
-            if (columnAlias.Contains('[') || columnAlias.Contains(']'))
+            if (columnAlias.Contains('"') || columnAlias.Contains('"'))
                 throw new InvalidColumnAliasException(columnAlias);
 
             var parts = columnAlias.Split('.');
@@ -149,23 +150,19 @@ namespace RFDapperDriverSQLServer
 
             var index = parts.Length - 1;
 
-            columnAlias = $"[{parts[index]}]";
+            columnAlias = $"\"{parts[index]}\"";
 
             return columnAlias;
         }
 
         public string GetContraintName(string contraintName)
-            => $"[{contraintName}]";
+            => $"\"{contraintName}\"";
 
         public string GetClusteredQuery()
             => "CLUSTERED";
 
         public string GetNonClusteredQuery()
-            => "NONCLUSTERED";
-
-        public string GetCreateTableIfNotExistsQuery(string tableName, string columnsQuery, string? schemeName)
-            => $"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'{GetTableName(tableName, schemeName)}') AND type in (N'U'))"
-                + $"\r\n\tCREATE TABLE {GetTableName(tableName, schemeName)} (\r\n\t\t{columnsQuery}\r\n\t) ON [PRIMARY]";
+            => "";
 
         public string GetColumnName(string columnName, QueryOptions? options, string? defaultAlias = null)
         {
@@ -177,7 +174,7 @@ namespace RFDapperDriverSQLServer
             )
                 return columnName;
 
-            if (columnName.Contains('[') || columnName.Contains(']'))
+            if (columnName.Contains('"') || columnName.Contains('"'))
                 throw new InvalidColumnNameException(columnName);
 
             var parts = columnName.Split('.');
@@ -186,18 +183,21 @@ namespace RFDapperDriverSQLServer
 
             var index = parts.Length - 1;
 
-            columnName = $"[{parts[index]}]";
+            columnName = $"\"{parts[index]}\"";
             index--;
 
             if (index >= 0)
-                columnName = $"[{parts[index]}].{columnName}";
+                columnName = $"\"{parts[index]}\".{columnName}";
             else if (!string.IsNullOrEmpty(defaultAlias))
-                columnName = $"[{defaultAlias}].{columnName}";
+                columnName = $"\"{defaultAlias}\".{columnName}";
             else if (!string.IsNullOrEmpty(options?.Alias))
-                columnName = $"[{options.Alias}].{columnName}";
+                columnName = $"\"{options.Alias}\".{columnName}";
 
             return columnName;
         }
+
+        public string GetCreateTableIfNotExistsQuery(string tableName, string columnsQuery, string? schemeName)
+            => $"CREATE TABLE IF NOT EXISTS {GetTableName(tableName, schemeName)} (\r\n\t\t{columnsQuery}\r\n\t)";
 
         public SqlQuery GetValue(
             object? data,
@@ -231,13 +231,17 @@ namespace RFDapperDriverSQLServer
 
             switch (type)
             {
-                case "Boolean": return "BIT";
-                case "DateTime": return "DATETIME";
-                case "Guid": return "UNIQUEIDENTIFIER";
+                case "Boolean": return "BOOLEAN";
+                case "DateTime": return "TIMESTAMP";
+                case "Guid": return "UUID";
                 case "Int32": return "INT";
-                case "Int64": return "BIGINT";
+                case "Int64":
+                    var databaseGeneratedAttribute = property.GetCustomAttribute<DatabaseGeneratedAttribute>();
+                    if (databaseGeneratedAttribute?.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
+                        return "BIGSERIAL";
+                    return "BIGINT";
+
                 case "Single": return "FLOAT";
-                case "SqlGeography": return "GEOGRAPHY";
 
                 case "String":
                     {
@@ -245,21 +249,12 @@ namespace RFDapperDriverSQLServer
                             ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
 
                         if (length.HasValue && length.Value > 0)
-                            return $"NVARCHAR({length.Value})";
+                            return $"VARCHAR({length.Value})";
 
-                        return "NVARCHAR(MAX)";
+                        return "TEXT";
                     }
 
-                case "Byte[]":
-                    {
-                        var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
-                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
-
-                        if (length.HasValue && length.Value > 0)
-                            return $"VARBINARY({length.Value})";
-
-                        return "VARBINARY(MAX)";
-                    }
+                case "Byte[]": return "BYTEA";
             }
 
             if (type.StartsWith("DECIMAL", StringComparison.CurrentCultureIgnoreCase))
@@ -301,7 +296,7 @@ namespace RFDapperDriverSQLServer
             if (columnType == null)
                 return null;
 
-            var columnDefinition = $"[{property.Name}] {columnType}";
+            var columnDefinition = $"\"{property.Name}\" {columnType}";
 
             if (property.CustomAttributes.Any(a => a.AttributeType.Name == "RequiredAttribute"))
                 columnDefinition += " NOT NULL";
@@ -313,10 +308,6 @@ namespace RFDapperDriverSQLServer
                     " NULL" :
                     " NOT NULL";
             }
-
-            var databaseGeneratedAttribute = property.GetCustomAttribute<DatabaseGeneratedAttribute>();
-            if (databaseGeneratedAttribute?.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
-                columnDefinition += " IDENTITY(1,1)";
 
             return columnDefinition;
         }
@@ -388,11 +379,40 @@ namespace RFDapperDriverSQLServer
         }
 
         public string GetSelectLastIdQuery()
-            => ";SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
+            => "RETURNING \"Id\"";
 
         public string GetDataLength(string sql)
         {
             return $"DATALENGTH({sql})";
+        }
+
+        public SqlQuery? GetOperation(Operator op, QueryOptions options, List<string> usedNames, string paramName,
+            Func<Operator, QueryOptions, List<string>, string, SqlQuery> getOperation)
+        {
+            if (op is not In bop)
+                return null;
+
+            var sqlQuery = new SqlQuery { Precedence = op.Precedence };
+            var sqlQuery1 = getOperation(bop.Op1, options, usedNames, paramName);
+            var sqlQuery2 = getOperation(bop.Op2, options, usedNames, paramName);
+
+            var sql1 = sqlQuery1.Sql;
+            if (sqlQuery1.Precedence > sqlQuery.Precedence)
+                sql1 = $"({sql1})";
+
+            var sql2 = sqlQuery2.Sql;
+            if (sqlQuery2.Precedence > sqlQuery.Precedence)
+                sql2 = $"({sql2})";
+
+            sqlQuery.Sql = $"{sql1} = ANY ({sql2})";
+
+            foreach (var kv in sqlQuery1.Data)
+                sqlQuery.Data[kv.Key] = kv.Value;
+
+            foreach (var kv in sqlQuery2.Data)
+                sqlQuery.Data[kv.Key] = kv.Value;
+
+            return sqlQuery;
         }
     }
 }

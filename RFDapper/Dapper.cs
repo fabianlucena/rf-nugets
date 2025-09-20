@@ -70,8 +70,7 @@ namespace RFDapper
 
         public void CreateTable()
         {
-            var query = $@"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.schemas WHERE [name] = '{Schema}')
-                EXEC('CREATE SCHEMA {_driver.GetSchemaName(Schema)} AUTHORIZATION {_driver.GetDefaultSchema()}');";
+            var query = _driver.GetCreateSchemaIfNotExistsQuery(Schema);
             using var connection = _driver.OpenConnection();
             connection.Query(query);
 
@@ -96,13 +95,13 @@ namespace RFDapper
                     {
                         if (databaseGeneratedAttribute.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
                         {
-                            postQueries.Add($"CONSTRAINT [{Schema}_{TableName}_PK] PRIMARY KEY NONCLUSTERED ({property.Name})");
+                            postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_PK")} PRIMARY KEY {_driver.GetNonClusteredQuery()} ({_driver.GetColumnName(property.Name)})");
                             settedPk = true;
                         }
                     }
 
                     if (!settedPk && property.GetCustomAttribute<KeyAttribute>() != null)
-                        postQueries.Add($"CONSTRAINT [{Schema}_{TableName}_PK_{property.Name}] PRIMARY KEY CLUSTERED ([{property.Name}])");
+                        postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_PK_{property.Name}")} PRIMARY KEY {_driver.GetClusteredQuery()} ({_driver.GetColumnName(property.Name)})");
                 }
 
                 var foreign = property.GetCustomAttribute<ForeignKeyAttribute>();
@@ -127,7 +126,7 @@ namespace RFDapper
 
                     var foreignTableAttribute = foreignObjectType.GetCustomAttribute<TableAttribute>();
                     string foreignTable = "",
-                        foreignSchema = "dbo",
+                        foreignSchema = _driver.GetDefaultSchema(),
                         foreignColumn = "Id";
                     if (foreignTableAttribute == null)
                         foreignTable = typeof(TEntity).Name;
@@ -138,8 +137,8 @@ namespace RFDapper
                             foreignSchema = foreignTableAttribute.Schema;
                     }
 
-                    postQueries.Add($"CONSTRAINT [{Schema}_{TableName}_{referenceColumn.Name}_FK_{foreignSchema}_{foreignTable}_{foreignColumn}]"
-                        + $" FOREIGN KEY([{referenceColumn.Name}]) REFERENCES [{foreignSchema}].[{foreignTable}]([{foreignColumn}])"
+                    postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_{referenceColumn.Name}_FK_{foreignSchema}_{foreignTable}_{foreignColumn}")}"
+                        + $" FOREIGN KEY({_driver.GetColumnName(referenceColumn.Name)}) REFERENCES {_driver.GetTableName(foreignTable, foreignSchema)} ({_driver.GetColumnName(foreignColumn)})"
                     );
                 }
             }
@@ -153,7 +152,7 @@ namespace RFDapper
                         "UNIQUE" :
                         "INDEX";
 
-                    postQueries.Add($"CONSTRAINT [{name}] {indexType} ([{string.Join("], [", index.PropertyNames)}])");
+                    postQueries.Add($"CONSTRAINT {_driver.GetContraintName(name)} {indexType} ({string.Join(", ", index.PropertyNames.Select(p => _driver.GetColumnName(p)))})");
                 }
             }
 
@@ -161,8 +160,7 @@ namespace RFDapper
             if (postQueries.Count > 0)
                 columnsQuery += ",\r\n\t\t" + string.Join(",\r\n\t\t", [.. postQueries]);
 
-            query = $"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'{Schema}.{TableName}') AND type in (N'U'))"
-                + $"\r\n\tCREATE TABLE [{Schema}].[{TableName}] (\r\n\t\t{columnsQuery}\r\n\t) ON [PRIMARY]";
+            query = _driver.GetCreateTableIfNotExistsQuery(TableName, columnsQuery, Schema);
 
             _logger.LogDebug("{query}", query);
             connection.Query(query);
@@ -195,7 +193,11 @@ namespace RFDapper
             string paramName
         )
         {
-            var sqlQuery = new SqlQuery { Precedence = op.Precedence };
+            var sqlQuery = _driver.GetOperation(op, options, usedNames, paramName, GetOperation);
+            if (sqlQuery != null)
+                return sqlQuery;
+
+            sqlQuery ??= new SqlQuery { Precedence = op.Precedence };
 
             if (op is Column col)
             {
@@ -619,7 +621,7 @@ namespace RFDapper
                 newData[varName] = value;
             }
 
-            var sql = $"INSERT INTO {_driver.GetTableName(TableName, Schema)} ({string.Join(",", columns)}) VALUES ({string.Join(",", valuesName)});";
+            var sql = $"INSERT INTO {_driver.GetTableName(TableName, Schema)} ({string.Join(",", columns)}) VALUES ({string.Join(",", valuesName)})";
             if (hasId)
                 sql += _driver.GetSelectLastIdQuery();
 
