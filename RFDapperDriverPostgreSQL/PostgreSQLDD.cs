@@ -5,6 +5,7 @@ using RFOperators;
 using RFService.Attributes;
 using RFService.Libs;
 using RFService.Repo;
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
@@ -28,6 +29,13 @@ namespace RFDapperDriverPostgreSQL
             connectionString ??= driverOptions.ConnectionString;
             if (string.IsNullOrEmpty(connectionString))
                 throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty.");
+
+            if (driverOptions.OpenConnection != null)
+            {
+                var openedConnection = driverOptions.OpenConnection(driverOptions, connectionString);
+                if (openedConnection != null)
+                    return openedConnection;
+            }
 
             var connection = new NpgsqlConnection(connectionString);
             connection.Open();
@@ -394,7 +402,10 @@ namespace RFDapperDriverPostgreSQL
         public SqlQuery? GetOperation(Operator op, QueryOptions options, List<string> usedNames, string paramName,
             Func<Operator, QueryOptions, List<string>, string, SqlQuery> getOperation)
         {
-            if (op is not In bop)
+            if (op is not Binary bop)
+                return null;
+
+            if (op is not In && op is not NotIn)
                 return null;
 
             var sqlQuery = new SqlQuery { Precedence = op.Precedence };
@@ -409,15 +420,50 @@ namespace RFDapperDriverPostgreSQL
             if (sqlQuery2.Precedence > sqlQuery.Precedence)
                 sql2 = $"({sql2})";
 
-            sqlQuery.Sql = $"{sql1} = ANY ({sql2})";
+            if (op is In)
+                sqlQuery.Sql = $"{sql1} = ANY ({sql2})";
+            else if (op is NotIn)
+                sqlQuery.Sql = $"{sql1} <> ANY ({sql2})";
+            else
+                return null;
 
             foreach (var kv in sqlQuery1.Data)
-                sqlQuery.Data[kv.Key] = kv.Value;
+                sqlQuery.Data[kv.Key] = ConvertToList(kv.Value) ?? kv.Value;
 
             foreach (var kv in sqlQuery2.Data)
-                sqlQuery.Data[kv.Key] = kv.Value;
+                sqlQuery.Data[kv.Key] = ConvertToList(kv.Value) ?? kv.Value;
 
             return sqlQuery;
+        }
+
+        static public object? ConvertToList(object? value)
+        {
+            if (value is not null && value is IEnumerable enumerable)
+            {
+                if (value.GetType().IsGenericType &&
+                    value.GetType().GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    return null;
+                }
+
+                var enumType = value.GetType();
+                var enumerableInterface = enumType
+                    .GetInterfaces()
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+
+                if (enumerableInterface == null)
+                    return null;
+
+                var itemType = enumerableInterface.GetGenericArguments()[0];
+                var listType = typeof(List<>).MakeGenericType(itemType);
+                var constructor = listType.GetConstructor([enumerableInterface]);
+                if (constructor == null)
+                    return null;
+
+                return constructor.Invoke([value]);
+            }
+
+            return null;
         }
     }
 }
