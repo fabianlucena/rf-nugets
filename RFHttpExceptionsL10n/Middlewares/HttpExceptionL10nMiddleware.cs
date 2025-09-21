@@ -44,8 +44,9 @@ namespace RFHttpExceptionsL10n.Middlewares
                     var l10n = scope.ServiceProvider.GetService<IL10n>();
                     if (l10n != null)
                     {
-                        message = httpException.FormatMessage(
-                            await l10n._c("exception", httpException.MessageFormat),
+                        message = await l10n._c(
+                            "exception",
+                            httpException.MessageFormat,
                             httpException.Parameters
                         );
                     }
