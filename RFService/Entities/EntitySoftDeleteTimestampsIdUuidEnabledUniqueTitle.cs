@@ -1,4 +1,4 @@
-﻿using RFService.Libs;
+﻿using RFService.Attributes;
 
 namespace RFService.Entities
 {

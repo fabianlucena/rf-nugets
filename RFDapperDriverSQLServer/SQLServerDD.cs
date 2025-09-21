@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using RFDapper;
 using RFDapperDriverSQLServer.Exceptions;
+using RFService.Attributes;
 using RFService.Libs;
 using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
@@ -242,7 +243,8 @@ namespace RFDapperDriverSQLServer
                 case "String":
                     {
                         var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
-                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
+                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength
+                            ?? property.GetCustomAttribute<SizeAttribute>()?.Size;
 
                         if (length.HasValue && length.Value > 0)
                             return $"NVARCHAR({length.Value})";
@@ -253,7 +255,8 @@ namespace RFDapperDriverSQLServer
                 case "Byte[]":
                     {
                         var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
-                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
+                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength
+                            ?? property.GetCustomAttribute<SizeAttribute>()?.Size;
 
                         if (length.HasValue && length.Value > 0)
                             return $"VARBINARY({length.Value})";

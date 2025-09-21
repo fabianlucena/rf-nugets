@@ -1,5 +1,5 @@
 ﻿using RFService.Entities;
-using RFService.Libs;
+using RFService.Attributes;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFDBLocalizer.Entities

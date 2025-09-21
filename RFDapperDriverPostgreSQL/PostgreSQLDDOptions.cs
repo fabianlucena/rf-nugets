@@ -8,7 +8,7 @@ namespace RFDapperDriverPostgreSQL
     {
         public string? ConnectionString { get; set; }
 
-        public Dictionary<string, string> ColumnTypes { get; set; } = [];
+        public Dictionary<string, Func<PropertyInfo, string>> ColumnTypes { get; set; } = [];
 
         public Func<IDriver, PropertyInfo, QueryOptions, string?, string?>? GetSqlSelectedProperty { get; set; } = null;
     }

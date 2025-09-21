@@ -1,8 +1,8 @@
-﻿using Dapper;
-using Npgsql;
+﻿using Npgsql;
 using RFDapper;
 using RFDapperDriverPostgreSQL.Exceptions;
 using RFOperators;
+using RFService.Attributes;
 using RFService.Libs;
 using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
@@ -226,8 +226,12 @@ namespace RFDapperDriverPostgreSQL
 
         public string? GetColumnType(string type, PropertyInfo property)
         {
-            if (driverOptions.ColumnTypes.TryGetValue(type, out var value) == true)
-                return value;
+            if (driverOptions.ColumnTypes.TryGetValue(type, out var getColumnType) == true)
+            {
+                var value = getColumnType(property);
+                if (!string.IsNullOrEmpty(value))
+                    return value;
+            }
 
             switch (type)
             {
@@ -246,7 +250,8 @@ namespace RFDapperDriverPostgreSQL
                 case "String":
                     {
                         var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
-                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
+                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength
+                            ?? property.GetCustomAttribute<SizeAttribute>()?.Size;
 
                         if (length.HasValue && length.Value > 0)
                             return $"VARCHAR({length.Value})";
@@ -275,7 +280,7 @@ namespace RFDapperDriverPostgreSQL
         public string? GetSqlColumnDefinition(PropertyInfo property)
         {
             var propertyType = property.PropertyType;
-            var columnAttributes = propertyType.GetCustomAttribute<ColumnAttribute>();
+            var columnAttributes = property.GetCustomAttribute<ColumnAttribute>();
             bool? nullable = null;
             string propertyTypeName;
             if (columnAttributes?.TypeName != null)

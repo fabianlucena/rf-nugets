@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using RFDapper.Exceptions;
 using RFOperators;
+using RFService.Attributes;
 using RFService.ILibs;
 using RFService.IRepo;
 using RFService.Libs;
