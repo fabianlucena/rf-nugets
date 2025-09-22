@@ -23,16 +23,18 @@ namespace RFDapperDriverSQLServer
         public bool UseUpdateFromAlias => true;
         public bool UseUpdateSetFrom => false;
 
-        public DbConnection OpenConnection(string? connectionString = null)
+        public (DbConnection, Action) OpenConnection()
         {
-            connectionString ??= driverOptions.ConnectionString;
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty.");
+            if (string.IsNullOrEmpty(driverOptions.ConnectionString))
+                throw new NoConnectionStringProvidedException();
 
-            var connection = new SqlConnection(connectionString);
+            var connection = new SqlConnection(driverOptions.ConnectionString);
             connection.Open();
 
-            return connection;
+            return (
+                connection,
+                () => connection.Dispose()
+            );
         }
 
         public string GetDefaultSchema()

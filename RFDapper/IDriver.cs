@@ -10,7 +10,7 @@ namespace RFDapper
         bool UseUpdateFromAlias { get; }
         bool UseUpdateSetFrom { get; }
 
-        public DbConnection OpenConnection(string? connectionString = null);
+        public (DbConnection, Action) OpenConnection();
 
         string GetDefaultSchema();
 

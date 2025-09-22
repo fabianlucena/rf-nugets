@@ -9,7 +9,9 @@ namespace RFDapperDriverPostgreSQL
     {
         public string? ConnectionString { get; set; }
 
-        public Func<PostgreSQLDDOptions, string?, NpgsqlConnection>? OpenConnection { get; set; } = null;
+        public NpgsqlDataSource? DataSource { get; set; }
+
+        public Action<NpgsqlDataSourceBuilder>? PrepareDataSourceBuilder { get; set; } = null;
 
         public Dictionary<string, Func<PropertyInfo, string>> ColumnTypes { get; set; } = [];
 

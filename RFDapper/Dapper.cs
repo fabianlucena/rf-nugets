@@ -64,107 +64,113 @@ namespace RFDapper
             if (options?.Connection != null)
                 return (options.Connection, () => { });
 
-            var connection = _driver.OpenConnection();
-
-            return (connection, () => connection.Dispose());
+            return _driver.OpenConnection();
         }
 
         public void CreateTable()
         {
             var query = _driver.GetCreateSchemaIfNotExistsQuery(Schema);
-            using var connection = _driver.OpenConnection();
-            connection.Query(query);
-
-            var entityType = typeof(TEntity);
-            var properties = entityType.GetProperties();
-            var columnsQueries = new List<string>();
-            var postQueries = new List<string>();
-            foreach (var property in properties)
+            var (connection, close) = _driver.OpenConnection();
+            try
             {
-                if (GetForeignColumnName(typeof(TEntity), property.Name) != null)
-                    continue;
+                connection.Query(query);
 
-                var columnDefinition = _driver.GetSqlColumnDefinition(property);
-
-                if (columnDefinition != null)
+                var entityType = typeof(TEntity);
+                var properties = entityType.GetProperties();
+                var columnsQueries = new List<string>();
+                var postQueries = new List<string>();
+                foreach (var property in properties)
                 {
-                    columnsQueries.Add(columnDefinition);
+                    if (GetForeignColumnName(typeof(TEntity), property.Name) != null)
+                        continue;
 
-                    var settedPk = false;
-                    var databaseGeneratedAttribute = property.GetCustomAttribute<DatabaseGeneratedAttribute>();
-                    if (databaseGeneratedAttribute != null)
+                    var columnDefinition = _driver.GetSqlColumnDefinition(property);
+
+                    if (columnDefinition != null)
                     {
-                        if (databaseGeneratedAttribute.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
+                        columnsQueries.Add(columnDefinition);
+
+                        var settedPk = false;
+                        var databaseGeneratedAttribute = property.GetCustomAttribute<DatabaseGeneratedAttribute>();
+                        if (databaseGeneratedAttribute != null)
                         {
-                            postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_PK")} PRIMARY KEY {_driver.GetNonClusteredQuery()} ({_driver.GetColumnName(property.Name)})");
-                            settedPk = true;
+                            if (databaseGeneratedAttribute.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
+                            {
+                                postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_PK")} PRIMARY KEY {_driver.GetNonClusteredQuery()} ({_driver.GetColumnName(property.Name)})");
+                                settedPk = true;
+                            }
                         }
+
+                        if (!settedPk && property.GetCustomAttribute<KeyAttribute>() != null)
+                            postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_PK_{property.Name}")} PRIMARY KEY {_driver.GetClusteredQuery()} ({_driver.GetColumnName(property.Name)})");
                     }
 
-                    if (!settedPk && property.GetCustomAttribute<KeyAttribute>() != null)
-                        postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_PK_{property.Name}")} PRIMARY KEY {_driver.GetClusteredQuery()} ({_driver.GetColumnName(property.Name)})");
-                }
-
-                var foreign = property.GetCustomAttribute<ForeignKeyAttribute>();
-                if (foreign != null)
-                {
-                    var foreignObject = entityType.GetProperty(foreign.Name) ??
-                        throw new Exception($"Unknown foreign {foreign.Name}");
-
-                    var foreignObjectType = foreignObject.PropertyType;
-                    var referenceColumn = property;
-                    if (!foreignObjectType.IsClass)
+                    var foreign = property.GetCustomAttribute<ForeignKeyAttribute>();
+                    if (foreign != null)
                     {
-                        var propertyType = property.PropertyType;
-                        if (!propertyType.IsClass)
-                            throw new Exception($"Foreign is not and object{foreign.Name}");
+                        var foreignObject = entityType.GetProperty(foreign.Name) ??
+                            throw new Exception($"Unknown foreign {foreign.Name}");
 
-                        referenceColumn = foreignObject;
-                        foreignObject = property;
+                        var foreignObjectType = foreignObject.PropertyType;
+                        var referenceColumn = property;
+                        if (!foreignObjectType.IsClass)
+                        {
+                            var propertyType = property.PropertyType;
+                            if (!propertyType.IsClass)
+                                throw new Exception($"Foreign is not and object{foreign.Name}");
 
-                        foreignObjectType = propertyType;
+                            referenceColumn = foreignObject;
+                            foreignObject = property;
+
+                            foreignObjectType = propertyType;
+                        }
+
+                        var foreignTableAttribute = foreignObjectType.GetCustomAttribute<TableAttribute>();
+                        string foreignTable = "",
+                            foreignSchema = _driver.GetDefaultSchema(),
+                            foreignColumn = "Id";
+                        if (foreignTableAttribute == null)
+                            foreignTable = typeof(TEntity).Name;
+                        else
+                        {
+                            foreignTable = foreignTableAttribute.Name;
+                            if (!string.IsNullOrEmpty(foreignTableAttribute.Schema))
+                                foreignSchema = foreignTableAttribute.Schema;
+                        }
+
+                        postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_{referenceColumn.Name}_FK_{foreignSchema}_{foreignTable}_{foreignColumn}")}"
+                            + $" FOREIGN KEY({_driver.GetColumnName(referenceColumn.Name)}) REFERENCES {_driver.GetTableName(foreignTable, foreignSchema)} ({_driver.GetColumnName(foreignColumn)})"
+                        );
                     }
-
-                    var foreignTableAttribute = foreignObjectType.GetCustomAttribute<TableAttribute>();
-                    string foreignTable = "",
-                        foreignSchema = _driver.GetDefaultSchema(),
-                        foreignColumn = "Id";
-                    if (foreignTableAttribute == null)
-                        foreignTable = typeof(TEntity).Name;
-                    else
-                    {
-                        foreignTable = foreignTableAttribute.Name;
-                        if (!string.IsNullOrEmpty(foreignTableAttribute.Schema))
-                            foreignSchema = foreignTableAttribute.Schema;
-                    }
-
-                    postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_{referenceColumn.Name}_FK_{foreignSchema}_{foreignTable}_{foreignColumn}")}"
-                        + $" FOREIGN KEY({_driver.GetColumnName(referenceColumn.Name)}) REFERENCES {_driver.GetTableName(foreignTable, foreignSchema)} ({_driver.GetColumnName(foreignColumn)})"
-                    );
                 }
-            }
 
-            var indexes = entityType.GetCustomAttributes<IndexAttribute>();
-            if (indexes != null) {
-                foreach (var index in indexes)
+                var indexes = entityType.GetCustomAttributes<IndexAttribute>();
+                if (indexes != null)
                 {
-                    var name = index.Name ?? $"{Schema}_{TableName}_{(index.IsUnique? "U": "I")}K_{string.Join('_', index.PropertyNames)}";
-                    var indexType = index.IsUnique ?
-                        "UNIQUE" :
-                        "INDEX";
+                    foreach (var index in indexes)
+                    {
+                        var name = index.Name ?? $"{Schema}_{TableName}_{(index.IsUnique ? "U" : "I")}K_{string.Join('_', index.PropertyNames)}";
+                        var indexType = index.IsUnique ?
+                            "UNIQUE" :
+                            "INDEX";
 
-                    postQueries.Add($"CONSTRAINT {_driver.GetContraintName(name)} {indexType} ({string.Join(", ", index.PropertyNames.Select(p => _driver.GetColumnName(p)))})");
+                        postQueries.Add($"CONSTRAINT {_driver.GetContraintName(name)} {indexType} ({string.Join(", ", index.PropertyNames.Select(p => _driver.GetColumnName(p)))})");
+                    }
                 }
+
+                var columnsQuery = string.Join(",\r\n\t\t", [.. columnsQueries]);
+                if (postQueries.Count > 0)
+                    columnsQuery += ",\r\n\t\t" + string.Join(",\r\n\t\t", [.. postQueries]);
+
+                query = _driver.GetCreateTableIfNotExistsQuery(TableName, columnsQuery, Schema);
+
+                _logger.LogDebug("{query}", query);
+                connection.Query(query);
             }
-
-            var columnsQuery = string.Join(",\r\n\t\t", [.. columnsQueries]);
-            if (postQueries.Count > 0)
-                columnsQuery += ",\r\n\t\t" + string.Join(",\r\n\t\t", [.. postQueries]);
-
-            query = _driver.GetCreateTableIfNotExistsQuery(TableName, columnsQuery, Schema);
-
-            _logger.LogDebug("{query}", query);
-            connection.Query(query);
+            finally
+            {
+                close();
+            }
         }
 
         public string? GetPrimaryKey()

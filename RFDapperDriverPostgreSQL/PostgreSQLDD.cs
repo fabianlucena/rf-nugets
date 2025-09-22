@@ -14,7 +14,7 @@ using System.Text.RegularExpressions;
 
 namespace RFDapperDriverPostgreSQL
 {
-    public class PostgreSQLDD(PostgreSQLDDOptions driverOptions)
+    public class PostgreSQLDD
         : IDriver
     {
         private readonly static Regex SqareBracketSingle= new("^\".*\"$");
@@ -22,26 +22,31 @@ namespace RFDapperDriverPostgreSQL
         private readonly static Regex SqareBracketAndFree = new("^\".*\"\\.[\\w][\\w\\d]*$");
         private readonly static Regex FreeAndSqareBracket = new("^[\\w][\\w\\d]\\.\".*\"*$");
 
+        PostgreSQLDDOptions DriverOptions { get; set; }
         public bool UseUpdateFromAlias => false;
         public bool UseUpdateSetFrom => true;
 
-        public DbConnection OpenConnection(string? connectionString = null)
+        public PostgreSQLDD(PostgreSQLDDOptions driverOptions)
         {
-            connectionString ??= driverOptions.ConnectionString;
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty.");
-
-            if (driverOptions.OpenConnection != null)
+            DriverOptions = driverOptions;
+            if (DriverOptions.DataSource == null)
             {
-                var openedConnection = driverOptions.OpenConnection(driverOptions, connectionString);
-                if (openedConnection != null)
-                    return openedConnection;
+                if (string.IsNullOrEmpty(DriverOptions.ConnectionString))
+                    throw new NoConnectionStringProvidedException();
+
+                var dsb = new NpgsqlDataSourceBuilder(DriverOptions.ConnectionString);
+                DriverOptions.PrepareDataSourceBuilder?.Invoke(dsb);
+                DriverOptions.DataSource = dsb.Build();
             }
+        }
 
-            var connection = new NpgsqlConnection(connectionString);
-            connection.Open();
-
-            return connection;
+        public (DbConnection, Action) OpenConnection()
+        {
+            var connection = DriverOptions.DataSource!.OpenConnection();
+            return (
+                connection,
+                async () => await connection.DisposeAsync()
+            );
         }
 
         public string GetDefaultSchema()
@@ -229,7 +234,7 @@ namespace RFDapperDriverPostgreSQL
 
         public string? GetColumnType(string type, PropertyInfo property)
         {
-            if (driverOptions.ColumnTypes.TryGetValue(type, out var getColumnType) == true)
+            if (DriverOptions.ColumnTypes.TryGetValue(type, out var getColumnType) == true)
             {
                 var value = getColumnType(property);
                 if (!string.IsNullOrEmpty(value))
@@ -273,8 +278,8 @@ namespace RFDapperDriverPostgreSQL
 
         public string GetSqlSelectedProperty(PropertyInfo property, QueryOptions options, string? defaultAlias = null)
         {
-            if (driverOptions.GetSqlSelectedProperty != null)
-                return driverOptions.GetSqlSelectedProperty(this, property, options, defaultAlias)
+            if (DriverOptions.GetSqlSelectedProperty != null)
+                return DriverOptions.GetSqlSelectedProperty(this, property, options, defaultAlias)
                     ?? GetColumnName(property.Name, options, defaultAlias);
 
             return GetColumnName(property.Name, options, defaultAlias);
