@@ -19,14 +19,21 @@ namespace RFDapperDriverMySQL
         private readonly static Regex QuotedAndFree = new(@"^`.*`\.[\w][\w\d]*$");
         private readonly static Regex FreeAndQuoted = new(@"^[\w][\w\d]\.`.*`*$");
 
-        public bool UseUpdateFrom => false;
+        public bool UseUpdateFromAlias => false;
+        public bool UseUpdateSetFrom => false;
 
-        public DbConnection OpenConnection(string? connectionString = null)
+        public (DbConnection, Action) OpenConnection()
         {
-            var connection = new MySqlConnection(connectionString ?? driverOptions.ConnectionString);
+            if (string.IsNullOrEmpty(driverOptions.ConnectionString))
+                throw new NoConnectionStringProvidedException();
+
+            var connection = new MySqlConnection(driverOptions.ConnectionString);
             connection.Open();
 
-            return connection;
+            return (
+                connection,
+                () => connection.Dispose()
+            );
         }
 
         public string GetDefaultSchema()
@@ -36,6 +43,9 @@ namespace RFDapperDriverMySQL
         {
             return "";
         }
+
+        public string GetCreateSchemaIfNotExistsQuery(string schemaName)
+            => "";
 
         public string SanitizeVarName(string name)
             => name.Replace('.', '_');
@@ -123,6 +133,15 @@ namespace RFDapperDriverMySQL
 
             return columnAlias;
         }
+
+        public string GetContraintName(string contraintName)
+            => $"`{contraintName}`";
+
+        public string GetClusteredQuery()
+            => "";
+
+        public string GetNonClusteredQuery()
+            => "";
 
         public string GetColumnName(string columnName, QueryOptions? options = null, string? defaultAlias = null)
         {
@@ -318,5 +337,8 @@ namespace RFDapperDriverMySQL
 
         public string GetSelectLastIdQuery()
             => "SELECT LAST_INSERT_ID();";
+
+        public string GetDataLength(string sql)
+            => $"LENGTH({sql})";
     }
 }
