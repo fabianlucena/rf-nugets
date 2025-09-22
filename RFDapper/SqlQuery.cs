@@ -6,6 +6,8 @@ namespace RFDapper
     {
         public string Sql = "";
 
+        public string SqlNoCommand = "";
+
         public DataDictionary Data = [];
 
         public bool IsNull = false;

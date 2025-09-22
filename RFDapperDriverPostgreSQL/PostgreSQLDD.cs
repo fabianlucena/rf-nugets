@@ -14,17 +14,26 @@ using System.Text.RegularExpressions;
 
 namespace RFDapperDriverPostgreSQL
 {
-    public class PostgreSQLDD
+    public partial class PostgreSQLDD
         : IDriver
     {
-        private readonly static Regex SqareBracketSingle= new("^\".*\"$");
-        private readonly static Regex SqareBracketDouble = new("^\".*\"\\.\".*\"$");
-        private readonly static Regex SqareBracketAndFree = new("^\".*\"\\.[\\w][\\w\\d]*$");
-        private readonly static Regex FreeAndSqareBracket = new("^[\\w][\\w\\d]\\.\".*\"*$");
+        [GeneratedRegex("^\".*\"$")]
+        private static partial Regex QuotedSingleConstructor();
+        private readonly static Regex QuotedSingle = QuotedSingleConstructor();
+
+        [GeneratedRegex("^\".*\"\\.\".*\"$")]
+        private static partial Regex QuotedDoubleConstructor();
+        private readonly static Regex QuotedDouble = QuotedDoubleConstructor();
+
+        [GeneratedRegex("^\".*\"\\.[\\w][\\w\\d]*$")]
+        private static partial Regex QuotedAndFreeConstructor();
+        private readonly static Regex QuotedAndFree = QuotedAndFreeConstructor();
+
+        [GeneratedRegex("^[\\w][\\w\\d]\\.\".*\"*$")]
+        private static partial Regex FreeAndQuotedConstructor();
+        private readonly static Regex FreeAndQuoted = FreeAndQuotedConstructor();
 
         PostgreSQLDDOptions DriverOptions { get; set; }
-        public bool UseUpdateFromAlias => false;
-        public bool UseUpdateSetFrom => true;
 
         public PostgreSQLDD(PostgreSQLDDOptions driverOptions)
         {
@@ -55,7 +64,7 @@ namespace RFDapperDriverPostgreSQL
         public string GetSchemaName(string schema)
         {
             schema = schema.Trim();
-            if (SqareBracketSingle.IsMatch(schema))
+            if (QuotedSingle.IsMatch(schema))
                 return schema;
 
             if (schema.Contains('"') || schema.Contains('"'))
@@ -102,10 +111,10 @@ namespace RFDapperDriverPostgreSQL
         public string GetTableName(string tableName, string? defaultScheme = null)
         {
             tableName = tableName.Trim();
-            if (SqareBracketSingle.IsMatch(tableName)
-                || SqareBracketDouble.IsMatch(tableName)
-                || SqareBracketAndFree.IsMatch(tableName)
-                || FreeAndSqareBracket.IsMatch(tableName)
+            if (QuotedSingle.IsMatch(tableName)
+                || QuotedDouble.IsMatch(tableName)
+                || QuotedAndFree.IsMatch(tableName)
+                || FreeAndQuoted.IsMatch(tableName)
             )
                 return tableName;
 
@@ -132,7 +141,7 @@ namespace RFDapperDriverPostgreSQL
         public string GetTableAlias(string tableAlias)
         {
             tableAlias = tableAlias.Trim();
-            if (SqareBracketSingle.IsMatch(tableAlias))
+            if (QuotedSingle.IsMatch(tableAlias))
                 return tableAlias;
 
             if (tableAlias.Contains('"') || tableAlias.Contains('"'))
@@ -152,7 +161,7 @@ namespace RFDapperDriverPostgreSQL
         public string GetColumnAlias(string columnAlias)
         {
             columnAlias = columnAlias.Trim();
-            if (SqareBracketSingle.IsMatch(columnAlias))
+            if (QuotedSingle.IsMatch(columnAlias))
                 return columnAlias;
 
             if (columnAlias.Contains('"') || columnAlias.Contains('"'))
@@ -181,10 +190,10 @@ namespace RFDapperDriverPostgreSQL
         public string GetColumnName(string columnName, QueryOptions? options, string? defaultAlias = null)
         {
             columnName = columnName.Trim();
-            if (SqareBracketSingle.IsMatch(columnName)
-                || SqareBracketDouble.IsMatch(columnName)
-                || SqareBracketAndFree.IsMatch(columnName)
-                || FreeAndSqareBracket.IsMatch(columnName)
+            if (QuotedSingle.IsMatch(columnName)
+                || QuotedDouble.IsMatch(columnName)
+                || QuotedAndFree.IsMatch(columnName)
+                || FreeAndQuoted.IsMatch(columnName)
             )
                 return columnName;
 
@@ -464,6 +473,27 @@ namespace RFDapperDriverPostgreSQL
             }
 
             return null;
+        }
+
+        public string GetUpdateQuery(UpdateQueryOptions update)
+        {
+            var sql = "UPDATE " + GetTableName(update.TableName, update.Schema) + " " + GetTableAlias(update.TableAlias)
+                + " SET " + update.Set;
+
+            if (!string.IsNullOrWhiteSpace(update.TruncatedJoins))
+                sql += " " + update.TruncatedJoins;
+
+            if (!string.IsNullOrWhiteSpace(update.Where))
+            {
+                if (!string.IsNullOrWhiteSpace(update.FirstJoinCondition))
+                    sql = " WHERE (" + update.FirstJoinCondition + ") AND (" + update.Where + ")";
+                else
+                    sql = " WHERE " + update.Where;
+            }
+            else if (!string.IsNullOrWhiteSpace(update.FirstJoinCondition))
+                sql = " WHERE " + update.FirstJoinCondition;
+
+            return sql;
         }
     }
 }

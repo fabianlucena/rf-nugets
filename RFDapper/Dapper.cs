@@ -10,6 +10,7 @@ using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Drawing;
 using System.Reflection;
 using System.Text.Json;
 
@@ -371,7 +372,10 @@ namespace RFDapper
         {
             var filter = GetWhereFilter(options, usedNames, paramName);
             if (filter != null)
+            {
+                filter.SqlNoCommand = filter.Sql;
                 filter.Sql = "WHERE " + filter.Sql;
+            }
 
             return filter;
         }
@@ -465,16 +469,17 @@ namespace RFDapper
             return columns;
         }
 
-        public (string, DataDictionary, string) GetJoinQuery(
+        public (string, DataDictionary, string, string) GetJoinQuery(
             QueryOptions options,
             List<string> usedNames,
-            List<string>? sqlColumns = null,
-            bool skipFirstJoin = false
+            List<string>? sqlColumns = null
         )
         {
             string join = "";
-            string where = "";
+            string truncateJoin = "";
             DataDictionary data = [];
+            bool firstJoin = true;
+            string firstJoinCondition = "";
             foreach (var from in options.Join)
             {
                 Type? propertyType = string.IsNullOrEmpty(from.PropertyName) ?
@@ -517,20 +522,28 @@ namespace RFDapper
                 if (!string.IsNullOrEmpty(join))
                     join += " ";
 
-                if (skipFirstJoin && string.IsNullOrEmpty(join))
+                if (firstJoin)
                 {
-                    join += $"{GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}";
-                    where = sqlQuery.Sql;
+                    join = $"{_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
+                    + $" ON {sqlQuery.Sql}"; ;
+                    truncateJoin = $"{GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}";
+                    firstJoinCondition = sqlQuery.Sql;
+                    firstJoin = false;
                 }
                 else
-                    join += $"{_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
+                {
+                    var thisJoin = $" {_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
                         + $" ON {sqlQuery.Sql}";
+                    
+                    join += thisJoin;
+                    truncateJoin += thisJoin;
+                }
 
                 foreach (var value in sqlQuery.Data)
                     data.Add(value.Key, value.Value);
             }
 
-            return (join, data, where);
+            return (join, data, truncateJoin, firstJoinCondition);
         }
 
         public SqlQueryParts GetSelectQueryParts(QueryOptions options)
@@ -546,7 +559,7 @@ namespace RFDapper
             DataDictionary data = [];
             if (options != null)
             {
-                (string joins, DataDictionary joinData, _) = GetJoinQuery(
+                (string joins, DataDictionary joinData, _, _) = GetJoinQuery(
                     options,
                     usedNames,
                     options.Select == null ? sqlColumns : null
@@ -745,58 +758,22 @@ namespace RFDapper
                 throw new NothingToUpdateException();
 
             options.Alias = options.GetOrCreateAlias("t");
-            var sqlFrom = _driver.GetTableName(TableName, Schema) + " " + _driver.GetTableAlias(options.Alias);
-            DataDictionary joinData;
 
-            var sql = "UPDATE ";
-            if (_driver.UseUpdateFromAlias)
-            {
-                (string joins, joinData, string _) = GetJoinQuery(
-                    options,
-                    usedNames
-                );
+            (string joins, DataDictionary joinData, string truncatedJoins, string firstJoinCondition) = GetJoinQuery(
+                options,
+                usedNames
+            );
 
-                sql += _driver.GetTableAlias(options.Alias)
-                    + $" SET {string.Join(",", columns)}"
-                    + $" FROM {sqlFrom} ";
-                if (!string.IsNullOrWhiteSpace(joins))
-                    sql += $"{joins} ";
-                sql += sqlWhere.Sql;
-            }
-            else if (_driver.UseUpdateSetFrom)
-            {
-                (string joins, joinData, string joinWhere) = GetJoinQuery(
-                    options,
-                    usedNames,
-                    skipFirstJoin: true
-                );
-
-                sql += sqlFrom;
-                sql += $" SET {string.Join(",", columns)}";
-                if (!string.IsNullOrWhiteSpace(joins))
-                    sql += $" FROM {joins} ";
-                if (!string.IsNullOrEmpty(sqlWhere.Sql))
-                {
-                    sql += $" {sqlWhere.Sql}";
-                    if (!string.IsNullOrEmpty(joinWhere))
-                        sql += $" AND ({joinWhere})";
-                }
-                else if (!string.IsNullOrEmpty(joinWhere))
-                    sql += " WHERE " + joinWhere;
-            }
-            else
-            {
-                (string joins, joinData, string _) = GetJoinQuery(
-                    options,
-                    usedNames
-                );
-
-                sql += _driver.GetTableName(TableName, Schema) + " " + _driver.GetTableAlias(options.Alias)
-                    + $" SET {string.Join(",", columns)}";
-                if (!string.IsNullOrWhiteSpace(joins))
-                    sql += $"FROM {joins} ";
-                sql += sqlWhere.Sql;
-            }
+            var sql = _driver.GetUpdateQuery(new UpdateQueryOptions {
+                Schema = Schema,
+                TableName = TableName,
+                TableAlias = options.Alias,
+                Set = string.Join(",", columns),
+                Joins = joins,
+                Where = sqlWhere.SqlNoCommand,
+                TruncatedJoins = truncatedJoins,
+                FirstJoinCondition = firstJoinCondition
+            });
 
             foreach (var value in joinData)
                 data.Add(value.Key, value.Value);

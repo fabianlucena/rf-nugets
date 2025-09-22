@@ -7,9 +7,6 @@ namespace RFDapper
 {
     public interface IDriver
     {
-        bool UseUpdateFromAlias { get; }
-        bool UseUpdateSetFrom { get; }
-
         public (DbConnection, Action) OpenConnection();
 
         string GetDefaultSchema();
@@ -62,5 +59,7 @@ namespace RFDapper
 
         SqlQuery? GetOperation(Operator op, QueryOptions options, List<string> usedNames, string paramName, Func<Operator, QueryOptions, List<string>, string, SqlQuery> getOperation)
             => null;
+
+        string GetUpdateQuery(UpdateQueryOptions update);
     }
 }

@@ -12,16 +12,24 @@ using System.Text.RegularExpressions;
 
 namespace RFDapperDriverSQLServer
 {
-    public class SQLServerDD(SQLServerDDOptions driverOptions)
+    public partial class SQLServerDD(SQLServerDDOptions driverOptions)
         : IDriver
     {
-        private readonly static Regex SqareBracketSingle= new(@"^\[.*\]$");
-        private readonly static Regex SqareBracketDouble = new(@"^\[.*\]\.\[.*\]$");
-        private readonly static Regex SqareBracketAndFree = new(@"^\[.*\]\.[\w][\w\d]*$");
-        private readonly static Regex FreeAndSqareBracket = new(@"^[\w][\w\d]\.\[.*\]*$");
+        [GeneratedRegex(@"^\[.*\]$")]
+        private static partial Regex SqareBracketSingleConstructor();
+        private readonly static Regex SqareBracketSingle = SqareBracketSingleConstructor();
 
-        public bool UseUpdateFromAlias => true;
-        public bool UseUpdateSetFrom => false;
+        [GeneratedRegex(@"^\[.*\]\.\[.*\]$")]
+        private static partial Regex SqareBracketDoubleConstructor();
+        private readonly static Regex SqareBracketDouble = SqareBracketDoubleConstructor();
+
+        [GeneratedRegex(@"^\[.*\]\.[\w][\w\d]*$")]
+        private static partial Regex SqareBracketAndFreeConstructor();
+        private readonly static Regex SqareBracketAndFree = SqareBracketAndFreeConstructor();
+
+        [GeneratedRegex(@"^[\w][\w\d]\.\[.*\]*$")]
+        private static partial Regex FreeAndSqareBracketConstructor();
+        private readonly static Regex FreeAndSqareBracket = FreeAndSqareBracketConstructor();
 
         public (DbConnection, Action) OpenConnection()
         {
@@ -398,5 +406,20 @@ namespace RFDapperDriverSQLServer
 
         public string GetDataLength(string sql)
             => $"DATALENGTH({sql})";
+    
+        public string GetUpdateQuery(UpdateQueryOptions update)
+        {
+            var sql = "UPDATE " + GetTableAlias(update.TableAlias)
+                + " SET " + update.Set
+                + " FROM " + GetTableName(update.TableName, update.Schema) + " " + GetTableAlias(update.TableAlias);
+
+            if (!string.IsNullOrWhiteSpace(update.Joins))
+                sql += " " + update.Joins;
+
+            if (!string.IsNullOrWhiteSpace(update.Where))
+                sql += " WHERE " + update.Where;
+
+            return sql;
+        }
     }
 }

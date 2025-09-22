@@ -11,16 +11,24 @@ using System.Text.RegularExpressions;
 
 namespace RFDapperDriverMySQL
 {
-    internal class MySQLDD(MySQLDDOptions driverOptions)
+    internal partial class MySQLDD(MySQLDDOptions driverOptions)
         : IDriver
     {
-        private readonly static Regex QuotedSingle = new(@"^`.*`$");
-        private readonly static Regex QuotedDouble = new(@"^`.*`\.`.*`$");
-        private readonly static Regex QuotedAndFree = new(@"^`.*`\.[\w][\w\d]*$");
-        private readonly static Regex FreeAndQuoted = new(@"^[\w][\w\d]\.`.*`*$");
+        [GeneratedRegex(@"^`.*`$")]
+        private static partial Regex QuotedSingleConstructor();
+        private readonly static Regex QuotedSingle = QuotedSingleConstructor();
 
-        public bool UseUpdateFromAlias => false;
-        public bool UseUpdateSetFrom => false;
+        [GeneratedRegex(@"^`.*`\.`.*`$")]
+        private static partial Regex QuotedDoubleConstructor();
+        private readonly static Regex QuotedDouble = QuotedDoubleConstructor();
+
+        [GeneratedRegex(@"^`.*`\.[\w][\w\d]*$")]
+        private static partial Regex QuotedAndFreeConstructor();
+        private readonly static Regex QuotedAndFree = QuotedAndFreeConstructor();
+
+        [GeneratedRegex(@"^[\w][\w\d]\.`.*`*$")]
+        private static partial Regex FreeAndQuotedConstructor();
+        private readonly static Regex FreeAndQuoted = FreeAndQuotedConstructor();
 
         public (DbConnection, Action) OpenConnection()
         {
@@ -343,5 +351,19 @@ namespace RFDapperDriverMySQL
 
         public string GetDataLength(string sql)
             => $"LENGTH({sql})";
+
+        public string GetUpdateQuery(UpdateQueryOptions update)
+        {
+            var sql = "UPDATE " + GetTableName(update.TableName, update.Schema) + " " + GetTableAlias(update.TableAlias);
+            if (!string.IsNullOrWhiteSpace(update.Joins))
+                sql += " " + update.Joins;
+
+            sql += " SET " + update.Set;
+
+            if (!string.IsNullOrWhiteSpace(update.Where))
+                sql += " WHERE " + update.Where;
+
+            return sql;
+        }
     }
 }
