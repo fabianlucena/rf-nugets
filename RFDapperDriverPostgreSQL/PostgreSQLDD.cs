@@ -22,7 +22,8 @@ namespace RFDapperDriverPostgreSQL
         private readonly static Regex SqareBracketAndFree = new("^\".*\"\\.[\\w][\\w\\d]*$");
         private readonly static Regex FreeAndSqareBracket = new("^[\\w][\\w\\d]\\.\".*\"*$");
 
-        public bool UseUpdateFrom => true;
+        public bool UseUpdateFromAlias => false;
+        public bool UseUpdateSetFrom => true;
 
         public DbConnection OpenConnection(string? connectionString = null)
         {
@@ -224,13 +225,7 @@ namespace RFDapperDriverPostgreSQL
         }
 
         public SqlQuery GetBool(SqlQuery sqlQuery)
-        {
-            return new()
-            {
-                Sql = "CASE WHEN " + sqlQuery.Sql + " THEN 1 ELSE 0 END",
-                Data = sqlQuery.Data,
-            };
-        }
+            => sqlQuery;
 
         public string? GetColumnType(string type, PropertyInfo property)
         {

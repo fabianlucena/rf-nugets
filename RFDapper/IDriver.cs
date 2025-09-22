@@ -7,7 +7,8 @@ namespace RFDapper
 {
     public interface IDriver
     {
-        bool UseUpdateFrom { get; }
+        bool UseUpdateFromAlias { get; }
+        bool UseUpdateSetFrom { get; }
 
         public DbConnection OpenConnection(string? connectionString = null);
 

@@ -459,13 +459,15 @@ namespace RFDapper
             return columns;
         }
 
-        public (string, DataDictionary) GetJoinQuery(
+        public (string, DataDictionary, string) GetJoinQuery(
             QueryOptions options,
             List<string> usedNames,
-            List<string>? sqlColumns = null
+            List<string>? sqlColumns = null,
+            bool skipFirstJoin = false
         )
         {
             string join = "";
+            string where = "";
             DataDictionary data = [];
             foreach (var from in options.Join)
             {
@@ -506,14 +508,23 @@ namespace RFDapper
                     }
                 }
 
-                join += $" {_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
-                    + $" ON {sqlQuery.Sql}";
+                if (!string.IsNullOrEmpty(join))
+                    join += " ";
+
+                if (skipFirstJoin && string.IsNullOrEmpty(join))
+                {
+                    join += $"{GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}";
+                    where = sqlQuery.Sql;
+                }
+                else
+                    join += $"{_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
+                        + $" ON {sqlQuery.Sql}";
 
                 foreach (var value in sqlQuery.Data)
                     data.Add(value.Key, value.Value);
             }
 
-            return (join, data);
+            return (join, data, where);
         }
 
         public SqlQueryParts GetSelectQueryParts(QueryOptions options)
@@ -529,7 +540,7 @@ namespace RFDapper
             DataDictionary data = [];
             if (options != null)
             {
-                (string joins, DataDictionary joinData) = GetJoinQuery(
+                (string joins, DataDictionary joinData, _) = GetJoinQuery(
                     options,
                     usedNames,
                     options.Select == null ? sqlColumns : null
@@ -729,29 +740,60 @@ namespace RFDapper
 
             options.Alias = options.GetOrCreateAlias("t");
             var sqlFrom = _driver.GetTableName(TableName, Schema) + " " + _driver.GetTableAlias(options.Alias);
-            (string joins, DataDictionary joinData) = GetJoinQuery(
-                options,
-                usedNames
-            );
-
-            sqlFrom += joins;
-            foreach (var value in joinData)
-                data.Add(value.Key, value.Value);
+            DataDictionary joinData;
 
             var sql = "UPDATE ";
-            if (_driver.UseUpdateFrom)
+            if (_driver.UseUpdateFromAlias)
             {
+                (string joins, joinData, string _) = GetJoinQuery(
+                    options,
+                    usedNames
+                );
+
                 sql += _driver.GetTableAlias(options.Alias)
                     + $" SET {string.Join(",", columns)}"
-                    + $" FROM {sqlFrom} "
-                    + sqlWhere.Sql;
+                    + $" FROM {sqlFrom} ";
+                if (!string.IsNullOrWhiteSpace(joins))
+                    sql += $"{joins} ";
+                sql += sqlWhere.Sql;
+            }
+            else if (_driver.UseUpdateSetFrom)
+            {
+                (string joins, joinData, string joinWhere) = GetJoinQuery(
+                    options,
+                    usedNames,
+                    skipFirstJoin: true
+                );
+
+                sql += sqlFrom;
+                sql += $" SET {string.Join(",", columns)}";
+                if (!string.IsNullOrWhiteSpace(joins))
+                    sql += $" FROM {joins} ";
+                if (!string.IsNullOrEmpty(sqlWhere.Sql))
+                {
+                    sql += $" {sqlWhere.Sql}";
+                    if (!string.IsNullOrEmpty(joinWhere))
+                        sql += $" AND ({joinWhere})";
+                }
+                else if (!string.IsNullOrEmpty(joinWhere))
+                    sql += " WHERE " + joinWhere;
             }
             else
             {
-                sql += sqlFrom
-                    + $" SET {string.Join(",", columns)} "
-                    + sqlWhere.Sql;
+                (string joins, joinData, string _) = GetJoinQuery(
+                    options,
+                    usedNames
+                );
+
+                sql += _driver.GetTableName(TableName, Schema) + " " + _driver.GetTableAlias(options.Alias)
+                    + $" SET {string.Join(",", columns)}";
+                if (!string.IsNullOrWhiteSpace(joins))
+                    sql += $"FROM {joins} ";
+                sql += sqlWhere.Sql;
             }
+
+            foreach (var value in joinData)
+                data.Add(value.Key, value.Value);
 
             return new SqlQuery
             {
