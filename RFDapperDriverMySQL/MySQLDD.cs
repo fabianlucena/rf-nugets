@@ -143,6 +143,9 @@ namespace RFDapperDriverMySQL
         public string GetNonClusteredQuery()
             => "";
 
+        public string GetCreateTableIfNotExistsQuery(string tableName, string columnsQuery, string? schemeName)
+            => $"CREATE TABLE IF NOT EXISTS {GetTableName(tableName, schemeName)} (\r\n\t{columnsQuery}\r\n)";
+
         public string GetColumnName(string columnName, QueryOptions? options = null, string? defaultAlias = null)
         {
             columnName = columnName.Trim();
