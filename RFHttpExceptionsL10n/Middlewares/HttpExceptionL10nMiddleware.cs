@@ -37,33 +37,34 @@ namespace RFHttpExceptionsL10n.Middlewares
                 {
                     context.Response.StatusCode = httpException.StatusCode;
 
-                    try
+                try
+                {
+                    using var scope = provider.CreateScope();
+                    var l10n = scope.ServiceProvider.GetService<IL10n>();
+                    if (l10n != null)
                     {
-                        using var scope = provider.CreateScope();
-                        var l10n = scope.ServiceProvider.GetService<IL10n>();
-                        if (l10n != null)
-                        {
-                            message = httpException.FormatMessage(
-                                await l10n._c("exception", httpException.MessageFormat),
-                                httpException.Parameters
-                            );
-                        }
-                        else
-                        {
-                            message = httpException.Message;
-                        }
+                        message = await l10n._c(
+                            "exception",
+                            httpException.MessageFormat,
+                            httpException.Parameters
+                        );
                     }
-                    catch (Exception e)
+                    else
                     {
-                        logger.LogError(e, "Error translating exception message.");
-                        message = exception.Message;
+                        message = httpException.Message;
                     }
                 }
-                else
+                catch (Exception e)
                 {
-                    context.Response.StatusCode = 500;
+                    logger.LogError(e, "Error translating exception message.");
                     message = exception.Message;
                 }
+            }
+            else
+            {
+                context.Response.StatusCode = 500;
+                message = exception.Message;
+            }
 
                 errorType = exception.GetType()
                     ?.GetProperty("Error")

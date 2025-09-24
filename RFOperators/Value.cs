@@ -10,7 +10,7 @@
         public override bool HasColumn(string column)
             => false;
 
-        public override bool SetForColumn<T>(string column, object? value)
+        public override bool SetForColumn(string column, object? value)
             => false;
     }
 }

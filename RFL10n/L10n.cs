@@ -133,7 +133,6 @@ namespace RFL10n
         {
             var translation = (await GetTranslation(text, context)) ?? text;
             return string.Format(translation, args);
-
         }
 
         public async Task<string?> GetTranslation(string text, string context = "")

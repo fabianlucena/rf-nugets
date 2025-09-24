@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using RFDapper.Exceptions;
 using RFOperators;
+using RFService.Attributes;
 using RFService.ILibs;
 using RFService.IRepo;
 using RFService.Libs;
@@ -9,6 +10,7 @@ using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Drawing;
 using System.Reflection;
 using System.Text.Json;
 
@@ -63,109 +65,113 @@ namespace RFDapper
             if (options?.Connection != null)
                 return (options.Connection, () => { });
 
-            var connection = _driver.OpenConnection();
-
-            return (connection, () => connection.Dispose());
+            return _driver.OpenConnection();
         }
 
         public void CreateTable()
         {
-            var query = $@"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.schemas WHERE [name] = '{Schema}')
-                EXEC('CREATE SCHEMA {_driver.GetSchemaName(Schema)} AUTHORIZATION {_driver.GetDefaultSchema()}');";
-            using var connection = _driver.OpenConnection();
-            connection.Query(query);
-
-            var entityType = typeof(TEntity);
-            var properties = entityType.GetProperties();
-            var columnsQueries = new List<string>();
-            var postQueries = new List<string>();
-            foreach (var property in properties)
+            var query = _driver.GetCreateSchemaIfNotExistsQuery(Schema);
+            var (connection, close) = _driver.OpenConnection();
+            try
             {
-                if (GetForeignColumnName(typeof(TEntity), property.Name) != null)
-                    continue;
+                connection.Query(query);
 
-                var columnDefinition = _driver.GetSqlColumnDefinition(property);
-
-                if (columnDefinition != null)
+                var entityType = typeof(TEntity);
+                var properties = entityType.GetProperties();
+                var columnsQueries = new List<string>();
+                var postQueries = new List<string>();
+                foreach (var property in properties)
                 {
-                    columnsQueries.Add(columnDefinition);
+                    if (GetForeignColumnName(typeof(TEntity), property.Name) != null)
+                        continue;
 
-                    var settedPk = false;
-                    var databaseGeneratedAttribute = property.GetCustomAttribute<DatabaseGeneratedAttribute>();
-                    if (databaseGeneratedAttribute != null)
+                    var columnDefinition = _driver.GetSqlColumnDefinition(property);
+
+                    if (columnDefinition != null)
                     {
-                        if (databaseGeneratedAttribute.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
+                        columnsQueries.Add(columnDefinition);
+
+                        var settedPk = false;
+                        var databaseGeneratedAttribute = property.GetCustomAttribute<DatabaseGeneratedAttribute>();
+                        if (databaseGeneratedAttribute != null)
                         {
-                            postQueries.Add($"CONSTRAINT [{Schema}_{TableName}_PK] PRIMARY KEY NONCLUSTERED ({property.Name})");
-                            settedPk = true;
+                            if (databaseGeneratedAttribute.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity)
+                            {
+                                postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_PK")} PRIMARY KEY {_driver.GetNonClusteredQuery()} ({_driver.GetColumnName(property.Name)})");
+                                settedPk = true;
+                            }
                         }
+
+                        if (!settedPk && property.GetCustomAttribute<KeyAttribute>() != null)
+                            postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_PK_{property.Name}")} PRIMARY KEY {_driver.GetClusteredQuery()} ({_driver.GetColumnName(property.Name)})");
                     }
 
-                    if (!settedPk && property.GetCustomAttribute<KeyAttribute>() != null)
-                        postQueries.Add($"CONSTRAINT [{Schema}_{TableName}_PK_{property.Name}] PRIMARY KEY CLUSTERED ([{property.Name}])");
-                }
-
-                var foreign = property.GetCustomAttribute<ForeignKeyAttribute>();
-                if (foreign != null)
-                {
-                    var foreignObject = entityType.GetProperty(foreign.Name) ??
-                        throw new Exception($"Unknown foreign {foreign.Name}");
-
-                    var foreignObjectType = foreignObject.PropertyType;
-                    var referenceColumn = property;
-                    if (!foreignObjectType.IsClass)
+                    var foreign = property.GetCustomAttribute<ForeignKeyAttribute>();
+                    if (foreign != null)
                     {
-                        var propertyType = property.PropertyType;
-                        if (!propertyType.IsClass)
-                            throw new Exception($"Foreign is not and object{foreign.Name}");
+                        var foreignObject = entityType.GetProperty(foreign.Name) ??
+                            throw new Exception($"Unknown foreign {foreign.Name}");
 
-                        referenceColumn = foreignObject;
-                        foreignObject = property;
+                        var foreignObjectType = foreignObject.PropertyType;
+                        var referenceColumn = property;
+                        if (!foreignObjectType.IsClass)
+                        {
+                            var propertyType = property.PropertyType;
+                            if (!propertyType.IsClass)
+                                throw new Exception($"Foreign is not and object{foreign.Name}");
 
-                        foreignObjectType = propertyType;
+                            referenceColumn = foreignObject;
+                            foreignObject = property;
+
+                            foreignObjectType = propertyType;
+                        }
+
+                        var foreignTableAttribute = foreignObjectType.GetCustomAttribute<TableAttribute>();
+                        string foreignTable = "",
+                            foreignSchema = _driver.GetDefaultSchema(),
+                            foreignColumn = "Id";
+                        if (foreignTableAttribute == null)
+                            foreignTable = typeof(TEntity).Name;
+                        else
+                        {
+                            foreignTable = foreignTableAttribute.Name;
+                            if (!string.IsNullOrEmpty(foreignTableAttribute.Schema))
+                                foreignSchema = foreignTableAttribute.Schema;
+                        }
+
+                        postQueries.Add($"CONSTRAINT {_driver.GetContraintName($"{Schema}_{TableName}_{referenceColumn.Name}_FK_{foreignSchema}_{foreignTable}_{foreignColumn}")}"
+                            + $" FOREIGN KEY({_driver.GetColumnName(referenceColumn.Name)}) REFERENCES {_driver.GetTableName(foreignTable, foreignSchema)} ({_driver.GetColumnName(foreignColumn)})"
+                        );
                     }
-
-                    var foreignTableAttribute = foreignObjectType.GetCustomAttribute<TableAttribute>();
-                    string foreignTable = "",
-                        foreignSchema = "dbo",
-                        foreignColumn = "Id";
-                    if (foreignTableAttribute == null)
-                        foreignTable = typeof(TEntity).Name;
-                    else
-                    {
-                        foreignTable = foreignTableAttribute.Name;
-                        if (!string.IsNullOrEmpty(foreignTableAttribute.Schema))
-                            foreignSchema = foreignTableAttribute.Schema;
-                    }
-
-                    postQueries.Add($"CONSTRAINT [{Schema}_{TableName}_{referenceColumn.Name}_FK_{foreignSchema}_{foreignTable}_{foreignColumn}]"
-                        + $" FOREIGN KEY([{referenceColumn.Name}]) REFERENCES [{foreignSchema}].[{foreignTable}]([{foreignColumn}])"
-                    );
                 }
-            }
 
-            var indexes = entityType.GetCustomAttributes<IndexAttribute>();
-            if (indexes != null) {
-                foreach (var index in indexes)
+                var indexes = entityType.GetCustomAttributes<IndexAttribute>();
+                if (indexes != null)
                 {
-                    var name = index.Name ?? $"{Schema}_{TableName}_{(index.IsUnique? "U": "I")}K_{string.Join('_', index.PropertyNames)}";
-                    var indexType = index.IsUnique ?
-                        "UNIQUE" :
-                        "INDEX";
+                    foreach (var index in indexes)
+                    {
+                        var name = index.Name ?? $"{Schema}_{TableName}_{(index.IsUnique ? "U" : "I")}K_{string.Join('_', index.PropertyNames)}";
+                        var indexType = index.IsUnique ?
+                            "UNIQUE" :
+                            "INDEX";
 
-                    postQueries.Add($"CONSTRAINT [{name}] {indexType} ([{string.Join("], [", index.PropertyNames)}])");
+                        postQueries.Add($"CONSTRAINT {_driver.GetContraintName(name)} {indexType} ({string.Join(", ", index.PropertyNames.Select(p => _driver.GetColumnName(p)))})");
+                    }
                 }
+
+                var columnsQuery = string.Join(",\r\n\t\t", [.. columnsQueries]);
+                if (postQueries.Count > 0)
+                    columnsQuery += ",\r\n\t\t" + string.Join(",\r\n\t\t", [.. postQueries]);
+
+                query = _driver.GetCreateTableIfNotExistsQuery(TableName, columnsQuery, Schema);
+
+                _logger.LogDebug("{query}", query);
+                connection.Query(query);
             }
-
-            var columnsQuery = string.Join(",\r\n\t\t", [.. columnsQueries]);
-            if (postQueries.Count > 0)
-                columnsQuery += ",\r\n\t\t" + string.Join(",\r\n\t\t", [.. postQueries]);
-
-            query = $"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'{Schema}.{TableName}') AND type in (N'U'))"
-                + $"\r\n\tCREATE TABLE [{Schema}].[{TableName}] (\r\n\t\t{columnsQuery}\r\n\t) ON [PRIMARY]";
-
-            _logger.LogDebug("{query}", query);
-            connection.Query(query);
+            finally
+            {
+                close();
+            }
         }
 
         public string? GetPrimaryKey()
@@ -195,7 +201,11 @@ namespace RFDapper
             string paramName
         )
         {
-            var sqlQuery = new SqlQuery { Precedence = op.Precedence };
+            var sqlQuery = _driver.GetOperation(op, options, usedNames, paramName, GetOperation);
+            if (sqlQuery != null)
+                return sqlQuery;
+
+            sqlQuery ??= new SqlQuery { Precedence = op.Precedence };
 
             if (op is Column col)
             {
@@ -362,7 +372,10 @@ namespace RFDapper
         {
             var filter = GetWhereFilter(options, usedNames, paramName);
             if (filter != null)
+            {
+                filter.SqlNoCommand = filter.Sql;
                 filter.Sql = "WHERE " + filter.Sql;
+            }
 
             return filter;
         }
@@ -456,14 +469,17 @@ namespace RFDapper
             return columns;
         }
 
-        public (string, DataDictionary) GetJoinQuery(
+        public (string, DataDictionary, string, string) GetJoinQuery(
             QueryOptions options,
             List<string> usedNames,
             List<string>? sqlColumns = null
         )
         {
             string join = "";
+            string truncateJoin = "";
             DataDictionary data = [];
+            bool firstJoin = true;
+            string firstJoinCondition = "";
             foreach (var from in options.Join)
             {
                 Type? propertyType = string.IsNullOrEmpty(from.PropertyName) ?
@@ -503,14 +519,31 @@ namespace RFDapper
                     }
                 }
 
-                join += $" {_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
-                    + $" ON {sqlQuery.Sql}";
+                if (!string.IsNullOrEmpty(join))
+                    join += " ";
+
+                if (firstJoin)
+                {
+                    join = $"{_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
+                    + $" ON {sqlQuery.Sql}"; ;
+                    truncateJoin = $"{GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}";
+                    firstJoinCondition = sqlQuery.Sql;
+                    firstJoin = false;
+                }
+                else
+                {
+                    var thisJoin = $" {_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
+                        + $" ON {sqlQuery.Sql}";
+                    
+                    join += thisJoin;
+                    truncateJoin += thisJoin;
+                }
 
                 foreach (var value in sqlQuery.Data)
                     data.Add(value.Key, value.Value);
             }
 
-            return (join, data);
+            return (join, data, truncateJoin, firstJoinCondition);
         }
 
         public SqlQueryParts GetSelectQueryParts(QueryOptions options)
@@ -526,7 +559,7 @@ namespace RFDapper
             DataDictionary data = [];
             if (options != null)
             {
-                (string joins, DataDictionary joinData) = GetJoinQuery(
+                (string joins, DataDictionary joinData, _, _) = GetJoinQuery(
                     options,
                     usedNames,
                     options.Select == null ? sqlColumns : null
@@ -619,7 +652,7 @@ namespace RFDapper
                 newData[varName] = value;
             }
 
-            var sql = $"INSERT INTO {_driver.GetTableName(TableName, Schema)} ({string.Join(",", columns)}) VALUES ({string.Join(",", valuesName)});";
+            var sql = $"INSERT INTO {_driver.GetTableName(TableName, Schema)} ({string.Join(",", columns)}) VALUES ({string.Join(",", valuesName)})";
             if (hasId)
                 sql += _driver.GetSelectLastIdQuery();
 
@@ -725,30 +758,25 @@ namespace RFDapper
                 throw new NothingToUpdateException();
 
             options.Alias = options.GetOrCreateAlias("t");
-            var sqlFrom = _driver.GetTableName(TableName, Schema) + " " + _driver.GetTableAlias(options.Alias);
-            (string joins, DataDictionary joinData) = GetJoinQuery(
+
+            (string joins, DataDictionary joinData, string truncatedJoins, string firstJoinCondition) = GetJoinQuery(
                 options,
                 usedNames
             );
 
-            sqlFrom += joins;
+            var sql = _driver.GetUpdateQuery(new UpdateQueryOptions {
+                Schema = Schema,
+                TableName = TableName,
+                TableAlias = options.Alias,
+                Set = string.Join(",", columns),
+                Joins = joins,
+                Where = sqlWhere.SqlNoCommand,
+                TruncatedJoins = truncatedJoins,
+                FirstJoinCondition = firstJoinCondition
+            });
+
             foreach (var value in joinData)
                 data.Add(value.Key, value.Value);
-
-            var sql = "UPDATE ";
-            if (_driver.UseUpdateFrom)
-            {
-                sql += _driver.GetTableAlias(options.Alias)
-                    + $" SET {string.Join(",", columns)}"
-                    + $" FROM {sqlFrom} "
-                    + sqlWhere.Sql;
-            }
-            else
-            {
-                sql += sqlFrom
-                    + $" SET {string.Join(",", columns)} "
-                    + sqlWhere.Sql;
-            }
 
             return new SqlQuery
             {
@@ -1352,7 +1380,7 @@ namespace RFDapper
             }
         }
 
-        public async Task<Int64> GetInt64Async(QueryOptions options)
+        public async Task<Int64?> GetInt64Async(QueryOptions options)
         {
             var sqlQuery = GetSelectQuery(options);
             var jsonData = sqlQuery.Data.GetJson();
@@ -1360,7 +1388,7 @@ namespace RFDapper
             var (connection, closeConnection) = OpenConnection(options.RepoOptions);
             try
             {
-                var rows = await connection.QueryAsync<Int64>(
+                var rows = await connection.QueryAsync<Int64?>(
                     sqlQuery.Sql,
                     sqlQuery.Data,
                     options?.RepoOptions.Transaction

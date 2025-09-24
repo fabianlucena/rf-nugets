@@ -94,7 +94,7 @@ namespace RFRBAC.Services
                     requiredPermissions = await permissionService.GetListForNamesAsync(requiredPermissionsName);
                 }
 
-                var requiredPermissionsId = requiredPermissions.Select(x => x.Id);
+                var requiredPermissionsId = requiredPermissions.Select(x => x.Id).ToList();
 
                 var currentPermissionsId = (await GetListAsync(new QueryOptions
                     {

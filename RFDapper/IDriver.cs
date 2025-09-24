@@ -1,4 +1,5 @@
-﻿using RFService.Repo;
+﻿using RFOperators;
+using RFService.Repo;
 using System.Data.Common;
 using System.Reflection;
 
@@ -6,13 +7,13 @@ namespace RFDapper
 {
     public interface IDriver
     {
-        bool UseUpdateFrom { get; }
-
-        public DbConnection OpenConnection(string? connectionString = null);
+        public (DbConnection, Action) OpenConnection();
 
         string GetDefaultSchema();
 
         string GetSchemaName(string schema);
+
+        string GetCreateSchemaIfNotExistsQuery(string schemaName);
 
         string SanitizeVarName(string varname);
 
@@ -25,6 +26,14 @@ namespace RFDapper
         string GetTableAlias(string tableAlias);
 
         string GetColumnAlias(string columnAlias);
+
+        string GetContraintName(string contraintName);
+
+        string GetClusteredQuery();
+
+        string GetNonClusteredQuery();
+
+        string GetCreateTableIfNotExistsQuery(string tableName, string tableDefinition, string? schemaName = null);
 
         SqlQuery GetValue(object? data, QueryOptions options, List<string> usedNames, string paramName);
 
@@ -47,5 +56,10 @@ namespace RFDapper
         string GetSelectLastIdQuery();
 
         string GetDataLength(string sqlQuery);
+
+        SqlQuery? GetOperation(Operator op, QueryOptions options, List<string> usedNames, string paramName, Func<Operator, QueryOptions, List<string>, string, SqlQuery> getOperation)
+            => null;
+
+        string GetUpdateQuery(UpdateQueryOptions update);
     }
 }

@@ -18,7 +18,7 @@
         public override bool HasColumn(string column)
             => Op.HasColumn(column);
 
-        public override bool SetForColumn<T>(string column, object? value)
-            => Op.SetForColumn<T>(column, value);
+        public override bool SetForColumn(string column, object? value)
+            => Op.SetForColumn(column, value);
     }
 }

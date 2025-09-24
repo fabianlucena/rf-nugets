@@ -7,6 +7,9 @@ Ya existe una fila con el título "{0}".
 Event type parameter cannot be null or empty.
 El parámetro tipo de evento no puede ser nulo o vacío.
 
+Filter for column "{0}" does not exists.
+El filtro para la columna "{0}" no existe.
+
 Item for name "{0}" is not found.
 El elemento con el nombre "{0}" no se encuentra.
 

@@ -11,22 +11,37 @@ using System.Text.RegularExpressions;
 
 namespace RFDapperDriverMySQL
 {
-    internal class MySQLDD(MySQLDDOptions driverOptions)
+    internal partial class MySQLDD(MySQLDDOptions driverOptions)
         : IDriver
     {
-        private readonly static Regex QuotedSingle = new(@"^`.*`$");
-        private readonly static Regex QuotedDouble = new(@"^`.*`\.`.*`$");
-        private readonly static Regex QuotedAndFree = new(@"^`.*`\.[\w][\w\d]*$");
-        private readonly static Regex FreeAndQuoted = new(@"^[\w][\w\d]\.`.*`*$");
+        [GeneratedRegex(@"^`.*`$")]
+        private static partial Regex QuotedSingleConstructor();
+        private readonly static Regex QuotedSingle = QuotedSingleConstructor();
 
-        public bool UseUpdateFrom => false;
+        [GeneratedRegex(@"^`.*`\.`.*`$")]
+        private static partial Regex QuotedDoubleConstructor();
+        private readonly static Regex QuotedDouble = QuotedDoubleConstructor();
 
-        public DbConnection OpenConnection(string? connectionString = null)
+        [GeneratedRegex(@"^`.*`\.[\w][\w\d]*$")]
+        private static partial Regex QuotedAndFreeConstructor();
+        private readonly static Regex QuotedAndFree = QuotedAndFreeConstructor();
+
+        [GeneratedRegex(@"^[\w][\w\d]\.`.*`*$")]
+        private static partial Regex FreeAndQuotedConstructor();
+        private readonly static Regex FreeAndQuoted = FreeAndQuotedConstructor();
+
+        public (DbConnection, Action) OpenConnection()
         {
-            var connection = new MySqlConnection(connectionString ?? driverOptions.ConnectionString);
+            if (string.IsNullOrEmpty(driverOptions.ConnectionString))
+                throw new NoConnectionStringProvidedException();
+
+            var connection = new MySqlConnection(driverOptions.ConnectionString);
             connection.Open();
 
-            return connection;
+            return (
+                connection,
+                () => connection.Dispose()
+            );
         }
 
         public string GetDefaultSchema()
@@ -36,6 +51,9 @@ namespace RFDapperDriverMySQL
         {
             return "";
         }
+
+        public string GetCreateSchemaIfNotExistsQuery(string schemaName)
+            => "";
 
         public string SanitizeVarName(string name)
             => name.Replace('.', '_');
@@ -123,6 +141,18 @@ namespace RFDapperDriverMySQL
 
             return columnAlias;
         }
+
+        public string GetContraintName(string contraintName)
+            => $"`{contraintName}`";
+
+        public string GetClusteredQuery()
+            => "";
+
+        public string GetNonClusteredQuery()
+            => "";
+
+        public string GetCreateTableIfNotExistsQuery(string tableName, string columnsQuery, string? schemeName)
+            => $"CREATE TABLE IF NOT EXISTS {GetTableName(tableName, schemeName)} (\r\n\t{columnsQuery}\r\n)";
 
         public string GetColumnName(string columnName, QueryOptions? options = null, string? defaultAlias = null)
         {
@@ -321,5 +351,19 @@ namespace RFDapperDriverMySQL
 
         public string GetDataLength(string sql)
             => $"LENGTH({sql})";
+
+        public string GetUpdateQuery(UpdateQueryOptions update)
+        {
+            var sql = "UPDATE " + GetTableName(update.TableName, update.Schema) + " " + GetTableAlias(update.TableAlias);
+            if (!string.IsNullOrWhiteSpace(update.Joins))
+                sql += " " + update.Joins;
+
+            sql += " SET " + update.Set;
+
+            if (!string.IsNullOrWhiteSpace(update.Where))
+                sql += " WHERE " + update.Where;
+
+            return sql;
+        }
     }
 }

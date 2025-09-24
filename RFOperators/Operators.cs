@@ -16,11 +16,11 @@
                     Op.Eq(column, value)
                 );
 
-        public bool SetForColumn<T>(string column, object? value)
+        public bool SetForColumn(string column, object? value)
         {
             foreach (var filter in this)
             {
-                var result = filter.SetForColumn<T>(column, value);
+                var result = filter.SetForColumn(column, value);
                 if (result)
                     return true;
             }

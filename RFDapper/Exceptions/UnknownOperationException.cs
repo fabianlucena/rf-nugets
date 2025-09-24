@@ -5,7 +5,7 @@ namespace RFDapper.Exceptions
 {
     [Serializable]
     public class UnknownOperationException(string operation)
-        : HttpException(500, $"Unknown operation: {JsonSerializer.Serialize(operation)}.")
+        : HttpException(500, "Unknown operation: {0}.", JsonSerializer.Serialize(operation))
     {
     }
 }

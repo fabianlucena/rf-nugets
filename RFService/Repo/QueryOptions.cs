@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using RFOperators;
+using RFService.Exceptions;
 using RFService.Libs;
 using System.Data;
 using System.Globalization;
@@ -149,6 +150,20 @@ namespace RFService.Repo
         public bool HasColumnFilter(string column)
             => Filters.Any(filter => filter.HasColumn(column));
 
+        public Operator GetColumnFilter(string column)
+            => Filters.Find(filter => filter.HasColumn(column))
+            ?? throw new FilterForColumnDoesNosExistException(column);
+
+        public QueryOptions SetColumnFilter(string column, object? value)
+        {
+            if (HasColumnFilter(column))
+                GetColumnFilter(column).SetForColumn(column, value);
+            else
+                AddFilter(column, value);
+
+            return this;
+        }
+
         public QueryOptions AddFilterIfNotExists(string column, object? value)
         {
             if (!HasColumnFilter(column))
@@ -174,7 +189,7 @@ namespace RFService.Repo
         public QueryOptions SetFilter<T>(string column, object? value)
             where T : Operator
         {
-            if (!Filters.SetForColumn<T>(column, value))
+            if (!Filters.SetForColumn(column, value))
             {
                 var newFilter = (T?)Activator.CreateInstance(typeof(T), column, value)
                     ?? throw new Exception("Unknown operator.");

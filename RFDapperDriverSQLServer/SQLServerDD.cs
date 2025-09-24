@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using RFDapper;
 using RFDapperDriverSQLServer.Exceptions;
+using RFService.Attributes;
 using RFService.Libs;
 using RFService.Repo;
 using System.ComponentModel.DataAnnotations;
@@ -11,26 +12,37 @@ using System.Text.RegularExpressions;
 
 namespace RFDapperDriverSQLServer
 {
-    public class SQLServerDD(SQLServerDDOptions driverOptions)
+    public partial class SQLServerDD(SQLServerDDOptions driverOptions)
         : IDriver
     {
-        private readonly static Regex SqareBracketSingle= new(@"^\[.*\]$");
-        private readonly static Regex SqareBracketDouble = new(@"^\[.*\]\.\[.*\]$");
-        private readonly static Regex SqareBracketAndFree = new(@"^\[.*\]\.[\w][\w\d]*$");
-        private readonly static Regex FreeAndSqareBracket = new(@"^[\w][\w\d]\.\[.*\]*$");
+        [GeneratedRegex(@"^\[.*\]$")]
+        private static partial Regex SqareBracketSingleConstructor();
+        private readonly static Regex SqareBracketSingle = SqareBracketSingleConstructor();
 
-        public bool UseUpdateFrom => true;
+        [GeneratedRegex(@"^\[.*\]\.\[.*\]$")]
+        private static partial Regex SqareBracketDoubleConstructor();
+        private readonly static Regex SqareBracketDouble = SqareBracketDoubleConstructor();
 
-        public DbConnection OpenConnection(string? connectionString = null)
+        [GeneratedRegex(@"^\[.*\]\.[\w][\w\d]*$")]
+        private static partial Regex SqareBracketAndFreeConstructor();
+        private readonly static Regex SqareBracketAndFree = SqareBracketAndFreeConstructor();
+
+        [GeneratedRegex(@"^[\w][\w\d]\.\[.*\]*$")]
+        private static partial Regex FreeAndSqareBracketConstructor();
+        private readonly static Regex FreeAndSqareBracket = FreeAndSqareBracketConstructor();
+
+        public (DbConnection, Action) OpenConnection()
         {
-            connectionString ??= driverOptions.ConnectionString;
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty.");
+            if (string.IsNullOrEmpty(driverOptions.ConnectionString))
+                throw new NoConnectionStringProvidedException();
 
-            var connection = new SqlConnection(connectionString);
+            var connection = new SqlConnection(driverOptions.ConnectionString);
             connection.Open();
 
-            return connection;
+            return (
+                connection,
+                () => connection.Dispose()
+            );
         }
 
         public string GetDefaultSchema()
@@ -55,6 +67,10 @@ namespace RFDapperDriverSQLServer
 
             return schema;
         }
+
+        public string GetCreateSchemaIfNotExistsQuery(string schemaName)
+            => $@"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.schemas WHERE [name] = '{schemaName}')
+                EXEC('CREATE SCHEMA {GetSchemaName(schemaName)} AUTHORIZATION {GetDefaultSchema()}');";
 
         public string SanitizeVarName(string name)
             => name.Replace('.', '_');
@@ -150,6 +166,19 @@ namespace RFDapperDriverSQLServer
             return columnAlias;
         }
 
+        public string GetContraintName(string contraintName)
+            => $"[{contraintName}]";
+
+        public string GetClusteredQuery()
+            => "CLUSTERED";
+
+        public string GetNonClusteredQuery()
+            => "NONCLUSTERED";
+
+        public string GetCreateTableIfNotExistsQuery(string tableName, string columnsQuery, string? schemeName)
+            => $"IF NOT EXISTS (SELECT TOP 1 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'{GetTableName(tableName, schemeName)}') AND type in (N'U'))"
+                + $"\r\n\tCREATE TABLE {GetTableName(tableName, schemeName)} (\r\n\t\t{columnsQuery}\r\n\t) ON [PRIMARY]";
+
         public string GetColumnName(string columnName, QueryOptions? options, string? defaultAlias = null)
         {
             columnName = columnName.Trim();
@@ -225,7 +254,8 @@ namespace RFDapperDriverSQLServer
                 case "String":
                     {
                         var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
-                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
+                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength
+                            ?? property.GetCustomAttribute<SizeAttribute>()?.Size;
 
                         if (length.HasValue && length.Value > 0)
                             return $"NVARCHAR({length.Value})";
@@ -236,7 +266,8 @@ namespace RFDapperDriverSQLServer
                 case "Byte[]":
                     {
                         var length = property.GetCustomAttribute<MaxLengthAttribute>()?.Length
-                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength;
+                            ?? property.GetCustomAttribute<LengthAttribute>()?.MaximumLength
+                            ?? property.GetCustomAttribute<SizeAttribute>()?.Size;
 
                         if (length.HasValue && length.Value > 0)
                             return $"VARBINARY({length.Value})";
@@ -371,9 +402,24 @@ namespace RFDapperDriverSQLServer
         }
 
         public string GetSelectLastIdQuery()
-            => "SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
+            => ";SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
 
         public string GetDataLength(string sql)
             => $"DATALENGTH({sql})";
+    
+        public string GetUpdateQuery(UpdateQueryOptions update)
+        {
+            var sql = "UPDATE " + GetTableAlias(update.TableAlias)
+                + " SET " + update.Set
+                + " FROM " + GetTableName(update.TableName, update.Schema) + " " + GetTableAlias(update.TableAlias);
+
+            if (!string.IsNullOrWhiteSpace(update.Joins))
+                sql += " " + update.Joins;
+
+            if (!string.IsNullOrWhiteSpace(update.Where))
+                sql += " WHERE " + update.Where;
+
+            return sql;
+        }
     }
 }
