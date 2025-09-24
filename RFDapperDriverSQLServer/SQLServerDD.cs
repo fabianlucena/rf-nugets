@@ -401,8 +401,8 @@ namespace RFDapperDriverSQLServer
             return "";
         }
 
-        public string GetSelectLastIdQuery()
-            => ";SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
+        public string GetReturnInsertedIdQuery()
+            => ";SELECT CAST(SCOPE_IDENTITY() AS BIGINT)";
 
         public string GetDataLength(string sql)
             => $"DATALENGTH({sql})";

@@ -53,7 +53,7 @@ namespace RFDapper
 
         string GetSqlLimit(QueryOptions options);
 
-        string GetSelectLastIdQuery();
+        string GetReturnInsertedIdQuery();
 
         string GetDataLength(string sqlQuery);
 

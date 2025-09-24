@@ -400,13 +400,11 @@ namespace RFDapperDriverPostgreSQL
             return "";
         }
 
-        public string GetSelectLastIdQuery()
+        public string GetReturnInsertedIdQuery()
             => "RETURNING \"Id\"";
 
         public string GetDataLength(string sql)
-        {
-            return $"DATALENGTH({sql})";
-        }
+            => $"DATALENGTH({sql})";
 
         public SqlQuery? GetOperation(Operator op, QueryOptions options, List<string> usedNames, string paramName,
             Func<Operator, QueryOptions, List<string>, string, SqlQuery> getOperation)

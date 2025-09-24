@@ -654,7 +654,7 @@ namespace RFDapper
 
             var sql = $"INSERT INTO {_driver.GetTableName(TableName, Schema)} ({string.Join(",", columns)}) VALUES ({string.Join(",", valuesName)})";
             if (hasId)
-                sql += _driver.GetSelectLastIdQuery();
+                sql += _driver.GetReturnInsertedIdQuery();
 
             return new SqlQuery
             {
