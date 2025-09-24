@@ -346,8 +346,8 @@ namespace RFDapperDriverMySQL
             return "";
         }
 
-        public string GetSelectLastIdQuery()
-            => "SELECT LAST_INSERT_ID();";
+        public string GetReturnInsertedIdQuery()
+            => ";SELECT LAST_INSERT_ID()";
 
         public string GetDataLength(string sql)
             => $"LENGTH({sql})";
