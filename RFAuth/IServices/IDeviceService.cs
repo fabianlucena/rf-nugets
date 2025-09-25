@@ -4,7 +4,8 @@ using RFService.IServices;
 namespace RFAuth.IServices
 {
     public interface IDeviceService
-        : IService<Device>
+        : IService<Device>,
+        IServiceId<Device>
     {
         Task<Device> GetSingleForTokenAsync(string token);
 
