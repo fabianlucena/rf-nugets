@@ -19,9 +19,9 @@ namespace RFAuth.Services
     {
         public IPropertiesDecorators PropertiesDecorators { get; } = propertiesDecorators;
 
-        public async Task<LoginData> CreateSessionAsync(User user, Device device)
+        public async Task<LoginData> CreateSessionAsync(User user, Device device, string? jsonData = null)
         {
-            var session = await sessionService.CreateForUserAndDeviceAsync(user, device);
+            var session = await sessionService.CreateForUserAndDeviceAsync(user, device, jsonData);
 
             return new LoginData
             {
@@ -34,7 +34,7 @@ namespace RFAuth.Services
             };
         }
 
-        public async Task<LoginData> LoginAsync(LoginRequest request)
+        public async Task<LoginData> LoginAsync(LoginRequest request, string? jsonData = null)
         {
             if (string.IsNullOrWhiteSpace(request.Username))
                 throw new HttpArgumentNullOrEmptyException(paramName: nameof(request.Username));
@@ -57,10 +57,10 @@ namespace RFAuth.Services
             var device = await deviceService.GetSingleForTokenOrCreateAsync(request.DeviceToken)
                 ?? throw new UnknownDeviceException();
 
-            return await CreateSessionAsync(user, device);
+            return await CreateSessionAsync(user, device, jsonData);
         }
 
-        public async Task<LoginData> AutoLoginAsync(AutoLoginRequest request)
+        public async Task<LoginData> AutoLoginAsync(AutoLoginRequest request, string? jsonData = null)
         {
             if (string.IsNullOrWhiteSpace(request.AutoLoginToken))
                 throw new HttpArgumentNullOrEmptyException(nameof(request.AutoLoginToken));
@@ -75,7 +75,7 @@ namespace RFAuth.Services
             var user = await userService.GetSingleOrDefaultForIdAsync(session.UserId)
                 ?? throw new InvalidCredentialsException();
 
-            return await CreateSessionAsync(user, device);
+            return await CreateSessionAsync(user, device, jsonData);
         }
     }
 }

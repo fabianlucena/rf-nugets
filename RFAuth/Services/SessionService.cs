@@ -30,7 +30,7 @@ namespace RFAuth.Services
             return data;
         }
 
-        public async Task<Session> CreateForUserIdAndDeviceIdAsync(Int64 userId, Int64 deviceId)
+        public async Task<Session> CreateForUserIdAndDeviceIdAsync(Int64 userId, Int64 deviceId, string? jsonData = null)
         {
             var session = new Session
             {
@@ -38,17 +38,16 @@ namespace RFAuth.Services
                 DeviceId = deviceId,
                 Token = "",
                 AutoLoginToken = "",
+                JsonData = jsonData,
             };
 
             return await CreateAsync(session);
         }
 
-        public async Task<Session> CreateForUserAndDeviceAsync(User user, Device device)
-        {
-            return await CreateForUserIdAndDeviceIdAsync(user.Id, device.Id);
-        }
+        public async Task<Session> CreateForUserAndDeviceAsync(User user, Device device, string? jsonData = null)
+            => await CreateForUserIdAndDeviceIdAsync(user.Id, device.Id, jsonData);
 
-        public async Task<Session> CreateForAutoLoginTokenAndDeviceAsync(string autoLoginToken, Device device)
+        public async Task<Session> CreateForAutoLoginTokenAndDeviceAsync(string autoLoginToken, Device device, string? jsonData = null)
         {
             var session = await GetSingleAsync(new QueryOptions
             {
@@ -62,7 +61,7 @@ namespace RFAuth.Services
                 throw new SessionClosedException();
             }
 
-            return await CreateForUserIdAndDeviceIdAsync(session.UserId, device.Id);
+            return await CreateForUserIdAndDeviceIdAsync(session.UserId, device.Id, jsonData);
         }
 
         public async Task<bool> CloseForIdAsync(Int64 id)
@@ -74,8 +73,6 @@ namespace RFAuth.Services
         }
 
         public Task<Session?> GetForTokenOrDefaultAsync(string token)
-        {
-            return repo.GetSingleOrDefaultAsync(new QueryOptions { Filters = { { "Token", token } } });
-        }
+            => repo.GetSingleOrDefaultAsync(new QueryOptions { Filters = { { "Token", token } } });
     }
 }

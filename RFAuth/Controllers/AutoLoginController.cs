@@ -1,7 +1,8 @@
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using RFAuth.DTO;
 using RFAuth.IServices;
-using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
+using System.Text.Json;
 
 namespace RFAuth.Controllers
 {
@@ -18,7 +19,18 @@ namespace RFAuth.Controllers
         {
             await loggerService.AddInfoGetAsync("Autologin", new { data });
 
-            var loginData = await loginService.AutoLoginAsync(data);
+            var sessionData = new
+            {
+                ip = Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                    ?? HttpContext.Connection.RemoteIpAddress?.ToString(),
+
+                userAgent = Request.Headers.UserAgent.ToString(),
+            };
+
+            var loginData = await loginService.AutoLoginAsync(
+                data,
+                JsonSerializer.Serialize(sessionData)
+            );
             loginData.Attributes = await loginService.DecorateItemAsync(
                 loginData,
                 "LoginAttributes",

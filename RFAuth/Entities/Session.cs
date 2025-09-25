@@ -28,6 +28,8 @@ namespace RFAuth.Entities
         [MaxLength(255)]
         public required string AutoLoginToken { get; set; }
 
+        public string? JsonData { get; set; }
+
         public DateTime? ClosedAt { get; set; }
     }
 }
