@@ -42,12 +42,12 @@
         public static DataLength DataLength(string column) => new(column);
         public static DataLength DataLength(Operator query) => new(query);
 
-
         public static MakeValid MakeValid(Column column) => new(column);
         public static MakeValid MakeValid(string column) => new(column);
         public static ST_Intersects ST_Intersects(Operator value1, Operator value2) => new(value1, value2);
         public static ST_Intersects ST_Intersects(string column1, string column2) => new(column1, column2);
         public static ST_Contains ST_Contains(Operator value1, Operator value2) => new(value1, value2);
         public static ST_Contains ST_Contains(string column1, string column2) => new(column1, column2);
+        public static Now Now() => new();
     }
 }
