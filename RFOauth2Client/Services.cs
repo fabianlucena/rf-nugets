@@ -10,7 +10,7 @@ namespace RFOauth2Client
         {
             services.AddScoped<IProviderService, ProviderService>();
 
-            services.AddAutoMapper(typeof(MappingProfile).Assembly);
+            services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
         }
     }
 }

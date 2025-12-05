@@ -16,7 +16,7 @@ namespace RFAuth
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<ILoginService, LoginService>();
 
-            services.AddAutoMapper(typeof(MappingProfile).Assembly);
+            services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
         }
     }
 }

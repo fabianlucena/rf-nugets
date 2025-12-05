@@ -12,7 +12,7 @@ namespace RFHttpAction
             services.AddScoped<IHttpActionService, HttpActionService>();
             services.AddScoped<IHttpActionListeners, HttpActionListeners>();
 
-            services.AddAutoMapper(typeof(MappingProfile).Assembly);
+            services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
         }
     }
 }

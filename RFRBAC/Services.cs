@@ -21,7 +21,7 @@ namespace RFRBAC
             services.AddScoped<IUserPermissionService, UserPermissionService>();
             services.AddScoped<IPrivilegeService, PrivilegeService>();
 
-            services.AddAutoMapper(typeof(MappingProfile).Assembly);
+            services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
         }
     }
 }
