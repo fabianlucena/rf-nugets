@@ -484,12 +484,12 @@ namespace RFDapperDriverPostgreSQL
             if (!string.IsNullOrWhiteSpace(update.Where))
             {
                 if (!string.IsNullOrWhiteSpace(update.FirstJoinCondition))
-                    sql = " WHERE (" + update.FirstJoinCondition + ") AND (" + update.Where + ")";
+                    sql += " WHERE (" + update.FirstJoinCondition + ") AND (" + update.Where + ")";
                 else
-                    sql = " WHERE " + update.Where;
+                    sql += " WHERE " + update.Where;
             }
             else if (!string.IsNullOrWhiteSpace(update.FirstJoinCondition))
-                sql = " WHERE " + update.FirstJoinCondition;
+                sql += " WHERE " + update.FirstJoinCondition;
 
             return sql;
         }
