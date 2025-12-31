@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RFL10n\RFL10n.csproj" />
     <ProjectReference Include="..\RFLogger\RFLogger.csproj" />
     <ProjectReference Include="..\RFService\RFService.csproj" />
   </ItemGroup>

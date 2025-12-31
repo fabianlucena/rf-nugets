@@ -1,7 +1,8 @@
-using RFAuth.IServices;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RFAuth.Exceptions;
-using Microsoft.AspNetCore.Http;
+using RFAuth.IServices;
+using RFL10n;
 
 namespace RFAuth.Controllers
 {
@@ -9,7 +10,8 @@ namespace RFAuth.Controllers
     [Route("v1/logout")]
     public class LogoutController(
         ISessionService sessionService,
-        IRFAuthLoggerService loggerService
+        IRFAuthLoggerService loggerService,
+        IL10n l10n
     ) : ControllerBase
     {
         [HttpPost]
@@ -21,7 +23,11 @@ namespace RFAuth.Controllers
             if (sessionId == 0)
                 throw new NoAuthorizationHeaderException();
 
-            return Ok(await sessionService.CloseForIdAsync(sessionId));
+            var result = await sessionService.CloseForIdAsync(sessionId);
+            if (!result)
+                throw new ClosingSessionException();
+
+            return Ok(new { message = await l10n._("Session closed") });
         }
     }
 }

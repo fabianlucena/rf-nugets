@@ -1,7 +1,7 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using RFAuth.DTO;
 using RFAuth.IServices;
-using Microsoft.AspNetCore.Mvc;
 
 namespace RFAuth.Controllers
 {

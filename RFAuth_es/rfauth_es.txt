@@ -19,6 +19,9 @@ Cambiar contraseña
 Check login
 Verificar ingreso
 
+Closing session error
+Error al cerrar sesión
+
 Delete user
 Eliminar usuario
 
@@ -42,6 +45,9 @@ No hay datos de usuario en la sesión.
 
 Restore user
 Restarurar usuario
+
+Session closed
+Sesión cerrada
 
 Session closed.
 Sesión cerrada.
