@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFAuth.DTO;
 using RFAuth.Exceptions;
+using RFAuth.IServices;
 using RFHttpAction.IServices;
 using RFService.IServices;
 using RFUserEmailVerified.IServices;
@@ -37,6 +38,28 @@ namespace RFUserEmailVerified
 
                 await userEmailVerifiedService.SetIsVerifiedForIdAsync(true, userEmailId);
             });
+        }
+
+        public static void ConfigureDataConfigureRFUserEmailVerified(IServiceProvider provider)
+            => ConfigureDataConfigureRFUserEmailVerifiedAsync(provider).Wait();
+
+        public static async Task ConfigureDataConfigureRFUserEmailVerifiedAsync(IServiceProvider provider)
+        {
+            var addRolePermissionService = provider.GetService<IAddRolePermissionService>();
+            if (addRolePermissionService != null)
+            {
+                var rolesPermissions = new Dictionary<string, IEnumerable<string>>{
+                    { "user",  [
+                        "passwordRecovery",
+                    ] },
+
+                    { "admin",  [
+                        "passwordRecovery",
+                    ] },
+                };
+
+                await addRolePermissionService.AddRolesPermissionsAsync(rolesPermissions);
+            }
         }
     }
 }

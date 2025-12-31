@@ -4,8 +4,6 @@ using RFUserEmail.IServices;
 using RFUserEmail.Entities;
 using RFAuth.Exceptions;
 using RFService.Authorization;
-using AutoMapper;
-using RFAuth.DTO;
 using Microsoft.Extensions.Logging;
 using RFAuth.Controllers;
 using RFUserEmail.Exceptions;
