@@ -17,11 +17,11 @@ namespace RFAuth.Controllers
         {
             await loggerService.AddInfoGetAsync("Logout");
 
-            var sessionIdText = HttpContext.Session.GetString("sessionIdText");
-            if (string.IsNullOrEmpty(sessionIdText))
+            var sessionId = HttpContext.Items["SessionId"] as Int64? ?? 0;
+            if (sessionId == 0)
                 throw new NoAuthorizationHeaderException();
 
-            return Ok(await sessionService.CloseForIdAsync(Convert.ToInt64(sessionIdText)));
+            return Ok(await sessionService.CloseForIdAsync(sessionId));
         }
     }
 }
