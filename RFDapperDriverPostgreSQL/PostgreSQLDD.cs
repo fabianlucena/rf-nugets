@@ -430,7 +430,7 @@ namespace RFDapperDriverPostgreSQL
             if (op is In)
                 sqlQuery.Sql = $"{sql1} = ANY ({sql2})";
             else if (op is NotIn)
-                sqlQuery.Sql = $"{sql1} <> ANY ({sql2})";
+                sqlQuery.Sql = $"{sql1} <> ALL ({sql2})";
             else
                 return null;
 
