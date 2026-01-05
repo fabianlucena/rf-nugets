@@ -461,6 +461,9 @@ namespace RFDapper
                     if (GetForeignColumnName(entityType, property.Name) != null)
                         continue;
 
+                    if (property.GetCustomAttribute<VirtualAttribute>() != null)
+                        continue;
+
                     var column = driver.GetSqlSelectedProperty(property, options, defaultAlias);
                     columns.Add(column);
                 }
@@ -519,22 +522,18 @@ namespace RFDapper
                     }
                 }
 
-                if (!string.IsNullOrEmpty(join))
-                    join += " ";
+                var thisJoin = $" {_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
+                    + $" ON {sqlQuery.Sql}";
 
                 if (firstJoin)
                 {
-                    join = $"{_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
-                    + $" ON {sqlQuery.Sql}"; ;
+                    join = thisJoin;
                     truncateJoin = $"{GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}";
                     firstJoinCondition = sqlQuery.Sql;
                     firstJoin = false;
                 }
                 else
                 {
-                    var thisJoin = $" {_driver.GetJoinType(joinType)} {GetTableNameForEntity(entity)} {_driver.GetTableAlias(from.Alias)}"
-                        + $" ON {sqlQuery.Sql}";
-                    
                     join += thisJoin;
                     truncateJoin += thisJoin;
                 }
@@ -1351,6 +1350,7 @@ namespace RFDapper
             }
             catch (Exception)
             {
+                Console.WriteLine(sqlQuery.Sql);
                 closeConnection();
                 throw;
             }
