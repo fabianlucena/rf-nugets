@@ -211,5 +211,24 @@ namespace RFService.Repo
             Join.Add(new From(propertyName: propertyName, alias: alias, type: type, on: on, entity: entity));
             return this;
         }
+
+        public QueryOptions IncludeIfNotExists(
+            string propertyName,
+            string? alias = null,
+            JoinType? type = null,
+            Operator? on = null,
+            Type? entity = null
+        )
+        {
+            if (!string.IsNullOrEmpty(alias)
+                && Join.Exists(j => j.Alias == alias)
+            )
+            {
+                return this;
+            }
+
+            Join.Add(new From(propertyName: propertyName, alias: alias, type: type, on: on, entity: entity));
+            return this;
+        }
     }
 }
