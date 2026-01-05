@@ -479,7 +479,7 @@ namespace RFDapperDriverPostgreSQL
                 + " SET " + update.Set;
 
             if (!string.IsNullOrWhiteSpace(update.TruncatedJoins))
-                sql += " " + update.TruncatedJoins;
+                sql += " FROM " + update.TruncatedJoins;
 
             if (!string.IsNullOrWhiteSpace(update.Where))
             {
