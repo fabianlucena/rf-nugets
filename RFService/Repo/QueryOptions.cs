@@ -222,6 +222,8 @@ namespace RFService.Repo
         {
             if (!string.IsNullOrEmpty(alias)
                 && Join.Exists(j => j.Alias == alias)
+                || !string.IsNullOrEmpty(propertyName)
+                && Join.Exists(j => j.PropertyName == propertyName)
             )
             {
                 return this;

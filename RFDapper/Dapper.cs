@@ -82,7 +82,9 @@ namespace RFDapper
                 var postQueries = new List<string>();
                 foreach (var property in properties)
                 {
-                    if (GetForeignColumnName(typeof(TEntity), property.Name) != null)
+                    if (IsVirtual(property)
+                        || GetForeignColumnName(typeof(TEntity), property.Name) != null
+                    )
                         continue;
 
                     var columnDefinition = _driver.GetSqlColumnDefinition(property);
@@ -392,6 +394,9 @@ namespace RFDapper
             return _driver.GetTableName(tableAttribute.Name, tableAttribute.Schema);
         }
 
+        private static bool IsVirtual(PropertyInfo property)
+            => property.GetCustomAttribute<VirtualAttribute>() != null;
+
         private static string? GetForeignColumnName(Type entityType, string propertyName)
         {
             var properties = entityType.GetProperties();
@@ -461,7 +466,7 @@ namespace RFDapper
                     if (GetForeignColumnName(entityType, property.Name) != null)
                         continue;
 
-                    if (property.GetCustomAttribute<VirtualAttribute>() != null)
+                    if (IsVirtual(property))
                         continue;
 
                     var column = driver.GetSqlSelectedProperty(property, options, defaultAlias);
@@ -637,6 +642,9 @@ namespace RFDapper
                 var property = entityType.GetProperty(name) ??
                     throw new Exception($"Unknown {name} property");
 
+                if (IsVirtual(property))
+                    continue;
+
                 var propertyType = property.PropertyType;
                 var value = property.GetValue(data, null);
                 if (propertyType.IsClass
@@ -791,7 +799,7 @@ namespace RFDapper
 
             DataDictionary values = [];
 
-            var sql = $"DELETE FROM [{Schema}].[{TableName}] {sqlWhere.Sql}";
+            var sql = $"DELETE FROM {_driver.GetTableName(TableName, Schema)} {sqlWhere.Sql}";
             return new SqlQuery
             {
                 Sql = sql,
