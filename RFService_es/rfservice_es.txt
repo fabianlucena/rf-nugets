@@ -19,6 +19,12 @@ El elemento con el UUID "{0}" no se encuentra.
 Item with the ID "{0}" is not found.
 El elemento con el ID "{0}" no se encuentra.
 
+Query returned no rows
+La consulta no retornó filas
+
+Query returned too many rows
+La consulta retornó demasiadas filas
+
 Providing an ID is not allowed during creation.
 Proporcionar un ID no está permitido durante la creación.
 

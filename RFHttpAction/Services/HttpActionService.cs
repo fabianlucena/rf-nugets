@@ -31,7 +31,7 @@ namespace RFHttpAction.Services
 
         public async Task<HttpAction?> GetSingleOrDefaultForTokenAsync(string token)
         {
-            return await repo.GetSingleOrDefaultAsync(new QueryOptions
+            return await GetSingleOrDefaultAsync(new QueryOptions
             {
                 Filters = { { "Token", token } }
             });

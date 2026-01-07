@@ -12,12 +12,6 @@ namespace RFService.IRepo
 
         Task<int> GetCountAsync(QueryOptions options);
 
-        Task<TEntity> GetSingleAsync(QueryOptions options);
-
-        Task<TEntity?> GetSingleOrDefaultAsync(QueryOptions options);
-
-        Task<TEntity?> GetFirstOrDefaultAsync(QueryOptions options);
-
         Task<IEnumerable<TEntity>> GetListAsync(QueryOptions options);
 
         Task<int> UpdateAsync(IDataDictionary data, QueryOptions options);

@@ -885,45 +885,6 @@ namespace RFDapper
             }
         }
 
-        public async Task<TEntity?> GetSingleOrDefaultAsync(QueryOptions options)
-        {
-            options = new QueryOptions(options) { Top = 2 };
-            var list = await GetListAsync(options);
-            var count = list.Count();
-            if (count == 0)
-                return null;
-
-            if (count > 1)
-                throw new TooManyRowsException();
-
-            return list.First();
-        }
-
-        public async Task<TEntity?> GetFirstOrDefaultAsync(QueryOptions options)
-        {
-            options = new QueryOptions(options) { Top = 1 };
-            var list = await GetListAsync(options);
-            var count = list.Count();
-            if (count == 0)
-                return null;
-
-            return list.First();
-        }
-
-        public async Task<TEntity> GetSingleAsync(QueryOptions options)
-        {
-            options = new QueryOptions(options) { Top = 2 };
-            var list = await GetListAsync(options);
-            var count = list.Count();
-            if (count == 0)
-                throw new NoRowsException();
-
-            if (count > 1)
-                throw new TooManyRowsException();
-
-            return list.First();
-        }
-
         public async Task<IEnumerable<TEntity>> GetListAsync(QueryOptions options)
         {
             var joins = options.Join.Where(i => !string.IsNullOrWhiteSpace(i.PropertyName))

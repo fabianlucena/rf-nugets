@@ -74,8 +74,6 @@ namespace RFAuth.Services
         }
 
         public Task<Session?> GetForTokenOrDefaultAsync(string token)
-        {
-            return repo.GetSingleOrDefaultAsync(new QueryOptions { Filters = { { "Token", token } } });
-        }
+            => GetSingleOrDefaultAsync(new QueryOptions { Filters = { { "Token", token } } });
     }
 }

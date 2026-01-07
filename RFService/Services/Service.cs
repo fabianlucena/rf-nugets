@@ -5,6 +5,7 @@ using System.Data;
 using RFService.Libs;
 using RFService.ILibs;
 using RFOperators;
+using RFService.Exceptions;
 
 namespace RFService.Services
 {
@@ -35,18 +36,48 @@ namespace RFService.Services
         public virtual Task<IEnumerable<TEntity>> GetListAsync(QueryOptions options)
             => repo.GetListAsync(SanitizeQueryOptions(options));
 
-        public virtual Task<TEntity> GetSingleAsync(QueryOptions options)
-            => repo.GetSingleAsync(SanitizeQueryOptions(options));
+        public virtual async Task<TEntity> GetSingleAsync(QueryOptions options)
+        {
+            options = new QueryOptions(options) { Top = 2 };
+            var list = await GetListAsync(options);
+            var count = list.Count();
+            if (count == 0)
+                throw new NoRowsException();
 
-        public virtual Task<TEntity?> GetSingleOrDefaultAsync(QueryOptions options)
-            => repo.GetSingleOrDefaultAsync(SanitizeQueryOptions(options));
+            if (count > 1)
+                throw new TooManyRowsException();
+
+            return list.First();
+        }
+
+        public virtual async Task<TEntity?> GetSingleOrDefaultAsync(QueryOptions options)
+        {
+            options = new QueryOptions(options) { Top = 2 };
+            var list = await GetListAsync(options);
+            var count = list.Count();
+            if (count == 0)
+                return null;
+
+            if (count > 1)
+                throw new TooManyRowsException();
+
+            return list.First();
+        }
 
         public virtual async Task<TEntity?> GetSingleOrCreateAsync(QueryOptions options, Func<TEntity> dataFactory)
             => await GetSingleOrDefaultAsync(options)
                 ?? await CreateAsync(dataFactory());
 
-        public virtual Task<TEntity?> GetFirstOrDefaultAsync(QueryOptions options)
-            => repo.GetFirstOrDefaultAsync(SanitizeQueryOptions(options));
+        public virtual async Task<TEntity?> GetFirstOrDefaultAsync(QueryOptions options)
+        {
+            options = new QueryOptions(options) { Top = 1 };
+            var list = await GetListAsync(options);
+            var count = list.Count();
+            if (count == 0)
+                return null;
+
+            return list.First();
+        }
 
         public virtual IDataDictionary SanitizeDataForAutoGet(IDataDictionary data)
             => data;

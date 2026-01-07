@@ -30,11 +30,11 @@ namespace RFAuth.Services
             => Verify(rawPassword, password.Hash);
 
         public async Task<Password> GetSingleForUserIdAsync(Int64 userId)
-            => await repo.GetSingleAsync(new QueryOptions { Filters = { { "UserId", userId } } });
+            => await GetSingleAsync(new QueryOptions { Filters = { { "UserId", userId } } });
 
         
         public async Task<Password?> GetSingleOrDefaultForUserIdAsync(Int64 userId)
-            => await repo.GetSingleOrDefaultAsync(new QueryOptions { Filters = { { "UserId", userId } } });
+            => await GetSingleOrDefaultAsync(new QueryOptions { Filters = { { "UserId", userId } } });
 
         
         public async Task<Password> GetSingleForUserAsync(User user)
