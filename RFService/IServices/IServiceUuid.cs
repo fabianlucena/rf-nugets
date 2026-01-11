@@ -49,7 +49,7 @@ namespace RFService.IServices
         Task<int> DeleteForUuidAsync(Guid uuid, QueryOptions? options = null, DataDictionary? data = null)
         {
             options ??= new QueryOptions();
-            options.AddFilter("uuid", uuid);
+            options.AddFilter("Uuid", uuid);
             return DeleteAsync(options, data);
         }
     }
