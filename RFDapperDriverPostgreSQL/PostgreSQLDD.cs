@@ -404,7 +404,7 @@ namespace RFDapperDriverPostgreSQL
             => "RETURNING \"Id\"";
 
         public string GetDataLength(string sql)
-            => $"DATALENGTH({sql})";
+            => $"octet_length({sql})";
 
         public SqlQuery? GetOperation(Operator op, QueryOptions options, List<string> usedNames, string paramName,
             Func<Operator, QueryOptions, List<string>, string, SqlQuery> getOperation)
