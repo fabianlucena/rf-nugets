@@ -364,6 +364,33 @@ namespace RFService.Libs
             return true;
         }
 
+        public bool TryGetDecimal(string key, out Decimal value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = default;
+                return false;
+            }
+
+            if (obj is Decimal val)
+            {
+                value = val;
+                return true;
+            }
+
+            obj = GetValue(obj);
+            if (obj is Decimal val1)
+            {
+                value = val1;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
         public bool TryGetNullableObjects(string key, out IEnumerable<object?> value)
         {
             if (!TryGetValue(key, out object? obj)
