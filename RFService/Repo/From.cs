@@ -25,7 +25,7 @@ namespace RFService.Repo
                 Entity = from.Entity;
                 Alias = from.Alias;
                 On = from.On;
-                Join = from.Join;
+                Join = [..from.Join];
             }
         }
 
