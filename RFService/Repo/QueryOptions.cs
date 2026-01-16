@@ -12,6 +12,11 @@ namespace RFService.Repo
         : From,
             IDisposable
     {
+        public static readonly QueryOptions IncludeDisabled = new()
+        {
+            Switches = { { "IncludeDisabled", true } }
+        };
+
         public RepoOptions RepoOptions { get; set; } = new RepoOptions();
 
         public IEnumerable<Operator>? Select { get; set; } = null;
