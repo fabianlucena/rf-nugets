@@ -125,10 +125,16 @@ namespace RFAuth
             if (device == null)
                 return false;
 
-            var session = await loginService!.CreateSessionAsync(user, device);
+            var sesion = await loginService!.CreateSessionAsync(user, device);
+            sesion.Attributes = await loginService.DecorateItemAsync(
+                sesion,
+                "LoginAttributes",
+                sesion.Attributes,
+                "Result"
+            );
 
-            bundle["Session"] = session;
-            bundle["Response"] = mapper!.Map<LoginData, LoginResponse>(session);
+            bundle["Session"] = sesion;
+            bundle["Response"] = mapper!.Map<LoginData, LoginResponse>(sesion);
 
             return true;
         }
