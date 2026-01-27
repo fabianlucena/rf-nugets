@@ -36,6 +36,10 @@ namespace RFService.IServices
 
         Task<Int64> GetSingleIdAsync(QueryOptions? options = null);
 
+        Task<Int64> GetSingleIdOrDefaultAsync(QueryOptions? options = null);
+
+        Task<Int64?> GetSingleIdOrNullAsync(QueryOptions? options = null);
+
         Task<TEntity?> GetSingleOrDefaultForIdAsync(Int64 id, QueryOptions? options = null);
 
         Task<IEnumerable<TEntity>> GetListForIdsAsync(IEnumerable<Int64> id, QueryOptions? options = null);

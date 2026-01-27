@@ -20,9 +20,6 @@ namespace RFService.Services
                 ((IServiceId<TEntity>)this).SanitizeIdForAutoGet(data)
             );
 
-        public async Task<IEnumerable<Int64>> GetListIdAsync(QueryOptions options)
-            => (await GetListAsync(options)).Select(GetId);
-
         public override async Task<TEntity> ValidateForCreationAsync(TEntity data)
         {
             data = await base.ValidateForCreationAsync(data);
@@ -35,18 +32,39 @@ namespace RFService.Services
             return data;
         }
 
+        public async Task<IEnumerable<Int64>> GetListIdAsync(QueryOptions options)
+            => (await GetListAsync(options)).Select(GetId); public async Task<Int64> GetSingleIdAsync(QueryOptions? options = null)
+        {
+            options ??= new QueryOptions();
+            var item = await GetSingleAsync(options);
+            return GetId(item);
+        }
+
+        public async Task<Int64> GetSingleIdOrDefaultAsync(QueryOptions? options = null)
+        {
+            options ??= new QueryOptions();
+            var item = await GetSingleOrDefaultAsync(options);
+            if (item == null)
+                return 0;
+
+            return GetId(item);
+        }
+
+        public async Task<Int64?> GetSingleIdOrNullAsync(QueryOptions? options = null)
+        {
+            options ??= new QueryOptions();
+            var item = await GetSingleOrDefaultAsync(options);
+            if (item == null)
+                return null;
+
+            return GetId(item);
+        }
+
         public virtual Task<TEntity> GetSingleForIdAsync(Int64 id, QueryOptions? options = null)
         {
             options ??= new QueryOptions();
             options.AddFilter("Id", id);
             return GetSingleAsync(options);
-        }
-
-        public async virtual Task<Int64> GetSingleIdAsync(QueryOptions? options = null)
-        {
-            options ??= new QueryOptions();
-            var item = await GetSingleAsync(options);
-            return GetId(item);
         }
 
         public virtual Task<TEntity?> GetSingleOrDefaultForIdAsync(Int64 id, QueryOptions? options = null)
