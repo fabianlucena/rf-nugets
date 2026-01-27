@@ -23,8 +23,7 @@ namespace RFOauth2Client.Service
         {
             if (ConfigurationProviders == null)
             {
-                ConfigurationProviders = [];
-
+                var configurationProviders = new List<Provider>();
                 var configuration = serviceProvider.GetService<IConfiguration>();
                 var providersSection = configuration?.GetSection("OAuth2Providers");
 
@@ -32,7 +31,7 @@ namespace RFOauth2Client.Service
                 {
                     foreach (var child in providersSection.GetChildren())
                     {
-                        ConfigurationProviders.Add(new Provider {
+                        configurationProviders.Add(new Provider {
                             Name = child.GetValue<string?>("name") ?? "",
                             Disabled = child.GetValue<bool?>("disabled") ?? false,
                             ClientId = child.GetValue<string?>("clientId") ?? "",
@@ -41,6 +40,8 @@ namespace RFOauth2Client.Service
                         });
                     }
                 }
+
+                ConfigurationProviders = configurationProviders;
             }
 
             return ConfigurationProviders;
