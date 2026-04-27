@@ -13,6 +13,7 @@ namespace RFAuthEntities.Entities
         public DateTime ExpireAt { get; set; } = DateTime.MinValue;
         public string AutoLoginToken { get; set; } = string.Empty;
         public DateTime LastUsedAt { get; set; } = DateTime.MinValue;
+        public DateTime? ClosedAt { get; set; } = null;
 
         public long UserId { get; set; }
         public User? User { get; set; }

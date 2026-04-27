@@ -2,14 +2,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RFAuthIServices.DTO;
 using RFAuthIServices.IServices;
-using RFBaseEntities.Libs;
 using RFBaseEntities.ILibs;
+using RFBaseEntities.Libs;
 
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class LoginController(
+    [Route("auto-login")]
+    public class AutoLoginController(
         ILoginService loginService,
         ILogger<LoginController> logger,
         IDecoratorsBus decoratorsBus,
@@ -17,14 +17,9 @@ namespace RFAuthControllers.Controllers
     ) : ControllerBase
     {
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] LoginRequest request)
+        public async Task<IActionResult> PostAsync([FromBody] AutoLoginRequest request)
         {
-            logger.LogInformation("Login {@Data}", new
-            {
-                Username = request.Username,
-                Password = "****",
-                DeviceToken = request.DeviceToken
-            });
+            logger.LogInformation("Login {@Data}", request);
 
             var sessionData = new DataDictionary
             {
@@ -34,7 +29,7 @@ namespace RFAuthControllers.Controllers
                 { "userAgent", Request.Headers.UserAgent.ToString() },
             };
 
-            var session = await loginService.LoginAsync(request, sessionData);
+            var session = await loginService.AutoLoginAsync(request, sessionData);
             var response = new SessionResponse(session);
             var decorated = await decoratorsBus.DecorateAsync("LoginResponse", response, serviceProvider, session);
 

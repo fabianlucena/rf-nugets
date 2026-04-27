@@ -43,5 +43,15 @@ namespace RFAuthEF.Repositories
 
             return session;
         }
+
+        public async Task<Session?> GetFirstOrDefaultByAutoLoginTokenAsync(string autoLoginToken, SessionQueryOptions? options = null)
+        {
+            var set = CreateDBSet(options);
+            var session = await set
+                .Where(s => s.AutoLoginToken == autoLoginToken)
+                .FirstOrDefaultAsync();
+
+            return session;
+        }
     }
 }

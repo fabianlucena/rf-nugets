@@ -12,7 +12,6 @@ namespace RFRGCBACServices.Services
     public class SessionDataService(
         IRoleXUserXCompanyService roleXUserXCompanyService,
         ISessionCompanyService sessionCompanyService,
-        ISessionService sessionService,
         IRoleService roleService,
         IPermissionXRoleService permissionXRoleService
     ) : ISessionDataService

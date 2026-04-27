@@ -110,5 +110,15 @@ namespace RFAuthServices.Services
                 }
             );
         }
+
+        public async Task<Session?> GetFirstOrDefaultByAutoLoginTokenAsync(string autoLoginToken, SessionQueryOptions? options = null)
+        {
+            return await sessionRepository.GetFirstOrDefaultByAutoLoginTokenAsync(autoLoginToken, options);
+        }
+
+        public async Task CloseByIdAsync(long sessionId)
+        {
+            await UpdateByIdAsync(sessionId, new DataDictionary { ["ClosedAt"] = DateTime.UtcNow });
+        }
     }
 }
