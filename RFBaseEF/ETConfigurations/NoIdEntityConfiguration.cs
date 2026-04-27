@@ -12,6 +12,8 @@ namespace RFBaseEF.ETConfigurations
         {
             base.Configure(entity);
 
+            entity.HasNoKey();
+
             entity.HasOne(u => u.CreatedBy)
                   .WithMany()
                   .HasForeignKey(u => u.CreatedById)

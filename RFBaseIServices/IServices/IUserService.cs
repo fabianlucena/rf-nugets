@@ -5,10 +5,8 @@ namespace RFBaseIServices.IServices
 {
     public interface IUserService : ICommonEntityService<User>
     {
-        string HashPassword(string password);
-        bool CheckPassword(User user, string password);
-
         Task<User> GetSingleByUsernameAsync(string username, UserQueryOptions? options = null);
+        Task<long> GetSingleIdByUsernameAsync(string username, UserQueryOptions? options = null);
 
         Task<User?> GetSingleOrDefaultByUsernameAsync(string username, UserQueryOptions? options = null);
 

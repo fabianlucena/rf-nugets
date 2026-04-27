@@ -16,45 +16,6 @@ namespace RFBaseServices.Services
         : CommonEntityService<User>(userRepository),
         IUserService
     {
-        private const int SaltSize = 16; // 128 bits
-        private const int KeySize = 32;  // 256 bits
-        private const int Iterations = 100_000;
-
-        public string HashPassword(string password)
-        {
-            byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
-
-            byte[] key = KeyDerivation.Pbkdf2(
-                password: password,
-                salt: salt,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: Iterations,
-                numBytesRequested: KeySize
-            );
-
-            return $"{Iterations}.{Convert.ToBase64String(salt)}.{Convert.ToBase64String(key)}";
-        }
-
-        public bool CheckPassword(User user, string password)
-        {
-            var hash = user.PasswordHash;
-            var parts = hash.Split('.', 3);
-
-            int iterations = int.Parse(parts[0]);
-            byte[] salt = Convert.FromBase64String(parts[1]);
-            byte[] key = Convert.FromBase64String(parts[2]);
-
-            byte[] keyToCheck = KeyDerivation.Pbkdf2(
-                password: password,
-                salt: salt,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: iterations,
-                numBytesRequested: key.Length
-            );
-
-            return CryptographicOperations.FixedTimeEquals(keyToCheck, key);
-        }
-
         public async Task<User> GetSingleByUsernameAsync(string username, UserQueryOptions? options = null)
         {
             return await userRepository.GetSingleByUsernameAsync(username, options);
@@ -108,6 +69,11 @@ namespace RFBaseServices.Services
             };
 
             await UpdateByIdAsync(userId, data);
+        }
+
+        public async Task<long> GetSingleIdByUsernameAsync(string username, UserQueryOptions? options = null)
+        {
+            return await userRepository.GetSingleIdByUsernameAsync(username, options);
         }
     }
 }

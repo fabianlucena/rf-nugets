@@ -9,6 +9,7 @@ namespace RFAuthServices.Services
 {
     public class LoginService(
         IUserService userService,
+        IUserPasswordService userPasswordService,
         ISessionService sessionService,
         IDeviceService deviceService
     ) : ILoginService
@@ -33,7 +34,7 @@ namespace RFAuthServices.Services
                 throw new Exception("User is not allowed to login.");
             }
 
-            if (!userService.CheckPassword(user, request.Password))
+            if (!await userPasswordService.CheckPasswordByUserIdAsync(request.Password, user.Id))
             {
                 throw new Exception("Invalid password.");
             }

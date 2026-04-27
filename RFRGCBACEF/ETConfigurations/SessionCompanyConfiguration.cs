@@ -11,6 +11,8 @@ namespace RFRGCBACEF.ETConfigurations
         {
             base.Configure(entity);
 
+            entity.HasKey(e => new { e.SessionId });
+
             entity.HasOne(sc => sc.Session)
                   .WithMany()
                   .HasForeignKey(sc => sc.SessionId)

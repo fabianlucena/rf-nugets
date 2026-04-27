@@ -1,4 +1,5 @@
-﻿using RFBaseEntities.Entities;
+﻿using Microsoft.Extensions.Options;
+using RFBaseEntities.Entities;
 using RFBaseEntities.QueryOptions;
 
 namespace RFBaseIRepositories.IRepositories
@@ -7,5 +8,6 @@ namespace RFBaseIRepositories.IRepositories
     {
         Task<User> GetSingleByUsernameAsync(string username, UserQueryOptions? options = null);
         Task<User?> GetSingleOrDefaultByUsernameAsync(string username, UserQueryOptions? options = null);
+        Task<long> GetSingleIdByUsernameAsync(string username, UserQueryOptions? options = null);
     }
 }

@@ -1,0 +1,133 @@
+﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.Extensions.DependencyInjection;
+using RFAuthEntities.Entities;
+using RFAuthIRepositories.Repositories;
+using RFAuthIServices.IServices;
+using RFAuthServices.Exceptions;
+using RFBaseEntities.Entities;
+using RFBaseEntities.ILibs;
+using RFBaseEntities.Libs;
+using RFBaseIServices.IServices;
+using RFBaseServices.Services;
+using System.Security.Cryptography;
+
+namespace RFAuthServices.Services
+{
+    public class UserPasswordService(
+        IUserPasswordRepository userPasswordRepository,
+        IServiceProvider serviceProvider
+    )
+        : NoIdEntityService<UserPassword>(userPasswordRepository),
+        IUserPasswordService
+    {
+        private const int SaltSize = 16; // 128 bits
+        private const int KeySize = 32;  // 256 bits
+        private const int Iterations = 100_000;
+
+        public static string HashPassword(string password)
+        {
+            byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
+
+            byte[] key = KeyDerivation.Pbkdf2(
+                password: password,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: Iterations,
+                numBytesRequested: KeySize
+            );
+
+            return $"{Iterations}.{Convert.ToBase64String(salt)}.{Convert.ToBase64String(key)}";
+        }
+
+        public static bool CheckPassword(string hash, string password)
+        {
+            var parts = hash.Split('.', 3);
+
+            int iterations = int.Parse(parts[0]);
+            byte[] salt = Convert.FromBase64String(parts[1]);
+            byte[] key = Convert.FromBase64String(parts[2]);
+
+            byte[] keyToCheck = KeyDerivation.Pbkdf2(
+                password: password,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: iterations,
+                numBytesRequested: key.Length
+            );
+
+            return CryptographicOperations.FixedTimeEquals(keyToCheck, key);
+        }
+
+        public async Task<UserPassword> GetSingleByUserIdAsync(long userId)
+            => await userPasswordRepository.GetSingleByUserIdAsync(userId);
+        
+        public async Task<UserPassword?> GetSingleOrDefaultByUserIdAsync(long userId)
+            => await userPasswordRepository.GetSingleOrDefaultByUserIdAsync(userId);
+        
+        public async Task<UserPassword> GetSingleByUserAsync(User user)
+            => await GetSingleByUserIdAsync(user.Id);
+        
+        public async Task<UserPassword?> GetSingleOrDefaultByUserAsync(User user)
+            => await GetSingleOrDefaultByUserIdAsync(user.Id);
+
+        public async Task<int> UpdateByUserIdAsync(IDataDictionary data, long userId)
+        {
+            return await UpdateByUserIdAsync(data, userId);
+        }
+
+        public async Task<bool> CreateOrUpdateByUserIdAsync(string password, long userId)
+        {
+            var pasaswordObj = await GetSingleOrDefaultByUserIdAsync(userId);
+            if (pasaswordObj == null)
+            {
+                pasaswordObj = await CreateAsync(new UserPassword
+                {
+                    UserId = userId,
+                    Hash = HashPassword(password)
+                });
+
+                return pasaswordObj != null;
+            }
+
+            var result = await UpdateByUserIdAsync(
+                new DataDictionary { { "Hash", HashPassword(password) } },
+                userId
+            );
+
+            return result > 0;
+        }
+
+        public async Task<bool> CreateOrUpdateByUsernameAsync(string password, string username)
+        {
+            var userService = serviceProvider.GetRequiredService<IUserService>();
+            var userId = await userService.GetSingleIdByUsernameAsync(username);
+            return await CreateOrUpdateByUserIdAsync(password, userId);
+        }
+
+        public async Task<bool> CheckPasswordByUserIdAsync(string password, long userId)
+        {
+            var userPassword = await GetSingleByUserIdAsync(userId);
+            var check = CheckPassword(userPassword.Hash, password);
+            if (!check)
+                throw new BadCurrentPasswordException();
+
+            return true;
+        }
+
+
+        public async Task<bool> ChangePasswordByUserIdAsync(string currentPassword, string newPassword, long userId)
+        {
+            var userPassword = await GetSingleByUserIdAsync(userId);
+            var check = CheckPassword(userPassword.Hash, currentPassword);
+            if (!check)
+                throw new BadCurrentPasswordException();
+
+            await UpdateByUserIdAsync(
+                new DataDictionary { { "Hash", HashPassword(newPassword) } },
+                userId
+            );
+
+            return true;
+        }
+    }
+}

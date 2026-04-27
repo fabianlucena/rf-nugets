@@ -10,8 +10,8 @@ namespace RFAuthControllers.Controllers
     [ApiController]
     [Route("auto-login")]
     public class AutoLoginController(
-        ILoginService loginService,
         ILogger<LoginController> logger,
+        ILoginService loginService,
         IDecoratorsBus decoratorsBus,
         IServiceProvider serviceProvider
     ) : ControllerBase
