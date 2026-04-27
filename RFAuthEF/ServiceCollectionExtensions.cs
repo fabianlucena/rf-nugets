@@ -1,0 +1,18 @@
+﻿using Microsoft.Extensions.DependencyInjection;
+using RFAuthEF.Repositories;
+using RFAuthIRepositories.Repositories;
+
+namespace RFAuthEF
+{
+    public static class ServiceCollectionExtensions
+    {
+        public static IServiceCollection AddRFAuthEF(this IServiceCollection services)
+        {
+            services.AddScoped<IDeviceRepository, DeviceRepository>();
+            services.AddScoped<ISessionRepository, SessionRepository>();
+
+            return services;
+        }
+
+    }
+}

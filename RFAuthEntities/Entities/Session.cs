@@ -1,0 +1,52 @@
+﻿using RFBaseEntities.Entities;
+using RFBaseEntities.ILibs;
+using RFBaseEntities.Libs;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
+
+namespace RFAuthEntities.Entities
+{
+    [Table("Sessions", Schema = "auth")]
+    public class Session : CreatableEntity
+    {
+        public string Token { get; set; } = string.Empty;
+        public DateTime ExpireAt { get; set; } = DateTime.MinValue;
+        public string AutoLoginToken { get; set; } = string.Empty;
+        public DateTime LastUsedAt { get; set; } = DateTime.MinValue;
+
+        public long UserId { get; set; }
+        public User? User { get; set; }
+
+        public long DeviceId { get; set; }
+        public Device? Device { get; set; }
+
+        private DataDictionary data = new();
+
+        public string? DataJson
+        {
+            get
+            {
+                var json = JsonSerializer.Serialize(data);
+                if (string.IsNullOrWhiteSpace(json))
+                    return null;
+
+                return json;
+            }
+
+            set
+            {
+                if (value is null)
+                    data = [];
+                else
+                    data = JsonSerializer.Deserialize<DataDictionary>(value) ?? [];
+            }
+        }
+
+        [NotMapped]
+        public IDataDictionary? Data
+        {
+            get => data;
+            set => data = (DataDictionary)(value ?? new DataDictionary());
+        }
+    }
+}
