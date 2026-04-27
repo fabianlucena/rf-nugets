@@ -85,7 +85,7 @@ namespace RFAuthServices.Middlewares
             }
 
             var session = await sessionService.GetFirstOrDefaultByTokenAsync(token, new SessionQueryOptions { IncludeUser = true, IncludeDevice = true });
-            if (session is null)
+            if (session is null || session.ExpireAt < DateTime.UtcNow || session.ClosedAt is not null)
                 return null;
 
             cachedSession = new CachedSession(session);
