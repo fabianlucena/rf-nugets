@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFAuthEntities.Entities
 {
-    [Table("UsersPasswords", Schema = "auth")]
+    [Table("UserPasswords", Schema = "auth")]
     public class UserPassword
         : NoIdEntity
     {

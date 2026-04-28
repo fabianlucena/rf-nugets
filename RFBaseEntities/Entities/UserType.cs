@@ -2,7 +2,7 @@
 
 namespace RFBaseEntities.Entities
 {
-    [Table("UsersTypes", Schema = "auth")]
+    [Table("UserTypes", Schema = "auth")]
     public class UserType : LocalizableEntity
     {
     }
