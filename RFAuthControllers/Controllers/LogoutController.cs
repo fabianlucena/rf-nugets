@@ -3,12 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RFAuthControllers.Exceptions;
 using RFAuthIServices.IServices;
-using RFBaseEntities.Entities;
 
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
-    [Route("v1/logout")]
+    [Route("logout")]
     public class LogoutController(
         ILogger<LoginController> logger,
         ISessionService sessionService
