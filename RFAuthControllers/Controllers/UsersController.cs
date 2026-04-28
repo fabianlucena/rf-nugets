@@ -7,11 +7,11 @@ using RFPermissionsEntities.Attributes;
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
-    [Route("v1/user")]
-    public class UserController(IUserService userService) : ControllerBase
+    [Route("v1/users")]
+    public class UsersController(IUserService userService) : ControllerBase
     {
         [HttpGet]
-        [Permission("user.get")]
+        [Permission("users.get")]
         public async Task<IActionResult> Get()
         {
             var users = await userService.GetListAsync(new UserQueryOptions

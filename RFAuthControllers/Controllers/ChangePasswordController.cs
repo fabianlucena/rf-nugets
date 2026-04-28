@@ -21,7 +21,7 @@ namespace RFAuthControllers.Controllers
         {
             logger.LogInformation("Change password");
 
-            var userId = HttpContext.Items["UserId"] as Int64?
+            var userId = HttpContext.Items["UserId"] as long?
                 ?? throw new NoAuthorizationHeaderException();
             
             if (userId == 0)

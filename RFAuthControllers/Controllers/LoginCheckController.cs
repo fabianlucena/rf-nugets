@@ -16,7 +16,7 @@ namespace RFAuthControllers.Controllers
         {
             logger.LogInformation("Check login");
 
-            var userId = HttpContext.Items["UserId"] as Int64?;
+            var userId = HttpContext.Items["UserId"] as long?;
             if (userId == null || userId == 0)
                 throw new NoAuthorizationHeaderException();
 

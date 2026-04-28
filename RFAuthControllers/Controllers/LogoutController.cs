@@ -18,7 +18,7 @@ namespace RFAuthControllers.Controllers
         {
             logger.LogInformation("Logout");
 
-            var sessionId = HttpContext.Items["SessionId"] as Int64?
+            var sessionId = HttpContext.Items["SessionId"] as long?
                 ?? throw new NoAuthorizationHeaderException();
 
             if (sessionId == 0)
