@@ -8,7 +8,7 @@ using RFBaseEntities.ILibs;
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("v1/login")]
     public class LoginController(
         ILoginService loginService,
         ILogger<LoginController> logger,

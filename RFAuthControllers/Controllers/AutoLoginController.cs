@@ -8,7 +8,7 @@ using RFBaseEntities.Libs;
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
-    [Route("auto-login")]
+    [Route("v1/auto-login")]
     public class AutoLoginController(
         ILogger<LoginController> logger,
         ILoginService loginService,

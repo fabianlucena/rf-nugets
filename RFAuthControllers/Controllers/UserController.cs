@@ -7,7 +7,7 @@ using RFPermissionsEntities.Attributes;
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("v1/user")]
     public class UserController(IUserService userService) : ControllerBase
     {
         [HttpGet]

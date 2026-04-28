@@ -4,13 +4,12 @@ using Microsoft.Extensions.Logging;
 using RFAuthControllers.Exceptions;
 using RFAuthIServices.DTO;
 using RFAuthIServices.IServices;
-using RFBaseEntities.Libs;
 using RFPermissionsEntities.Attributes;
 
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
-    [Route("change-password")]
+    [Route("v1/change-password")]
     public class ChangePasswordController(
         ILogger<LoginController> logger,
         IUserPasswordService userPasswordService

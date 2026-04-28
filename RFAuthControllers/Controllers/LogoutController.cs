@@ -7,7 +7,7 @@ using RFAuthIServices.IServices;
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
-    [Route("logout")]
+    [Route("v1/logout")]
     public class LogoutController(
         ILogger<LoginController> logger,
         ISessionService sessionService

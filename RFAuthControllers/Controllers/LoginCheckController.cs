@@ -6,7 +6,7 @@ using RFAuthControllers.Exceptions;
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
-    [Route("login-check")]
+    [Route("v1/login-check")]
     public class LoginCheckController(
         ILogger<LoginController> logger
     ) : ControllerBase
