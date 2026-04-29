@@ -4,9 +4,9 @@ using RFRGOBACEntities.QueryOptions;
 
 namespace RFRGOBACIServices.IServices
 {
-    public interface ISessionCompanyService : INoIdEntityService<SessionCompany>
+    public interface ISessionOrganizationService : INoIdEntityService<SessionOrganization>
     {
-        Task<Company> GetSingleCompanyBySessionIdAsync(long sessionId, SessionCompanyQueryOptions? options = null);
-        Task<Company?> GetSingleOrDefaultCompanyBySessionIdAsync(long sessionId, SessionCompanyQueryOptions? options = null);
+        Task<Organization> GetSingleOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null);
+        Task<Organization?> GetSingleOrDefaultOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null);
     }
 }

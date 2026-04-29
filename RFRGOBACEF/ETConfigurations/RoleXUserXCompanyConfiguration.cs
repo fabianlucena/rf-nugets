@@ -5,10 +5,10 @@ using RFRGOBACEntities.Entities;
 
 namespace RFRGOBACEF.ETConfigurations
 {
-    public class RoleXUserXCompanyConfiguration
-        : CommonJoinConfiguration<RoleXUserXCompany>
+    public class RoleXUserXOrganizationConfiguration
+        : CommonJoinConfiguration<RoleXUserXOrganization>
     {
-        public override void Configure(EntityTypeBuilder<RoleXUserXCompany> entity)
+        public override void Configure(EntityTypeBuilder<RoleXUserXOrganization> entity)
         {
             base.Configure(entity);
 
@@ -24,9 +24,9 @@ namespace RFRGOBACEF.ETConfigurations
                   .HasForeignKey(u => u.UserId)
                   .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(u => u.Company)
+            entity.HasOne(u => u.Organization)
                   .WithMany()
-                  .HasForeignKey(u => u.CompanyId)
+                  .HasForeignKey(u => u.OrganizationId)
                   .OnDelete(DeleteBehavior.Restrict);
         }
     }

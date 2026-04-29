@@ -4,9 +4,9 @@ using RFRGOBACEntities.QueryOptions;
 
 namespace RFRGOBACIRepositories.IRepositories
 {
-    public interface IRoleXUserXCompanyRepository : ICommonJoinRepository<RoleXUserXCompany>
+    public interface IRoleXUserXOrganizationRepository : ICommonJoinRepository<RoleXUserXOrganization>
     {
-        Task<IEnumerable<long>> GetListIdByUserIdAndCompanyIdAsync(long userId, long? companyId, RoleXUserXCompanyQueryOptions? options = null);
-        Task<IEnumerable<Company>> GetListCompaniesByUserIdAsync(long userId, RoleXUserXCompanyQueryOptions? options = null);
+        Task<IEnumerable<long>> GetListIdByUserIdAndOrganizationIdAsync(long userId, long? OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
+        Task<IEnumerable<Organization>> GetListCompaniesByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null);
     }
 }

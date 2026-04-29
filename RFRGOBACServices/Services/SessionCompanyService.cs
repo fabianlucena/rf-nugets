@@ -6,21 +6,21 @@ using RFRGOBACIServices.IServices;
 
 namespace RFRGOBACServices.Services
 {
-    public class SessionCompanyService(
-        ISessionCompanyRepository sessionCompanyRepository
-    ) : NoIdEntityService<SessionCompany>(sessionCompanyRepository),
-        ISessionCompanyService
+    public class SessionOrganizationService(
+        ISessionOrganizationRepository sessionOrganizationRepository
+    ) : NoIdEntityService<SessionOrganization>(sessionOrganizationRepository),
+        ISessionOrganizationService
     {
-        public async Task<Company> GetSingleCompanyBySessionIdAsync(long sessionId, SessionCompanyQueryOptions? options = null)
+        public async Task<Organization> GetSingleOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
         {
-            var company= await sessionCompanyRepository.GetSingleCompanyBySessionIdAsync(sessionId, options);
-            return company;
+            var Organization= await sessionOrganizationRepository.GetSingleOrganizationBySessionIdAsync(sessionId, options);
+            return Organization;
         }
 
-        public async Task<Company?> GetSingleOrDefaultCompanyBySessionIdAsync(long id, SessionCompanyQueryOptions? options = null)
+        public async Task<Organization?> GetSingleOrDefaultOrganizationBySessionIdAsync(long id, SessionOrganizationQueryOptions? options = null)
         {
-            var company = await sessionCompanyRepository.GetSingleOrDefaultCompanyBySessionIdAsync(id, options);
-            return company;
+            var Organization = await sessionOrganizationRepository.GetSingleOrDefaultOrganizationBySessionIdAsync(id, options);
+            return Organization;
         }
     }
 }

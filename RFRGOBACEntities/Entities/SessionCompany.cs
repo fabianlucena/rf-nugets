@@ -6,13 +6,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace RFRGOBACEntities.Entities
 {
     [Table("SessionCompanies", Schema = "auth")]
-    public class SessionCompany : NoIdEntity
+    public class SessionOrganization : NoIdEntity
     {
         [Key]
         public long SessionId { get; set; }
         public Session? Session { get; set; }
 
-        public long CompanyId { get; set; }
-        public Company? Company { get; set; }
+        public long OrganizationId { get; set; }
+        public Organization? Organization { get; set; }
     }
 }

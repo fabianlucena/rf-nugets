@@ -2,9 +2,9 @@
 
 namespace RFRGOBACIServices.DTO
 {
-    public class CompanyMinDTO(Company company)
+    public class OrganizationMinDTO(Organization Organization)
     {
-        public Guid Uuid { get; } = company.Uuid;
-        public string Name { get; } = company.Name;
+        public Guid Uuid { get; } = Organization.Uuid;
+        public string Name { get; } = Organization.Name;
     }
 }

@@ -7,54 +7,54 @@ using RFRGOBACIRepositories.IRepositories;
 
 namespace RFRGOBACEF.Repositories
 {
-    public class SessionCompanyRepository
-        : NoIdEntityRepository<SessionCompany>,
-        ISessionCompanyRepository
+    public class SessionOrganizationRepository
+        : NoIdEntityRepository<SessionOrganization>,
+        ISessionOrganizationRepository
     {
-        public SessionCompanyRepository(DbContext context) : base(context) { }
+        public SessionOrganizationRepository(DbContext context) : base(context) { }
 
-        public override IQueryable<SessionCompany> CreateDBSet(BaseQueryOptions? options = null)
+        public override IQueryable<SessionOrganization> CreateDBSet(BaseQueryOptions? options = null)
         {
             var quereable = base.CreateDBSet(options ?? new BaseQueryOptions())
-                as IQueryable<SessionCompany>
-                ?? throw new Exception("Error creating SessionCompanyRepository");
+                as IQueryable<SessionOrganization>
+                ?? throw new Exception("Error creating SessionOrganizationRepository");
 
-            if (options is SessionCompanyQueryOptions sessionCompanyOptions)
+            if (options is SessionOrganizationQueryOptions sessionOrganizationOptions)
             {
-                if (sessionCompanyOptions.IncludeSession)
+                if (sessionOrganizationOptions.IncludeSession)
                 {
                     quereable = quereable.Include(sc => sc.Session);
                 }
 
-                if (sessionCompanyOptions.IncludeCompany)
+                if (sessionOrganizationOptions.IncludeOrganization)
                 {
-                    quereable = quereable.Include(sc => sc.Company);
+                    quereable = quereable.Include(sc => sc.Organization);
                 }
             }
 
             return quereable;
         }
 
-        public async Task<Company?> GetSingleOrDefaultCompanyBySessionIdAsync(long sessionId, SessionCompanyQueryOptions? options = null)
+        public async Task<Organization?> GetSingleOrDefaultOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
         {
             var set = CreateDBSet(options);
-            var company = await set
+            var Organization = await set
                 .Where(e => e.SessionId == sessionId)
-                .Select(e => e.Company)
+                .Select(e => e.Organization)
                 .FirstOrDefaultAsync();
 
-            return company;
+            return Organization;
         }
         
-        public async Task<Company> GetSingleCompanyBySessionIdAsync(long sessionId, SessionCompanyQueryOptions? options = null)
+        public async Task<Organization> GetSingleOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
         {
-            var company = await GetSingleOrDefaultCompanyBySessionIdAsync(sessionId, options);
-            if (company == null)
+            var Organization = await GetSingleOrDefaultOrganizationBySessionIdAsync(sessionId, options);
+            if (Organization == null)
             {
-                throw new Exception($"Company with SessionId {sessionId} not found.");
+                throw new Exception($"Organization with SessionId {sessionId} not found.");
             }
 
-            return company;
+            return Organization;
         }
     }
 }

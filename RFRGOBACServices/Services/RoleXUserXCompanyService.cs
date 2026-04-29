@@ -7,28 +7,28 @@ using RFRGOBACIServices.IServices;
 
 namespace RFRGOBACServices.Services
 {
-    public class RoleXUserXCompanyService(
-        IRoleXUserXCompanyRepository roleXUserXCompanyRepository,
+    public class RoleXUserXOrganizationService(
+        IRoleXUserXOrganizationRepository roleXUserXOrganizationRepository,
         IRoleIncludeService roleIncludeService
-    ) : CommonJoinService<RoleXUserXCompany>(roleXUserXCompanyRepository),
-        IRoleXUserXCompanyService
+    ) : CommonJoinService<RoleXUserXOrganization>(roleXUserXOrganizationRepository),
+        IRoleXUserXOrganizationService
     {
 
-        public async Task<IEnumerable<long>> GetRolesIdByUserIdCompanyIdAsync(long userId, long companyId, RoleXUserXCompanyQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetRolesIdByUserIdOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
         {
-            return await roleXUserXCompanyRepository.GetListIdByUserIdAndCompanyIdAsync(userId, companyId, options);
+            return await roleXUserXOrganizationRepository.GetListIdByUserIdAndOrganizationIdAsync(userId, OrganizationId, options);
         }
 
-        public async Task<IEnumerable<long>> GetAllRolesIdByUserIdAndCompanyIdAsync(long userId, long companyId, RoleXUserXCompanyQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetAllRolesIdByUserIdAndOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
         {
-            var rolesId = await GetRolesIdByUserIdCompanyIdAsync(userId, companyId, options);
+            var rolesId = await GetRolesIdByUserIdOrganizationIdAsync(userId, OrganizationId, options);
             var allRolesId = await roleIncludeService.GetAllRolesIdByRolesIdAsync(rolesId);
             return allRolesId;
         }
 
-        public async Task<IEnumerable<Company>> GetListCompaniesByUserIdAsync(long userId, RoleXUserXCompanyQueryOptions? options = null)
+        public async Task<IEnumerable<Organization>> GetListCompaniesByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
         {
-            var companiesList = await roleXUserXCompanyRepository.GetListCompaniesByUserIdAsync(userId, options);
+            var companiesList = await roleXUserXOrganizationRepository.GetListCompaniesByUserIdAsync(userId, options);
             return companiesList;
         }
     }

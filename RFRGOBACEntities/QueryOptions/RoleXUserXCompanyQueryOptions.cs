@@ -2,8 +2,8 @@
 
 namespace RFRGOBACEntities.QueryOptions
 {
-    public class RoleXUserXCompanyQueryOptions : RoleXUserQueryOptions
+    public class RoleXUserXOrganizationQueryOptions : RoleXUserQueryOptions
     {
-        public bool IncludeCompany { get; set; } = false;
+        public bool IncludeOrganization { get; set; } = false;
     }
 }

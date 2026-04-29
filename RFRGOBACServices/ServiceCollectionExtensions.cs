@@ -9,8 +9,8 @@ namespace RFRGOBACServices
     {
         public static IServiceCollection AddRFRGOBACServices(this IServiceCollection services)
         {
-            services.AddScoped<IRoleXUserXCompanyService, RoleXUserXCompanyService>();
-            services.AddScoped<ISessionCompanyService, SessionCompanyService>();
+            services.AddScoped<IRoleXUserXOrganizationService, RoleXUserXOrganizationService>();
+            services.AddScoped<ISessionOrganizationService, SessionOrganizationService>();
             services.AddScoped<ISessionDataService, SessionDataService>();
 
             var decoratorsBus = DecoratorsBus.Singleton;

@@ -4,9 +4,9 @@ using RFRGOBACEntities.Entities;
 
 namespace RFRGOBACEF.ETConfigurations
 {
-    public class CompanyConfiguration : CommonEntityConfiguration<Company>
+    public class OrganizationConfiguration : CommonEntityConfiguration<Organization>
     {
-        public override void Configure(EntityTypeBuilder<Company> entity)
+        public override void Configure(EntityTypeBuilder<Organization> entity)
         {
             base.Configure(entity);
         }

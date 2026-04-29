@@ -10,8 +10,8 @@ using RFRGOBACIServices.QueryOptions;
 namespace RFRGOBACServices.Services
 {
     public class SessionDataService(
-        IRoleXUserXCompanyService roleXUserXCompanyService,
-        ISessionCompanyService sessionCompanyService,
+        IRoleXUserXOrganizationService roleXUserXOrganizationService,
+        ISessionOrganizationService sessionOrganizationService,
         IRoleService roleService,
         IPermissionXRoleService permissionXRoleService
     ) : ISessionDataService
@@ -24,32 +24,32 @@ namespace RFRGOBACServices.Services
 
             var sessionData = new SessionData();
 
-            sessionData.Companies = await roleXUserXCompanyService
+            sessionData.Companies = await roleXUserXOrganizationService
                 .GetListCompaniesByUserIdAsync(userId);
             if (!sessionData.Companies.Any())
                 return sessionData;
 
-            sessionData.CurrentCompany = await sessionCompanyService.GetSingleOrDefaultCompanyBySessionIdAsync(session.Id);
-            if (sessionData.CurrentCompany is null)
+            sessionData.CurrentOrganization = await sessionOrganizationService.GetSingleOrDefaultOrganizationBySessionIdAsync(session.Id);
+            if (sessionData.CurrentOrganization is null)
             {
                 if (sessionData.Companies.Count() != 1)
                     return sessionData;
 
-                sessionData.CurrentCompany = sessionData.Companies.First();
-                if (sessionData.CurrentCompany is null)
+                sessionData.CurrentOrganization = sessionData.Companies.First();
+                if (sessionData.CurrentOrganization is null)
                     return sessionData;
 
-                await sessionCompanyService.CreateAsync(new SessionCompany {
+                await sessionOrganizationService.CreateAsync(new SessionOrganization {
                     CreatedById = session.UserId,
                     UpdatedById = session.UserId,
                     SessionId = session.Id,
-                    CompanyId = sessionData.CurrentCompany.Id,
+                    OrganizationId = sessionData.CurrentOrganization.Id,
                 });
             }
 
-            sessionData.RolesId = await roleXUserXCompanyService.GetAllRolesIdByUserIdAndCompanyIdAsync(
+            sessionData.RolesId = await roleXUserXOrganizationService.GetAllRolesIdByUserIdAndOrganizationIdAsync(
                 userId,
-                sessionData.CurrentCompany.Id
+                sessionData.CurrentOrganization.Id
             );
             sessionData.RolesNames = await roleService.GetListNamesByIdAsync(sessionData.RolesId);
             sessionData.PermissionsNames = await permissionXRoleService.GetAllPermissionsNamesForRolesIdAsync(sessionData.RolesId);

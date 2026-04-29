@@ -5,9 +5,9 @@ using RFRGOBACEntities.Entities;
 
 namespace RFRGOBACEF.ETConfigurations
 {
-    public class SessionCompanyConfiguration : NoIdEntityConfiguration<SessionCompany>
+    public class SessionOrganizationConfiguration : NoIdEntityConfiguration<SessionOrganization>
     {
-        public override void Configure(EntityTypeBuilder<SessionCompany> entity)
+        public override void Configure(EntityTypeBuilder<SessionOrganization> entity)
         {
             base.Configure(entity);
 
@@ -18,9 +18,9 @@ namespace RFRGOBACEF.ETConfigurations
                   .HasForeignKey(sc => sc.SessionId)
                   .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(sc => sc.Company)
+            entity.HasOne(sc => sc.Organization)
                   .WithMany()
-                  .HasForeignKey(sc => sc.CompanyId)
+                  .HasForeignKey(sc => sc.OrganizationId)
                   .OnDelete(DeleteBehavior.Restrict);
         }
     }

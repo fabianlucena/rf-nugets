@@ -10,11 +10,11 @@ namespace RFRGOBACIServices.DTO
         public SessionDataResponse(SessionData sessionData)
         {
             Data["companies"] = sessionData.Companies
-                .Select(c => new CompanyMinDTO(c))
+                .Select(c => new OrganizationMinDTO(c))
                 .ToList();
 
-            if (sessionData.CurrentCompany is not null)
-                Data["currentCompany"] = new CompanyMinDTO(sessionData.CurrentCompany);
+            if (sessionData.CurrentOrganization is not null)
+                Data["currentOrganization"] = new OrganizationMinDTO(sessionData.CurrentOrganization);
 
             if (sessionData.RolesNames is not null)
                 Data["roles"] = sessionData.RolesNames;

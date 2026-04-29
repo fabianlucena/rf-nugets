@@ -7,58 +7,58 @@ using RFRGOBACIRepositories.IRepositories;
 
 namespace RFRGOBACEF.Repositories
 {
-    public class RoleXUserXCompanyRepository
-        : CommonJoinRepository<RoleXUserXCompany>,
-        IRoleXUserXCompanyRepository
+    public class RoleXUserXOrganizationRepository
+        : CommonJoinRepository<RoleXUserXOrganization>,
+        IRoleXUserXOrganizationRepository
     {
-        public RoleXUserXCompanyRepository(DbContext context) : base(context) { }
+        public RoleXUserXOrganizationRepository(DbContext context) : base(context) { }
 
-        public override IQueryable<RoleXUserXCompany> CreateDBSet(BaseQueryOptions? options = null)
+        public override IQueryable<RoleXUserXOrganization> CreateDBSet(BaseQueryOptions? options = null)
         {
             var quereable = base.CreateDBSet(options ?? new BaseQueryOptions())
-                as IQueryable<RoleXUserXCompany>
-                ?? throw new Exception("Error creating RoleXUserXCompanyRepository");
+                as IQueryable<RoleXUserXOrganization>
+                ?? throw new Exception("Error creating RoleXUserXOrganizationRepository");
 
-            if (options is RoleXUserXCompanyQueryOptions roleXUserXCompanyOptions)
+            if (options is RoleXUserXOrganizationQueryOptions roleXUserXOrganizationOptions)
             {
-                if (roleXUserXCompanyOptions.IncludeRole)
+                if (roleXUserXOrganizationOptions.IncludeRole)
                 {
                     quereable = quereable.Include(r => r.Role);
                 }
 
-                if (roleXUserXCompanyOptions.IncludeUser)
+                if (roleXUserXOrganizationOptions.IncludeUser)
                 {
                     quereable = quereable.Include(u => u.User);
                 }
 
-                if (roleXUserXCompanyOptions.IncludeCompany)
+                if (roleXUserXOrganizationOptions.IncludeOrganization)
                 {
-                    quereable = quereable.Include(c => c.Company);
+                    quereable = quereable.Include(c => c.Organization);
                 }
             }
 
             return quereable;
         }
 
-        public async Task<IEnumerable<long>> GetListIdByUserIdAndCompanyIdAsync(long userId, long? companyId, RoleXUserXCompanyQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetListIdByUserIdAndOrganizationIdAsync(long userId, long? OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
         {
             var set = CreateDBSet(options);
 
             var list = await set
-                .Where(e => e.UserId == userId && (companyId == null || e.CompanyId == companyId))
+                .Where(e => e.UserId == userId && (OrganizationId == null || e.OrganizationId == OrganizationId))
                 .Select(e => e.RoleId)
                 .ToListAsync();
 
             return list;
         }
 
-        public async Task<IEnumerable<Company>> GetListCompaniesByUserIdAsync(long userId, RoleXUserXCompanyQueryOptions? options = null)
+        public async Task<IEnumerable<Organization>> GetListCompaniesByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
         {
             var set = CreateDBSet(options);
 
             var list = await set
                 .Where(e => e.UserId == userId)
-                .Select(e => e.Company)
+                .Select(e => e.Organization)
                 .Distinct()
                 .Where(c => c != null)
                 .Select(c => c!)
