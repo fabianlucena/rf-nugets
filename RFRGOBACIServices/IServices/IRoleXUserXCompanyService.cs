@@ -9,6 +9,6 @@ namespace RFRGOBACIServices.IServices
     {
         Task<IEnumerable<long>> GetRolesIdByUserIdOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
         Task<IEnumerable<long>> GetAllRolesIdByUserIdAndOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
-        Task<IEnumerable<Organization>> GetListCompaniesByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null);
+        Task<IEnumerable<Organization>> GetListOrganizationsByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null);
     }
 }

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFRGOBACEntities.Entities
 {
-    [Table("SessionCompanies", Schema = "auth")]
+    [Table("SessionOrganizations", Schema = "auth")]
     public class SessionOrganization : NoIdEntity
     {
         [Key]

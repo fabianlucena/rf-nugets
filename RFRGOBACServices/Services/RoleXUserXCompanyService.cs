@@ -26,10 +26,10 @@ namespace RFRGOBACServices.Services
             return allRolesId;
         }
 
-        public async Task<IEnumerable<Organization>> GetListCompaniesByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
+        public async Task<IEnumerable<Organization>> GetListOrganizationsByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
         {
-            var companiesList = await roleXUserXOrganizationRepository.GetListCompaniesByUserIdAsync(userId, options);
-            return companiesList;
+            var OrganizationsList = await roleXUserXOrganizationRepository.GetListOrganizationsByUserIdAsync(userId, options);
+            return OrganizationsList;
         }
     }
 }

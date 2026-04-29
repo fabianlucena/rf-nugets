@@ -52,7 +52,7 @@ namespace RFRGOBACEF.Repositories
             return list;
         }
 
-        public async Task<IEnumerable<Organization>> GetListCompaniesByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
+        public async Task<IEnumerable<Organization>> GetListOrganizationsByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
         {
             var set = CreateDBSet(options);
 

@@ -9,7 +9,7 @@ namespace RFRGOBACIServices.DTO
 
         public SessionDataResponse(SessionData sessionData)
         {
-            Data["companies"] = sessionData.Companies
+            Data["Organizations"] = sessionData.Organizations
                 .Select(c => new OrganizationMinDTO(c))
                 .ToList();
 

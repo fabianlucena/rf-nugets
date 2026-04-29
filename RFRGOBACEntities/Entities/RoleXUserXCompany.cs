@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFRGOBACEntities.Entities
 {
-    [Table("RolesXUsersXCompanies", Schema = "auth")]
+    [Table("RolesXUsersXOrganizations", Schema = "auth")]
     public class RoleXUserXOrganization : CommonJoin
     {
         public long RoleId { get; set; }

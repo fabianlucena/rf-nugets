@@ -24,18 +24,18 @@ namespace RFRGOBACServices.Services
 
             var sessionData = new SessionData();
 
-            sessionData.Companies = await roleXUserXOrganizationService
-                .GetListCompaniesByUserIdAsync(userId);
-            if (!sessionData.Companies.Any())
+            sessionData.Organizations = await roleXUserXOrganizationService
+                .GetListOrganizationsByUserIdAsync(userId);
+            if (!sessionData.Organizations.Any())
                 return sessionData;
 
             sessionData.CurrentOrganization = await sessionOrganizationService.GetSingleOrDefaultOrganizationBySessionIdAsync(session.Id);
             if (sessionData.CurrentOrganization is null)
             {
-                if (sessionData.Companies.Count() != 1)
+                if (sessionData.Organizations.Count() != 1)
                     return sessionData;
 
-                sessionData.CurrentOrganization = sessionData.Companies.First();
+                sessionData.CurrentOrganization = sessionData.Organizations.First();
                 if (sessionData.CurrentOrganization is null)
                     return sessionData;
 
