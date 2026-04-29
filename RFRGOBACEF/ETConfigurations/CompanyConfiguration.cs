@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RFBaseEF.ETConfigurations;
-using RFRGCBACEntities.Entities;
+using RFRGOBACEntities.Entities;
 
-namespace RFRGCBACEF.ETConfigurations
+namespace RFRGOBACEF.ETConfigurations
 {
     public class CompanyConfiguration : CommonEntityConfiguration<Company>
     {

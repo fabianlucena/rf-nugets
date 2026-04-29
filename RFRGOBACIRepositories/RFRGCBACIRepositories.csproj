@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RFRBACIRepositories\RFRBACIRepositories.csproj" />
-    <ProjectReference Include="..\RFRGCBACEntities\RFRGCBACEntities.csproj" />
+    <ProjectReference Include="..\RFRGOBACEntities\RFRGOBACEntities.csproj" />
   </ItemGroup>
 
 </Project>

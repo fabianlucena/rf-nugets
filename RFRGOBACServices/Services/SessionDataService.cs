@@ -2,12 +2,12 @@
 using RFAuthIServices.IServices;
 using RFRBACIServices.IServices;
 using RFRBACServices.Services;
-using RFRGCBACEntities.Entities;
-using RFRGCBACIRepositories.DTO;
-using RFRGCBACIServices.IServices;
-using RFRGCBACIServices.QueryOptions;
+using RFRGOBACEntities.Entities;
+using RFRGOBACIRepositories.DTO;
+using RFRGOBACIServices.IServices;
+using RFRGOBACIServices.QueryOptions;
 
-namespace RFRGCBACServices.Services
+namespace RFRGOBACServices.Services
 {
     public class SessionDataService(
         IRoleXUserXCompanyService roleXUserXCompanyService,

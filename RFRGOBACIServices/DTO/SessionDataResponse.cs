@@ -1,7 +1,7 @@
 ﻿using RFBaseEntities.Libs;
-using RFRGCBACIRepositories.DTO;
+using RFRGOBACIRepositories.DTO;
 
-namespace RFRGCBACIServices.DTO
+namespace RFRGOBACIServices.DTO
 {
     public class SessionDataResponse
     {

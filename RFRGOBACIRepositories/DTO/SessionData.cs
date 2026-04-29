@@ -1,6 +1,6 @@
-﻿using RFRGCBACEntities.Entities;
+﻿using RFRGOBACEntities.Entities;
 
-namespace RFRGCBACIRepositories.DTO
+namespace RFRGOBACIRepositories.DTO
 {
     public class SessionData
     {

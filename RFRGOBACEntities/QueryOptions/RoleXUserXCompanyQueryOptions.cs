@@ -1,6 +1,6 @@
 ﻿using RFRBACEntities.QueryOptions;
 
-namespace RFRGCBACEntities.QueryOptions
+namespace RFRGOBACEntities.QueryOptions
 {
     public class RoleXUserXCompanyQueryOptions : RoleXUserQueryOptions
     {

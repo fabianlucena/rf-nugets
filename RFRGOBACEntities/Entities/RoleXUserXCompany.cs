@@ -2,7 +2,7 @@
 using RFRBACEntities.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RFRGCBACEntities.Entities
+namespace RFRGOBACEntities.Entities
 {
     [Table("RolesXUsersXCompanies", Schema = "auth")]
     public class RoleXUserXCompany : CommonJoin

@@ -1,8 +1,8 @@
 ﻿using RFBaseIRepositories.IRepositories;
-using RFRGCBACEntities.Entities;
-using RFRGCBACEntities.QueryOptions;
+using RFRGOBACEntities.Entities;
+using RFRGOBACEntities.QueryOptions;
 
-namespace RFRGCBACIRepositories.IRepositories
+namespace RFRGOBACIRepositories.IRepositories
 {
     public interface ISessionCompanyRepository : INoIdEntityRepository<SessionCompany>
     {

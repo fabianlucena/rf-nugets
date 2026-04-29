@@ -3,7 +3,7 @@ using RFBaseEntities.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RFRGCBACEntities.Entities
+namespace RFRGOBACEntities.Entities
 {
     [Table("SessionCompanies", Schema = "auth")]
     public class SessionCompany : NoIdEntity

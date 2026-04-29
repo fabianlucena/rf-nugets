@@ -1,6 +1,6 @@
 ﻿using RFBaseEntities.QueryOptions;
 
-namespace RFRGCBACIServices.QueryOptions
+namespace RFRGOBACIServices.QueryOptions
 {
     public class SessionDataQueryOptions : BaseQueryOptions
     {

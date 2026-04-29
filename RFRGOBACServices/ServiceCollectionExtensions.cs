@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFBaseEntities.Libs;
-using RFRGCBACIServices.IServices;
-using RFRGCBACServices.Services;
+using RFRGOBACIServices.IServices;
+using RFRGOBACServices.Services;
 
-namespace RFRGCBACServices
+namespace RFRGOBACServices
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddRFRGCBACServices(this IServiceCollection services)
+        public static IServiceCollection AddRFRGOBACServices(this IServiceCollection services)
         {
             services.AddScoped<IRoleXUserXCompanyService, RoleXUserXCompanyService>();
             services.AddScoped<ISessionCompanyService, SessionCompanyService>();

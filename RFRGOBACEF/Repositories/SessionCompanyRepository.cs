@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFBaseEF.Repositories;
 using RFBaseEntities.QueryOptions;
-using RFRGCBACEntities.Entities;
-using RFRGCBACEntities.QueryOptions;
-using RFRGCBACIRepositories.IRepositories;
+using RFRGOBACEntities.Entities;
+using RFRGOBACEntities.QueryOptions;
+using RFRGOBACIRepositories.IRepositories;
 
-namespace RFRGCBACEF.Repositories
+namespace RFRGOBACEF.Repositories
 {
     public class SessionCompanyRepository
         : NoIdEntityRepository<SessionCompany>,

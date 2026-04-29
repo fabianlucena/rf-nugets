@@ -3,10 +3,10 @@ using RFAuthEntities.Entities;
 using RFAuthIServices.DTO;
 using RFAuthServices.DTO;
 using RFBaseEntities.Libs;
-using RFRGCBACIServices.DTO;
-using RFRGCBACIServices.IServices;
+using RFRGOBACIServices.DTO;
+using RFRGOBACIServices.IServices;
 
-namespace RFRGCBACServices
+namespace RFRGOBACServices
 {
     public static class Decorators
     {

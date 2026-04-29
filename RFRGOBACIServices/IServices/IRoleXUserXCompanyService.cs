@@ -1,9 +1,9 @@
 ﻿using RFBaseIServices.IServices;
 using RFRBACIServices.IServices;
-using RFRGCBACEntities.Entities;
-using RFRGCBACEntities.QueryOptions;
+using RFRGOBACEntities.Entities;
+using RFRGOBACEntities.QueryOptions;
 
-namespace RFRGCBACIServices.IServices
+namespace RFRGOBACIServices.IServices
 {
     public interface IRoleXUserXCompanyService : ICommonJoinService<RoleXUserXCompany>
     {

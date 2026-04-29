@@ -1,8 +1,8 @@
 ﻿using RFAuthEntities.Entities;
-using RFRGCBACIRepositories.DTO;
-using RFRGCBACIServices.QueryOptions;
+using RFRGOBACIRepositories.DTO;
+using RFRGOBACIServices.QueryOptions;
 
-namespace RFRGCBACIServices.IServices
+namespace RFRGOBACIServices.IServices
 {
     public interface ISessionDataService
     {

@@ -1,6 +1,6 @@
 ﻿using RFBaseEntities.QueryOptions;
 
-namespace RFRGCBACEntities.QueryOptions
+namespace RFRGOBACEntities.QueryOptions
 {
     public class SessionCompanyQueryOptions : CommonEntityQueryOptions
     {

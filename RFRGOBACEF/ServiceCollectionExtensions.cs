@@ -1,14 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFRBACEF.Repositories;
 using RFRBACIRepositories.IRepositories;
-using RFRGCBACEF.Repositories;
-using RFRGCBACIRepositories.IRepositories;
+using RFRGOBACEF.Repositories;
+using RFRGOBACIRepositories.IRepositories;
 
-namespace RFRGCBACEF
+namespace RFRGOBACEF
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddRFRGCBACEF(this IServiceCollection services)
+        public static IServiceCollection AddRFRGOBACEF(this IServiceCollection services)
         {
             services.AddScoped<ISessionCompanyRepository, SessionCompanyRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();

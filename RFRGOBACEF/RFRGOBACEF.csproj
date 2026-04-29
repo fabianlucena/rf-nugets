@@ -9,8 +9,8 @@
   <ItemGroup>
     <ProjectReference Include="..\RFBaseEF\RFBaseEF.csproj" />
     <ProjectReference Include="..\RFRBACEF\RFRBACEF.csproj" />
-    <ProjectReference Include="..\RFRGCBACEntities\RFRGCBACEntities.csproj" />
-    <ProjectReference Include="..\RFRGCBACIRepositories\RFRGCBACIRepositories.csproj" />
+    <ProjectReference Include="..\RFRGOBACEntities\RFRGOBACEntities.csproj" />
+    <ProjectReference Include="..\RFRGOBACIRepositories\RFRGOBACIRepositories.csproj" />
   </ItemGroup>
 
 </Project>

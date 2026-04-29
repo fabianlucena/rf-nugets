@@ -1,7 +1,7 @@
 ﻿using RFBaseEntities.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RFRGCBACEntities.Entities
+namespace RFRGOBACEntities.Entities
 {
     [Table("Companies", Schema = "auth")]
     public class Company : CommonEntity

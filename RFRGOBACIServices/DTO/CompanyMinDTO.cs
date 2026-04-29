@@ -1,6 +1,6 @@
-﻿using RFRGCBACEntities.Entities;
+﻿using RFRGOBACEntities.Entities;
 
-namespace RFRGCBACIServices.DTO
+namespace RFRGOBACIServices.DTO
 {
     public class CompanyMinDTO(Company company)
     {

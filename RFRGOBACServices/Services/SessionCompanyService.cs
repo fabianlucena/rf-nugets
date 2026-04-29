@@ -1,10 +1,10 @@
 ﻿using RFBaseServices.Services;
-using RFRGCBACEntities.Entities;
-using RFRGCBACEntities.QueryOptions;
-using RFRGCBACIRepositories.IRepositories;
-using RFRGCBACIServices.IServices;
+using RFRGOBACEntities.Entities;
+using RFRGOBACEntities.QueryOptions;
+using RFRGOBACIRepositories.IRepositories;
+using RFRGOBACIServices.IServices;
 
-namespace RFRGCBACServices.Services
+namespace RFRGOBACServices.Services
 {
     public class SessionCompanyService(
         ISessionCompanyRepository sessionCompanyRepository
