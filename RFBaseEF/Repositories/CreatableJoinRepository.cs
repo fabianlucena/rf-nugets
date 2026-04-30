@@ -21,7 +21,9 @@ namespace RFBaseEF.Repositories
                     quereable = quereable.Include(u => u.CreatedBy);
                 }
 
-                quereable = quereable.Take(options.Take);
+                quereable = quereable
+                    .Skip(options.Skip)
+                    .Take(options.Take);
             }
 
             return quereable;

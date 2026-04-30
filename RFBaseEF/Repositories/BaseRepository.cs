@@ -36,12 +36,11 @@ namespace RFBaseEF.Repositories
 
         public virtual async Task<IEnumerable<T>> GetListAsync(BaseQueryOptions? options = null)
         {
-            var set = CreateDBSet(options);
+            options ??= new BaseQueryOptions();
 
-            if (options?.Take > 0)
-            {
-                set = set.Take(options.Take);
-            }
+            var set = CreateDBSet(options)
+                .Skip(options.Skip)
+                .Take(options.Take);
 
             var list = await set
                 .ToListAsync();

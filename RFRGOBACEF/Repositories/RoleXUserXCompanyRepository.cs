@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFBaseEF.Repositories;
-using RFBaseEntities.Exceptions;
 using RFBaseEntities.QueryOptions;
+using RFRGOBACEF.Exceptions;
 using RFRGOBACEntities.Entities;
 using RFRGOBACEntities.QueryOptions;
 using RFRGOBACIRepositories.IRepositories;
