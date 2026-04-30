@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFBaseEF.Repositories;
+using RFBaseEntities.Exceptions;
 using RFBaseEntities.QueryOptions;
+using RFRGOBACEF.Exceptions;
 using RFRGOBACEntities.Entities;
 using RFRGOBACEntities.QueryOptions;
 using RFRGOBACIRepositories.IRepositories;
@@ -17,7 +19,7 @@ namespace RFRGOBACEF.Repositories
         {
             var quereable = base.CreateDBSet(options ?? new BaseQueryOptions())
                 as IQueryable<SessionOrganization>
-                ?? throw new Exception("Error creating SessionOrganizationRepository");
+                ?? throw new ErrorCreatingSessionOrganizationRepositoryException();
 
             if (options is SessionOrganizationQueryOptions sessionOrganizationOptions)
             {
@@ -48,11 +50,8 @@ namespace RFRGOBACEF.Repositories
         
         public async Task<Organization> GetSingleOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
         {
-            var Organization = await GetSingleOrDefaultOrganizationBySessionIdAsync(sessionId, options);
-            if (Organization == null)
-            {
-                throw new Exception($"Organization with SessionId {sessionId} not found.");
-            }
+            var Organization = (await GetSingleOrDefaultOrganizationBySessionIdAsync(sessionId, options))
+                ?? throw new OrganizationWithSessionIdNotFoundException(sessionId);
 
             return Organization;
         }

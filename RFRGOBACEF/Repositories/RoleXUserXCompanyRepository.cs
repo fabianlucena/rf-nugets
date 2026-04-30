@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFBaseEF.Repositories;
+using RFBaseEntities.Exceptions;
 using RFBaseEntities.QueryOptions;
 using RFRGOBACEntities.Entities;
 using RFRGOBACEntities.QueryOptions;
@@ -17,7 +18,7 @@ namespace RFRGOBACEF.Repositories
         {
             var quereable = base.CreateDBSet(options ?? new BaseQueryOptions())
                 as IQueryable<RoleXUserXOrganization>
-                ?? throw new Exception("Error creating RoleXUserXOrganizationRepository");
+                ?? throw new ErrorCreatingRoleXUserXOrganizationRepositoryException();
 
             if (options is RoleXUserXOrganizationQueryOptions roleXUserXOrganizationOptions)
             {

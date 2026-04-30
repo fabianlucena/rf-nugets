@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using RFBaseEntities.Exceptions;
 using RFBaseEntities.ILibs;
 using System.Collections;
 using System.Globalization;
@@ -523,7 +524,7 @@ namespace RFBaseEntities.Libs
                     }
             }
 
-            throw new Exception("Valor no implementado");
+            throw new NotImplementedValueException();
         }
 
         public string GetJson()

@@ -2,6 +2,7 @@
 using RFAuthEntities.QueryOptions;
 using RFAuthIServices.DTO;
 using RFAuthIServices.IServices;
+using RFAuthServices.Exceptions;
 using RFBaseEntities.ILibs;
 using RFBaseIServices.IServices;
 
@@ -17,26 +18,26 @@ namespace RFAuthServices.Services
         public async Task<Session> LoginAsync(LoginRequest request, IDataDictionary? data)
         {
             var user = await userService.GetSingleByUsernameAsync(request.Username)
-                ?? throw new Exception("User not found.");
+                ?? throw new UserNotFoundException();
 
             if (user.DeletedAt.HasValue)
             {
-                throw new Exception("User is deleted.");
+                throw new UserIsDeletedException();
             }
 
             if (!user.IsActive)
             {
-                throw new Exception("User is not active.");
+                throw new UserIsNotActiveException();
             }
 
             if (!user.CanLogin)
             {
-                throw new Exception("User is not allowed to login.");
+                throw new UserIsNotAllowedToLoginException();
             }
 
             if (!await userPasswordService.CheckPasswordByUserIdAsync(request.Password, user.Id))
             {
-                throw new Exception("Invalid password.");
+                throw new InvalidPasswordException();
             }
 
             var device = await deviceService.GetFirstOrCreateByTokenAsync(request.DeviceToken);
@@ -59,39 +60,39 @@ namespace RFAuthServices.Services
                         IncludeUser = true,
                         IncludeDevice = true,
                     }
-                ) ?? throw new Exception("Session not found.");
+                ) ?? throw new SessionNotFoundException();
 
             if (previousSession.ClosedAt is not null)
             {
-                throw new Exception("Session is closed.");
+                throw new SessionIsClosedException();
             }
 
             await sessionService.CloseByIdAsync(previousSession.Id);
 
             var user = previousSession.User
-                ?? throw new Exception("User not found.");
+                ?? throw new UserNotFoundException();
             
             if (user.DeletedAt.HasValue)
             {
-                throw new Exception("User is deleted.");
+                throw new UserIsDeletedException();
             }
 
             if (!user.IsActive)
             {
-                throw new Exception("User is not active.");
+                throw new UserIsNotActiveException();
             }
 
             if (!user.CanLogin)
             {
-                throw new Exception("User is not allowed to login.");
+                throw new UserIsNotAllowedToLoginException();
             }
 
             var device = previousSession.Device
-                ?? throw new Exception("Device not found.");
+                ?? throw new DeviceNotFoundException();
 
             if (device.Token != request.DeviceToken)
             {
-                throw new Exception("Device token mismatch.");
+                throw new DeviceTokenMismatchException();
             }
 
             var session = await sessionService.CreateAsync(user.Id, device.Id, data);
