@@ -15,22 +15,22 @@ namespace RFRBACEF.Repositories
 
         public override IQueryable<RoleInclude> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var quereable = base.CreateDBSet(options ?? new BaseQueryOptions());
+            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions());
 
             if (options is RoleIncludeQueryOptions roleIncludeOptions)
             {
                 if (roleIncludeOptions.IncludeRole)
                 {
-                    quereable = quereable.Include(r => r.Role);
+                    queryable = queryable.Include(r => r.Role);
                 }
 
                 if (roleIncludeOptions.IncludeInclude)
                 {
-                    quereable = quereable.Include(r => r.Include);
+                    queryable = queryable.Include(r => r.Include);
                 }
             }
 
-            return quereable;
+            return queryable;
         }
 
         public async Task<IEnumerable<long>> GetAllRolesIdByRolesIdAsync(IEnumerable<long> rolesId, RoleIncludeQueryOptions? options = null)

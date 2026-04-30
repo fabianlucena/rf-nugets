@@ -12,32 +12,32 @@ namespace RFBaseEF.Repositories
 
         public override IQueryable<T> CreateDBSet(BaseQueryOptions? options)
         {
-            var quereable = base.CreateDBSet(options ?? new BaseQueryOptions());
+            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions());
 
             if (options is NoIdEntityQueryOptions noIdOptions)
             {
                 if (noIdOptions.IncludeCreatedBy)
                 {
-                    quereable = quereable.Include(u => u.CreatedBy);
+                    queryable = queryable.Include(u => u.CreatedBy);
                 }
 
                 if (noIdOptions.IncludeUpdatedBy)
                 {
-                    quereable = quereable.Include(u => u.UpdatedBy);
+                    queryable = queryable.Include(u => u.UpdatedBy);
                 }
 
                 if (!noIdOptions.IncludeDeleted)
                 {
-                    quereable = quereable.Where(u => u.DeletedAt == null);
+                    queryable = queryable.Where(u => u.DeletedAt == null);
                 }
 
                 if (noIdOptions.IncludeDeletedBy)
                 {
-                    quereable = quereable.Include(u => u.DeletedBy);
+                    queryable = queryable.Include(u => u.DeletedBy);
                 }
             }
 
-            return quereable;
+            return queryable;
         }
     }
 }

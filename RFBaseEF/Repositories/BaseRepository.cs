@@ -19,10 +19,10 @@ namespace RFBaseEF.Repositories
         public virtual IQueryable<T> CreateDBSet(BaseQueryOptions? options = null)
         {
             options ??= new BaseQueryOptions();
-            IQueryable<T> quereable = context.Set<T>()
+            IQueryable<T> queryable = context.Set<T>()
                 .AsNoTracking();
 
-            return quereable;
+            return queryable;
         }
 
         public virtual async Task<T> CreateAsync(T entity)

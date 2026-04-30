@@ -16,22 +16,22 @@ namespace RFAuthEF.Repositories
 
         public override IQueryable<Session> CreateDBSet(BaseQueryOptions? options)
         {
-            var quereable = base.CreateDBSet(options ?? new BaseQueryOptions());
+            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions());
 
             if (options is SessionQueryOptions sessionOptions)
             {
                 if (sessionOptions.IncludeUser)
                 {
-                    quereable = quereable.Include(u => u.User);
+                    queryable = queryable.Include(u => u.User);
                 }
 
                 if (sessionOptions.IncludeDevice)
                 {
-                    quereable = quereable.Include(d => d.Device);
+                    queryable = queryable.Include(d => d.Device);
                 }
             }
 
-            return quereable;
+            return queryable;
         }
 
         public async Task<Session?> GetFirstOrDefaultByTokenAsync(string token, SessionQueryOptions? options = null)

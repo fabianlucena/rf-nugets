@@ -17,7 +17,7 @@ namespace RFRGOBACEF.Repositories
 
         public override IQueryable<SessionOrganization> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var quereable = base.CreateDBSet(options ?? new BaseQueryOptions())
+            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions())
                 as IQueryable<SessionOrganization>
                 ?? throw new ErrorCreatingSessionOrganizationRepositoryException();
 
@@ -25,16 +25,16 @@ namespace RFRGOBACEF.Repositories
             {
                 if (sessionOrganizationOptions.IncludeSession)
                 {
-                    quereable = quereable.Include(sc => sc.Session);
+                    queryable = queryable.Include(sc => sc.Session);
                 }
 
                 if (sessionOrganizationOptions.IncludeOrganization)
                 {
-                    quereable = quereable.Include(sc => sc.Organization);
+                    queryable = queryable.Include(sc => sc.Organization);
                 }
             }
 
-            return quereable;
+            return queryable;
         }
 
         public async Task<Organization?> GetSingleOrDefaultOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)

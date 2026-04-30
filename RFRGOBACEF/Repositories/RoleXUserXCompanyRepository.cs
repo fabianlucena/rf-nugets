@@ -16,7 +16,7 @@ namespace RFRGOBACEF.Repositories
 
         public override IQueryable<RoleXUserXOrganization> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var quereable = base.CreateDBSet(options ?? new BaseQueryOptions())
+            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions())
                 as IQueryable<RoleXUserXOrganization>
                 ?? throw new ErrorCreatingRoleXUserXOrganizationRepositoryException();
 
@@ -24,21 +24,21 @@ namespace RFRGOBACEF.Repositories
             {
                 if (roleXUserXOrganizationOptions.IncludeRole)
                 {
-                    quereable = quereable.Include(r => r.Role);
+                    queryable = queryable.Include(r => r.Role);
                 }
 
                 if (roleXUserXOrganizationOptions.IncludeUser)
                 {
-                    quereable = quereable.Include(u => u.User);
+                    queryable = queryable.Include(u => u.User);
                 }
 
                 if (roleXUserXOrganizationOptions.IncludeOrganization)
                 {
-                    quereable = quereable.Include(c => c.Organization);
+                    queryable = queryable.Include(c => c.Organization);
                 }
             }
 
-            return quereable;
+            return queryable;
         }
 
         public async Task<IEnumerable<long>> GetListIdByUserIdAndOrganizationIdAsync(long userId, long? OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)

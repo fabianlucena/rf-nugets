@@ -15,22 +15,22 @@ namespace RFRBACEF.Repositories
 
         public override IQueryable<PermissionXRole> CreateDBSet(BaseQueryOptions? options)
         {
-            var quereable = base.CreateDBSet(options ?? new BaseQueryOptions());
+            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions());
 
             if (options is PermissionXRoleQueryOptions sessionOptions)
             {
                 if (sessionOptions.IncludePermission)
                 {
-                    quereable = quereable.Include(p => p.Permission);
+                    queryable = queryable.Include(p => p.Permission);
                 }
 
                 if (sessionOptions.IncludeRole)
                 {
-                    quereable = quereable.Include(r => r.Role);
+                    queryable = queryable.Include(r => r.Role);
                 }
             }
 
-            return quereable;
+            return queryable;
         }
 
         public async Task<IEnumerable<long>> GetAllPermissionsIdByRolesIdAsync(IEnumerable<long> rolesId, PermissionXRoleQueryOptions? options = null)

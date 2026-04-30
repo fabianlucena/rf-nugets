@@ -12,9 +12,9 @@ namespace RFBaseEF.Repositories
 
         public override IQueryable<T> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var quereable = base.CreateDBSet(options);
+            var queryable = base.CreateDBSet(options);
 
-            return quereable;
+            return queryable;
         }
     }
 }
