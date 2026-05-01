@@ -2,6 +2,9 @@
 using RFAuthEntities.QueryOptions;
 using RFAuthIServices.IServices;
 using RFAuthServices.DTO;
+using RFPermissionsEntities.Entities;
+using RFRBACEntities.Entities;
+using RFRGOBACEntities.Entities;
 
 namespace RFAuthServices.Middlewares
 {
@@ -87,14 +90,18 @@ namespace RFAuthServices.Middlewares
             cachedSession.Items["Device"] = session.Device;
             if (session.Data is not null)
             {
-                cachedSession.Items["RoleIds"] = session.Data["roleIds"];
-                cachedSession.Items["RoleNames"] = session.Data["roleNames"];
-                cachedSession.Items["PermissionNames"] = session.Data["permissionNames"];
-                if (session.Data["currentOrganization"] is not null)
-                    cachedSession.Items["CurrentOrganization"] = session.Data["currentOrganization"];
+                cachedSession.Items["RoleIds"] = session.Data["RoleIds"];
+                cachedSession.Items["RoleNames"] = session.Data["RoleNames"];
+                cachedSession.Items["PermissionNames"] = session.Data["PermissionNames"];
 
-                if (session.Data["currentOrganizationId"] is not null)
-                    cachedSession.Items["CurrentOrganizationId"] = session.Data["currentOrganizationId"];
+                if (session.Data.ContainsKey("CurrentOrganization")
+                    && session.Data["CurrentOrganization"] is Organization currentOrganization
+                    && currentOrganization is not null
+                )
+                {
+                    cachedSession.Items["CurrentOrganization"] = currentOrganization;
+                    cachedSession.Items["CurrentOrganizationId"] = currentOrganization.Id;
+                }
             }
 
             cache[token] = cachedSession;

@@ -33,6 +33,19 @@ namespace RFRGOBACServices.Decorators
             if (sessionData is null)
                 return session;
 
+            session.Data ??= new DataDictionary();
+            session.Data["Organizations"] = sessionData.Organizations;
+            session.Data["CurrentOrganization"] = sessionData.CurrentOrganization;
+
+            if (sessionData.RoleIds is not null)
+                session.Data["RoleIds"] = sessionData.RoleIds;
+
+            if (sessionData.RoleNames is not null)
+                session.Data["RoleNames"] = sessionData.RoleNames;
+
+            if (sessionData.PermissionNames is not null)
+                session.Data["PermissionNames"] = sessionData.PermissionNames;
+
             var sessionDataResponse = new SessionDataResponse(sessionData);
             if (sessionDataResponse == null)
                 return session;

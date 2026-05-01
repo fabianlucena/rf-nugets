@@ -16,6 +16,8 @@
     <ProjectReference Include="..\RFAuthIServices\RFAuthIServices.csproj" />
     <ProjectReference Include="..\RFBaseServices\RFBaseServices.csproj" />
     <ProjectReference Include="..\RFPermissionsEntities\RFPermissionsEntities.csproj" />
+    <ProjectReference Include="..\RFRBACEntities\RFRBACEntities.csproj" />
+    <ProjectReference Include="..\RFRGOBACEntities\RFRGOBACEntities.csproj" />
   </ItemGroup>
 
 </Project>
