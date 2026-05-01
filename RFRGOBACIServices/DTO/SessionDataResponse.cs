@@ -9,18 +9,18 @@ namespace RFRGOBACIServices.DTO
 
         public SessionDataResponse(SessionData sessionData)
         {
-            Data["Organizations"] = sessionData.Organizations
+            Data["organizations"] = sessionData.Organizations
                 .Select(c => new OrganizationMinDTO(c))
                 .ToList();
 
             if (sessionData.CurrentOrganization is not null)
                 Data["currentOrganization"] = new OrganizationMinDTO(sessionData.CurrentOrganization);
 
-            if (sessionData.RolesNames is not null)
-                Data["roles"] = sessionData.RolesNames;
+            if (sessionData.RoleNames is not null)
+                Data["roles"] = sessionData.RoleNames;
 
-            if (sessionData.PermissionsNames is not null)
-                Data["permissions"] = sessionData.PermissionsNames;
+            if (sessionData.PermissionNames is not null)
+                Data["permissions"] = sessionData.PermissionNames;
         }
     }
 }

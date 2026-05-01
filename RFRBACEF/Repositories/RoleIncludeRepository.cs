@@ -33,11 +33,11 @@ namespace RFRBACEF.Repositories
             return queryable;
         }
 
-        public async Task<IEnumerable<long>> GetAllRolesIdByRolesIdAsync(IEnumerable<long> rolesId, RoleIncludeQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetAllRoleIdsByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
         {
             var set = CreateDBSet(options);
-            var result = rolesId.ToList();
-            var lastResult = rolesId.ToList();
+            var result = roleIds.ToList();
+            var lastResult = roleIds.ToList();
 
             do
             {

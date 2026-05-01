@@ -38,16 +38,16 @@ namespace RFAuthServices.Filters
                 return;
             }
 
-            if (httpContext.Items.ContainsKey("RolesNames")
-                && httpContext.Items["RolesNames"] is IEnumerable<string> roles
+            if (httpContext.Items.ContainsKey("RoleNames")
+                && httpContext.Items["RoleNames"] is IEnumerable<string> roles
                 && roles.Any(i => i == "admin"))
             {
                 await next();
                 return;
             }
 
-            if (httpContext.Items.ContainsKey("PermissionsNames")
-                && httpContext.Items["PermissionsNames"] is IEnumerable<string> permissions)
+            if (httpContext.Items.ContainsKey("PermissionNames")
+                && httpContext.Items["PermissionNames"] is IEnumerable<string> permissions)
             {
                 if (permissionAttribute.Permissions.Any(permission => permissions.Any(p => p == permission)))
                 {

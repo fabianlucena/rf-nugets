@@ -33,11 +33,11 @@ namespace RFRBACEF.Repositories
             return queryable;
         }
 
-        public async Task<IEnumerable<long>> GetAllPermissionsIdByRolesIdAsync(IEnumerable<long> rolesId, PermissionXRoleQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetAllPermissionsIdByRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null)
         {
             var set = CreateDBSet(options);
             var result = await set
-                .Where(r => rolesId.Contains(r.RoleId))
+                .Where(r => roleIds.Contains(r.RoleId))
                 .Select(r => r.PermissionId)
                 .ToListAsync();
 

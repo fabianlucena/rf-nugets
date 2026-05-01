@@ -21,7 +21,8 @@ namespace RFAuthEntities.Entities
         public long DeviceId { get; set; }
         public Device? Device { get; set; }
 
-        private DataDictionary data = new();
+        [NotMapped]
+        private DataDictionary data = [];
 
         public string? DataJson
         {
@@ -48,6 +49,30 @@ namespace RFAuthEntities.Entities
         {
             get => data;
             set => data = (DataDictionary)(value ?? new DataDictionary());
+        }
+
+        [NotMapped]
+        public DataDictionary DataResponse = [];
+
+        public Session() { }
+
+        public Session(Session session)
+            :base(session)
+        {
+            Token = session.Token;
+            ExpireAt = session.ExpireAt;
+            AutoLoginToken = session.AutoLoginToken;
+            LastUsedAt = session.LastUsedAt;
+            ClosedAt = session.ClosedAt;
+
+            UserId = session.UserId;
+            User = session.User;
+
+            DeviceId = session.DeviceId;
+            Device = session.Device;
+
+            data = new DataDictionary(session.data);
+            DataResponse = new DataDictionary(session.DataResponse);
         }
     }
 }

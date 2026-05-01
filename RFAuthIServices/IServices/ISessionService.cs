@@ -13,5 +13,6 @@ namespace RFAuthIServices.IServices
         Task UpdateLastUsageAsync(long sessionId);
         Task AddDataByIdAsync(long sessionId, string key, object value);
         Task CloseByIdAsync(long sessionId);
+        Task<Session> DecorateAsync(Session session);
     }
 }

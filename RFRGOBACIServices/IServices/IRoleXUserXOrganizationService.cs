@@ -7,8 +7,8 @@ namespace RFRGOBACIServices.IServices
 {
     public interface IRoleXUserXOrganizationService : ICommonJoinService<RoleXUserXOrganization>
     {
-        Task<IEnumerable<long>> GetRolesIdByUserIdOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
-        Task<IEnumerable<long>> GetAllRolesIdByUserIdAndOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
+        Task<IEnumerable<long>> GetRoleIdsByUserIdOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
+        Task<IEnumerable<long>> GetAllRoleIdsByUserIdAndOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
         Task<IEnumerable<Organization>> GetListOrganizationsByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null);
     }
 }

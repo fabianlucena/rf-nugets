@@ -8,12 +8,10 @@ using RFRGOBACIRepositories.IRepositories;
 
 namespace RFRGOBACEF.Repositories
 {
-    public class RoleXUserXOrganizationRepository
-        : CommonJoinRepository<RoleXUserXOrganization>,
+    public class RoleXUserXOrganizationRepository(DbContext context)
+        : CommonJoinRepository<RoleXUserXOrganization>(context),
         IRoleXUserXOrganizationRepository
     {
-        public RoleXUserXOrganizationRepository(DbContext context) : base(context) { }
-
         public override IQueryable<RoleXUserXOrganization> CreateDBSet(BaseQueryOptions? options = null)
         {
             var queryable = base.CreateDBSet(options ?? new BaseQueryOptions())

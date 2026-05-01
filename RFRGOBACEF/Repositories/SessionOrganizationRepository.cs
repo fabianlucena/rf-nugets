@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFBaseEF.Repositories;
-using RFBaseEntities.Exceptions;
 using RFBaseEntities.QueryOptions;
 using RFRGOBACEF.Exceptions;
 using RFRGOBACEntities.Entities;
@@ -9,12 +8,10 @@ using RFRGOBACIRepositories.IRepositories;
 
 namespace RFRGOBACEF.Repositories
 {
-    public class SessionOrganizationRepository
-        : NoIdEntityRepository<SessionOrganization>,
+    public class SessionOrganizationRepository(DbContext context)
+        : NoIdEntityRepository<SessionOrganization>(context),
         ISessionOrganizationRepository
     {
-        public SessionOrganizationRepository(DbContext context) : base(context) { }
-
         public override IQueryable<SessionOrganization> CreateDBSet(BaseQueryOptions? options = null)
         {
             var queryable = base.CreateDBSet(options ?? new BaseQueryOptions())

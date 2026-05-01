@@ -14,14 +14,14 @@ namespace RFRBACServices.Services
         : CommonJoinService<PermissionXRole>(permissionXRoleRepository),
         IPermissionXRoleService
     {
-        public async Task<IEnumerable<long>> GetAllPermissionsIdForRolesIdAsync(IEnumerable<long> rolesId, PermissionXRoleQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetAllPermissionsIdForRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null)
         {
-            return await permissionXRoleRepository.GetAllPermissionsIdByRolesIdAsync(rolesId, options);
+            return await permissionXRoleRepository.GetAllPermissionsIdByRoleIdsAsync(roleIds, options);
         }
 
-        public async Task<IEnumerable<string>> GetAllPermissionsNamesForRolesIdAsync(IEnumerable<long> rolesId, PermissionXRoleQueryOptions? options = null)
+        public async Task<IEnumerable<string>> GetAllPermissionNamesForRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null)
         {
-            var allPermissionsId = await GetAllPermissionsIdForRolesIdAsync(rolesId, options);
+            var allPermissionsId = await GetAllPermissionsIdForRoleIdsAsync(roleIds, options);
             return await permissionService.GetListNameByIdAsync(allPermissionsId);
         }
     }

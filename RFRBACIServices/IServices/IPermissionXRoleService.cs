@@ -6,7 +6,7 @@ namespace RFRBACIServices.IServices
 {
     public interface IPermissionXRoleService : ICommonJoinService<PermissionXRole>
     {
-        Task<IEnumerable<long>> GetAllPermissionsIdForRolesIdAsync(IEnumerable<long> rolesId, PermissionXRoleQueryOptions? options = null);
-        Task<IEnumerable<string>> GetAllPermissionsNamesForRolesIdAsync(IEnumerable<long> rolesId, PermissionXRoleQueryOptions? options = null);
+        Task<IEnumerable<long>> GetAllPermissionsIdForRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null);
+        Task<IEnumerable<string>> GetAllPermissionNamesForRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null);
     }
 }

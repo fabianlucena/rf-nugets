@@ -6,8 +6,8 @@ namespace RFRGOBACIRepositories.DTO
     {
         public IEnumerable<Organization> Organizations { get; set; } = [];
         public Organization? CurrentOrganization { get; set; }
-        public IEnumerable<long>? RolesId { get; set; }
-        public IEnumerable<string>? RolesNames { get; set; }
-        public IEnumerable<string>? PermissionsNames { get; set; }
+        public IEnumerable<long>? RoleIds { get; set; }
+        public IEnumerable<string>? RoleNames { get; set; }
+        public IEnumerable<string>? PermissionNames { get; set; }
     }
 }

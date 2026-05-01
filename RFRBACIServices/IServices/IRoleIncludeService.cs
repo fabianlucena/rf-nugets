@@ -6,8 +6,8 @@ namespace RFRBACIServices.IServices
 {
     public interface IRoleIncludeService : ICommonJoinService<RoleInclude>
     {
-        Task<IEnumerable<long>> GetAllRolesIdByRolesIdAsync(IEnumerable<long> rolesId, RoleIncludeQueryOptions? options = null);
+        Task<IEnumerable<long>> GetAllRoleIdsByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null);
 
-        Task<IEnumerable<string>> GetAllRolesNamesByRolesIdAsync(IEnumerable<long> rolesId, RoleIncludeQueryOptions? options = null);
+        Task<IEnumerable<string>> GetAllRoleNamesByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null);
     }
 }

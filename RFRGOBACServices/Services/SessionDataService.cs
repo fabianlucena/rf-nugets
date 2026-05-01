@@ -47,12 +47,12 @@ namespace RFRGOBACServices.Services
                 });
             }
 
-            sessionData.RolesId = await roleXUserXOrganizationService.GetAllRolesIdByUserIdAndOrganizationIdAsync(
+            sessionData.RoleIds = await roleXUserXOrganizationService.GetAllRoleIdsByUserIdAndOrganizationIdAsync(
                 userId,
                 sessionData.CurrentOrganization.Id
             );
-            sessionData.RolesNames = await roleService.GetListNamesByIdAsync(sessionData.RolesId);
-            sessionData.PermissionsNames = await permissionXRoleService.GetAllPermissionsNamesForRolesIdAsync(sessionData.RolesId);
+            sessionData.RoleNames = await roleService.GetListNamesByIdAsync(sessionData.RoleIds);
+            sessionData.PermissionNames = await permissionXRoleService.GetAllPermissionNamesForRoleIdsAsync(sessionData.RoleIds);
 
             return sessionData;
         }

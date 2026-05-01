@@ -14,16 +14,16 @@ namespace RFRGOBACServices.Services
         IRoleXUserXOrganizationService
     {
 
-        public async Task<IEnumerable<long>> GetRolesIdByUserIdOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetRoleIdsByUserIdOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
         {
             return await roleXUserXOrganizationRepository.GetListIdByUserIdAndOrganizationIdAsync(userId, OrganizationId, options);
         }
 
-        public async Task<IEnumerable<long>> GetAllRolesIdByUserIdAndOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetAllRoleIdsByUserIdAndOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
         {
-            var rolesId = await GetRolesIdByUserIdOrganizationIdAsync(userId, OrganizationId, options);
-            var allRolesId = await roleIncludeService.GetAllRolesIdByRolesIdAsync(rolesId);
-            return allRolesId;
+            var roleIds = await GetRoleIdsByUserIdOrganizationIdAsync(userId, OrganizationId, options);
+            var allRoleIds = await roleIncludeService.GetAllRoleIdsByRoleIdsAsync(roleIds);
+            return allRoleIds;
         }
 
         public async Task<IEnumerable<Organization>> GetListOrganizationsByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)

@@ -33,14 +33,14 @@ namespace RFRBACEF.Repositories
             return queryable;
         }
 
-        public async Task<IEnumerable<long>> GetListRolesIdByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetListRoleIdsByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
         {
             var set = CreateDBSet(options);
-            var rolesId = await set
+            var roleIds = await set
                 .Where(x =>  x.UserId == userId)
                 .Select(x => x.RoleId)
                 .ToListAsync();
-            return rolesId;
+            return roleIds;
         }
     }
 }

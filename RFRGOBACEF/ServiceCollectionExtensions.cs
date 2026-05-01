@@ -10,6 +10,7 @@ namespace RFRGOBACEF
     {
         public static IServiceCollection AddRFRGOBACEF(this IServiceCollection services)
         {
+            services.AddScoped<IOrganizationRepository, OrganizationRepository>();
             services.AddScoped<ISessionOrganizationRepository, SessionOrganizationRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IRoleIncludeRepository, RoleIncludeRepository>();

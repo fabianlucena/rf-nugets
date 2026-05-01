@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RFAuthIServices.DTO;
 using RFAuthIServices.IServices;
-using RFBaseEntities.ILibs;
 using RFBaseEntities.Libs;
 
 namespace RFAuthControllers.Controllers
@@ -11,9 +10,7 @@ namespace RFAuthControllers.Controllers
     [Route("v1/auto-login")]
     public class AutoLoginController(
         ILogger<LoginController> logger,
-        ILoginService loginService,
-        IDecoratorsBus decoratorsBus,
-        IServiceProvider serviceProvider
+        ILoginService loginService
     ) : ControllerBase
     {
         [HttpPost]
@@ -31,9 +28,8 @@ namespace RFAuthControllers.Controllers
 
             var session = await loginService.AutoLoginAsync(request, sessionData);
             var response = new SessionResponse(session);
-            var decorated = await decoratorsBus.DecorateAsync("LoginResponse", response, serviceProvider, session);
 
-            return Ok(decorated);
+            return Ok(response);
         }
     }
 }

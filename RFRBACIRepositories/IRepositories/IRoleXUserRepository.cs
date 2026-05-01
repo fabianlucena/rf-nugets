@@ -6,6 +6,6 @@ namespace RFRBACIRepositories.IRepositories
 {
     public interface IRoleXUserRepository : ICommonJoinRepository<RoleXUser>
     {
-        Task<IEnumerable<long>> GetListRolesIdByUserIdAsync(long userId, RoleXUserQueryOptions? options = null);
+        Task<IEnumerable<long>> GetListRoleIdsByUserIdAsync(long userId, RoleXUserQueryOptions? options = null);
     }
 }

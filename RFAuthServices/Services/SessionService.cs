@@ -120,5 +120,8 @@ namespace RFAuthServices.Services
         {
             await UpdateByIdAsync(sessionId, new DataDictionary { ["ClosedAt"] = DateTime.UtcNow });
         }
+
+        public async Task<Session> DecorateAsync(Session session)
+            => session;
     }
 }

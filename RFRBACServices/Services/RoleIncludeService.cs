@@ -13,17 +13,17 @@ namespace RFRBACServices.Services
         : CommonJoinService<RoleInclude>(roleIncludeRepository),
         IRoleIncludeService
     {
-        public async Task<IEnumerable<long>> GetAllRolesIdByRolesIdAsync(IEnumerable<long> rolesId, RoleIncludeQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetAllRoleIdsByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
         {
-            return await roleIncludeRepository.GetAllRolesIdByRolesIdAsync(rolesId, options);
+            return await roleIncludeRepository.GetAllRoleIdsByRoleIdsAsync(roleIds, options);
         }
 
-        public async Task<IEnumerable<string>> GetAllRolesNamesByRolesIdAsync(IEnumerable<long> rolesId, RoleIncludeQueryOptions? options = null)
+        public async Task<IEnumerable<string>> GetAllRoleNamesByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
         {
-            var allRolesId = await GetAllRolesIdByRolesIdAsync(rolesId, options);
-            var allRolesNames = await roleService.GetListNamesByIdAsync(allRolesId);
+            var allRoleIds = await GetAllRoleIdsByRoleIdsAsync(roleIds, options);
+            var allRoleNames = await roleService.GetListNamesByIdAsync(allRoleIds);
 
-            return allRolesNames;
+            return allRoleNames;
         }
     }
 }

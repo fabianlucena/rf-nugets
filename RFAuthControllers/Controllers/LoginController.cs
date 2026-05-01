@@ -11,9 +11,7 @@ namespace RFAuthControllers.Controllers
     [Route("v1/login")]
     public class LoginController(
         ILoginService loginService,
-        ILogger<LoginController> logger,
-        IDecoratorsBus decoratorsBus,
-        IServiceProvider serviceProvider
+        ILogger<LoginController> logger
     ) : ControllerBase
     {
         [HttpPost]
@@ -36,9 +34,8 @@ namespace RFAuthControllers.Controllers
 
             var session = await loginService.LoginAsync(request, sessionData);
             var response = new SessionResponse(session);
-            var decorated = await decoratorsBus.DecorateAsync("LoginResponse", response, serviceProvider, session);
 
-            return Ok(decorated);
+            return Ok(response);
         }
     }
 }

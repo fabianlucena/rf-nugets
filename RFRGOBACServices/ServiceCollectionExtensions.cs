@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RFBaseEntities.Libs;
+using RFAuthIServices.IServices;
 using RFRGOBACIServices.IServices;
+using RFRGOBACServices.Decorators;
 using RFRGOBACServices.Services;
 
 namespace RFRGOBACServices
@@ -9,13 +10,13 @@ namespace RFRGOBACServices
     {
         public static IServiceCollection AddRFRGOBACServices(this IServiceCollection services)
         {
+            services.Decorate<ILoginService, LoginServiceDecorator>();
+            services.Decorate<ISessionService, SessionServiceDecorator>();
+
+            services.AddScoped<IOrganizationService, OrganizationService>();
             services.AddScoped<IRoleXUserXOrganizationService, RoleXUserXOrganizationService>();
             services.AddScoped<ISessionOrganizationService, SessionOrganizationService>();
             services.AddScoped<ISessionDataService, SessionDataService>();
-
-            var decoratorsBus = DecoratorsBus.Singleton;
-            decoratorsBus.Add("LoginResponse", Decorators.LoginResponse);
-            decoratorsBus.Add("CheckAutorization", Decorators.CheckAutorization);
 
             return services;
         }
