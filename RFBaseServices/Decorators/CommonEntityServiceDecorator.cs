@@ -6,7 +6,7 @@ namespace RFBaseServices.Decorators
     public class CommonEntityServiceDecorator<T>(ICommonEntityService<T> commonEntityService)
         : AuditableEntityServiceDecorator<T>(commonEntityService),
         ICommonEntityService<T>
-        where T : NominableEntity, new()
+        where T : CommonEntity, new()
     {
     }
 }

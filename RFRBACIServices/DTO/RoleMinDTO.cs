@@ -6,6 +6,6 @@ namespace RFRBACIServices.DTO
     {
         public Guid Uuid { get; } = role.Uuid;
         public string Name { get; } = role.Name;
-        public string DisplayName { get; } = role.DisplayName;
+        public string Title { get; } = role.Title;
     }
 }

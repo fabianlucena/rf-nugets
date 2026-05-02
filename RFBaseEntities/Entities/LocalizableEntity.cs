@@ -1,6 +1,6 @@
 ﻿namespace RFBaseEntities.Entities
 {
-    public class LocalizableEntity : DisplayableEntity
+    public class LocalizableEntity : TitledEntity
     {
         public bool IsTranslatable { get; set; } = false;
     }

@@ -1,9 +1,10 @@
-﻿using RFBaseIServices.IServices;
+﻿using RFBaseEntities.QueryOptions;
+using RFBaseIServices.IServices;
 using RFRGOBACEntities.Entities;
 
 namespace RFRGOBACIServices.IServices
 {
-    public interface IOrganizationService : INominableEntityService<Organization>
+    public interface IOrganizationService : ILocalizableEntityService<Organization>
     {
     }
 }

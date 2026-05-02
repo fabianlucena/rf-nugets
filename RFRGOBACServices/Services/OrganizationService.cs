@@ -7,7 +7,7 @@ namespace RFRGOBACServices.Services
 {
     public class OrganizationService(
         IOrganizationRepository organizationRepository
-    ) : NominableEntityService<Organization>(organizationRepository),
+    ) : LocalizableEntityService<Organization>(organizationRepository),
         IOrganizationService
     {
     }

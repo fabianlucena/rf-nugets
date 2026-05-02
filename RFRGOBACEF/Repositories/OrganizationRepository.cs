@@ -7,7 +7,7 @@ using RFRGOBACIRepositories.IRepositories;
 namespace RFRGOBACEF.Repositories
 {
     public class OrganizationRepository(DbContext context)
-        : NominableEntityRepository<Organization>(context),
+        : LocalizableEntityRepository<Organization>(context),
         IOrganizationRepository
     {
         public override IQueryable<Organization> CreateDBSet(BaseQueryOptions? options = null)
