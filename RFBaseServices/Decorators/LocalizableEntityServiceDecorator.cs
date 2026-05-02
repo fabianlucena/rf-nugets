@@ -8,5 +8,7 @@ namespace RFBaseServices.Decorators
         ILocalizableEntityService<T>
         where T : LocalizableEntity, new()
     {
+        public virtual Task<T> Translate(T entity)
+            => localizableEntityService.Translate(entity);
     }
 }

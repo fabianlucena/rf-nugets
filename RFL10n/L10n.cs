@@ -120,6 +120,13 @@ namespace RFL10n
                     var context = parts[1];
                     AddTranslationsFromFile(language, context, file);
                 }
+                else if (parts.Length == 1)
+                {
+                    var language = parts[0];
+                    AddTranslationsFromFile(language, "", file);
+                }
+                else
+                    throw new DirectoryNotFoundException($"The filaname {file} is not normalized.");
             }
         }
 

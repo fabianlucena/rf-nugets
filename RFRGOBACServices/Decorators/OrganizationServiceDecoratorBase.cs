@@ -9,7 +9,5 @@ namespace RFRGOBACServices.Decorators
         : LocalizableEntityServiceDecorator<Organization>(organizationService),
         IOrganizationService
     {
-        public Task<long?> GetSingleOrDefaultIdByNameAsync(string name, BaseQueryOptions? options = null)
-            => organizationService.GetSingleOrDefaultIdByNameAsync(name, options);
     }
 }

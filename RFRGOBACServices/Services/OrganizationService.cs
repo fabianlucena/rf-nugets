@@ -1,4 +1,5 @@
 ﻿using RFBaseServices.Services;
+using RFL10n;
 using RFRGOBACEntities.Entities;
 using RFRGOBACIRepositories.IRepositories;
 using RFRGOBACIServices.IServices;
@@ -6,8 +7,9 @@ using RFRGOBACIServices.IServices;
 namespace RFRGOBACServices.Services
 {
     public class OrganizationService(
-        IOrganizationRepository organizationRepository
-    ) : LocalizableEntityService<Organization>(organizationRepository),
+        IOrganizationRepository organizationRepository,
+        IL10n l10n
+    ) : LocalizableEntityService<Organization>(organizationRepository, l10n),
         IOrganizationService
     {
     }

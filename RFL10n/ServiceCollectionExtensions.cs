@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace RFL10n
 {
-    public static class MvcServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
-        public static void AddRFL10n(this IServiceCollection services)
+        public static IServiceCollection AddRFL10nServices(this IServiceCollection services)
         {
             services.AddScoped<IL10n>(provider =>
             {
@@ -20,6 +20,8 @@ namespace RFL10n
 
                 return new L10n(provider, "");
             });
+
+            return services;
         }
     }
 }
