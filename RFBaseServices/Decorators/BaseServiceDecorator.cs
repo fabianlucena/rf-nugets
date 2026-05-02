@@ -11,7 +11,19 @@ namespace RFBaseServices.Decorators
         public virtual Task<T> CreateAsync(T entity)
             => baseService.CreateAsync(entity);
 
-        public virtual Task<IEnumerable<T>> GetListAsync(BaseQueryOptions? options = null)
+        public Task<T> GetFirstAsync(BaseQueryOptions options)
+            => baseService.GetFirstAsync(options);
+
+        public Task<T?> GetFirstOrDefaultAsync(BaseQueryOptions options)
+            => baseService.GetFirstOrDefaultAsync(options);
+
+        public virtual Task<IEnumerable<T>> GetListAsync(BaseQueryOptions options)
             => baseService.GetListAsync(options);
+
+        public Task<T> GetSingleAsync(BaseQueryOptions options)
+            => baseService.GetSingleAsync(options);
+
+        public Task<T?> GetSingleOrDefaultAsync(BaseQueryOptions options)
+            => baseService.GetSingleOrDefaultAsync(options);
     }
 }

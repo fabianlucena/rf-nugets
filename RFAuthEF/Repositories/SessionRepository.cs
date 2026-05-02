@@ -8,50 +8,30 @@ using RFBaseEntities.QueryOptions;
 namespace RFAuthEF.Repositories
 {
 
-    public class SessionRepository
-        : CreatableEntityRepository<Session>,
+    public class SessionRepository(DbContext context)
+        : CreatableEntityRepository<Session>(context),
         ISessionRepository
     {
-        public SessionRepository(DbContext context) : base(context) { }
-
-        public override IQueryable<Session> CreateDBSet(BaseQueryOptions? options)
+        public override IQueryable<Session> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions());
+            var queryable = base.CreateDBSet(options);
 
             if (options is SessionQueryOptions sessionOptions)
             {
                 if (sessionOptions.IncludeUser)
-                {
                     queryable = queryable.Include(u => u.User);
-                }
 
                 if (sessionOptions.IncludeDevice)
-                {
                     queryable = queryable.Include(d => d.Device);
-                }
+
+                if (sessionOptions.Token != null)
+                    queryable = queryable.Where(s => s.Token == sessionOptions.Token);
+
+                if (sessionOptions.AutoLoginToken != null)
+                    queryable = queryable.Where(s => s.AutoLoginToken == sessionOptions.AutoLoginToken);
             }
 
             return queryable;
-        }
-
-        public async Task<Session?> GetFirstOrDefaultByTokenAsync(string token, SessionQueryOptions? options = null)
-        {
-            var set = CreateDBSet(options);
-            var session = await set
-                .Where(s => s.Token == token)
-                .FirstOrDefaultAsync();
-
-            return session;
-        }
-
-        public async Task<Session?> GetFirstOrDefaultByAutoLoginTokenAsync(string autoLoginToken, SessionQueryOptions? options = null)
-        {
-            var set = CreateDBSet(options);
-            var session = await set
-                .Where(s => s.AutoLoginToken == autoLoginToken)
-                .FirstOrDefaultAsync();
-
-            return session;
         }
     }
 }

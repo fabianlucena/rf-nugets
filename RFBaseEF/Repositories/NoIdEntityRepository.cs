@@ -4,15 +4,13 @@ using RFBaseEntities.QueryOptions;
 
 namespace RFBaseEF.Repositories
 {
-    public class NoIdEntityRepository<T>
-        : BaseRepository<T>
+    public class NoIdEntityRepository<T>(DbContext context)
+        : BaseRepository<T>(context)
         where T : NoIdEntity, new()
     {
-        public NoIdEntityRepository(DbContext context) : base(context) { }
-
-        public override IQueryable<T> CreateDBSet(BaseQueryOptions? options)
+        public override IQueryable<T> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions());
+            var queryable = base.CreateDBSet(options);
 
             if (options is NoIdEntityQueryOptions noIdOptions)
             {

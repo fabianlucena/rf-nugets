@@ -88,9 +88,7 @@ namespace RFAuthServices.Services
         }
     
         public async Task<Session?> GetFirstOrDefaultByTokenAsync(string token, SessionQueryOptions? options = null)
-        {
-            return await sessionRepository.GetFirstOrDefaultByTokenAsync(token, options);
-        }
+            => await GetFirstOrDefaultAsync(new SessionQueryOptions(options) { Token = token });
 
         public async Task UpdateLastUsageAsync(long sessionId)
         {
@@ -112,9 +110,7 @@ namespace RFAuthServices.Services
         }
 
         public async Task<Session?> GetFirstOrDefaultByAutoLoginTokenAsync(string autoLoginToken, SessionQueryOptions? options = null)
-        {
-            return await sessionRepository.GetFirstOrDefaultByAutoLoginTokenAsync(autoLoginToken, options);
-        }
+            => await GetFirstOrDefaultAsync(new SessionQueryOptions(options) { AutoLoginToken = autoLoginToken });
 
         public async Task CloseByIdAsync(long sessionId)
         {

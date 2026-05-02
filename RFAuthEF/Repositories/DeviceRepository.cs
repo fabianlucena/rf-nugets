@@ -1,24 +1,27 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFAuthEntities.Entities;
+using RFAuthEntities.QueryOptions;
 using RFAuthIRepositories.Repositories;
 using RFBaseEF.Repositories;
+using RFBaseEntities.QueryOptions;
 
 namespace RFAuthEF.Repositories
 {
-    public class DeviceRepository
-        : CreatableEntityRepository<Device>,
+    public class DeviceRepository(DbContext context)
+        : CreatableEntityRepository<Device>(context),
         IDeviceRepository
     {
-        public DeviceRepository(DbContext context) : base(context) { }
-
-        public async Task<Device?> GetFirstOrDefaultByTokenAsync(string token)
+        public override IQueryable<Device> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var table = context.Set<Device>();
-            var device = await table
-                .Where(d => d.Token == token)
-                .FirstOrDefaultAsync();
+            var queryable = base.CreateDBSet(options);
 
-            return device;
+            if (options is DeviceQueryOptions deviceOptions)
+            {
+                if (deviceOptions.Token is not null)
+                    queryable = queryable.Where(d => d.Token == deviceOptions.Token);
+            }
+
+            return queryable;
         }
     }
 }

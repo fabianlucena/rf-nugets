@@ -1,51 +1,30 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFAuthEntities.Entities;
+using RFAuthEntities.QueryOptions;
 using RFAuthIRepositories.Repositories;
 using RFBaseEF.Repositories;
+using RFBaseEntities.QueryOptions;
 
 namespace RFAuthEF.Repositories
 {
-    public class UserPasswordRepository
-        : NoIdEntityRepository<UserPassword>,
+    public class UserPasswordRepository(DbContext context)
+        : NoIdEntityRepository<UserPassword>(context),
         IUserPasswordRepository
     {
-        public UserPasswordRepository(DbContext context) : base(context) { }
-
-        public async Task<UserPassword> GetSingleByUserIdAsync(long userId)
+        public override IQueryable<UserPassword> CreateDBSet(BaseQueryOptions? options)
         {
-            var table = context.Set<UserPassword>();
-            var list = await table
-                .Where(up => up.UserId == userId)
-                .Take(2)
-                .ToListAsync();
+            var queryable = base.CreateDBSet(options);
 
-            if (list == null)
-                throw new KeyNotFoundException($"UserPassword with userId '{userId}' not found.");
+            if (options is UserPasswordQueryOptions userPasswordOptions)
+            {
+                if (userPasswordOptions.IncludeUser)
+                    queryable = queryable.Include(u => u.User);
 
-            if (list.Count > 1)
-                throw new InvalidOperationException($"Multiple UserPassword entries found for userId '{userId}'.");
+                if (userPasswordOptions.UserId is not null)
+                    queryable = queryable.Where(up => up.UserId == userPasswordOptions.UserId);
+            }
 
-            if (list.Count == 0)
-                throw new KeyNotFoundException($"UserPassword with userId '{userId}' not found.");
-
-            return list[0];
-        }
-
-        public async Task<UserPassword?> GetSingleOrDefaultByUserIdAsync(long userId)
-        {
-            var table = context.Set<UserPassword>();
-            var list = await table
-                .Where(up => up.UserId == userId)
-                .Take(2)
-                .ToListAsync();
-
-            if (list == null || list.Count == 0)
-                return null;
-
-            if (list.Count > 1)
-                throw new InvalidOperationException($"Multiple UserPassword entries found for userId '{userId}'.");
-
-            return list[0];
+            return queryable;
         }
     }
 }

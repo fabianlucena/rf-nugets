@@ -6,9 +6,12 @@
 
         public AuditableEntityQueryOptions() { }
 
-        public AuditableEntityQueryOptions(AuditableEntityQueryOptions options)
+        public AuditableEntityQueryOptions(AuditableEntityQueryOptions? options)
             : base(options)
         {
+            if (options == null)
+                return;
+
             IncludeUpdatedBy = options.IncludeUpdatedBy;
         }
     }

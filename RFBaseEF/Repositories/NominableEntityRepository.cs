@@ -18,7 +18,7 @@ namespace RFBaseEF.Repositories
 
         public async Task<T?> GetSingleOrDefaultByNameAsync(string name, BaseQueryOptions? options = null)
         {
-            var queryable = CreateDBSet(options);
+            var queryable = GetDBSet(options);
             var result = await queryable
                 .Where(e => e.Name == name)
                 .SingleOrDefaultAsync();
@@ -28,7 +28,7 @@ namespace RFBaseEF.Repositories
 
         public async Task<long?> GetSingleOrDefaultIdByNameAsync(string name, BaseQueryOptions? options = null)
         {
-            var queryable = CreateDBSet(options);
+            var queryable = GetDBSet(options);
             var result = await queryable
                 .Where(e => e.Name == name)
                 .Select(e => e.Id)

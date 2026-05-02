@@ -14,15 +14,12 @@ namespace RFRBACServices.Services
         IRoleIncludeService
     {
         public async Task<IEnumerable<long>> GetAllRoleIdsByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
-        {
-            return await roleIncludeRepository.GetAllRoleIdsByRoleIdsAsync(roleIds, options);
-        }
+            => await roleIncludeRepository.GetAllRoleIdsByRoleIdsAsync(roleIds, options);
 
         public async Task<IEnumerable<string>> GetAllRoleNamesByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
         {
             var allRoleIds = await GetAllRoleIdsByRoleIdsAsync(roleIds, options);
-            var allRoleNames = await roleService.GetListNamesByIdAsync(allRoleIds);
-
+            var allRoleNames = await roleService.GetNamesByIdsAsync(allRoleIds);
             return allRoleNames;
         }
     }

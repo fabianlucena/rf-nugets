@@ -11,6 +11,19 @@ namespace RFBaseEF.Repositories
     {
         public UserRepository(DbContext context) : base(context) { }
 
+        public override IQueryable<User> CreateDBSet(BaseQueryOptions? options = null)
+        {
+            var queryable = base.CreateDBSet(options);
+
+            if (options is UserQueryOptions userOptions)
+            {
+                if (userOptions.Username != null)
+                    queryable = queryable.Where(u => u.Username == userOptions.Username);
+            }
+
+            return queryable;
+        }
+
         public async Task<User> GetSingleByUsernameAsync(string username, UserQueryOptions? options = null)
         {
             return await GetSingleOrDefaultByUsernameAsync(username, options)
@@ -21,7 +34,7 @@ namespace RFBaseEF.Repositories
         {
             options ??= new UserQueryOptions();
             options.Take = 2;
-            var set = CreateDBSet(options);
+            var set = GetDBSet(options);
 
             var list = await set
                 .Where(u => u.Username == username)
@@ -41,7 +54,7 @@ namespace RFBaseEF.Repositories
         {
             options ??= new UserQueryOptions();
             options.Take = 2;
-            var set = CreateDBSet(options);
+            var set = GetDBSet(options);
 
             var list = await set
                 .Where(u => u.Username == username)

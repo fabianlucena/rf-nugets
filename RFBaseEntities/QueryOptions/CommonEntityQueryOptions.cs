@@ -7,9 +7,12 @@
 
         public CommonEntityQueryOptions() { }
 
-        public CommonEntityQueryOptions(CommonEntityQueryOptions options)
+        public CommonEntityQueryOptions(CommonEntityQueryOptions? options)
             : base(options)
         {
+            if (options == null)
+                return;
+
             IncludeDeleted = options.IncludeDeleted;
             IncludeDeletedBy = options.IncludeDeletedBy;
         }

@@ -7,10 +7,16 @@
 
         public QueryOptions() { }
 
-        public QueryOptions(QueryOptions options)
+        public QueryOptions(QueryOptions? options)
         {
+            if (options == null)
+                return;
+
             Skip = options.Skip;
             Take = options.Take;
         }
+
+        public virtual QueryOptions Clone()
+            => new(this);
     }
 }

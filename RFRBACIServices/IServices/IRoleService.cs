@@ -6,6 +6,6 @@ namespace RFRBACIServices.IServices
 {
     public interface IRoleService : ICommonEntityService<Role>
     {
-        Task<IEnumerable<string>> GetListNamesByIdAsync(IEnumerable<long> ids, RoleQueryOptions? options = null);
+        Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, RoleQueryOptions? options = null);
     }
 }

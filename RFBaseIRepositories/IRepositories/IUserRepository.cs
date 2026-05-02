@@ -1,13 +1,8 @@
-﻿using Microsoft.Extensions.Options;
-using RFBaseEntities.Entities;
-using RFBaseEntities.QueryOptions;
+﻿using RFBaseEntities.Entities;
 
 namespace RFBaseIRepositories.IRepositories
 {
     public interface IUserRepository : ICommonEntityRepository<User>
     {
-        Task<User> GetSingleByUsernameAsync(string username, UserQueryOptions? options = null);
-        Task<User?> GetSingleOrDefaultByUsernameAsync(string username, UserQueryOptions? options = null);
-        Task<long> GetSingleIdByUsernameAsync(string username, UserQueryOptions? options = null);
     }
 }

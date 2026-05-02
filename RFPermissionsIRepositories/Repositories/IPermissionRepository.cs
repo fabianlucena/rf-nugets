@@ -6,6 +6,6 @@ namespace RFPermissionsIRepositories.Repositories
 {
     public interface IPermissionRepository : IImmutableEntityRepository<Permission>
     {
-        Task<IEnumerable<string>> GetListNameByIdAsync(IEnumerable<long> permissionsId, PermissionQueryOptions? options = null);
+        Task<IEnumerable<string>> GetNamesAsync(PermissionQueryOptions options);
     }
 }

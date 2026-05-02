@@ -17,9 +17,7 @@ namespace RFBaseEF.Repositories
             if (options is CreatableEntityQueryOptions creatableOptions)
             {
                 if (creatableOptions.IncludeCreatedBy)
-                {
                     queryable = queryable.Include(u => u.CreatedBy);
-                }
             }
 
             return queryable;

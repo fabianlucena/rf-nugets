@@ -4,23 +4,30 @@ using RFBaseEntities.QueryOptions;
 
 namespace RFBaseEF.Repositories
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "Style",
-    "IDE0290:Use primary constructor")]
-    public class BaseRepository<T> where T : Base, new()
+    public class BaseRepository<T>
+        where T : Base, new()
     {
-        protected readonly DbContext context;
+        public DbContext context;
 
-        public BaseRepository(DbContext context)
+        public BaseRepository(DbContext _context)
         {
-            this.context = context;
+            context = _context;
         }
 
         public virtual IQueryable<T> CreateDBSet(BaseQueryOptions? options = null)
         {
-            options ??= new BaseQueryOptions();
             IQueryable<T> queryable = context.Set<T>()
                 .AsNoTracking();
+
+            return queryable;
+        }
+
+        public virtual IQueryable<T> GetDBSet(BaseQueryOptions? options = null)
+        {
+            options ??= new BaseQueryOptions();
+            var queryable = CreateDBSet(options)
+                .Take(options.Take)
+                .Skip(options.Skip);
 
             return queryable;
         }
@@ -36,13 +43,7 @@ namespace RFBaseEF.Repositories
 
         public virtual async Task<IEnumerable<T>> GetListAsync(BaseQueryOptions? options = null)
         {
-            options ??= new BaseQueryOptions();
-
-            var set = CreateDBSet(options)
-                .Skip(options.Skip)
-                .Take(options.Take);
-
-            var list = await set
+            var list = await GetDBSet(options)
                 .ToListAsync();
 
             return list;

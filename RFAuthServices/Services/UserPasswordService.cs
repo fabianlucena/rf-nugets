@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.DependencyInjection;
 using RFAuthEntities.Entities;
+using RFAuthEntities.QueryOptions;
 using RFAuthIRepositories.Repositories;
 using RFAuthIServices.IServices;
 using RFAuthServices.Exceptions;
@@ -8,6 +9,7 @@ using RFBaseEntities.Entities;
 using RFBaseEntities.ILibs;
 using RFBaseEntities.Libs;
 using RFBaseIServices.IServices;
+using RFBaseServices.Exceptions;
 using RFBaseServices.Services;
 using System.Security.Cryptography;
 
@@ -58,12 +60,29 @@ namespace RFAuthServices.Services
             return CryptographicOperations.FixedTimeEquals(keyToCheck, key);
         }
 
-        public async Task<UserPassword> GetSingleByUserIdAsync(long userId)
-            => await userPasswordRepository.GetSingleByUserIdAsync(userId);
-        
         public async Task<UserPassword?> GetSingleOrDefaultByUserIdAsync(long userId)
-            => await userPasswordRepository.GetSingleOrDefaultByUserIdAsync(userId);
-        
+        {
+            var users = await GetListAsync(
+                new UserPasswordQueryOptions
+                {
+                    UserId = userId,
+                    Take = 2,
+                }
+            );
+
+            if (!users.Any())
+                return null;
+
+            if (users.Count() > 1)
+                throw new MultiplePasswordEntriesFoundForUserIdException(userId);
+
+            return users.First();
+        }
+
+        public async Task<UserPassword> GetSingleByUserIdAsync(long userId)
+            =>  await GetSingleOrDefaultByUserIdAsync(userId)
+                ?? throw new PasswordForUserIdNotFoundException(userId);
+
         public async Task<UserPassword> GetSingleByUserAsync(User user)
             => await GetSingleByUserIdAsync(user.Id);
         

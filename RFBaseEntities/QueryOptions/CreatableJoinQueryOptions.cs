@@ -6,9 +6,12 @@
 
         public CreatableEntityQueryOptions() { }
 
-        public CreatableEntityQueryOptions(CreatableEntityQueryOptions options)
+        public CreatableEntityQueryOptions(CreatableEntityQueryOptions? options)
             : base(options)
         {
+            if (options == null)
+                return;
+
             IncludeCreatedBy = options.IncludeCreatedBy;
         }
     }

@@ -7,15 +7,13 @@ using RFRBACIRepositories.IRepositories;
 
 namespace RFRBACEF.Repositories
 {
-    public class PermissionXRoleRepository
-        : CommonJoinRepository<PermissionXRole>,
+    public class PermissionXRoleRepository(DbContext context)
+        : CommonJoinRepository<PermissionXRole>(context),
         IPermissionXRoleRepository
     {
-        public PermissionXRoleRepository(DbContext context) : base(context) { }
-
-        public override IQueryable<PermissionXRole> CreateDBSet(BaseQueryOptions? options)
+        public override IQueryable<PermissionXRole> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions());
+            var queryable = base.CreateDBSet(options);
 
             if (options is PermissionXRoleQueryOptions sessionOptions)
             {
@@ -33,9 +31,9 @@ namespace RFRBACEF.Repositories
             return queryable;
         }
 
-        public async Task<IEnumerable<long>> GetAllPermissionsIdByRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetPermissionIdsByRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null)
         {
-            var set = CreateDBSet(options);
+            var set = GetDBSet(options);
             var result = await set
                 .Where(r => roleIds.Contains(r.RoleId))
                 .Select(r => r.PermissionId)

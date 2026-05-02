@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFAuthEntities.Entities;
+using RFAuthEntities.QueryOptions;
 using RFAuthIRepositories.Repositories;
 using RFAuthIServices.IServices;
 using RFBaseIServices.IServices;
@@ -48,14 +49,16 @@ namespace RFAuthServices.Services
             return await CreateAsync(device);
         }
 
-        public async Task<Device?> GetFirstOrDefaultByTokenAsync(string token)
+        public async Task<Device?> GetFirstOrDefaultByTokenAsync(string token, DeviceQueryOptions? options = null)
         {
-            return await deviceRepository.GetFirstOrDefaultByTokenAsync(token);
+            options = (DeviceQueryOptions?)(options?.Clone() ?? new DeviceQueryOptions());
+            options!.Token = token;
+            return await GetFirstOrDefaultAsync(options);
         }
 
-        public async Task<Device> GetFirstOrCreateByTokenAsync(string token)
+        public async Task<Device> GetFirstOrCreateByTokenAsync(string token, DeviceQueryOptions? options = null)
         {
-            return await deviceRepository.GetFirstOrDefaultByTokenAsync(token)
+            return await GetFirstOrDefaultByTokenAsync(token, options)
                 ?? await CreateAsync();
         }
     }

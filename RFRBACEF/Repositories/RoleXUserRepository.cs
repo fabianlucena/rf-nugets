@@ -15,7 +15,7 @@ namespace RFRBACEF.Repositories
 
         public override IQueryable<RoleXUser> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions());
+            var queryable = base.CreateDBSet(options);
 
             if (options is RoleXUserQueryOptions roleXUserOptions)
             {
@@ -35,7 +35,7 @@ namespace RFRBACEF.Repositories
 
         public async Task<IEnumerable<long>> GetListRoleIdsByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
         {
-            var set = CreateDBSet(options);
+            var set = GetDBSet(options);
             var roleIds = await set
                 .Where(x =>  x.UserId == userId)
                 .Select(x => x.RoleId)

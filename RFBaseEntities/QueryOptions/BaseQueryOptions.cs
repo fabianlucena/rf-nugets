@@ -4,9 +4,12 @@
     {
         public BaseQueryOptions() { }
     
-        public BaseQueryOptions(BaseQueryOptions options)
+        public BaseQueryOptions(BaseQueryOptions? options)
             : base(options)
         {
         }
+
+        public override QueryOptions Clone()
+            => new BaseQueryOptions(this);
     }
 }

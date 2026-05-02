@@ -15,7 +15,7 @@ namespace RFRBACEF.Repositories
 
         public override IQueryable<RoleInclude> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions());
+            var queryable = base.CreateDBSet(options);
 
             if (options is RoleIncludeQueryOptions roleIncludeOptions)
             {
@@ -35,7 +35,7 @@ namespace RFRBACEF.Repositories
 
         public async Task<IEnumerable<long>> GetAllRoleIdsByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
         {
-            var set = CreateDBSet(options);
+            var set = GetDBSet(options);
             var result = roleIds.ToList();
             var lastResult = roleIds.ToList();
 

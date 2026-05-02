@@ -8,9 +8,7 @@ namespace RFBaseIRepositories.IRepositories
         : IBaseRepository<T>
         where T : Entity, new()
     {
-        Task<IEnumerable<long>> GetListIdAsync(BaseQueryOptions? options = null);
-        Task<T> GetSingleByIdAsync(long id, BaseQueryOptions? options = null);
-        Task<T?> GetFirstOrDefaultByUuidAsync(Guid uuid);
-        Task<bool> UpdateByIdAsync(long id, IDataDictionary data);
+        Task<IEnumerable<long>> GetIdsAsync(EntityQueryOptions? options = null);
+        Task<int> UpdateByIdAsync(long id, IDataDictionary data);
     }
 }

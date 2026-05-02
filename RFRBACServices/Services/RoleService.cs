@@ -10,9 +10,11 @@ namespace RFRBACServices.Services
         : CommonEntityService<Role>(roleRepository),
         IRoleService
     {
-        public async Task<IEnumerable<string>> GetListNamesByIdAsync(IEnumerable<long> ids, RoleQueryOptions? options = null)
+        public async Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, RoleQueryOptions? options = null)
         {
-            return await roleRepository.GetListNamesByIdAsync(ids, options);
+            options = (RoleQueryOptions?)(options?.Clone() ?? new RoleQueryOptions());
+            options!.Ids = ids;
+            return await roleRepository.GetNamesAsync(options);
         }
     }
 }

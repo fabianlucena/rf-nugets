@@ -10,10 +10,13 @@ namespace RFBaseServices.Decorators
         IEntityService<T>
         where T : Entity, new()
     {
-        public virtual Task<IEnumerable<long>> GetListIdAsync(BaseQueryOptions? options = null)
-            => entityService.GetListIdAsync(options);
+        public virtual Task<T?> GetFirstOrDefaultByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
+            => entityService.GetFirstOrDefaultByUuidAsync(uuid, options);
 
-        public virtual Task<T> GetSingleByIdAsync(long id, BaseQueryOptions? options = null)
+        public virtual Task<IEnumerable<long>> GetIdsAsync(EntityQueryOptions options)
+            => entityService.GetIdsAsync(options);
+
+        public virtual Task<T> GetSingleByIdAsync(long id, EntityQueryOptions? options = null)
             => entityService.GetSingleByIdAsync(id, options);
 
         public virtual Task UpdateByIdAsync(long id, IDataDictionary data)

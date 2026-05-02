@@ -14,7 +14,7 @@ namespace RFRGOBACEF.Repositories
     {
         public override IQueryable<RoleXUserXOrganization> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions())
+            var queryable = base.CreateDBSet(options)
                 as IQueryable<RoleXUserXOrganization>
                 ?? throw new ErrorCreatingRoleXUserXOrganizationRepositoryException();
 
@@ -41,7 +41,7 @@ namespace RFRGOBACEF.Repositories
 
         public async Task<IEnumerable<long>> GetListIdByUserIdAndOrganizationIdAsync(long userId, long? OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
         {
-            var set = CreateDBSet(options);
+            var set = GetDBSet(options);
 
             var list = await set
                 .Where(e => e.UserId == userId && (OrganizationId == null || e.OrganizationId == OrganizationId))
@@ -53,7 +53,7 @@ namespace RFRGOBACEF.Repositories
 
         public async Task<IEnumerable<Organization>> GetListOrganizationsByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
         {
-            var set = CreateDBSet(options);
+            var set = GetDBSet(options);
 
             var list = await set
                 .Where(e => e.UserId == userId)

@@ -6,6 +6,6 @@ namespace RFPermissionsIServices.IServices
 {
     public interface IPermissionService : IImmutableEntityService<Permission>
     {
-        Task<IEnumerable<string>> GetListNameByIdAsync(IEnumerable<long> permissionsId, PermissionQueryOptions? options = null);
+        Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, PermissionQueryOptions? options = null);
     }
 }

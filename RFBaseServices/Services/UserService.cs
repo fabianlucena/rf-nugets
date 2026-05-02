@@ -5,7 +5,6 @@ using RFBaseEntities.Libs;
 using RFBaseEntities.QueryOptions;
 using RFBaseIRepositories.IRepositories;
 using RFBaseIServices.IServices;
-using System.Security.Cryptography;
 
 namespace RFBaseServices.Services
 {
@@ -17,14 +16,10 @@ namespace RFBaseServices.Services
         IUserService
     {
         public async Task<User> GetSingleByUsernameAsync(string username, UserQueryOptions? options = null)
-        {
-            return await userRepository.GetSingleByUsernameAsync(username, options);
-        }
+            => await GetSingleAsync(new UserQueryOptions(options) { Username = username });
 
         public async Task<User?> GetSingleOrDefaultByUsernameAsync(string username, UserQueryOptions? options = null)
-        {
-            return await userRepository.GetSingleOrDefaultByUsernameAsync(username, options);
-        }
+            => await GetSingleOrDefaultAsync(new UserQueryOptions(options) { Username = username });
 
         public async Task<User> GetSystemUserAsync()
         {
@@ -72,8 +67,6 @@ namespace RFBaseServices.Services
         }
 
         public async Task<long> GetSingleIdByUsernameAsync(string username, UserQueryOptions? options = null)
-        {
-            return await userRepository.GetSingleIdByUsernameAsync(username, options);
-        }
+            => await GetSingleIdAsync(new UserQueryOptions(options) { Username = username });
     }
 }

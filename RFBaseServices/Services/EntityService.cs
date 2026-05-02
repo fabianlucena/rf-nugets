@@ -3,6 +3,8 @@ using RFBaseEntities.ILibs;
 using RFBaseEntities.QueryOptions;
 using RFBaseIRepositories.IRepositories;
 using RFBaseIServices.IServices;
+using RFBaseServices.Exceptions;
+using System.Reflection.PortableExecutable;
 
 namespace RFBaseServices.Services
 {
@@ -35,26 +37,48 @@ namespace RFBaseServices.Services
             return entity;
         }
 
-        public async Task<IEnumerable<long>> GetListIdAsync(BaseQueryOptions? options = null)
+        public async Task<T> GetSingleByIdAsync(long id, EntityQueryOptions? options = null)
         {
-            return await repository.GetListIdAsync(options);
+            options = options is null ? new EntityQueryOptions() : options.Clone() as EntityQueryOptions;
+            options!.Id = id;
+            return await GetSingleAsync(options);
         }
 
-        public async Task<T> GetSingleByIdAsync(long id, BaseQueryOptions? options = null)
+        public async Task<T?> GetFirstOrDefaultByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
         {
-            return await repository.GetSingleByIdAsync(id, options);
+            options = options is null ? new EntityQueryOptions() : options.Clone() as EntityQueryOptions;
+            options!.Uuid = uuid;
+            return await GetFirstOrDefaultAsync(options);
         }
 
-        public async Task<T?> GetFirstOrDefaultByUuidAsync(Guid uuid)
+        public async Task<IEnumerable<long>> GetIdsAsync(EntityQueryOptions options)
+            => await repository.GetIdsAsync(options);
+
+        public async Task<long?> GetSingleOrDefaultIdAsync(EntityQueryOptions options)
         {
-            return await repository.GetFirstOrDefaultByUuidAsync(uuid);
+            options = (EntityQueryOptions)options.Clone();
+            options.Take = 2;
+            var ids = await GetIdsAsync(options);
+
+            if (!ids.Any())
+                return null;
+
+
+            if (ids.Count() > 1)
+                throw new MultipleEntitiesFoundMatchingTheSpecifiedCriteriaException();
+
+            return ids.First();
         }
+
+        public async Task<long> GetSingleIdAsync(EntityQueryOptions options)
+            => await GetSingleOrDefaultIdAsync(options)
+                ?? throw new NoEntityFoundMatchingTheSpecifiedCriteriaException();
 
         public async Task UpdateByIdAsync(long id, IDataDictionary data)
         {
             data = await ValidateForUpdate(data);
-            bool success = await repository.UpdateByIdAsync(id, data);
-            if (!success)
+            int success = await repository.UpdateByIdAsync(id, data);
+            if (success == 0)
             {
                 throw new InvalidOperationException($"Failed to update entity with ID {id}.");
             }

@@ -14,7 +14,7 @@ namespace RFRGOBACEF.Repositories
     {
         public override IQueryable<SessionOrganization> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var queryable = base.CreateDBSet(options ?? new BaseQueryOptions())
+            var queryable = base.CreateDBSet(options)
                 as IQueryable<SessionOrganization>
                 ?? throw new ErrorCreatingSessionOrganizationRepositoryException();
 
@@ -36,7 +36,7 @@ namespace RFRGOBACEF.Repositories
 
         public async Task<Organization?> GetSingleOrDefaultOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
         {
-            var set = CreateDBSet(options);
+            var set = GetDBSet(options);
             var Organization = await set
                 .Where(e => e.SessionId == sessionId)
                 .Select(e => e.Organization)

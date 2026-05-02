@@ -5,6 +5,5 @@ namespace RFAuthIRepositories.Repositories
 {
     public interface IDeviceRepository : ICreatableEntityRepository<Device>
     {
-        Task<Device?> GetFirstOrDefaultByTokenAsync(string token);
     }
 }

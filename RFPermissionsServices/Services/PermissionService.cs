@@ -10,9 +10,11 @@ namespace RFPermissionsServices.Services
         : ImmutableEntityService<Permission>(permissionRepository),
         IPermissionService
     {
-        public async Task<IEnumerable<string>> GetListNameByIdAsync(IEnumerable<long> permissionsId, PermissionQueryOptions? options = null)
+        public async Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, PermissionQueryOptions? options = null)
         {
-            return await permissionRepository.GetListNameByIdAsync(permissionsId, options);
+            options = (PermissionQueryOptions?)(options?.Clone() ?? new PermissionQueryOptions());
+            options!.Ids = ids;
+            return await permissionRepository.GetNamesAsync(options);
         }
     }
 }

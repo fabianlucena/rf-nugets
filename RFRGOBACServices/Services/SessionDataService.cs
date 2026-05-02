@@ -51,8 +51,8 @@ namespace RFRGOBACServices.Services
                 userId,
                 sessionData.CurrentOrganization.Id
             );
-            sessionData.RoleNames = await roleService.GetListNamesByIdAsync(sessionData.RoleIds);
-            sessionData.PermissionNames = await permissionXRoleService.GetAllPermissionNamesForRoleIdsAsync(sessionData.RoleIds);
+            sessionData.RoleNames = await roleService.GetNamesByIdsAsync(sessionData.RoleIds);
+            sessionData.PermissionNames = await permissionXRoleService.GetPermissionNamesByRoleIdsAsync(sessionData.RoleIds);
 
             return sessionData;
         }
