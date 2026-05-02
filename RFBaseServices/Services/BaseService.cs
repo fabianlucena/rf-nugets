@@ -20,13 +20,13 @@ namespace RFBaseServices.Services
             return data;
         }
 
-        public async Task<T> CreateAsync(T entity)
+        public virtual async Task<T> CreateAsync(T entity)
         {
             entity = await ValidateForCreateAsync(entity);
             return await repository.CreateAsync(entity);
         }
 
-        public async Task<IEnumerable<T>> GetListAsync(BaseQueryOptions? options = null)
+        public virtual async Task<IEnumerable<T>> GetListAsync(BaseQueryOptions? options = null)
         {
             return await repository.GetListAsync(options);
         }
