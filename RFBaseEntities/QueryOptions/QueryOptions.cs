@@ -1,4 +1,7 @@
-﻿namespace RFBaseEntities.QueryOptions
+﻿using RFBaseEntities.Entities;
+using RFBaseEntities.Exceptions;
+
+namespace RFBaseEntities.QueryOptions
 {
     public class QueryOptions
     {
@@ -17,6 +20,11 @@
         }
 
         public virtual QueryOptions Clone()
-            => new(this);
+        {
+            if (this.GetType() == typeof(Base))
+                throw new CloneMethodMustBeOverridedInDerivatedClassException();
+
+            return new QueryOptions(this);
+        }
     }
 }

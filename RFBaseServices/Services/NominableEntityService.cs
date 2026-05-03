@@ -23,10 +23,18 @@ namespace RFBaseServices.Services
             return entity;
         }
 
-        public Task<T?> GetSingleOrDefaultByNameAsync(string name, BaseQueryOptions? options = null)
-            => repository.GetSingleOrDefaultByNameAsync(name, options);
+        public Task<T?> GetSingleOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null)
+        {
+            options = options?.Clone() ?? new NominableEntityQueryOptions();
+            options.Name = name;
+            return GetSingleOrDefaultAsync(options.Clone());
+        }
 
-        public Task<long?> GetSingleOrDefaultIdByNameAsync(string name, BaseQueryOptions? options = null)
-            => repository.GetSingleOrDefaultIdByNameAsync(name, options);
+        public Task<long?> GetSingleOrDefaultIdByNameAsync(string name, NominableEntityQueryOptions? options = null)
+        {
+            options = options?.Clone() ?? new NominableEntityQueryOptions();
+            options.Name = name;
+            return GetSingleOrDefaultIdAsync(options.Clone());
+        }
     }
 }

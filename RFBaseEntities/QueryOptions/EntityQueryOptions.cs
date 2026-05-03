@@ -1,4 +1,7 @@
-﻿namespace RFBaseEntities.QueryOptions
+﻿using RFBaseEntities.Entities;
+using RFBaseEntities.Exceptions;
+
+namespace RFBaseEntities.QueryOptions
 {
     public class EntityQueryOptions : BaseQueryOptions
     {
@@ -17,7 +20,12 @@
             Uuid = options.Uuid;
         }
 
-        public override QueryOptions Clone()
-            => new EntityQueryOptions(this);
+        public override EntityQueryOptions Clone()
+        {
+            if (this.GetType() == typeof(Base))
+                throw new CloneMethodMustBeOverridedInDerivatedClassException();
+
+            return new EntityQueryOptions(this);
+        }
     }
 }

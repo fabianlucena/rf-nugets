@@ -9,10 +9,10 @@ namespace RFBaseServices.Decorators
         INominableEntityService<T>
         where T : NominableEntity, new()
     {
-        public Task<T?> GetSingleOrDefaultByNameAsync(string name, BaseQueryOptions? options = null)
+        public Task<T?> GetSingleOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null)
              => nominableEntityService.GetSingleOrDefaultByNameAsync(name, options);
 
-        public Task<long?> GetSingleOrDefaultIdByNameAsync(string name, BaseQueryOptions? options = null)
+        public Task<long?> GetSingleOrDefaultIdByNameAsync(string name, NominableEntityQueryOptions? options = null)
              => nominableEntityService.GetSingleOrDefaultIdByNameAsync(name, options);
     }
 }

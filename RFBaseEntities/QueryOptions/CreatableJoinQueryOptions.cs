@@ -1,4 +1,7 @@
-﻿namespace RFBaseEntities.QueryOptions
+﻿using RFBaseEntities.Entities;
+using RFBaseEntities.Exceptions;
+
+namespace RFBaseEntities.QueryOptions
 {
     public class CreatableEntityQueryOptions : EntityQueryOptions
     {
@@ -13,6 +16,14 @@
                 return;
 
             IncludeCreatedBy = options.IncludeCreatedBy;
+        }
+
+        public override CreatableEntityQueryOptions Clone()
+        {
+            if (this.GetType() == typeof(Base))
+                throw new CloneMethodMustBeOverridedInDerivatedClassException();
+
+            return new CreatableEntityQueryOptions(this);
         }
     }
 }

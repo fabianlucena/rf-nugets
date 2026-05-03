@@ -14,5 +14,10 @@
 
             Username = options.Username;
         }
+
+        public override UserQueryOptions Clone()
+        {
+            return new UserQueryOptions(this);
+        }
     }
 }
