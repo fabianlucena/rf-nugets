@@ -1,4 +1,6 @@
-﻿namespace RFBaseEntities.Entities
+﻿using RFBaseEntities.Exceptions;
+
+namespace RFBaseEntities.Entities
 {
     public class LocalizableEntity : TitledEntity
     {
@@ -12,8 +14,11 @@
             IsTranslatable = entity.IsTranslatable;
         }
 
-        public virtual LocalizableEntity Clone()
+        public override LocalizableEntity Clone()
         {
+            if (this.GetType() == typeof(Base))
+                throw new CloneMethodMustBeOverridedInDerivatedClassException();
+
             return new LocalizableEntity(this);
         }
     }

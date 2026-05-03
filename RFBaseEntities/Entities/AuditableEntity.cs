@@ -1,4 +1,6 @@
-﻿namespace RFBaseEntities.Entities
+﻿using RFBaseEntities.Exceptions;
+
+namespace RFBaseEntities.Entities
 {
     public class AuditableEntity : CreatableEntity
     {
@@ -14,6 +16,14 @@
             UpdatedAt = entity.UpdatedAt;
             UpdatedById = entity.UpdatedById;
             UpdatedBy = entity.UpdatedBy;
+        }
+
+        public override AuditableEntity Clone()
+        {
+            if (this.GetType() == typeof(Base))
+                throw new CloneMethodMustBeOverridedInDerivatedClassException();
+
+            return new AuditableEntity(this);
         }
     }
 }

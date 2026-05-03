@@ -1,4 +1,6 @@
-﻿namespace RFBaseEntities.Entities
+﻿using RFBaseEntities.Exceptions;
+
+namespace RFBaseEntities.Entities
 {
     public class CreatableEntity : Entity
     {
@@ -14,6 +16,14 @@
             CreatedAt = entity.CreatedAt;
             CreatedById = entity.CreatedById;
             CreatedBy = entity.CreatedBy;
+        }
+
+        public override CreatableEntity Clone()
+        {
+            if (this.GetType() == typeof(Base))
+                throw new CloneMethodMustBeOverridedInDerivatedClassException();
+
+            return new CreatableEntity(this);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace RFBaseEntities.Entities
+﻿using RFBaseEntities.Exceptions;
+
+namespace RFBaseEntities.Entities
 {
     public class CommonEntity : AuditableEntity
     {
@@ -16,6 +18,14 @@
             DeletedAt = entity.DeletedAt;
             DeletedById = entity.DeletedById;
             DeletedBy = entity.DeletedBy;
+        }
+
+        public override CommonEntity Clone()
+        {
+            if (this.GetType() == typeof(Base))
+                throw new CloneMethodMustBeOverridedInDerivatedClassException();
+
+            return new CommonEntity(this);
         }
     }
 }

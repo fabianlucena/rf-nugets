@@ -1,4 +1,6 @@
-﻿namespace RFBaseEntities.Entities
+﻿using RFBaseEntities.Exceptions;
+
+namespace RFBaseEntities.Entities
 {
     public class Entity : Base
     {
@@ -12,6 +14,14 @@
         {
             Id = entity.Id;
             Uuid = entity.Uuid;
+        }
+
+        public override Entity Clone()
+        {
+            if (this.GetType() == typeof(Base))
+                throw new CloneMethodMustBeOverridedInDerivatedClassException();
+
+            return new Entity(this);
         }
     }
 }
