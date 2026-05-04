@@ -34,6 +34,7 @@ namespace RFBaseServices.Services
 
         public virtual async Task<T?> GetFirstOrDefaultAsync(BaseQueryOptions options)
         {
+            options = (BaseQueryOptions)options.Clone();
             options.Take = 1;
             var list = await repository.GetListAsync(options);
             if (!list.Any())

@@ -4,10 +4,24 @@ using RFBaseEntities.QueryOptions;
 using RFBaseIRepositories.IRepositories;
 using RFBaseIServices.IServices;
 using RFBaseServices.Exceptions;
-using System.Reflection.PortableExecutable;
 
 namespace RFBaseServices.Services
 {
+    internal class EntityQueryOptionsLocal : EntityQueryOptions
+    {
+        public EntityQueryOptionsLocal() { }
+
+        public EntityQueryOptionsLocal(EntityQueryOptions? options)
+            :base(options)
+        {
+            if (options == null)
+                return;
+        }
+
+        public override EntityQueryOptionsLocal Clone()
+            => new(this);
+    }
+
     public class EntityService<T>(IEntityRepository<T> repository)
         : BaseService<T>(repository),
         IEntityService<T>
@@ -39,15 +53,15 @@ namespace RFBaseServices.Services
 
         public async Task<T> GetSingleByIdAsync(long id, EntityQueryOptions? options = null)
         {
-            options = options is null ? new EntityQueryOptions() : options.Clone() as EntityQueryOptions;
-            options!.Id = id;
+            options = (EntityQueryOptions?)options?.Clone() ?? new EntityQueryOptionsLocal();
+            options.Id = id;
             return await GetSingleAsync(options);
         }
 
         public async Task<T?> GetFirstOrDefaultByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
         {
-            options = options is null ? new EntityQueryOptions() : options.Clone() as EntityQueryOptions;
-            options!.Uuid = uuid;
+            options = (EntityQueryOptions?)options?.Clone() ?? new EntityQueryOptionsLocal();
+            options.Uuid = uuid;
             return await GetFirstOrDefaultAsync(options);
         }
 
