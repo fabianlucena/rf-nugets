@@ -1,31 +1,22 @@
-﻿using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.Entities
+﻿namespace RFBaseEntities.Entities
 {
-    public class CommonJoin : CreatableJoin
+    public abstract class CommonJoin : CreatableJoin
     {
-        public DateTime? DeletedAt { get; set; } = null;
-
-        public long? DeletedById { get; set; } = 0;
-
-        public User? DeletedBy { get; set; } = null;
+        public DateTime? DeletedAt { get; set; }
+        public long? DeletedById { get; set; }
+        public User? DeletedBy { get; set; }
 
         public CommonJoin() { }
 
-        public CommonJoin(CommonJoin entity)
+        public CommonJoin(CommonJoin? entity = null)
             : base(entity)
         {
+            if (entity == null)
+                return;
+
             DeletedAt = entity.DeletedAt;
             DeletedById = entity.DeletedById;
             DeletedBy = entity.DeletedBy;
-        }
-
-        public override CommonJoin Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new CommonJoin(this);
         }
     }
 }

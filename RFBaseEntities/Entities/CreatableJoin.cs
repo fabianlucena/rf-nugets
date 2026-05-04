@@ -1,29 +1,22 @@
-﻿using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.Entities
+﻿namespace RFBaseEntities.Entities
 {
-    public class CreatableJoin : Join
+    public abstract class CreatableJoin : Join
     {
         public DateTime CreatedAt { get; set; } = DateTime.MinValue;
-        public long CreatedById { get; set; } = 0;
-        public User? CreatedBy { get; set; } = null;
+        public long CreatedById { get; set; }
+        public User? CreatedBy { get; set; }
 
         public CreatableJoin() { }
 
-        public CreatableJoin(CreatableJoin entity)
+        public CreatableJoin(CreatableJoin? entity = null)
             : base(entity)
         {
+            if (entity == null)
+                return;
+
             CreatedAt = entity.CreatedAt;
             CreatedById = entity.CreatedById;
             CreatedBy = entity.CreatedBy;
-        }
-
-        public override CreatableJoin Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new CreatableJoin(this);
         }
     }
 }

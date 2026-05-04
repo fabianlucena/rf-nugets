@@ -1,5 +1,4 @@
-﻿using RFBaseEntities.QueryOptions;
-using RFBaseIServices.IServices;
+﻿using RFBaseIServices.IServices;
 using RFRGOBACEntities.Entities;
 
 namespace RFRGOBACIServices.IServices

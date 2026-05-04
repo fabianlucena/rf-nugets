@@ -1,8 +1,6 @@
-﻿using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.Entities
+﻿namespace RFBaseEntities.Entities
 {
-    public class NoIdEntity : Base
+    public abstract class NoIdEntity : Base
     {
         public DateTime? DeletedAt { get; set; } = null;
         public long? DeletedById { get; set; } = null;
@@ -18,26 +16,23 @@ namespace RFBaseEntities.Entities
 
         public NoIdEntity() { }
 
-        public NoIdEntity(NoIdEntity entity)
+        public NoIdEntity(NoIdEntity? entity = null)
             : base(entity)
         {
+            if (entity == null)
+                return;
+
             DeletedAt = entity.DeletedAt;
             DeletedById = entity.DeletedById;
             DeletedBy = entity.DeletedBy;
+
             UpdatedAt = entity.UpdatedAt;
             UpdatedById = entity.UpdatedById;
             UpdatedBy = entity.UpdatedBy;
+            
             CreatedAt = entity.CreatedAt;
             CreatedById = entity.CreatedById;
             CreatedBy = entity.CreatedBy;
-        }
-
-        public override NoIdEntity Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new NoIdEntity(this);
         }
     }
 }

@@ -1,8 +1,6 @@
-﻿using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.Entities
+﻿namespace RFBaseEntities.Entities
 {
-    public class ImmutableEntity : CreatableEntity
+    public abstract class ImmutableEntity : CreatableEntity
     {
         public DateTime? DeletedAt { get; set; } = null;
 
@@ -12,20 +10,15 @@ namespace RFBaseEntities.Entities
 
         public ImmutableEntity() { }
 
-        public ImmutableEntity(ImmutableEntity entity)
+        public ImmutableEntity(ImmutableEntity? entity = null)
             : base(entity)
         {
+            if (entity == null)
+                return;
+
             DeletedAt = entity.DeletedAt;
             DeletedById = entity.DeletedById;
             DeletedBy = entity.DeletedBy;
-        }
-
-        public override ImmutableEntity Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new ImmutableEntity(this);
         }
     }
 }

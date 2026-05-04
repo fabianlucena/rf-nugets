@@ -1,8 +1,6 @@
-﻿using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.Entities
+﻿namespace RFBaseEntities.Entities
 {
-    public class AuditableEntity : CreatableEntity
+    public abstract class AuditableEntity : CreatableEntity
     {
         public DateTime UpdatedAt { get; set; } = DateTime.MinValue;
         public long UpdatedById { get; set; } = 0;
@@ -10,20 +8,15 @@ namespace RFBaseEntities.Entities
 
         public AuditableEntity() { }
 
-        public AuditableEntity(AuditableEntity entity)
+        public AuditableEntity(AuditableEntity? entity = null)
             : base(entity)
         {
+            if (entity == null)
+                return;
+
             UpdatedAt = entity.UpdatedAt;
             UpdatedById = entity.UpdatedById;
             UpdatedBy = entity.UpdatedBy;
-        }
-
-        public override AuditableEntity Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new AuditableEntity(this);
         }
     }
 }

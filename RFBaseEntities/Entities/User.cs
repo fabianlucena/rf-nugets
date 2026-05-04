@@ -1,10 +1,9 @@
-﻿using RFBaseEntities.Exceptions;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFBaseEntities.Entities
 {
     [Table("Users", Schema = "auth")]
-    public class User : CommonEntity
+    public sealed class User : CommonEntity
     {
         public string Username { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
@@ -14,9 +13,12 @@ namespace RFBaseEntities.Entities
 
         public User() { }
 
-        public User(User entity)
+        public User(User? entity = null)
             : base(entity)
         {
+            if (entity == null)
+                return;
+
             Username = entity.Username;
             DisplayName = entity.DisplayName;
             IsActive = entity.IsActive;
@@ -25,8 +27,6 @@ namespace RFBaseEntities.Entities
         }
 
         public override User Clone()
-        {
-            return new User(this);
-        }
+            => new(this);
     }
 }

@@ -1,5 +1,4 @@
-﻿using RFBaseEntities.QueryOptions;
-using RFBaseServices.Decorators;
+﻿using RFBaseServices.Decorators;
 using RFRGOBACEntities.Entities;
 using RFRGOBACIServices.IServices;
 

@@ -1,25 +1,18 @@
-﻿using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.Entities
+﻿namespace RFBaseEntities.Entities
 {
-    public class NominableEntity : CommonEntity
+    public abstract class NominableEntity : CommonEntity
     {
         public string Name { get; set; } = string.Empty;
 
         public NominableEntity() { }
 
-        public NominableEntity(NominableEntity entity)
+        public NominableEntity(NominableEntity? entity = null)
             : base(entity)
         {
+            if (entity == null)
+                return;
+
             Name = entity.Name;
-        }
-
-        public override NominableEntity Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new NominableEntity(this);
         }
     }
 }

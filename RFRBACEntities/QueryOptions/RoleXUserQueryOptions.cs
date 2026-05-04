@@ -1,12 +1,7 @@
-﻿using RFBaseEntities.QueryOptions;
-
-namespace RFRBACEntities.QueryOptions
+﻿namespace RFRBACEntities.QueryOptions
 {
-    public class RoleXUserQueryOptions : CommonJoinQueryOptions
+    public sealed class RoleXUserQueryOptions : RoleXUserQueryOptionsBase
     {
-        public bool IncludeRole { get; set; } = false;
-        public bool IncludeUser { get; set; } = false;
-
         public RoleXUserQueryOptions() { }
 
         public RoleXUserQueryOptions(RoleXUserQueryOptions? options)
@@ -14,9 +9,6 @@ namespace RFRBACEntities.QueryOptions
         {
             if (options == null)
                 return;
-
-            IncludeRole = options.IncludeRole;
-            IncludeUser = options.IncludeUser;
         }
 
         public override RoleXUserQueryOptions Clone()

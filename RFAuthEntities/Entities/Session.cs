@@ -7,7 +7,7 @@ using System.Text.Json;
 namespace RFAuthEntities.Entities
 {
     [Table("Sessions", Schema = "auth")]
-    public class Session : CreatableEntity
+    public sealed class Session : CreatableEntity
     {
         public string Token { get; set; } = string.Empty;
         public DateTime ExpireAt { get; set; } = DateTime.MinValue;
@@ -56,9 +56,12 @@ namespace RFAuthEntities.Entities
 
         public Session() { }
 
-        public Session(Session session)
+        public Session(Session? session = null)
             :base(session)
         {
+            if (session == null)
+                return;
+
             Token = session.Token;
             ExpireAt = session.ExpireAt;
             AutoLoginToken = session.AutoLoginToken;
@@ -74,5 +77,8 @@ namespace RFAuthEntities.Entities
             data = new DataDictionary(session.data);
             DataResponse = new DataDictionary(session.DataResponse);
         }
+    
+        public override Session Clone()
+            => new(this);
     }
 }

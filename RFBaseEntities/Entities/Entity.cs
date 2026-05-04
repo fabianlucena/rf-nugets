@@ -1,27 +1,20 @@
-﻿using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.Entities
+﻿namespace RFBaseEntities.Entities
 {
-    public class Entity : Base
+    public abstract class Entity : Base
     {
         public long Id { get; set; } = 0;
         public Guid Uuid { get; set; } = Guid.Empty;
 
         public Entity() { }
 
-        public Entity(Entity entity)
+        public Entity(Entity? entity = null)
             : base(entity)
         {
+            if (entity == null)
+                return;
+
             Id = entity.Id;
             Uuid = entity.Uuid;
-        }
-
-        public override Entity Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new Entity(this);
         }
     }
 }

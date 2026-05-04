@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace RFAuthEntities.Entities
 {
     [Table("UserPasswords", Schema = "auth")]
-    public class UserPassword
+    public sealed class UserPassword
         : NoIdEntity
     {
         [Required]
@@ -16,5 +16,22 @@ namespace RFAuthEntities.Entities
         [Required]
         [MaxLength(255)]
         public string PasswordHash { get; set; } = string.Empty;
+
+        public UserPassword() { }
+
+        public UserPassword(UserPassword? userPassword = null)
+            : base(userPassword)
+        {
+            if (userPassword == null)
+                return;
+
+            UserId = userPassword.UserId;
+            User = userPassword.User;
+
+            PasswordHash = userPassword.PasswordHash;
+        }
+
+        public override UserPassword Clone()
+            => new(this);
     }
 }

@@ -1,19 +1,11 @@
-﻿using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.Entities
+﻿namespace RFBaseEntities.Entities
 {
-    public class Base
+    public abstract class Base
     {
         public Base() { }
 
-        public Base(Base _) { }
+        public Base(Base? _) { }
 
-        public virtual Base Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new Base(this);
-        }
+        public abstract Base Clone();
     }
 }

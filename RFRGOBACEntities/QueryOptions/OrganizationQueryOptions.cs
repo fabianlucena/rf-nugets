@@ -2,7 +2,7 @@
 
 namespace RFRGOBACEntities.QueryOptions
 {
-    public class OrganizationQueryOptions : CommonEntityQueryOptions
+    public sealed class OrganizationQueryOptions : CommonEntityQueryOptions
     {
         public OrganizationQueryOptions() { }
 

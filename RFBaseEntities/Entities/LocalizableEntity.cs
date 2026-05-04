@@ -1,25 +1,18 @@
-﻿using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.Entities
+﻿namespace RFBaseEntities.Entities
 {
-    public class LocalizableEntity : TitledEntity
+    public abstract class LocalizableEntity : TitledEntity
     {
         public bool IsTranslatable { get; set; }
 
         public LocalizableEntity() { }
 
-        public LocalizableEntity(LocalizableEntity entity)
+        public LocalizableEntity(LocalizableEntity? entity)
             : base(entity)
         {
+            if (entity == null)
+                return;
+
             IsTranslatable = entity.IsTranslatable;
-        }
-
-        public override LocalizableEntity Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new LocalizableEntity(this);
         }
     }
 }
