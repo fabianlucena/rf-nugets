@@ -8,6 +8,8 @@ namespace RFBaseEntities.QueryOptions
         public long? Id { get; set; }
         public Guid? Uuid { get; set; }
 
+        public bool SkipOrderById { get; set; }
+
         public EntityQueryOptions() { }
 
         public EntityQueryOptions(EntityQueryOptions? options)
@@ -18,6 +20,8 @@ namespace RFBaseEntities.QueryOptions
 
             Id = options.Id;
             Uuid = options.Uuid;
+
+            SkipOrderById = options.SkipOrderById;
         }
 
         public override EntityQueryOptions Clone()

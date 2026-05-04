@@ -17,6 +17,9 @@ namespace RFBaseEF.Repositories
 
             if (options is EntityQueryOptions entityOptions)
             {
+                if (!entityOptions.SkipOrderById)
+                    queryable = queryable.OrderBy(x => x.Id);
+
                 if (entityOptions.Id != null)
                     queryable = queryable.Where(e => e.Id == entityOptions.Id);
 
