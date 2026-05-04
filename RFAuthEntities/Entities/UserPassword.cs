@@ -15,6 +15,6 @@ namespace RFAuthEntities.Entities
 
         [Required]
         [MaxLength(255)]
-        public string Hash { get; set; }
+        public string PasswordHash { get; set; } = string.Empty;
     }
 }

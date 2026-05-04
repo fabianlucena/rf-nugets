@@ -10,7 +10,6 @@ namespace RFAuthEntities.QueryOptions
         public string? Token { get; set; }
         public string? AutoLoginToken { get; set; }
 
-
         public SessionQueryOptions() { }
 
         public SessionQueryOptions(SessionQueryOptions? options)

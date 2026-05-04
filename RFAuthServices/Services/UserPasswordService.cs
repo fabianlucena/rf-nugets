@@ -102,7 +102,7 @@ namespace RFAuthServices.Services
                 pasaswordObj = await CreateAsync(new UserPassword
                 {
                     UserId = userId,
-                    Hash = HashPassword(password)
+                    PasswordHash = HashPassword(password)
                 });
 
                 return pasaswordObj != null;
@@ -126,7 +126,7 @@ namespace RFAuthServices.Services
         public async Task<bool> CheckPasswordByUserIdAsync(string password, long userId)
         {
             var userPassword = await GetSingleByUserIdAsync(userId);
-            var check = CheckPassword(userPassword.Hash, password);
+            var check = CheckPassword(userPassword.PasswordHash, password);
             if (!check)
                 throw new BadCurrentPasswordException();
 
@@ -137,12 +137,12 @@ namespace RFAuthServices.Services
         public async Task<bool> ChangePasswordByUserIdAsync(string currentPassword, string newPassword, long userId)
         {
             var userPassword = await GetSingleByUserIdAsync(userId);
-            var check = CheckPassword(userPassword.Hash, currentPassword);
+            var check = CheckPassword(userPassword.PasswordHash, currentPassword);
             if (!check)
                 throw new BadCurrentPasswordException();
 
             await UpdateByUserIdAsync(
-                new DataDictionary { { "Hash", HashPassword(newPassword) } },
+                new DataDictionary { { "PasswordHash", HashPassword(newPassword) } },
                 userId
             );
 
