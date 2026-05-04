@@ -25,16 +25,16 @@ namespace RFBaseServices.Services
 
         public Task<T?> GetSingleOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null)
         {
-            options = options?.Clone() ?? new NominableEntityQueryOptions();
+            options = (NominableEntityQueryOptions?)options?.Clone() ?? new NominableEntityQueryOptionsClonable();
             options.Name = name;
-            return GetSingleOrDefaultAsync(options.Clone());
+            return GetSingleOrDefaultAsync(options);
         }
 
         public Task<long?> GetSingleOrDefaultIdByNameAsync(string name, NominableEntityQueryOptions? options = null)
         {
-            options = options?.Clone() ?? new NominableEntityQueryOptions();
+            options = (NominableEntityQueryOptions?)options?.Clone() ?? new NominableEntityQueryOptionsClonable();
             options.Name = name;
-            return GetSingleOrDefaultIdAsync(options.Clone());
+            return GetSingleOrDefaultIdAsync(options);
         }
     }
 }
