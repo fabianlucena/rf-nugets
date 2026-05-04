@@ -14,26 +14,20 @@ namespace RFRGOBACEF.Repositories
     {
         public override IQueryable<RoleXUserXOrganization> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var queryable = base.CreateDBSet(options)
-                as IQueryable<RoleXUserXOrganization>
-                ?? throw new ErrorCreatingRoleXUserXOrganizationRepositoryException();
+            var queryable = base.CreateDBSet(options);
+
+            queryable = queryable.OrderBy(ruo => ruo.UserId);
 
             if (options is RoleXUserXOrganizationQueryOptions roleXUserXOrganizationOptions)
             {
                 if (roleXUserXOrganizationOptions.IncludeRole)
-                {
-                    queryable = queryable.Include(r => r.Role);
-                }
+                    queryable = queryable.Include(ruo => ruo.Role);
 
                 if (roleXUserXOrganizationOptions.IncludeUser)
-                {
-                    queryable = queryable.Include(u => u.User);
-                }
+                    queryable = queryable.Include(ruo => ruo.User);
 
                 if (roleXUserXOrganizationOptions.IncludeOrganization)
-                {
-                    queryable = queryable.Include(c => c.Organization);
-                }
+                    queryable = queryable.Include(ruo => ruo.Organization);
             }
 
             return queryable;

@@ -14,21 +14,17 @@ namespace RFRGOBACEF.Repositories
     {
         public override IQueryable<SessionOrganization> CreateDBSet(BaseQueryOptions? options = null)
         {
-            var queryable = base.CreateDBSet(options)
-                as IQueryable<SessionOrganization>
-                ?? throw new ErrorCreatingSessionOrganizationRepositoryException();
+            var queryable = base.CreateDBSet(options);
+
+            queryable = queryable.OrderBy(so => so.SessionId);
 
             if (options is SessionOrganizationQueryOptions sessionOrganizationOptions)
             {
                 if (sessionOrganizationOptions.IncludeSession)
-                {
-                    queryable = queryable.Include(sc => sc.Session);
-                }
+                    queryable = queryable.Include(so => so.Session);
 
                 if (sessionOrganizationOptions.IncludeOrganization)
-                {
-                    queryable = queryable.Include(sc => sc.Organization);
-                }
+                    queryable = queryable.Include(so => so.Organization);
             }
 
             return queryable;

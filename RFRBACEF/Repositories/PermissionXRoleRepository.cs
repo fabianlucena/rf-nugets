@@ -15,17 +15,15 @@ namespace RFRBACEF.Repositories
         {
             var queryable = base.CreateDBSet(options);
 
+            queryable = queryable.OrderBy(ir => ir.PermissionId);
+
             if (options is PermissionXRoleQueryOptions sessionOptions)
             {
                 if (sessionOptions.IncludePermission)
-                {
-                    queryable = queryable.Include(p => p.Permission);
-                }
+                    queryable = queryable.Include(pr => pr.Permission);
 
                 if (sessionOptions.IncludeRole)
-                {
-                    queryable = queryable.Include(r => r.Role);
-                }
+                    queryable = queryable.Include(pr => pr.Role);
             }
 
             return queryable;

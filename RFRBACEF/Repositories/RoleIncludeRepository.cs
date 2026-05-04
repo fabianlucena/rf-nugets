@@ -17,17 +17,15 @@ namespace RFRBACEF.Repositories
         {
             var queryable = base.CreateDBSet(options);
 
+            queryable = queryable.OrderBy(ri => ri.RoleId);
+            
             if (options is RoleIncludeQueryOptions roleIncludeOptions)
             {
                 if (roleIncludeOptions.IncludeRole)
-                {
-                    queryable = queryable.Include(r => r.Role);
-                }
+                    queryable = queryable.Include(ri => ri.Role);
 
                 if (roleIncludeOptions.IncludeInclude)
-                {
-                    queryable = queryable.Include(r => r.Include);
-                }
+                    queryable = queryable.Include(ri => ri.Include);
             }
 
             return queryable;
