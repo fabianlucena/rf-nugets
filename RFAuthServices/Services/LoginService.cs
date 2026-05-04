@@ -21,24 +21,16 @@ namespace RFAuthServices.Services
                 ?? throw new UserNotFoundException();
 
             if (user.DeletedAt.HasValue)
-            {
                 throw new UserIsDeletedException();
-            }
 
             if (!user.IsActive)
-            {
                 throw new UserIsNotActiveException();
-            }
 
             if (!user.CanLogin)
-            {
                 throw new UserIsNotAllowedToLoginException();
-            }
 
             if (!await userPasswordService.CheckPasswordByUserIdAsync(request.Password, user.Id))
-            {
                 throw new InvalidPasswordException();
-            }
 
             var device = await deviceService.GetFirstOrCreateByTokenAsync(request.DeviceToken);
 

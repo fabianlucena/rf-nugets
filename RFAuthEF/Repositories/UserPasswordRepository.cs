@@ -15,10 +15,12 @@ namespace RFAuthEF.Repositories
         {
             var queryable = base.CreateDBSet(options);
 
+            queryable = queryable.OrderBy(up => up.UserId);
+
             if (options is UserPasswordQueryOptions userPasswordOptions)
             {
                 if (userPasswordOptions.IncludeUser)
-                    queryable = queryable.Include(u => u.User);
+                    queryable = queryable.Include(up => up.User);
 
                 if (userPasswordOptions.UserId is not null)
                     queryable = queryable.Where(up => up.UserId == userPasswordOptions.UserId);

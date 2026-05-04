@@ -90,12 +90,17 @@ namespace RFAuthServices.Middlewares
             cachedSession.Items["Device"] = session.Device;
             if (session.Data is not null)
             {
-                cachedSession.Items["RoleIds"] = session.Data["RoleIds"];
-                cachedSession.Items["RoleNames"] = session.Data["RoleNames"];
-                cachedSession.Items["PermissionNames"] = session.Data["PermissionNames"];
+                if (session.Data.TryGetValue("RoleIds", out object? roleIds))
+                    cachedSession.Items["RoleIds"] = roleIds;
 
-                if (session.Data.ContainsKey("CurrentOrganization")
-                    && session.Data["CurrentOrganization"] is Organization currentOrganization
+                if (session.Data.TryGetValue("RoleNames", out object? roleNames))
+                    cachedSession.Items["RoleNames"] = roleNames;
+
+                if (session.Data.TryGetValue("PermissionNames", out object? permissionNames))
+                    cachedSession.Items["PermissionNames"] = permissionNames;
+
+                if (session.Data.TryGetValue("CurrentOrganization", out object? value)
+                    && value is Organization currentOrganization
                     && currentOrganization is not null
                 )
                 {
