@@ -8,9 +8,16 @@ namespace RFAuthEntities.QueryOptions
 
         public DeviceQueryOptions() { }
 
-        public DeviceQueryOptions(DeviceQueryOptions options)
+        public DeviceQueryOptions(DeviceQueryOptions? options)
+            : base(options)
         {
+            if (options == null)
+                return;
+
             Token = options.Token;
         }
+
+        public override DeviceQueryOptions Clone()
+            => new(this);
     }
 }

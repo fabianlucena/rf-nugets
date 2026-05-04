@@ -1,9 +1,6 @@
-﻿using RFBaseEntities.Entities;
-using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.QueryOptions
+﻿namespace RFBaseEntities.QueryOptions
 {
-    public class QueryOptions
+    public abstract class QueryOptions
     {
         public int Skip { get; set; } = 0;
         public int Take { get; set; } = 20;
@@ -19,12 +16,6 @@ namespace RFBaseEntities.QueryOptions
             Take = options.Take;
         }
 
-        public virtual QueryOptions Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new QueryOptions(this);
-        }
+        public abstract QueryOptions Clone();
     }
 }

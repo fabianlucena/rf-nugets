@@ -1,9 +1,6 @@
-﻿using RFBaseEntities.Entities;
-using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.QueryOptions
+﻿namespace RFBaseEntities.QueryOptions
 {
-    public class AuditableEntityQueryOptions : CreatableEntityQueryOptions
+    public abstract class AuditableEntityQueryOptions : CreatableEntityQueryOptions
     {
         public bool IncludeUpdatedBy { get; set; }
 
@@ -16,14 +13,6 @@ namespace RFBaseEntities.QueryOptions
                 return;
 
             IncludeUpdatedBy = options.IncludeUpdatedBy;
-        }
-
-        public override AuditableEntityQueryOptions Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new AuditableEntityQueryOptions(this);
         }
     }
 }

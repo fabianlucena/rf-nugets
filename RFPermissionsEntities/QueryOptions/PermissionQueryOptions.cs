@@ -16,5 +16,8 @@ namespace RFPermissionsEntities.QueryOptions
 
             Ids = options.Ids;
         }
+
+        public override PermissionQueryOptions Clone()
+            => new(this);
     }
 }

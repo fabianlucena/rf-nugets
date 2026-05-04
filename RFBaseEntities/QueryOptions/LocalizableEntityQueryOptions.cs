@@ -1,9 +1,6 @@
-﻿using RFBaseEntities.Entities;
-using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.QueryOptions
+﻿namespace RFBaseEntities.QueryOptions
 {
-    public class LocalizableEntityQueryOptions : TitledEntityQueryOptions
+    public abstract class LocalizableEntityQueryOptions : TitledEntityQueryOptions
     {
         public bool Translate { get; set; }
 
@@ -16,14 +13,6 @@ namespace RFBaseEntities.QueryOptions
                 return;
 
             Translate = options.Translate;
-        }
-
-        public override LocalizableEntityQueryOptions Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new LocalizableEntityQueryOptions(this);
         }
     }
 }

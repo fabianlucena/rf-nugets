@@ -16,5 +16,8 @@ namespace RFAuthEntities.QueryOptions
             IncludeUser = options.IncludeUser;
             UserId = options.UserId;
         }
+
+        public override UserPasswordQueryOptions Clone()
+            => new(this);
     }
 }

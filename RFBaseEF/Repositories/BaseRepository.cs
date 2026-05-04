@@ -24,10 +24,13 @@ namespace RFBaseEF.Repositories
 
         public virtual IQueryable<T> GetDBSet(BaseQueryOptions? options = null)
         {
-            options ??= new BaseQueryOptions();
-            var queryable = CreateDBSet(options)
-                .Take(options.Take)
-                .Skip(options.Skip);
+            var queryable = CreateDBSet(options);
+            if (options != null)
+            {
+                queryable = queryable
+                    .Take(options.Take)
+                    .Skip(options.Skip);
+            }
 
             return queryable;
         }

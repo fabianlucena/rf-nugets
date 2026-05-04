@@ -23,5 +23,8 @@ namespace RFAuthEntities.QueryOptions
             Token = options.Token;
             AutoLoginToken = options.AutoLoginToken;
         }
+
+        public override SessionQueryOptions Clone()
+            => new(this);
     }
 }

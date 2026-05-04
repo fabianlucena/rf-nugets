@@ -1,9 +1,6 @@
-﻿using RFBaseEntities.Entities;
-using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.QueryOptions
+﻿namespace RFBaseEntities.QueryOptions
 {
-    public class NominableEntityQueryOptions : CommonEntityQueryOptions
+    public abstract class NominableEntityQueryOptions : CommonEntityQueryOptions
     {
         public string? Name { get; set; }
 
@@ -16,14 +13,6 @@ namespace RFBaseEntities.QueryOptions
                 return;
 
             Name = options.Name;
-        }
-
-        public override NominableEntityQueryOptions Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new NominableEntityQueryOptions(this);
         }
     }
 }

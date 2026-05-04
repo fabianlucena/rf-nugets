@@ -1,9 +1,6 @@
-﻿using RFBaseEntities.Entities;
-using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.QueryOptions
+﻿namespace RFBaseEntities.QueryOptions
 {
-    public class EntityQueryOptions : BaseQueryOptions
+    public abstract class EntityQueryOptions : BaseQueryOptions
     {
         public long? Id { get; set; }
         public Guid? Uuid { get; set; }
@@ -22,14 +19,6 @@ namespace RFBaseEntities.QueryOptions
             Uuid = options.Uuid;
 
             SkipOrderById = options.SkipOrderById;
-        }
-
-        public override EntityQueryOptions Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new EntityQueryOptions(this);
         }
     }
 }

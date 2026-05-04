@@ -1,9 +1,6 @@
-﻿using RFBaseEntities.Entities;
-using RFBaseEntities.Exceptions;
-
-namespace RFBaseEntities.QueryOptions
+﻿namespace RFBaseEntities.QueryOptions
 {
-    public class CreatableJoinQueryOptions : JoinQueryOptions
+    public abstract class CreatableJoinQueryOptions : JoinQueryOptions
     {
         public bool IncludeCreatedBy { get; set; } = false;
 
@@ -18,12 +15,5 @@ namespace RFBaseEntities.QueryOptions
             IncludeCreatedBy = options.IncludeCreatedBy;
         }
 
-        public override CreatableJoinQueryOptions Clone()
-        {
-            if (this.GetType() == typeof(Base))
-                throw new CloneMethodMustBeOverridedInDerivatedClassException();
-
-            return new CreatableJoinQueryOptions(this);
-        }
     }
 }

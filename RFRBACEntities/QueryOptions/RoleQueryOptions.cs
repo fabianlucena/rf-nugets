@@ -8,7 +8,7 @@ namespace RFRBACEntities.QueryOptions
 
         public RoleQueryOptions() { }
 
-        public RoleQueryOptions(RoleQueryOptions options)
+        public RoleQueryOptions(RoleQueryOptions? options)
             : base(options)
         {
             if (options == null)
@@ -16,5 +16,8 @@ namespace RFRBACEntities.QueryOptions
 
             Ids = options.Ids;
         }
+
+        public override RoleQueryOptions Clone()
+            => new(this);
     }
 }
