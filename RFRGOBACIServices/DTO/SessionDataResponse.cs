@@ -16,6 +16,9 @@ namespace RFRGOBACIServices.DTO
             if (sessionData.CurrentOrganization is not null)
                 Data["currentOrganization"] = new OrganizationMinDTO(sessionData.CurrentOrganization);
 
+            if (sessionData.GroupNames is not null)
+                Data["groups"] = sessionData.GroupNames;
+
             if (sessionData.RoleNames is not null)
                 Data["roles"] = sessionData.RoleNames;
 

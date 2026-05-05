@@ -37,6 +37,12 @@ namespace RFRGOBACServices.Decorators
             session.Data["Organizations"] = sessionData.Organizations;
             session.Data["CurrentOrganization"] = sessionData.CurrentOrganization;
 
+            if (sessionData.GroupIds is not null)
+                session.Data["GroupIds"] = sessionData.GroupIds;
+
+            if (sessionData.GroupIds is not null)
+                session.Data["GroupNames"] = sessionData.GroupNames;
+
             if (sessionData.RoleIds is not null)
                 session.Data["RoleIds"] = sessionData.RoleIds;
 
