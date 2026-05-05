@@ -14,7 +14,7 @@ namespace RFRBACEntities.QueryOptions
             if (options == null)
                 return;
 
-            Ids = options.Ids;
+            Ids = options.Ids != null ? [.. options.Ids] : null;
         }
 
         public override RoleQueryOptions Clone()

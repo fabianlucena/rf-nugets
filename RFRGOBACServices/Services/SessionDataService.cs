@@ -1,16 +1,18 @@
 ﻿using RFAuthEntities.Entities;
-using RFAuthIServices.IServices;
+using RFBaseIServices.IServices;
 using RFRBACIServices.IServices;
-using RFRBACServices.Services;
 using RFRGOBACEntities.Entities;
 using RFRGOBACIRepositories.DTO;
 using RFRGOBACIServices.IServices;
 using RFRGOBACIServices.QueryOptions;
+using RFUserGroupsIServices.IServices;
 
 namespace RFRGOBACServices.Services
 {
     public class SessionDataService(
         IRoleXUserXOrganizationService roleXUserXOrganizationService,
+        IUserGroupService userGroupService,
+        IUserService userService,
         ISessionOrganizationService sessionOrganizationService,
         IRoleService roleService,
         IPermissionXRoleService permissionXRoleService
@@ -22,10 +24,14 @@ namespace RFRGOBACServices.Services
             if (userId <= 0)
                 return null;
 
-            var sessionData = new SessionData();
+            var sessionData = new SessionData
+            {
+                GroupIds = await userGroupService.GetAllGroupIdsByUserIdsAsync([userId]),
+            };
+            sessionData.GroupNames = await userService.GetUsernamesByIdsAsync(sessionData.GroupIds);
 
             sessionData.Organizations = await roleXUserXOrganizationService
-                .GetListOrganizationsByUserIdAsync(userId);
+                .GetListOrganizationsByUserIdsAsync(sessionData.GroupIds);
             if (!sessionData.Organizations.Any())
                 return sessionData;
 
@@ -40,15 +46,15 @@ namespace RFRGOBACServices.Services
                     return sessionData;
 
                 await sessionOrganizationService.CreateAsync(new SessionOrganization {
-                    CreatedById = session.UserId,
-                    UpdatedById = session.UserId,
+                    CreatedById = userId,
+                    UpdatedById = userId,
                     SessionId = session.Id,
                     OrganizationId = sessionData.CurrentOrganization.Id,
                 });
             }
 
-            sessionData.RoleIds = await roleXUserXOrganizationService.GetAllRoleIdsByUserIdAndOrganizationIdAsync(
-                userId,
+            sessionData.RoleIds = await roleXUserXOrganizationService.GetAllRoleIdsByUserIdsAndOrganizationIdAsync(
+                sessionData.GroupIds,
                 sessionData.CurrentOrganization.Id
             );
             sessionData.RoleNames = await roleService.GetNamesByIdsAsync(sessionData.RoleIds);

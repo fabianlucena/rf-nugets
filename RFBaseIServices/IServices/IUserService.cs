@@ -17,5 +17,7 @@ namespace RFBaseIServices.IServices
         Task<long> GetCurrentOrSystemUserIdAsync();
 
         Task UpdateLastLoginAtByUserIdAsync(long userId);
+
+        Task<IEnumerable<string>> GetUsernamesByIdsAsync(IEnumerable<long> userIds, UserQueryOptions? options = null);
     }
 }

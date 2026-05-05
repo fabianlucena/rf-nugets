@@ -17,6 +17,9 @@ namespace RFBaseEF.Repositories
 
             if (options is UserQueryOptions userOptions)
             {
+                if (userOptions.Ids is not null)
+                    queryable = queryable.Where(u => userOptions.Ids.Contains(u.Id));
+
                 if (userOptions.Username != null)
                     queryable = queryable.Where(u => u.Username == userOptions.Username);
             }
@@ -69,6 +72,13 @@ namespace RFBaseEF.Repositories
             }
 
             return list[0];
+        }
+
+        public async Task<IEnumerable<string>> GetUsernamesAsync(UserQueryOptions options)
+        {
+            return await GetDBSet(options)
+                .Select(u => u.Username)
+                .ToListAsync();
         }
     }
 }

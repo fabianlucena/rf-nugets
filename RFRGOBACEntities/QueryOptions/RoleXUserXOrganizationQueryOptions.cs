@@ -8,6 +8,7 @@ namespace RFRGOBACEntities.QueryOptions
 
         public long? RoleId { get; set; }
         public long? UserId { get; set; }
+        public IEnumerable<long>? UserIds { get; set; }
         public long? OrganizationId { get; set; }
 
         public RoleXUserXOrganizationQueryOptions() { }
@@ -22,6 +23,7 @@ namespace RFRGOBACEntities.QueryOptions
 
             RoleId = options.RoleId;
             UserId = options.UserId;
+            UserIds = options.UserIds;
             OrganizationId = options.OrganizationId;
         }
 

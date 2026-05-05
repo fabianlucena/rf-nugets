@@ -21,9 +21,7 @@ namespace RFBaseServices.Services
             => await GetSingleOrDefaultAsync(new UserQueryOptions(options) { Username = username });
 
         public async Task<User> GetSystemUserAsync()
-        {
-            return await GetSingleByUsernameAsync("system");
-        }
+            => await GetSingleByUsernameAsync("system");
 
         public async Task<User> GetCurrentOrSystemUserAsync()
         {
@@ -67,5 +65,12 @@ namespace RFBaseServices.Services
 
         public async Task<long> GetSingleIdByUsernameAsync(string username, UserQueryOptions? options = null)
             => await GetSingleIdAsync(new UserQueryOptions(options) { Username = username });
+
+        public async Task<IEnumerable<string>> GetUsernamesByIdsAsync(IEnumerable<long> userIds, UserQueryOptions? options = null)
+        {
+            options = (UserQueryOptions?)(options?.Clone() ?? new UserQueryOptions());
+            options!.Ids = userIds;
+            return await userRepository.GetUsernamesAsync(options);
+        }
     }
 }

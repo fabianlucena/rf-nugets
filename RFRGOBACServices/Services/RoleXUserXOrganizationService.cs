@@ -13,26 +13,25 @@ namespace RFRGOBACServices.Services
     ) : CommonJoinService<RoleXUserXOrganization>(roleXUserXOrganizationRepository),
         IRoleXUserXOrganizationService
     {
-
-        public async Task<IEnumerable<long>> GetRoleIdsByUserIdOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetRoleIdsByUserIdsAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
         {
             options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
-            options.UserId = userId;
+            options.UserIds = userIds;
             options.OrganizationId = OrganizationId;
             return await roleXUserXOrganizationRepository.GetIdsAsync(options);
         }
 
-        public async Task<IEnumerable<long>> GetAllRoleIdsByUserIdAndOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
+        public async Task<IEnumerable<long>> GetAllRoleIdsByUserIdsAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
         {
-            var roleIds = await GetRoleIdsByUserIdOrganizationIdAsync(userId, OrganizationId, options);
+            var roleIds = await GetRoleIdsByUserIdsAndOrganizationIdAsync(userIds, OrganizationId, options);
             var allRoleIds = await roleIncludeService.GetAllRoleIdsByRoleIdsAsync(roleIds);
             return allRoleIds;
         }
 
-        public async Task<IEnumerable<Organization>> GetListOrganizationsByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
+        public async Task<IEnumerable<Organization>> GetListOrganizationsByUserIdsAsync(IEnumerable<long> userIds, RoleXUserXOrganizationQueryOptions? options = null)
         {
             options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
-            options.UserId = userId;
+            options.UserIds = userIds;
             return await roleXUserXOrganizationRepository.GetOrganizationsAsync(options);
         }
     }

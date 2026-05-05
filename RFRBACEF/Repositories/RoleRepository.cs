@@ -18,7 +18,7 @@ namespace RFRBACEF.Repositories
             if (options is RoleQueryOptions roleOptions)
             {
                 if (roleOptions.Ids is not null)
-                    queryable = queryable.Where(p => roleOptions.Ids.Contains(p.Id));
+                    queryable = queryable.Where(r => roleOptions.Ids.Contains(r.Id));
             }
 
             return queryable;

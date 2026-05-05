@@ -1,5 +1,4 @@
 ﻿using RFBaseIServices.IServices;
-using RFRBACIServices.IServices;
 using RFRGOBACEntities.Entities;
 using RFRGOBACEntities.QueryOptions;
 
@@ -7,8 +6,8 @@ namespace RFRGOBACIServices.IServices
 {
     public interface IRoleXUserXOrganizationService : ICommonJoinService<RoleXUserXOrganization>
     {
-        Task<IEnumerable<long>> GetRoleIdsByUserIdOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
-        Task<IEnumerable<long>> GetAllRoleIdsByUserIdAndOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
-        Task<IEnumerable<Organization>> GetListOrganizationsByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null);
+        Task<IEnumerable<long>> GetRoleIdsByUserIdsAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
+        Task<IEnumerable<long>> GetAllRoleIdsByUserIdsAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
+        Task<IEnumerable<Organization>> GetListOrganizationsByUserIdsAsync(IEnumerable<long> userIds, RoleXUserXOrganizationQueryOptions? options = null);
     }
 }
