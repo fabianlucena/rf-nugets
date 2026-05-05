@@ -16,7 +16,10 @@ namespace RFRGOBACServices.Services
 
         public async Task<IEnumerable<long>> GetRoleIdsByUserIdOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
         {
-            return await roleXUserXOrganizationRepository.GetListIdByUserIdAndOrganizationIdAsync(userId, OrganizationId, options);
+            options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+            options.UserId = userId;
+            options.OrganizationId = OrganizationId;
+            return await roleXUserXOrganizationRepository.GetIdsAsync(options);
         }
 
         public async Task<IEnumerable<long>> GetAllRoleIdsByUserIdAndOrganizationIdAsync(long userId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
@@ -28,8 +31,9 @@ namespace RFRGOBACServices.Services
 
         public async Task<IEnumerable<Organization>> GetListOrganizationsByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
         {
-            var OrganizationsList = await roleXUserXOrganizationRepository.GetListOrganizationsByUserIdAsync(userId, options);
-            return OrganizationsList;
+            options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+            options.UserId = userId;
+            return await roleXUserXOrganizationRepository.GetOrganizationsAsync(options);
         }
     }
 }

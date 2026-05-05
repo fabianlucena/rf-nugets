@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFBaseEF.Repositories;
 using RFBaseEntities.QueryOptions;
-using RFRGOBACEF.Exceptions;
 using RFRGOBACEntities.Entities;
 using RFRGOBACEntities.QueryOptions;
 using RFRGOBACIRepositories.IRepositories;
@@ -28,36 +27,33 @@ namespace RFRGOBACEF.Repositories
 
                 if (roleXUserXOrganizationOptions.IncludeOrganization)
                     queryable = queryable.Include(ruo => ruo.Organization);
+
+                if (roleXUserXOrganizationOptions.RoleId.HasValue)
+                    queryable = queryable.Where(ruo => ruo.RoleId == roleXUserXOrganizationOptions.RoleId.Value);
+
+                if (roleXUserXOrganizationOptions.UserId.HasValue)
+                    queryable = queryable.Where(ruo => ruo.UserId == roleXUserXOrganizationOptions.UserId.Value);
+
+                if (roleXUserXOrganizationOptions.OrganizationId.HasValue)
+                    queryable = queryable.Where(ruo => ruo.OrganizationId == roleXUserXOrganizationOptions.OrganizationId.Value);
             }
 
             return queryable;
         }
 
-        public async Task<IEnumerable<long>> GetListIdByUserIdAndOrganizationIdAsync(long userId, long? OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
-        {
-            var set = GetDBSet(options);
-
-            var list = await set
-                .Where(e => e.UserId == userId && (OrganizationId == null || e.OrganizationId == OrganizationId))
+        public async Task<IEnumerable<long>> GetIdsAsync(RoleXUserXOrganizationQueryOptions options)
+            => await GetDBSet(options)
                 .Select(e => e.RoleId)
                 .ToListAsync();
 
-            return list;
-        }
-
-        public async Task<IEnumerable<Organization>> GetListOrganizationsByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
+        public async Task<IEnumerable<Organization>> GetOrganizationsAsync(RoleXUserXOrganizationQueryOptions options)
         {
-            var set = GetDBSet(options);
-
-            var list = await set
-                .Where(e => e.UserId == userId)
-                .Select(e => e.Organization)
-                .Distinct()
-                .Where(c => c != null)
-                .Select(c => c!)
+            options = options.Clone();
+            options.IncludeOrganization = true;
+            options.Distinct = true;
+            return await GetDBSet(options)
+                .Select(e => e.Organization!)
                 .ToListAsync();
-
-            return list;
         }
     }
 }

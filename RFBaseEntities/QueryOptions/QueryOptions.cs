@@ -4,6 +4,7 @@
     {
         public int Skip { get; set; } = 0;
         public int Take { get; set; } = 20;
+        public bool Distinct { get; set; }
 
         public QueryOptions() { }
 
@@ -14,6 +15,7 @@
 
             Skip = options.Skip;
             Take = options.Take;
+            Distinct = options.Distinct;
         }
 
         public abstract QueryOptions Clone();

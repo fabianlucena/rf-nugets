@@ -19,6 +19,12 @@ namespace RFBaseEF.Repositories
             IQueryable<T> queryable = context.Set<T>()
                 .AsNoTracking();
 
+            if (options != null)
+            {
+                if (options.Distinct)
+                    queryable = queryable.Distinct();
+            }
+
             return queryable;
         }
 

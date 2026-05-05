@@ -2,8 +2,6 @@
 using RFAuthEntities.QueryOptions;
 using RFAuthIServices.IServices;
 using RFAuthServices.DTO;
-using RFPermissionsEntities.Entities;
-using RFRBACEntities.Entities;
 using RFRGOBACEntities.Entities;
 
 namespace RFAuthServices.Middlewares
