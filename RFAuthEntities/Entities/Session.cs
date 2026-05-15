@@ -9,7 +9,7 @@ namespace RFAuthEntities.Entities
     [Table("Sessions", Schema = "auth")]
     public sealed class Session : CreatableEntity
     {
-        public string Token { get; set; } = string.Empty;
+        public string AuthorizationToken { get; set; } = string.Empty;
         public DateTime ExpireAt { get; set; } = DateTime.MinValue;
         public string AutoLoginToken { get; set; } = string.Empty;
         public DateTime LastUsedAt { get; set; } = DateTime.MinValue;
