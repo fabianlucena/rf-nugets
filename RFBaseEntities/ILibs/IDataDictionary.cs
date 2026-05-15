@@ -25,6 +25,8 @@
 
         public bool TryGetGuids(string key, out IEnumerable<Guid> value);
 
+        public bool TryGetDecimal(string key, out Decimal value);
+
         public bool TryGetNullableObjects(string key, out IEnumerable<object?> value);
 
         public T ToObject<T>()
