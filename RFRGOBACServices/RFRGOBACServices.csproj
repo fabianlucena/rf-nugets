@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Scrutor" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RFAuthIServices\RFAuthIServices.csproj" />
+    <ProjectReference Include="..\RFAuthServices\RFAuthServices.csproj" />
+    <ProjectReference Include="..\RFRBACServices\RFRBACServices.csproj" />
+    <ProjectReference Include="..\RFRGOBACEF\RFRGOBACEF.csproj" />
+    <ProjectReference Include="..\RFRGOBACIServices\RFRGOBACIServices.csproj" />
+    <ProjectReference Include="..\RFUserGroupsIServices\RFUserGroupsIServices.csproj" />
+  </ItemGroup>
+
+</Project>

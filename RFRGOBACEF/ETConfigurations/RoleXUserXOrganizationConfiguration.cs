@@ -1,0 +1,33 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RFBaseEF.ETConfigurations;
+using RFRGOBACEntities.Entities;
+
+namespace RFRGOBACEF.ETConfigurations
+{
+    public class RoleXUserXOrganizationConfiguration
+        : CommonJoinConfiguration<RoleXUserXOrganization>
+    {
+        public override void Configure(EntityTypeBuilder<RoleXUserXOrganization> entity)
+        {
+            base.Configure(entity);
+
+            entity.HasNoKey();
+
+            entity.HasOne(u => u.Role)
+                  .WithMany()
+                  .HasForeignKey(u => u.RoleId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(u => u.User)
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(u => u.Organization)
+                  .WithMany()
+                  .HasForeignKey(u => u.OrganizationId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        }
+    }
+}

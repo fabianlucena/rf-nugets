@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using RFHttpExceptions.IExceptions;
+using System.Text.Json;
 
 namespace RFHttpExceptions.Middlewares
 {
@@ -63,7 +64,8 @@ namespace RFHttpExceptions.Middlewares
                 Message = message,
             };
 
-            await context.Response.WriteAsJsonAsync(result);
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsync(JsonSerializer.Serialize(result));
         }
     }
 }
