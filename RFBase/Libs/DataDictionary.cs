@@ -1,0 +1,594 @@
+﻿using Microsoft.Extensions.Configuration;
+using RFBase.Exceptions;
+using RFBase.ILibs;
+using System.Collections;
+using System.Globalization;
+using System.Text.Json;
+
+namespace RFBase.Libs
+{
+    public class DataDictionary
+        : Dictionary<string, object?>,
+            IDataDictionary
+    {
+        public DataDictionary()
+        { }
+        
+        public DataDictionary(IDictionary<string, object?>? data)
+            : base(data ?? new Dictionary<string, object?>())
+        { }
+
+        public DataDictionary(IConfigurationSection? data)
+        {
+            if (data != null)
+            {
+                foreach (var child in data.GetChildren())
+                {
+                    if (child.GetChildren().Any())
+                    {
+                        this[child.Key] = new DataDictionary(child);
+                    }
+                    else
+                    {
+                        object? value = child.Value;
+
+                        if (value is null)
+                            value = null;
+                        else if (bool.TryParse(child.Value, out var boolResult))
+                            value = boolResult;
+                        else if (int.TryParse(child.Value, out var intResult))
+                            value = intResult;
+
+                        this[child.Key] = value;
+                    }
+                }
+            }
+        }
+
+        public IDataDictionary GetPascalized()
+        {
+            var data = this.ToDictionary(
+                i => char.ToUpper(i.Key[0], CultureInfo.InvariantCulture) + i.Key[1..],
+                i => {
+                    var value = i.Value;
+                    if (value != null
+                        && value.GetType() == typeof(DataDictionary)
+                    )
+                        value = ((DataDictionary)value).GetPascalized();
+                
+                    return GetValue(value);
+                }
+            );
+
+            return new DataDictionary(data);
+        }
+
+        public bool IsNullValue(string key)
+        {
+            return TryGetValue(key, out object? obj)
+                && obj is null;
+        }
+
+        public bool IsNotNullValue(string key)
+        {
+            return TryGetValue(key, out object? obj)
+                && obj is not null;
+        }
+
+        public bool TryGetInt64(string key, out long value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+                || obj is not long val
+            )
+            {
+                value = 0;
+                return false;
+            }
+
+            value = val;
+            return true;
+        }
+
+        public string? GetString(string key)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                return null;
+            }
+
+            var val = GetValue(obj);
+            if (val is null
+                || val is not string str
+            )
+            {
+                return null;
+            }
+
+            return str;
+        }
+
+        public bool TryGetString(string key, out string? value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = null;
+
+                return false;
+            }
+
+            var val = GetValue(obj);
+            if (val is not null
+                && val is string str
+            )
+            {
+                value = str;
+            }
+            else
+            {
+                value = null;
+            }
+
+            return true;
+        }
+
+        public bool TryGetNotNullString(string key, out string value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = "";
+                return false;
+            }
+
+            var val = GetValue(obj);
+            if (val is null
+                || val is not string str
+            )
+            {
+                value = "";
+                return false;
+            }
+
+            value = str;
+            return true;
+        }
+
+        public bool TryGetNotNullOrEmptyString(string key, out string value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = "";
+                return false;
+            }
+
+            var val = GetValue(obj);
+            if (val is null
+                || val is not string str
+            )
+            {
+                value = "";
+                return false;
+            }
+
+            value = str;
+            return !string.IsNullOrEmpty(value);
+        }
+
+        public bool TryGetNotNullStrings(string key, out IEnumerable<string> value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = [];
+                return false;
+            }
+
+            if (obj is string[] valueStrings)
+            {
+                value = valueStrings;
+                return true;
+            }
+
+            if (obj is IEnumerable<string> strings)
+            {
+                value = strings;
+                return true;
+            }
+
+            if (obj is not IEnumerable list)
+            {
+                value = [];
+                return false;
+            }
+
+            var newValue = new List<string>();
+            foreach (var item in list)
+            {
+                if (item == null)
+                    continue;
+
+                var str = item.ToString();
+                if (string.IsNullOrEmpty(str))
+                    continue;
+
+                newValue.Add(str);
+            }
+
+            value = newValue;
+            return true;
+        }
+
+        public bool? GetBool(string key)
+        {
+            if (TryGetBool(key, out bool value))
+            {
+                return value;
+            }
+
+            return null;
+        }
+
+        public bool TryGetBool(string key, out bool value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = default;
+                return false;
+            }
+
+            if (obj is bool val)
+            {
+                value = val;
+                return true;
+            }
+
+            obj = GetValue(obj);
+            if (obj is bool val1)
+            {
+                value = val1;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        public bool TryGetGuid(string key, out Guid value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = default;
+                return false;
+            }
+
+            if (obj is Guid guid)
+            {
+                value = guid;
+                return true;
+            }
+
+            var str = obj.ToString();
+            if (string.IsNullOrEmpty(str))
+            {
+                value = default;
+                return false;
+            }
+
+            guid = Guid.Parse(str);
+            if (guid == Guid.Empty)
+            {
+                value = default;
+                return false;
+            }
+
+            value = guid;
+            return true;
+        }
+
+        public Guid? GetGuidOrNull(string key)
+        {
+            if (!TryGetGuid(key, out Guid value))
+                return null;
+
+            return value;
+        }
+
+        public bool TryGetGuids(string key, out IEnumerable<Guid> value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = [];
+                return false;
+            }
+
+            obj = GetValue(obj);
+
+            if (obj is Guid[] guids)
+            {
+                value = guids;
+                return true;
+            }
+
+            if (obj is IEnumerable<Guid> eguids)
+            {
+                value = eguids;
+                return true;
+            }
+
+            if (obj is not IEnumerable list)
+            {
+                value = [];
+                return false;
+            }
+
+            var newValue = new List<Guid>();
+            foreach (var item in list)
+            {
+                if (item == null)
+                {
+                    value = [];
+                    return false;
+                }
+
+                if (item is Guid guid)
+                {
+                    newValue.Add(guid);
+                    continue;
+                }
+
+                var str = item.ToString();
+                if (string.IsNullOrEmpty(str))
+                {
+                    value = [];
+                    return false;
+                }
+
+                guid = Guid.Parse(str);
+                if (guid == Guid.Empty)
+                {
+                    value = [];
+                    return false;
+                }
+
+                newValue.Add(guid);
+            }
+
+            value = newValue;
+            return true;
+        }
+
+        public bool TryGetDecimal(string key, out Decimal value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = default;
+                return false;
+            }
+
+            if (obj is Decimal val)
+            {
+                value = val;
+                return true;
+            }
+
+            obj = GetValue(obj);
+            if (obj is Decimal val1)
+            {
+                value = val1;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        public bool TryGetNullableObjects(string key, out IEnumerable<object?> value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+                value = [];
+                return false;
+            }
+
+            if (obj is IEnumerable<object?> objects)
+            {
+                value = objects;
+                return true;
+            }
+
+            if (obj is IEnumerable<object?> eobjects)
+            {
+                value = eobjects;
+                return true;
+            }
+
+            if (obj is not IEnumerable list)
+            {
+                value = [];
+                return false;
+            }
+
+            value = list.Cast<object?>();
+            return true;
+        }
+
+        public bool TryGet<T>(string key, out T value)
+        {
+            if (!TryGetValue(key, out object? obj)
+                || obj is null
+            )
+            {
+#pragma warning disable CS8601 // Possible null reference assignment.
+                value = default;
+#pragma warning restore CS8601 // Possible null reference assignment.
+                return false;
+            }
+
+            if (obj is T val)
+            {
+                value = val;
+                return true;
+            }
+
+#pragma warning disable CS8601 // Possible null reference assignment.
+            value = default;
+#pragma warning restore CS8601 // Possible null reference assignment.
+
+            return false;
+        }
+
+        public T ToObject<T>()
+            where T : new()
+        {
+            var obj = new T();
+            Type type = obj.GetType();
+            var properties = type.GetProperties();
+
+            foreach (var property in properties)
+            {
+                if (property == null || !property.CanWrite)
+                    continue;
+
+                var name = property.Name;
+                if (property.PropertyType == typeof(string))
+                {
+                    if (TryGetNotNullString(name, out var value))
+                        property.SetValue(obj, value);
+                }
+                else if (property.PropertyType == typeof(long))
+                {
+                    if (TryGetInt64(name, out var value))
+                        property.SetValue(obj, value);
+                }
+                else if (property.PropertyType == typeof(bool))
+                {
+                    if (TryGetBool(name, out var value))
+                        property.SetValue(obj, value);
+                }
+                else if (IsNullValue(name))
+                    property.SetValue(obj, null);
+                else if (ContainsKey(name))
+                    throw new NotImplementedException($"Conversion del tipo {property.PropertyType} no implmentado en el método DataDictionary.ToObject");
+            }
+
+            return obj;
+        }
+
+        public object? GetValue(object? element, bool camelize = false)
+        {
+            if (element == null)
+                return null;
+
+            if (element.GetType() != typeof(JsonElement))
+                return element;
+
+            var jsonElement = (JsonElement)element;
+            switch (jsonElement.ValueKind)
+            {
+                case JsonValueKind.String:
+                    return jsonElement.GetString();
+
+                case JsonValueKind.True:
+                    return true;
+
+                case JsonValueKind.False:
+                    return false;
+
+                case JsonValueKind.Null:
+                    return null;
+
+                case JsonValueKind.Number:
+                    if (jsonElement.TryGetInt64(out var int32))
+                        return int32;
+                    else if (jsonElement.TryGetUInt64(out var uint32))
+                        return uint32;
+                    else
+                        return jsonElement.GetDouble();
+
+                case JsonValueKind.Array:
+                    {
+                        List<object?> result = [];
+                        foreach (var item in jsonElement.EnumerateArray())
+                            result.Add(GetValue(item));
+
+                        return result;
+                    }
+
+                case JsonValueKind.Object:
+                    {
+                        DataDictionary result = [];
+                        if (camelize)
+                        {
+                            foreach (var item in jsonElement.EnumerateObject())
+                                result[char.ToUpper(item.Name[0], CultureInfo.InvariantCulture) + item.Name[1..]] = GetValue(item.Value);
+                        }
+                        else
+                        {
+                            foreach (var item in jsonElement.EnumerateObject())
+                                result[item.Name] = GetValue(item.Value);
+                        }
+
+                        return result;
+                    }
+            }
+
+            throw new NotImplementedValueException();
+        }
+
+        public string GetJson()
+        {
+            try
+            {
+                return JsonSerializer.Serialize(this);
+            }
+            catch { }
+
+            var lines = new List<string>();
+            foreach (var kv in this)
+            {
+                string value;
+                try
+                {
+                    value = JsonSerializer.Serialize(kv.Value);
+                }
+                catch
+                {
+                    try
+                    {
+                        if (kv.Value == null)
+                            value = "null";
+                        else
+                            value = '"' + (kv.Value?.ToString()?.Replace("\"", "\\\"") ?? "") + '"';
+                    }
+                    catch
+                    {
+                        value = "\"*** Error to convert value ***\"";
+                    }
+                }
+
+                lines.Add($"\"{kv.Key.Replace("\"", "\\\"")}\":{value}");
+            }
+
+            return "{" + string.Join(",", lines) + "}";
+        }
+    }
+}

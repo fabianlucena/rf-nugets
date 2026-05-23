@@ -18,6 +18,9 @@ namespace RFBaseEF.Repositories
             {
                 if (creatableOptions.IncludeCreatedBy)
                     queryable = queryable.Include(u => u.CreatedBy);
+
+                if (creatableOptions.CreatedAfter is not null)
+                    queryable = queryable.Where(e => e.CreatedAt >= creatableOptions.CreatedAfter);
             }
 
             return queryable;

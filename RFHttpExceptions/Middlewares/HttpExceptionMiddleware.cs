@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using RFHttpExceptions.IExceptions;
+using RFBase.IExceptions;
 using System.Text.Json;
 
 namespace RFHttpExceptions.Middlewares
