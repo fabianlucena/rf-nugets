@@ -30,6 +30,20 @@ namespace RFServices.Services
             return GetSingleOrDefaultAsync(options);
         }
 
+        public async Task<T> GetSingleByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? completeCreateData = null)
+        {
+            var entity = await GetSingleOrDefaultByNameAsync(name, options);
+            if (entity != null)
+                return entity;
+
+            entity = new T { Name = name };
+            if (completeCreateData != null)
+                entity = await completeCreateData(entity);
+
+            var createdEntity = await CreateAsync(entity);
+            return createdEntity;
+        }
+
         public Task<long?> GetSingleIdOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null)
         {
             options = (NominableEntityQueryOptions?)options?.Clone() ?? new NominableEntityQueryOptionsClonable();
@@ -41,18 +55,13 @@ namespace RFServices.Services
             => await GetSingleIdOrDefaultByNameAsync(name, options)
                 ?? throw new NoEntityFoundForNameException(name);
 
-        public async Task<long> GetSingleIdByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<Task<T>, T>? completeCreateData = null)
+        public async Task<long> GetSingleIdByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? completeCreateData = null)
         {
-            var id = await GetSingleIdOrDefaultByNameAsync(name, options);
-            if (id != null)
-                return id.Value;
-
-            var entity = new T { Name = name };
-            if (completeCreateData != null)
-                entity = completeCreateData(Task.FromResult(entity));
-
-            var createdEntity = await CreateAsync(entity);
-            return createdEntity.Id;
+            var entity = await GetSingleByNameOrCreateAsync(name, options, completeCreateData);
+            return entity.Id;
         }
+
+        public Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, NominableEntityQueryOptions? options = null)
+            => GetNamesByIdsAsync(ids, options);
     }
 }

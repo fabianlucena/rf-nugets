@@ -1,5 +1,6 @@
 ﻿using RFEntities.Entities;
 using RFIServices.IServices;
+using RFIServices.QueryOptions;
 
 namespace RFServices.Decorators
 {
@@ -10,5 +11,8 @@ namespace RFServices.Decorators
     {
         public virtual Task<T> Translate(T entity)
             => localizableEntityService.Translate(entity);
+
+        public virtual Task<T> GetSingleByNameOrCreateAsync(string name, LocalizableEntityQueryOptions? options = null, Func<T, Task<T>>? completeCreateData = null)
+            => localizableEntityService.GetSingleByNameOrCreateAsync(name, options, completeCreateData);
     }
 }

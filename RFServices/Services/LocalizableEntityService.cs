@@ -1,6 +1,7 @@
 ﻿using RFEntities.Entities;
 using RFIRepositories.IRepositories;
 using RFIServices.IServices;
+using RFIServices.QueryOptions;
 using RFL10n;
 
 namespace RFServices.Services
@@ -27,6 +28,21 @@ namespace RFServices.Services
                 entity = (T)entity.Clone();
                 entity.Title = await l10n._(entity.Title);
             }
+
+            return entity;
+        }
+
+        public async Task<T> GetSingleByNameOrCreateAsync(string name, LocalizableEntityQueryOptions? options = null, Func<T, Task<T>>? completeCreateData = null)
+        {
+            var entity = await GetSingleOrDefaultByNameAsync(name, options);
+            if (entity != null)
+                return entity;
+
+            entity = new T { Name = name };
+            if (completeCreateData != null)
+                entity = await completeCreateData(entity);
+
+            entity = await CreateAsync(entity);
 
             return entity;
         }

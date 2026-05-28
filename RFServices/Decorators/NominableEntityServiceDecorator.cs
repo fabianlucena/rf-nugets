@@ -9,10 +9,16 @@ namespace RFServices.Decorators
         INominableEntityService<T>
         where T : NominableEntity, new()
     {
+        public Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, NominableEntityQueryOptions? options = null)
+            => nominableEntityService.GetNamesByIdsAsync(ids, options);
+
+        public Task<T> GetSingleByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? createData = null)
+            => nominableEntityService.GetSingleByNameOrCreateAsync(name, options, createData);
+
         public Task<long> GetSingleIdByNameAsync(string name, NominableEntityQueryOptions? options = null)
             => nominableEntityService.GetSingleIdByNameAsync(name, options);
 
-        public Task<long> GetSingleIdByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<Task<T>, T>? completeCreateData = null)
+        public Task<long> GetSingleIdByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? completeCreateData = null)
             => nominableEntityService.GetSingleIdByNameOrCreateAsync(name, options, completeCreateData);
 
         public Task<long?> GetSingleIdOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null)
