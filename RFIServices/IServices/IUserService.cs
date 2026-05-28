@@ -6,6 +6,7 @@ namespace RFIServices.IServices
     public interface IUserService : ICommonEntityService<User>
     {
         Task<User> GetSingleByUsernameAsync(string username, UserQueryOptions? options = null);
+        Task<User> GetSingleByUsernameOrCreateAsync(string username, UserQueryOptions? options = null, Func<User, Task<User>>? completeCreateData = null);
 
         Task<long> GetSingleIdByUsernameAsync(string username, UserQueryOptions? options = null);
 
