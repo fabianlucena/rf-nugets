@@ -30,10 +30,10 @@ namespace RFOauth2Client.Service
                     foreach (var child in providersSection.GetChildren())
                     {
                         configurationProviders.Add(new Provider {
-                            Name = child.GetValue<string?>("name") ?? "",
-                            Disabled = child.GetValue<bool?>("disabled") ?? false,
-                            ClientId = child.GetValue<string?>("clientId") ?? "",
-                            ClientSecret = child.GetValue<string?>("clientSecret") ?? "",
+                            Name = child["name"] ?? "",
+                            Disabled = bool.TryParse(child["disabled"], out var disabled) && disabled,
+                            ClientId = child["clientId"] ?? "",
+                            ClientSecret = child["clientSecret"] ?? "",
                             Actions = new DataDictionary(child.GetSection("actions")),
                         });
                     }
