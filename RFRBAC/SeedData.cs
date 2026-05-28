@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFRBAC.IServices;
+using RFServices.Attributes;
 
 namespace RFRBAC
 {
-    public static class SeedSystemData
+    public static class SeedData
     {
+        [SeedData(true)]
         public static async Task Setup(IServiceProvider provider)
         {
             var permissionXRoleService = provider.GetService<IPermissionXRoleService>();

@@ -2,11 +2,13 @@
 using RFAuth.IServices;
 using RFEntities.Entities;
 using RFIServices.IServices;
+using RFServices.Attributes;
 
 namespace RFAuth
 {
-    public static class SeedSystemData
+    public static class SeedData
     {
+        [SeedData(true)]
         public static async Task Setup(IServiceProvider provider)
         {
             var userTypeService = provider.GetService<IUserTypeService>() ??
