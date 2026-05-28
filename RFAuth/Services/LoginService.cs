@@ -15,10 +15,10 @@ namespace RFAuth.Services
         IDeviceService deviceService
     ) : ILoginService
     {
-        public async Task<Session> LoginAsync(long userId, long deviceId, IDataDictionary? data)
+        public async Task<Session> LoginAsync(UserIdAndDeviceIdDTO request, IDataDictionary? data)
         {
-            var session = await sessionService.CreateAsync(userId, deviceId, data);
-            await userService.UpdateLastLoginAtByUserIdAsync(userId);
+            var session = await sessionService.CreateAsync(request.UserId, request.DeviceId, data);
+            await userService.UpdateLastLoginAtByUserIdAsync(request.UserId);
 
             return session;
         }
@@ -42,7 +42,7 @@ namespace RFAuth.Services
 
             var device = await deviceService.GetSingleByTokenOrCreateAsync(request.DeviceToken);
 
-            var session = await LoginAsync(user.Id, device.Id, data);
+            var session = await LoginAsync(new UserIdAndDeviceIdDTO { UserId = user.Id, DeviceId = device.Id }, data);
             session.User = user;
             session.Device = device;
 
