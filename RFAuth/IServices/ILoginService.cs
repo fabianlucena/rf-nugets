@@ -6,6 +6,7 @@ namespace RFAuth.IServices
 {
     public interface ILoginService
     {
+        Task<Session> LoginAsync(long userId, long deviceId, IDataDictionary? data = null);
         Task<Session> LoginAsync(LoginRequest request, IDataDictionary? data = null);
         Task<Session> AutoLoginAsync(AutoLoginRequest request, IDataDictionary? data = null);
     }

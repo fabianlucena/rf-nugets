@@ -148,5 +148,23 @@ namespace RFAuth.Services
 
             return true;
         }
+
+        public async Task<bool> CreateIfNotExistsByUsernameAsync(string password, string username)
+        {
+            var userService = serviceProvider.GetRequiredService<IUserService>();
+            var userId = await userService.GetSingleIdByUsernameAsync(username);
+
+            var userPassword = await GetSingleOrDefaultByUserIdAsync(userId);
+            if (userPassword != null)
+                return false;
+
+            await CreateAsync(new UserPassword
+            {
+                UserId = userId,
+                PasswordHash = HashPassword(password)
+            });
+
+            return true;
+        }
     }
 }

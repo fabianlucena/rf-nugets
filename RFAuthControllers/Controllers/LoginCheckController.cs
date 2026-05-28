@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RFAuth.IServices;
 using RFAuthControllers.Exceptions;
 
 namespace RFAuthControllers.Controllers
@@ -8,13 +9,13 @@ namespace RFAuthControllers.Controllers
     [ApiController]
     [Route("v1/login-check")]
     public class LoginCheckController(
-        ILogger<LoginController> logger
+        IRFAuthLoggerService loggerService
     ) : ControllerBase
     {
         [HttpPost]
         public async Task<IActionResult> PostAsync()
         {
-            logger.LogInformation("Check login");
+            await loggerService.AddInfoGetAsync("Check login");
 
             var userId = HttpContext.Items["UserId"] as long?;
             if (userId == null || userId == 0)

@@ -1,10 +1,12 @@
-﻿using RFEntities.Entities;
+﻿using RFEntities.Attributes;
+using RFEntities.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFAuth.Entities
 {
     [Table("UserPasswords", Schema = "auth")]
+    [Index(nameof(UserId), IsUnique = true)]
     public sealed class UserPassword
         : NoIdEntity
     {

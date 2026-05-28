@@ -8,6 +8,9 @@ namespace RFAuth.Decorators
     public class LoginServiceDecoratorBase(ILoginService loginService)
         : ILoginService
     {
+        public virtual Task<Session> LoginAsync(long userId, long deviceId, IDataDictionary? data = null)
+            => loginService.LoginAsync(userId, deviceId, data);
+
         public virtual Task<Session> AutoLoginAsync(AutoLoginRequest request, IDataDictionary? data = null)
             => loginService.AutoLoginAsync(request, data);
 

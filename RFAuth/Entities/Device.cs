@@ -1,9 +1,11 @@
-﻿using RFEntities.Entities;
+﻿using RFEntities.Attributes;
+using RFEntities.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFAuth.Entities
 {
     [Table("Devices", Schema = "auth")]
+    [Index(nameof(Token), IsUnique = true)]
     public sealed class Device : CreatableEntity
     {
         public string Token { get; set; } = string.Empty;

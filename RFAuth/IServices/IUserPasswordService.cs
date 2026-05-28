@@ -11,6 +11,7 @@ namespace RFAuth.IServices
         Task<UserPassword> GetSingleByUserAsync(User user);
         Task<UserPassword?> GetSingleOrDefaultByUserAsync(User user);
         Task<int> UpdateByUserIdAsync(IDataDictionary data, long userId);
+        Task<bool> CreateIfNotExistsByUsernameAsync(string password, string username);
         Task<bool> CreateOrUpdateByUserIdAsync(string password, long userId);
         Task<bool> CreateOrUpdateByUsernameAsync(string password, string username);
         Task<bool> CheckPasswordByUserIdAsync(string password, long userId);

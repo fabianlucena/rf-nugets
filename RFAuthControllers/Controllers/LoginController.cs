@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using RFAuthIServices.DTO;
-using RFAuthIServices.IServices;
-using RFBaseEntities.Libs;
-using RFBaseEntities.ILibs;
+using RFAuth.IServices;
+using RFAuth.DTO;
+using RFBase.Libs;
 
 namespace RFAuthControllers.Controllers
 {
@@ -11,13 +9,13 @@ namespace RFAuthControllers.Controllers
     [Route("v1/login")]
     public class LoginController(
         ILoginService loginService,
-        ILogger<LoginController> logger
+        IRFAuthLoggerService loggerService
     ) : ControllerBase
     {
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] LoginRequest request)
         {
-            logger.LogInformation("Login {@Data}", new
+            await loggerService.AddInfoGetAsync("Login", () => new
             {
                 Username = request.Username,
                 Password = "****",

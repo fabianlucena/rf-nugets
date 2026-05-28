@@ -15,42 +15,36 @@ namespace RFAuth.Services
         IDeviceService deviceService
     ) : ILoginService
     {
+        public async Task<Session> LoginAsync(long userId, long deviceId, IDataDictionary? data)
+        {
+            var session = await sessionService.CreateAsync(userId, deviceId, data);
+            await userService.UpdateLastLoginAtByUserIdAsync(userId);
+
+            return session;
+        }
+
         public async Task<Session> LoginAsync(LoginRequest request, IDataDictionary? data)
         {
-            long userId = request.UserId;
-            if (userId == 0)
-            {
-                var user = await userService.GetSingleByUsernameAsync(request.Username)
-                    ?? throw new UserNotFoundException();
+            var user = await userService.GetSingleByUsernameAsync(request.Username)
+                ?? throw new UserNotFoundException();
 
-                if (user.DeletedAt.HasValue)
-                    throw new UserIsDeletedException();
+            if (user.DeletedAt.HasValue)
+                throw new UserIsDeletedException();
 
-                if (!user.IsActive)
-                    throw new UserIsNotActiveException();
+            if (!user.IsActive)
+                throw new UserIsNotActiveException();
 
-                if (!user.CanLogin)
-                    throw new UserIsNotAllowedToLoginException();
+            if (!user.CanLogin)
+                throw new UserIsNotAllowedToLoginException();
 
-                if (!await userPasswordService.CheckPasswordByUserIdAsync(request.Password, user.Id))
-                    throw new InvalidPasswordException();
+            if (!await userPasswordService.CheckPasswordByUserIdAsync(request.Password, user.Id))
+                throw new InvalidPasswordException();
 
-                userId = user.Id;
-            }
+            var device = await deviceService.GetSingleByTokenOrCreateAsync(request.DeviceToken);
 
-            long deviceId = request.DeviceId;
-            if (deviceId == 0)
-            {
-                var device = await deviceService.GetSingleByTokenOrCreateAsync(request.DeviceToken);
-
-                deviceId = device.Id;
-            }
-
-            var session = await sessionService.CreateAsync(userId, deviceId, data);
-            //session.User = user;
-            //session.Device = device;
-
-            await userService.UpdateLastLoginAtByUserIdAsync(userId);
+            var session = await LoginAsync(user.Id, device.Id, data);
+            session.User = user;
+            session.Device = device;
 
             return session;
         }
@@ -77,27 +71,19 @@ namespace RFAuth.Services
                 ?? throw new UserNotFoundException();
             
             if (user.DeletedAt.HasValue)
-            {
                 throw new UserIsDeletedException();
-            }
 
             if (!user.IsActive)
-            {
                 throw new UserIsNotActiveException();
-            }
 
             if (!user.CanLogin)
-            {
                 throw new UserIsNotAllowedToLoginException();
-            }
 
             var device = previousSession.Device
                 ?? throw new DeviceNotFoundException();
 
             if (device.Token != request.DeviceToken)
-            {
                 throw new DeviceTokenMismatchException();
-            }
 
             var session = await sessionService.CreateAsync(user.Id, device.Id, data);
             session.User = user;
