@@ -2,7 +2,7 @@
 
 namespace RFRBAC.QueryOptions
 {
-    public class RoleQueryOptions : CommonEntityQueryOptions
+    public class RoleQueryOptions : LocalizableEntityQueryOptions
     {
         public IEnumerable<long>? Ids { get; set; }
 

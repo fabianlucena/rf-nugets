@@ -4,8 +4,8 @@ using RFRBAC.QueryOptions;
 
 namespace RFRBAC.IServices
 {
-    public interface IRoleService : ICommonEntityService<Role>
+    public interface IRoleService : INominableEntityService<Role>
     {
-        Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, RoleQueryOptions? options = null);
+        Task<long> GetSingleIdOrCreateByNameAsync(string name, RoleQueryOptions? options = null);
     }
 }
