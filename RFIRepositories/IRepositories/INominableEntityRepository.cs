@@ -1,4 +1,5 @@
 ﻿using RFEntities.Entities;
+using RFIServices.QueryOptions;
 
 namespace RFIRepositories.IRepositories
 {
@@ -6,5 +7,6 @@ namespace RFIRepositories.IRepositories
         : ICommonEntityRepository<T>
         where T : NominableEntity, new()
     {
+        Task<IEnumerable<string>> GetNamesAsync(NominableEntityQueryOptions options);
     }
 }
