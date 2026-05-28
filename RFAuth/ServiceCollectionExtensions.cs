@@ -6,7 +6,7 @@ namespace RFAuth
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddRFAuth(this IServiceCollection services)
+        public static IServiceCollection AddRFAuthServices(this IServiceCollection services)
         {
             services.AddScoped<IUserPasswordService, UserPasswordService>();
             services.AddScoped<IDeviceService, DeviceService>();

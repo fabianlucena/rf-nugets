@@ -4,13 +4,13 @@ using RFOauth2Client.Service;
 
 namespace RFOauth2Client
 {
-    public static class MvcServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
-        public static void AddRFOauth2Client(this IServiceCollection services)
+        public static IServiceCollection AddRFOauth2ClientServices(this IServiceCollection services)
         {
             services.AddScoped<IProviderService, ProviderService>();
 
-            services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+            return services;
         }
     }
 }
