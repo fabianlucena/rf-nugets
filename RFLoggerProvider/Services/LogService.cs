@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using RFBase.Libs;
 using RFLogger.Types;
 using RFLoggerProvider.Entities;
 using RFLoggerProvider.Exceptions;
