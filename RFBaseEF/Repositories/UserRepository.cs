@@ -22,6 +22,11 @@ namespace RFBaseEF.Repositories
 
                 if (userOptions.Username != null)
                     queryable = queryable.Where(u => u.Username == userOptions.Username);
+
+                if (userOptions.TypeUuid != null)
+                    queryable = queryable
+                        .Include(u => u.Type)
+                        .Where(u => u.Type.Uuid == userOptions.TypeUuid);
             }
 
             return queryable;
