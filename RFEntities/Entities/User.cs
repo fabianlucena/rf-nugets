@@ -1,10 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFEntities.Entities
 {
     [Table("Users", Schema = "auth")]
     public sealed class User : CommonEntity
     {
+        [Required]
+        [ForeignKey("Type")]
+        public long TypeId { get; set; } = default;
+        public UserType? Type { get; set; } = default;
+
         public string Username { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
