@@ -9,7 +9,7 @@ namespace RFBase.Libs
 {
     public static class QueryCollectionExtensions
     {
-        public static QueryCollection GetPascalized(this IQueryCollection data)
+        public static IQueryCollection GetPascalized(this IQueryCollection data)
         {
             var result = new Dictionary<string, StringValues>();
 
