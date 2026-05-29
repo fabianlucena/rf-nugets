@@ -2,10 +2,13 @@
 using RFAuth.Entities;
 using RFAuth.IRepositories;
 using RFAuth.QueryOptions;
+using RFEntitiesEF.Repositories;
 using RFIServices.QueryOptions;
+using RFServices.Attributes;
 
 namespace RFAuthEF.Repositories
 {
+    [RegisterService]
     public class DeviceRepository(DbContext context)
         : CreatableEntityRepository<Device>(context),
         IDeviceRepository
