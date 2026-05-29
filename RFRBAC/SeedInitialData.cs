@@ -4,10 +4,10 @@ using RFServices.Attributes;
 
 namespace RFRBAC
 {
-    public static class SeedData
+    [SeedData(true)]
+    public static class SeedInitialData
     {
-        [SeedData(true)]
-        public static async Task Setup(IServiceProvider provider)
+        public static async Task Run(IServiceProvider provider)
         {
             var permissionXRoleService = provider.GetService<IPermissionXRoleService>();
             if (permissionXRoleService != null)
