@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RFIRepositories\RFIRepositories.csproj" />
+    <ProjectReference Include="..\RFServices\RFServices.csproj" />
   </ItemGroup>
 
 </Project>
