@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RFAuthEntities.Entities;
-using RFAuthEntities.QueryOptions;
-using RFAuthIRepositories.Repositories;
-using RFBaseEF.Repositories;
-using RFBaseEntities.QueryOptions;
+using RFAuth.Entities;
+using RFAuth.IRepositories;
+using RFAuth.QueryOptions;
+using RFEntitiesEF.Repositories;
+using RFIServices.QueryOptions;
 
 namespace RFAuthEF.Repositories
 {
@@ -24,8 +24,8 @@ namespace RFAuthEF.Repositories
                 if (sessionOptions.IncludeDevice)
                     queryable = queryable.Include(d => d.Device);
 
-                if (sessionOptions.Token != null)
-                    queryable = queryable.Where(s => s.Token == sessionOptions.Token);
+                if (sessionOptions.AuthorizationToken != null)
+                    queryable = queryable.Where(s => s.AuthorizationToken == sessionOptions.AuthorizationToken);
 
                 if (sessionOptions.AutoLoginToken != null)
                     queryable = queryable.Where(s => s.AutoLoginToken == sessionOptions.AutoLoginToken);
