@@ -7,9 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RFAuthEntities\RFAuthEntities.csproj" />
-    <ProjectReference Include="..\RFAuthIRepositories\RFAuthIRepositories.csproj" />
-    <ProjectReference Include="..\RFBaseEF\RFBaseEF.csproj" />
+    <ProjectReference Include="..\RFAuth\RFAuth.csproj" />
   </ItemGroup>
 
   <ItemGroup>

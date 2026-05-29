@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RFAuthEntities.Entities;
-using RFAuthEntities.QueryOptions;
-using RFAuthIRepositories.Repositories;
-using RFBaseEF.Repositories;
-using RFBaseEntities.QueryOptions;
+using RFAuth.Entities;
+using RFAuth.IRepositories;
+using RFAuth.QueryOptions;
+using RFIServices.QueryOptions;
 
 namespace RFAuthEF.Repositories
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFAuthEF.Repositories;
-using RFAuthIRepositories.Repositories;
+using RFAuth.IRepositories;
 
 namespace RFAuthEF
 {
