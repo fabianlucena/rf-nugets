@@ -1,20 +1,22 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.Extensions.DependencyInjection;
 using RFAuth.Entities;
-using RFAuth.QueryOptions;
-using RFAuth.IServices;
-using System.Security.Cryptography;
+using RFAuth.Exceptions;
 using RFAuth.IRepositories;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using RFEntities.Entities;
+using RFAuth.IServices;
+using RFAuth.QueryOptions;
 using RFBase.ILibs;
 using RFBase.Libs;
+using RFEntities.Entities;
 using RFIServices.IServices;
-using RFAuth.Exceptions;
-using RFServices.Services;
+using RFServices.Attributes;
 using RFServices.Exceptions;
+using RFServices.Services;
+using System.Security.Cryptography;
 
 namespace RFAuth.Services
 {
+    [RegisterService]
     public class UserPasswordService(
         IUserPasswordRepository userPasswordRepository,
         IServiceProvider serviceProvider

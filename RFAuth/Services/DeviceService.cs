@@ -4,9 +4,11 @@ using RFAuth.IServices;
 using RFAuth.IRepositories;
 using RFServices.Services;
 using RFBase.Libs;
+using RFServices.Attributes;
 
 namespace RFAuth.Services
 {
+    [RegisterService]
     public class DeviceService(IDeviceRepository deviceRepository)
         : CreatableEntityService<Device>(deviceRepository),
         IDeviceService

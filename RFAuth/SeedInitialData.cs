@@ -6,10 +6,10 @@ using RFServices.Attributes;
 
 namespace RFAuth
 {
-    public static class SeedData
+    [SeedData(true)]
+    public static class SeedInitialData
     {
-        [SeedData(true)]
-        public static async Task Setup(IServiceProvider provider)
+        public static async Task Run(IServiceProvider provider)
         {
             var userTypeService = provider.GetService<IUserTypeService>() ??
                 throw new Exception("Can't get IUserTypeService.");

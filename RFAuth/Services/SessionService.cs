@@ -1,14 +1,16 @@
 ﻿using RFAuth.Entities;
-using RFAuth.QueryOptions;
-using RFAuth.IServices;
-using System.Text.Json;
 using RFAuth.IRepositories;
-using RFBase.Libs;
-using RFServices.Services;
+using RFAuth.IServices;
+using RFAuth.QueryOptions;
 using RFBase.ILibs;
+using RFBase.Libs;
+using RFServices.Attributes;
+using RFServices.Services;
+using System.Text.Json;
 
 namespace RFAuth.Services
 {
+    [RegisterService]
     public class SessionService(ISessionRepository sessionRepository)
         : CreatableEntityService<Session>(sessionRepository),
         ISessionService

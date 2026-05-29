@@ -1,13 +1,15 @@
-﻿using RFAuth.Entities;
-using RFAuth.QueryOptions;
-using RFAuth.DTO;
-using RFAuth.IServices;
+﻿using RFAuth.DTO;
+using RFAuth.Entities;
 using RFAuth.Exceptions;
-using RFIServices.IServices;
+using RFAuth.IServices;
+using RFAuth.QueryOptions;
 using RFBase.ILibs;
+using RFIServices.IServices;
+using RFServices.Attributes;
 
 namespace RFAuth.Services
 {
+    [RegisterService]
     public class LoginService(
         IUserService userService,
         IUserPasswordService userPasswordService,
