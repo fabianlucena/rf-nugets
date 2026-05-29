@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RFL10n\RFL10n.csproj" />
     <ProjectReference Include="..\RFHttpExceptions\RFHttpExceptions.csproj" />
+    <ProjectReference Include="..\RFServices\RFServices.csproj" />
   </ItemGroup>
 
 </Project>
