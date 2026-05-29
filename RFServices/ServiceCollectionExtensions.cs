@@ -37,7 +37,7 @@ namespace RFServices
                     {
                         interfaces = [.. allInterfaces.Where(i => i.Name == iName)];
                         if (interfaces.Length == 0)
-                            interfaces = allInterfaces;
+                            interfaces = [..allInterfaces.Where(i => i.Namespace != null && !i.Namespace.StartsWith("Microsoft."))];
                     }
 
                     if (interfaces.Length == 0)
@@ -45,7 +45,10 @@ namespace RFServices
                 }
 
                 foreach (var iface in interfaces)
+                {
+                    Console.WriteLine($"Registering {type.Name} as {iface.Name}");
                     services.Add(new ServiceDescriptor(iface, type, attr.Lifetime));
+                }
             }
 
             return services;
