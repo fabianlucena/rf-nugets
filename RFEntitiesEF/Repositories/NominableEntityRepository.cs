@@ -20,5 +20,14 @@ namespace RFEntitiesEF.Repositories
 
             return queryable;
         }
+
+        public async Task<IEnumerable<string>> GetNamesAsync(NominableEntityQueryOptions options)
+        {
+            var list = await GetDBSet(options)
+                .Select(e => e.Name)
+                .ToListAsync();
+
+            return list;
+        }
     }
 }
