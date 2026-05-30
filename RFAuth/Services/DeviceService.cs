@@ -5,11 +5,16 @@ using RFAuth.IRepositories;
 using RFServices.Services;
 using RFBase.Libs;
 using RFServices.Attributes;
+using RFIServices.IServices;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace RFAuth.Services
 {
     [RegisterService]
-    public class DeviceService(IDeviceRepository deviceRepository)
+    public class DeviceService(
+        IDeviceRepository deviceRepository,
+        IServiceProvider serviceProvider
+    )
         : CreatableEntityService<Device>(deviceRepository),
         IDeviceService
     {
@@ -17,6 +22,12 @@ namespace RFAuth.Services
 
         public override async Task<Device> ValidateForCreateAsync(Device device)
         {
+            if (device.CreatedById == 0)
+            {
+                var userService = serviceProvider.GetRequiredService<IUserService>();
+                device.CreatedById = await userService.GetCurrentOrSystemUserIdAsync();
+            }
+
             device = await base.ValidateForCreateAsync(device);
 
             if (string.IsNullOrEmpty(device.Token))

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RFEntities.Entities;
 
 namespace RFEntitiesEF.ETConfigurations
@@ -9,6 +10,11 @@ namespace RFEntitiesEF.ETConfigurations
         public override void Configure(EntityTypeBuilder<User> entity)
         {
             base.Configure(entity);
+
+            entity.HasOne(u => u.Type)
+                  .WithMany()
+                  .HasForeignKey(u => u.TypeId)
+                  .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
