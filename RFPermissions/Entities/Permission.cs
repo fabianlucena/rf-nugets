@@ -1,9 +1,11 @@
-﻿using RFEntities.Entities;
+﻿using RFEntities.Attributes;
+using RFEntities.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFPermissions.Entities
 {
     [Table("Permissions", Schema = "auth")]
+    [Index(nameof(Name), IsUnique = true)]
     public sealed class Permission : ImmutableEntity
     {
         public string Name { get; set; } = string.Empty;

@@ -1,9 +1,11 @@
-﻿using RFEntities.Entities;
+﻿using RFEntities.Attributes;
+using RFEntities.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFRBAC.Entities
 {
     [Table("RolesIncludes", Schema = "auth")]
+    [Index(nameof(RoleId), nameof(IncludeId), IsUnique = true)]
     public sealed class RoleInclude : CommonJoin
     {
         public long RoleId { get; set; }
