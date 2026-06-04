@@ -22,6 +22,7 @@ namespace RFServices
                 .Where(t => t.GetCustomAttribute<RegisterServiceAttribute>() != null)
                 .Where(t => t.IsClass && !t.IsAbstract);
 
+            var interfacesToRegister = new List<(Type ServiceType, Type ImplementationType, ServiceLifetime Lifetime)>();
             foreach (var type in types)
             {
                 var attr = type.GetCustomAttribute<RegisterServiceAttribute>()!;
@@ -44,10 +45,19 @@ namespace RFServices
                         interfaces = [type];
                 }
 
-                foreach (var iface in interfaces)
+                interfacesToRegister = [
+                    ..interfacesToRegister,
+                    ..interfaces.Select(t => (ServiceType: t, ImplementationType: type, attr.Lifetime))
+                ];
+            }
+
+            if (interfacesToRegister.Count > 0)
+            {
+                Console.WriteLine($"Registering services:");
+                foreach (var (ServiceType, ImplementationType, Lifetime) in interfacesToRegister)
                 {
-                    Console.WriteLine($"Registering {type.Name} as {iface.Name}");
-                    services.Add(new ServiceDescriptor(iface, type, attr.Lifetime));
+                    Console.WriteLine($"  {ServiceType.Name} -> {ImplementationType.Name}");
+                    services.Add(new ServiceDescriptor(ImplementationType, ServiceType, Lifetime));
                 }
             }
 
