@@ -1,4 +1,5 @@
-﻿using RFEntities.Entities;
+﻿using RFBase.Libs;
+using RFEntities.Entities;
 using RFIServices.IServices;
 using RFIServices.QueryOptions;
 
@@ -25,5 +26,8 @@ namespace RFServices.Decorators
 
         public Task<T?> GetSingleOrDefaultAsync(BaseQueryOptions options)
             => baseService.GetSingleOrDefaultAsync(options);
+
+        public Task<int> UpdateAsync(DataDictionary data, BaseQueryOptions options)
+            => baseService.UpdateAsync(data, options);
     }
 }

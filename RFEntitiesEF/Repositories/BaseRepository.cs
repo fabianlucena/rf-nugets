@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RFBase.Libs;
 using RFEntities.Entities;
 using RFIServices.QueryOptions;
 
@@ -49,6 +50,28 @@ namespace RFEntitiesEF.Repositories
                 .ToListAsync();
 
             return list;
+        }
+
+        public virtual async Task<int> UpdateAsync(DataDictionary data, BaseQueryOptions options)
+        {
+            var list = await GetListAsync(options);
+
+            var result = 0;
+            foreach (var entity in list)
+            {
+                context.Attach(entity);
+
+                foreach (var kv in data)
+                {
+                    context.Entry(entity).Property(kv.Key).CurrentValue = kv.Value;
+                    context.Entry(entity).Property(kv.Key).IsModified = true;
+                }
+
+                await context.SaveChangesAsync();
+                result++;
+            }
+
+            return result;
         }
     }
 }

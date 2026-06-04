@@ -1,4 +1,5 @@
-﻿using RFEntities.Entities;
+﻿using RFBase.Libs;
+using RFEntities.Entities;
 using RFIServices.QueryOptions;
 
 namespace RFIServices.IServices
@@ -11,5 +12,7 @@ namespace RFIServices.IServices
         Task<T?> GetFirstOrDefaultAsync(BaseQueryOptions options);
         Task<T> GetSingleAsync(BaseQueryOptions options);
         Task<T?> GetSingleOrDefaultAsync(BaseQueryOptions options);
+
+        Task<int> UpdateAsync(DataDictionary data, BaseQueryOptions options);
     }
 }

@@ -1,9 +1,11 @@
-﻿using RFEntities.Entities;
-using RFIServices.QueryOptions;
+﻿using Microsoft.Extensions.Options;
+using RFBase.ILibs;
+using RFBase.Libs;
+using RFEntities.Entities;
 using RFIRepositories.IRepositories;
 using RFIServices.IServices;
+using RFIServices.QueryOptions;
 using RFServices.Exceptions;
-using RFBase.ILibs;
 
 namespace RFServices.Services
 {
@@ -64,5 +66,8 @@ namespace RFServices.Services
         public virtual async Task<T> GetSingleAsync(BaseQueryOptions options)
             => await GetSingleOrDefaultAsync(options)
                 ?? throw new NoEntityFoundMatchingTheSpecifiedCriteriaException();
+
+        public virtual async Task<int> UpdateAsync(DataDictionary data, BaseQueryOptions options)
+            => await repository.UpdateAsync(data, options);
     }
 }
