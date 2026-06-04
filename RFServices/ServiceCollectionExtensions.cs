@@ -56,8 +56,8 @@ namespace RFServices
                 Console.WriteLine($"Registering services:");
                 foreach (var (ServiceType, ImplementationType, Lifetime) in interfacesToRegister)
                 {
-                    Console.WriteLine($"  {ServiceType.Name} -> {ImplementationType.Name}");
-                    services.Add(new ServiceDescriptor(ImplementationType, ServiceType, Lifetime));
+                    Console.WriteLine($"    {ServiceType.Name} -> {ImplementationType.Name}");
+                    services.Add(new ServiceDescriptor(ServiceType, ImplementationType, Lifetime));
                 }
             }
 
