@@ -30,7 +30,7 @@ public class ProviderService(IServiceProvider serviceProvider)
                 foreach (var child in providersSection.GetChildren())
                 {
                     configurationProviders.Add(new Provider {
-                        Name = child["name"] ?? "",
+                        Name = child["name"] ?? providersSection.Key,
                         Disabled = bool.TryParse(child["disabled"], out var disabled) && disabled,
                         ClientId = child["clientId"] ?? "",
                         ClientSecret = child["clientSecret"] ?? "",
