@@ -14,7 +14,7 @@ namespace RFOauth2Client.Entities
                 ?? throw new Exception($"Provider {provider.Name} does not have an authorize endpoint.");
 
             Name = provider.Name;
-            DisplayName = string.IsNullOrEmpty(provider.DisplayName) ? provider.DisplayName : "Login";
+            DisplayName = string.IsNullOrEmpty(provider.DisplayName) ? $"Login with {provider.Name}" : provider.DisplayName;
             URL = autorizeEndpoint.GetFullURL(provider, new Dictionary<string, string>{ { "response_type", "code" } });
         }
     }
