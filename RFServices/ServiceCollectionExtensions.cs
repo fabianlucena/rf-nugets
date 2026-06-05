@@ -53,10 +53,13 @@ namespace RFServices
 
             if (interfacesToRegister.Count > 0)
             {
-                Console.WriteLine($"Registering services:");
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.Write("info: ");
+                Console.ResetColor();
+                Console.WriteLine("Registering services:");
                 foreach (var (ServiceType, ImplementationType, Lifetime) in interfacesToRegister)
                 {
-                    Console.WriteLine($"    {ServiceType.Name} -> {ImplementationType.Name}");
+                    Console.WriteLine($"      {ServiceType.Name} -> {ImplementationType.Name}");
                     services.Add(new ServiceDescriptor(ServiceType, ImplementationType, Lifetime));
                 }
             }
