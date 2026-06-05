@@ -32,7 +32,7 @@ public class ProviderService(IServiceProvider serviceProvider)
                     var client = child as Client;
                     var provider = new Provider
                     {
-                        Name = child["name"] ?? providersSection.Key,
+                        Name = child["name"] ?? child.Key,
                         DisplayName = child["displayName"] ?? child["name"] ?? providersSection.Key,
                         IsEnabled = bool.TryParse(child["isEnabled"] ?? "true", out var isEnabled) && isEnabled,
                         Client = child.GetRequiredSection("client").Get<Client>()
@@ -53,8 +53,7 @@ public class ProviderService(IServiceProvider serviceProvider)
     }
 
     public async Task<IEnumerable<Provider>> GetListAuthorizeAsync()
-    {
-        return (await GetListAsync())
+        => (await GetListAsync())
             .Where(provider => provider.IsEnabled
                 && !string.IsNullOrEmpty(provider.Name)
                 && provider.Client is not null
@@ -66,13 +65,10 @@ public class ProviderService(IServiceProvider serviceProvider)
                 && authorizeEndpoint != null
                 && !string.IsNullOrEmpty(authorizeEndpoint.URL)
             );
-    }
     
     public async Task<Provider?> GetSingleOrDefaultByNameAsync(string name)
-    {
-        return (await GetListAsync())
+        => (await GetListAsync())
             .FirstOrDefault(p => p.Name == name);
-    }
 
     public async Task<object?> CallbackAsync(string name, string actionName, DataDictionary? data)
     {
@@ -119,14 +115,32 @@ public class ProviderService(IServiceProvider serviceProvider)
 
         var content = new FormUrlEncodedContent(queryParams);
 
+        var raw = await content.ReadAsStringAsync();
+        Console.WriteLine(raw);
+
         var client = new HttpClient();
         var res = await client.PostAsync(tokenUrl, content);
         var body = await res.Content.ReadAsStringAsync();
+        if (res.IsSuccessStatusCode)
+        {
+            var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(body);
+            var accessToken = tokenResponse?.AccessToken;
 
-        var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(body);
-        var accessToken = tokenResponse?.AccessToken;
+            return accessToken;
+        }
 
-        return accessToken;
+        var message = body;
+        try
+        {
+            var doc = JsonDocument.Parse(body);
+            var root = doc.RootElement;
+
+            message = root.GetProperty("error_description").ToString()
+                ?? root.GetProperty("error_reason").ToString()
+                ?? root.GetProperty("error").ToString();
+        } catch(JsonException) { }
+
+        throw new AuthorizationErrorException($"Error retrieving access token: {message}");
     }
 
     public static async Task<HttpResponseMessage> Get(Provider provider, Endpoint endpoint, string accessToken)
