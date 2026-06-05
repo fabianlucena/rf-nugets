@@ -1,9 +1,21 @@
-﻿namespace RFOauth2Client.Entities
+﻿using System.Net;
+
+namespace RFOauth2Client.Entities
 {
-    public class LoginProviderResponse(AuthorizeProvider authorizeProvider)
+    public class LoginProviderResponse
     {
-        public string Name { get; set; } = authorizeProvider.Name;
-        public string URL { get; set; } = authorizeProvider.Url;
-        public string Label { get; set; } = authorizeProvider.Label;
+        public string Name { get; set; }
+        public string DisplayName { get; set; }
+        public string URL { get; set; }
+
+        public LoginProviderResponse(Provider provider)
+        {
+            var autorizeEndpoint = provider.Endpoints.GetValueOrDefault("authorize")
+                ?? throw new Exception($"Provider {provider.Name} does not have an authorize endpoint.");
+
+            Name = provider.Name;
+            DisplayName = string.IsNullOrEmpty(provider.DisplayName) ? provider.DisplayName : "Login";
+            URL = autorizeEndpoint.GetFullURL(provider, new Dictionary<string, string>{ { "response_type", "code" } });
+        }
     }
 }

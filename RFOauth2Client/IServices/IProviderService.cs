@@ -7,7 +7,7 @@ namespace RFOauth2Client.IServices
     {
         Task<IEnumerable<Provider>> GetListAsync();
 
-        Task<IEnumerable<AuthorizeProvider>> GetListAuthorizeAsync();
+        Task<IEnumerable<Provider>> GetListAuthorizeAsync();
 
         Task<Provider?> GetSingleOrDefaultByNameAsync(string name);
 

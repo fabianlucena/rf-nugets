@@ -29,13 +29,20 @@ public class ProviderService(IServiceProvider serviceProvider)
             {
                 foreach (var child in providersSection.GetChildren())
                 {
-                    configurationProviders.Add(new Provider {
+                    var client = child as Client;
+                    var provider = new Provider
+                    {
                         Name = child["name"] ?? providersSection.Key,
-                        Disabled = bool.TryParse(child["disabled"], out var disabled) && disabled,
-                        ClientId = child["clientId"] ?? "",
-                        ClientSecret = child["clientSecret"] ?? "",
-                        Actions = new DataDictionary(child.GetSection("actions")),
-                    });
+                        DisplayName = child["displayName"] ?? child["name"] ?? providersSection.Key,
+                        IsEnabled = bool.TryParse(child["isEnabled"] ?? "true", out var isEnabled) && isEnabled,
+                        Client = child.GetRequiredSection("client").Get<Client>()
+                            ?? throw new Exception("No client section in OAuth2Providers configuration"),
+                        Endpoints = child.GetSection("endpoints").Get<Dictionary<string, Endpoint>>()
+                            ?? throw new Exception("No endpoints section in OAuth2Providers configuration"),
+                        Roles = child.GetSection("roles") as Roles,
+                        Features = child.GetSection("features") as Features,
+                    };
+                    configurationProviders.Add(provider);
                 }
             }
 
@@ -45,34 +52,22 @@ public class ProviderService(IServiceProvider serviceProvider)
         return ConfigurationProviders;
     }
 
-    public async Task<IEnumerable<AuthorizeProvider>> GetListAuthorizeAsync()
+    public async Task<IEnumerable<Provider>> GetListAuthorizeAsync()
     {
         return (await GetListAsync())
-            .Where(provider => !provider.Disabled
+            .Where(provider => provider.IsEnabled
                 && !string.IsNullOrEmpty(provider.Name)
-                && !string.IsNullOrEmpty(provider.ClientId)
-                && !string.IsNullOrEmpty(provider.ClientSecret)
-                && provider.Actions.ContainsKey("token")
-                && provider.Actions.TryGet<DataDictionary>("authorize", out var authorizeAction)
-                && authorizeAction != null
-                && !string.IsNullOrEmpty(authorizeAction.GetString("redirect_uri"))
-                && !string.IsNullOrEmpty(authorizeAction.GetString("url"))
-            )
-            .Select(provider => {
-                provider.Actions.TryGet<DataDictionary>("authorize", out var authorizeAction);
-                return new AuthorizeProvider
-                {
-                    Name = provider.Name,
-                    Label = authorizeAction.GetString("label") ?? "Login",
-                    ClientId = provider.ClientId,
-                    ResponseType = authorizeAction.GetString("response_type") ?? "code",
-                    RedirectUri = authorizeAction.GetString("redirect_uri")!,
-                    Scope = authorizeAction.GetString("scope") ?? string.Empty,
-                    Url = authorizeAction.GetString("url") ?? string.Empty
-                };
-            });
+                && provider.Client is not null
+                && !string.IsNullOrEmpty(provider.Client.ClientId)
+                && !string.IsNullOrEmpty(provider.Client.ClientSecret)
+                && !string.IsNullOrEmpty(provider.Client.RedirectUri)
+                && provider.Endpoints.ContainsKey("token")
+                && provider.Endpoints.TryGetValue("authorize", out var authorizeEndpoint)
+                && authorizeEndpoint != null
+                && !string.IsNullOrEmpty(authorizeEndpoint.URL)
+            );
     }
-
+    
     public async Task<Provider?> GetSingleOrDefaultByNameAsync(string name)
     {
         return (await GetListAsync())
@@ -95,35 +90,31 @@ public class ProviderService(IServiceProvider serviceProvider)
         if (provider == null)
             throw new ProviderIsNullException();
 
-        if (!provider.Actions.TryGet<DataDictionary>("token", out var tokenAction)
-            || tokenAction == null)
-            throw new ActionNotFoundInProviderException("token", provider.Name);
-        
-        var tokenUrl = tokenAction.GetString("url");
-        if (string.IsNullOrEmpty(tokenUrl))
-            throw new NoTokenURLInActionException();
-
-        var redirect_uri = tokenAction.GetString("redirect_uri");
-        if (string.IsNullOrEmpty(redirect_uri))
-        {
-            provider.Actions.TryGet<DataDictionary>("authorize", out var authorizeAction);
-            if (authorizeAction.TryGetNotNullOrEmptyString("redirect_uri", out var newRedirectUri))
-                redirect_uri = newRedirectUri;
-
-            if (string.IsNullOrEmpty(redirect_uri))
-                throw new NoRedirectURIInActionException();
-        }
-
         if (string.IsNullOrEmpty(code))
             throw new NoCodeProvidedInDataException();
 
+        if (!provider.Endpoints.TryGetValue("token", out var tokenEndpoint)
+            || tokenEndpoint == null)
+            throw new ActionNotFoundInProviderException("token", provider.Name);
+        
+        var tokenUrl = tokenEndpoint.URL;
+        if (string.IsNullOrEmpty(tokenUrl))
+            throw new NoTokenURLInActionException();
+
+        var redirectUri = provider.Client.RedirectUri;
+        if (string.IsNullOrEmpty(redirectUri))
+        {
+            if (string.IsNullOrEmpty(redirectUri))
+                throw new NoRedirectURIInActionException();
+        }
+
         var queryParams = new Dictionary<string, string>
         {
-            { "client_id", provider.ClientId },
-            { "client_secret", provider.ClientSecret },
+            { "client_id", provider.Client.ClientId },
+            { "client_secret", provider.Client.ClientSecret },
             { "code", code },
             { "grant_type", "authorization_code" },
-            { "redirect_uri", redirect_uri }
+            { "redirect_uri", redirectUri }
         };
 
         var content = new FormUrlEncodedContent(queryParams);
@@ -138,9 +129,9 @@ public class ProviderService(IServiceProvider serviceProvider)
         return accessToken;
     }
 
-    public static async Task<HttpResponseMessage> Get(DataDictionary actionData, string accessToken)
+    public static async Task<HttpResponseMessage> Get(Provider provider, Endpoint endpoint, string accessToken)
     {
-        var userInfoUrl = actionData.GetString("url");
+        var userInfoUrl = endpoint.GetFullURL(provider);
         if (string.IsNullOrEmpty(userInfoUrl))
             throw new NoUserInfoInActionException();
 
@@ -153,9 +144,9 @@ public class ProviderService(IServiceProvider serviceProvider)
         return response;
     }
 
-    public static async Task<T?> Get<T>(DataDictionary actionData, string accessToken)
+    public static async Task<T?> Get<T>(Provider provider, Endpoint endpoint, string accessToken)
     {
-        var response = await Get(actionData, accessToken);
+        var response = await Get(provider, endpoint, accessToken);
         var body = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<T>(body);
 
@@ -164,11 +155,11 @@ public class ProviderService(IServiceProvider serviceProvider)
 
     public static async Task<UserInfo?> GetUserInfo(Provider provider, string accessToken)
     {
-        if (!provider.Actions.TryGet<DataDictionary>("userInfo", out var userInfoAction)
-            || userInfoAction == null)
+        if (!provider.Endpoints.TryGetValue("userInfo", out var userInfoEndpoint)
+            || userInfoEndpoint == null)
             throw new NoUserInfoInProviderException(provider.Name);
 
-        return await Get<UserInfo>(userInfoAction, accessToken);
+        return await Get<UserInfo>(provider, userInfoEndpoint, accessToken);
     }
 
     public async Task<object?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data)

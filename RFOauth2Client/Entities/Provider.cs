@@ -5,9 +5,11 @@ namespace RFOauth2Client.Entities
     public class Provider
     {
         public string Name { get; set; } = string.Empty;
-        public bool Disabled { get; set; } = false;
-        public string ClientId { get; set; } = string.Empty;
-        public string ClientSecret { get; set; } = string.Empty;
-        public DataDictionary Actions { get; set; } = [];
+        public string DisplayName { get; set; } = string.Empty;
+        public bool IsEnabled { get; set; } = true;
+        public Client Client { get; set; } = new();
+        public Dictionary<string, Endpoint> Endpoints { get; set; } = [];
+        public Roles? Roles { get; set; }
+        public Features? Features { get; set; }
     }
 }
