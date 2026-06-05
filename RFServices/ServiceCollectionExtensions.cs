@@ -19,8 +19,7 @@ namespace RFServices
         {
             var types = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes())
-                .Where(t => t.GetCustomAttribute<RegisterServiceAttribute>() != null)
-                .Where(t => t.IsClass && !t.IsAbstract);
+                .Where(t => t.IsClass && !t.IsAbstract && t.GetCustomAttribute<RegisterServiceAttribute>() != null);
 
             var interfacesToRegister = new List<(Type ServiceType, Type ImplementationType, ServiceLifetime Lifetime)>();
             foreach (var type in types)

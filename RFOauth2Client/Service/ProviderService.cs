@@ -17,9 +17,7 @@ public class ProviderService(IServiceProvider serviceProvider)
 {
     static private List<Provider>? ConfigurationProviders = null;
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     public async Task<IEnumerable<Provider>> GetListAsync()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     {
         if (ConfigurationProviders == null)
         {
