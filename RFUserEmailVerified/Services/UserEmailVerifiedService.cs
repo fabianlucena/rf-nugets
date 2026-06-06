@@ -1,26 +1,43 @@
-﻿using RFService.IRepo;
-using RFService.Libs;
-using RFService.Repo;
-using RFService.Services;
+﻿using RFBase.Libs;
+using RFServices.Services;
 using RFUserEmailVerified.Entities;
+using RFUserEmailVerified.IRepositories;
 using RFUserEmailVerified.IServices;
+using RFUserEmailVerified.QueryOptions;
 
-namespace RFUserEmailVerified.Services
+namespace RFUserEmailVerified.Services;
+
+public class UserEmailVerifiedService(IUserEmailVerifiedRepository UserEmailVerifiedRepository)
+    : CommonEntityService<UserEmailVerified>(UserEmailVerifiedRepository),
+    IUserEmailVerifiedService
 {
-    public class UserEmailVerifiedService(IRepo<UserEmailVerified> repo)
-        : ServiceTimestampsIdUuid<IRepo<UserEmailVerified>, UserEmailVerified>(repo),
-            IUserEmailVerifiedService
+    public Task<UserEmailVerified?> GetSingleOrDefaultByUserIdAsync(long userId, UserEmailVerifiedQueryOptions? options = null)
     {
-        public async Task SetIsVerifiedForIdAsync(bool isVerified, long id)
+        options = new UserEmailVerifiedQueryOptions(options)
         {
-            await UpdateAsync(new DataDictionary { { "IsVerified", true } }, new QueryOptions { Filters = { { "Id", id } } });
-        }
+            UserId = userId
+        };
 
-        public virtual Task<UserEmailVerified?> GetSingleOrDefaultForUserIdAsync(long userId, QueryOptions? options = null)
+        return GetSingleOrDefaultAsync(options);
+    }
+
+    public Task<UserEmailVerified?> GetSingleOrDefaultByEmailAsync(string email, UserEmailVerifiedQueryOptions? options = null)
+    {
+        options = new UserEmailVerifiedQueryOptions(options)
         {
-            options ??= new QueryOptions();
-            options.AddFilter("UserId", userId);
-            return GetSingleOrDefaultAsync(options);
-        }
+            Email = email
+        };
+
+        return GetSingleOrDefaultAsync(options);
+    }
+
+    public async Task SetIsVerifiedByIdAsync(bool isVerified, long id)
+    {
+        var options = new UserEmailVerifiedQueryOptions
+        {
+            Id = id
+        };
+
+        await UpdateAsync(new DataDictionary { { "IsVerified", isVerified } }, options);
     }
 }

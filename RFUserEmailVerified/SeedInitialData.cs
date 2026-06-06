@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RFAuth.DTO;
-using RFAuth.Exceptions;
-using RFAuth.IServices;
+using RFAuthControllers.Exceptions;
 using RFHttpAction.IServices;
-using RFService.IServices;
+using RFServices.Attributes;
 using RFUserEmailVerified.IServices;
 
 namespace RFUserEmailVerified
@@ -37,7 +35,7 @@ namespace RFUserEmailVerified
                 if (userEmailId == 0)
                     throw new NoAuthorizationHeaderException();
 
-                await userEmailVerifiedService.SetIsVerifiedForIdAsync(true, userEmailId);
+                await userEmailVerifiedService.SetIsVerifiedByIdAsync(true, userEmailId);
             });
         }
         public static async Task Run(IServiceProvider provider)

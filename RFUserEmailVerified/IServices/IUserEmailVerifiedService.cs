@@ -1,14 +1,14 @@
-﻿using RFService.IServices;
-using RFService.Repo;
+﻿using RFIServices.IServices;
 using RFUserEmailVerified.Entities;
+using RFUserEmailVerified.QueryOptions;
 
 namespace RFUserEmailVerified.IServices
 {
-    public interface IUserEmailVerifiedService
-        : IServiceId<UserEmailVerified>
+    public interface IUserEmailVerifiedService : ICommonEntityService<UserEmailVerified>
     {
-        Task<UserEmailVerified?> GetSingleOrDefaultForUserIdAsync(long userId, QueryOptions? options = null);
+        Task<UserEmailVerified?> GetSingleOrDefaultByUserIdAsync(long userId, UserEmailVerifiedQueryOptions? options = null);
+        Task<UserEmailVerified?> GetSingleOrDefaultByEmailAsync(string email, UserEmailVerifiedQueryOptions? options = null);
 
-        Task SetIsVerifiedForIdAsync(bool isVerified, long id);
+        Task SetIsVerifiedByIdAsync(bool isVerified, long id);
     }
 }

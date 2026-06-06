@@ -1,13 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using RFAuth.Exceptions;
-using RFService.Authorization;
-using RFService.Repo;
 using RFHttpAction.Entities;
 using RFUserEmailVerified.Exceptions;
 using RFHttpAction.IServices;
 using RFUserEmailVerified.IServices;
 using RFUserEmailVerified.Entities;
 using RFUserEmailVerified.DTO;
+using RFPermissions.Attributes;
+using RFAuthControllers.Exceptions;
 
 namespace RFUserEmailVerified.Controllers
 {
@@ -44,11 +43,13 @@ namespace RFUserEmailVerified.Controllers
         [Permission("myEmail.verify")]
         public async Task<IActionResult> VerifyEmailPostAsync()
         {
-            var userId = HttpContext.Items["UserId"] as long?;
-            if (userId == null || userId == 0)
+            var userId = HttpContext.Items["UserId"] as long?
+                ?? throw new NoAuthorizationHeaderException();
+
+            if (userId == 0)
                 throw new NoAuthorizationHeaderException();
 
-            var userEmail = await userEmailVerifiedService.GetSingleOrDefaultAsync(new QueryOptions { Filters = { { "UserId", userId } } })
+            var userEmail = await userEmailVerifiedService.GetSingleOrDefaultByUserIdAsync(userId)
                 ?? throw new UserDoesNotHaveEmailException();
 
             if (userEmail.IsVerified)
@@ -57,12 +58,11 @@ namespace RFUserEmailVerified.Controllers
             var action = await httpActionService.CreateAsync(
                 new HttpAction
                 {
-                    TypeId = await httpActionTypeService.GetSingleIdForNameAsync(
+                    TypeId = await httpActionTypeService.GetSingleIdByNameOrCreateAsync(
                         "userEmail.verify",
-                        creator: name => new HttpActionType
-                        {
-                            Name = name,
-                            Title = "UserEmail Verify",
+                        createData: async httpActionType => {
+                            httpActionType.Title = "UserEmail Verify";
+                            return httpActionType;
                         }
                     ),
                     Data = userEmail.Id.ToString(),
