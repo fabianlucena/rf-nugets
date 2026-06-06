@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RFBaseEF\RFBaseEF.csproj" />
-    <ProjectReference Include="..\RFPermissionsIRepositories\RFPermissionsIRepositories.csproj" />
+    <ProjectReference Include="..\RFEntitiesEF\RFEntitiesEF.csproj" />
+    <ProjectReference Include="..\RFPermissions\RFPermissions.csproj" />
   </ItemGroup>
 
 </Project>

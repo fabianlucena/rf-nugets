@@ -1,17 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using RFPermissions.IRepositories;
 using RFPermissionsEF.Repositories;
-using RFPermissionsIRepositories.Repositories;
 
-namespace RFPermissionsEF
+namespace RFPermissionsEF;
+
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    public static IServiceCollection AddRFPermissionsEF(this IServiceCollection services)
     {
-        public static IServiceCollection AddRFPermissionsEF(this IServiceCollection services)
-        {
-            services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IPermissionRepository, PermissionRepository>();
 
-            return services;
-        }
-
+        return services;
     }
 }
