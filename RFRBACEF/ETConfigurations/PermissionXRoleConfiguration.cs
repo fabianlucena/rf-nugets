@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using RFBaseEF.ETConfigurations;
-using RFRBACEntities.Entities;
+using RFEntitiesEF.ETConfigurations;
+using RFRBAC.Entities;
 
 namespace RFRBACEF.ETConfigurations
 {

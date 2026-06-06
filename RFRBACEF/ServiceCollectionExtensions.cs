@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using RFRBAC.IRepositories;
 using RFRBACEF.Repositories;
-using RFRBACIRepositories.IRepositories;
 
 namespace RFRBACEF
 {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RFBaseEF.Repositories;
-using RFBaseEntities.QueryOptions;
-using RFRBACEntities.Entities;
-using RFRBACEntities.QueryOptions;
-using RFRBACIRepositories.IRepositories;
+using RFEntitiesEF.Repositories;
+using RFIServices.QueryOptions;
+using RFRBAC.Entities;
+using RFRBAC.IRepositories;
+using RFRBAC.QueryOptions;
 
 namespace RFRBACEF.Repositories
 {

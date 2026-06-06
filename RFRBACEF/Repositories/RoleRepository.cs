@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RFBaseEF.Repositories;
-using RFBaseEntities.QueryOptions;
-using RFRBACEntities.Entities;
-using RFRBACEntities.QueryOptions;
-using RFRBACIRepositories.IRepositories;
+using RFEntitiesEF.Repositories;
+using RFIServices.QueryOptions;
+using RFRBAC.Entities;
+using RFRBAC.IRepositories;
+using RFRBAC.QueryOptions;
 
 namespace RFRBACEF.Repositories
 {
     public class RoleRepository(DbContext context)
-        : CreatableEntityRepository<Role>(context),
+        : LocalizableEntityRepository<Role>(context),
         IRoleRepository
     {
         public override IQueryable<Role> CreateDBSet(BaseQueryOptions? options = null)
@@ -22,13 +22,6 @@ namespace RFRBACEF.Repositories
             }
 
             return queryable;
-        }
-
-        public async Task<IEnumerable<string>> GetNamesAsync(RoleQueryOptions options)
-        {
-            return await GetDBSet(options)
-                .Select(r => r.Name)
-                .ToListAsync();
         }
     }
 }
