@@ -1,6 +1,6 @@
-﻿using RFBaseIServices.IServices;
-using RFUserGroupsEntities.Entities;
-using RFUserGroupsEntities.QueryOptions;
+﻿using RFIServices.IServices;
+using RFUserGroups.Entities;
+using RFUserGroups.QueryOptions;
 
 namespace RFUserGroupsIServices.IServices
 {

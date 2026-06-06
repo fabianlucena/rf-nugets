@@ -7,8 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RFBaseIServices\RFBaseIServices.csproj" />
-    <ProjectReference Include="..\RFUserGroupsEntities\RFUserGroupsEntities.csproj" />
+    <ProjectReference Include="..\RFServices\RFServices.csproj" />
+    <ProjectReference Include="..\RFIRepositories\RFIRepositories.csproj" />
+    <ProjectReference Include="..\RFEntities\RFEntities.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,11 +1,11 @@
-﻿using RFBaseIServices.IServices;
-using RFBaseServices.Services;
-using RFUserGroupsEntities.Entities;
-using RFUserGroupsEntities.QueryOptions;
-using RFUserGroupsIRepositories.IRepositories;
+﻿using RFIServices.IServices;
+using RFServices.Services;
+using RFUserGroups.Entities;
+using RFUserGroups.IRepositories;
+using RFUserGroups.QueryOptions;
 using RFUserGroupsIServices.IServices;
 
-namespace RFUserGroupsServices.Services
+namespace RFUserGroups.Services
 {
     public class UserGroupService(
         IUserGroupRepository userGroupRepository,
