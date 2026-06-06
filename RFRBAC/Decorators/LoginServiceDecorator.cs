@@ -1,12 +1,9 @@
-﻿using RFAuth.IServices;
-using RFAuthEntities.Entities;
-using RFAuthIServices.DTO;
-using RFAuthIServices.IServices;
-using RFAuthServices.Decorators;
-using RFBaseEntities.ILibs;
-using RFBaseEntities.Libs;
-using RFRGOBACIServices.DTO;
-using RFRGOBACIServices.IServices;
+﻿using RFAuth.Decorators;
+using RFAuth.DTO;
+using RFAuth.Entities;
+using RFAuth.IServices;
+using RFBase.ILibs;
+using RFBase.Libs;
 
 namespace RFRBAC.Decorators
 {
@@ -60,7 +57,7 @@ namespace RFRBAC.Decorators
             if (sessionData.PermissionNames is not null)
                 session.Data["PermissionNames"] = sessionData.PermissionNames;
 
-            var sessionDataResponse = new SessionDataResponse(sessionData);
+            var sessionDataResponse = new SessionResponse(sessionData);
             if (sessionDataResponse == null)
                 return session;
 
