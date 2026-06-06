@@ -12,6 +12,8 @@ namespace RFIServices.IServices
 
         Task<User?> GetSingleOrDefaultByUsernameAsync(string username, UserQueryOptions? options = null);
 
+        Task<long?> GetSingleIdOrDefaultByUsernameAsync(string username, UserQueryOptions? options = null);
+
         Task<User> GetSystemUserAsync();
 
         Task<User> GetCurrentOrSystemUserAsync();
