@@ -1,6 +1,6 @@
 ﻿namespace RFIServices.DTO
 {
-    public class UserAddRequest
+    public class UserCreateRequest
     {
         public required string Username { get; set; }
 
