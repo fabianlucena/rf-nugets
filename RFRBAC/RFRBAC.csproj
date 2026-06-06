@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RFAuth\RFAuth.csproj" />
     <ProjectReference Include="..\RFEntities\RFEntities.csproj" />
     <ProjectReference Include="..\RFIRepositories\RFIRepositories.csproj" />
     <ProjectReference Include="..\RFLogger\RFLogger.csproj" />
