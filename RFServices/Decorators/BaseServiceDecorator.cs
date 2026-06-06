@@ -29,5 +29,8 @@ namespace RFServices.Decorators
 
         public Task<int> UpdateAsync(DataDictionary data, BaseQueryOptions options)
             => baseService.UpdateAsync(data, options);
+
+        public Task<int> DeleteAsync(BaseQueryOptions options)
+            => baseService.DeleteAsync(options);
     }
 }

@@ -68,4 +68,7 @@ public class BaseService<T>(IBaseRepository<T> repository)
 
     public virtual async Task<int> UpdateAsync(DataDictionary data, BaseQueryOptions options)
         => await repository.UpdateAsync(data, options);
+
+    public virtual async Task<int> DeleteAsync(BaseQueryOptions options)
+        => await repository.DeleteAsync(options);
 }

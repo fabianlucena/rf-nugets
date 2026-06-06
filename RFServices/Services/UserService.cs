@@ -22,6 +22,9 @@ public class UserService(
     public async Task<User?> GetSingleOrDefaultByUsernameAsync(string username, UserQueryOptions? options = null)
         => await GetSingleOrDefaultAsync(new UserQueryOptions(options) { Username = username });
 
+    public async Task<long?> GetSingleIdOrDefaultByUsernameAsync(string username, UserQueryOptions? options = null)
+        => await GetSingleIdOrDefaultAsync(new UserQueryOptions(options) { Username = username });
+
     public async Task<User> GetSystemUserAsync()
         => await GetSingleByUsernameAsync("system");
 
