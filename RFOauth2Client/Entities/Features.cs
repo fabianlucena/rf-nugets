@@ -2,6 +2,7 @@
 {
     public class Features
     {
-        public bool AllowSelfServiceRegistration { get; set; } = false;
+        public bool AllowSelfRegistration { get; set; } = false;
+        public bool MandatoryRoles { get; set; } = false;
     }
 }

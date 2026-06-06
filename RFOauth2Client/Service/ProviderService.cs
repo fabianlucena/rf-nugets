@@ -1,11 +1,22 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RFAuth.DTO;
+using RFAuth.Entities;
+using RFAuth.IServices;
 using RFBase.Exceptions;
 using RFBase.Libs;
+using RFEntities.Entities;
+using RFIServices.IServices;
 using RFOauth2Client.Entities;
 using RFOauth2Client.Exceptions;
 using RFOauth2Client.IServices;
+using RFRBAC.IServices;
 using RFServices.Attributes;
+using RFServices.Services;
+using RFUserEmailVerified.Entities;
+using RFUserEmailVerified.IServices;
+using RFUserEmailVerified.Services;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -16,6 +27,11 @@ public class ProviderService(IServiceProvider serviceProvider)
     : IProviderService
 {
     static private List<Provider>? ConfigurationProviders = null;
+    public IUserService UserService { get => serviceProvider.GetRequiredService<IUserService>(); }
+    public IDeviceService DeviceService { get => serviceProvider.GetRequiredService<IDeviceService>(); }
+    public ILoginService LoginService { get => serviceProvider.GetRequiredService<ILoginService>(); }
+    public IUserEmailVerifiedService UserEmailVerifiedService { get => serviceProvider.GetRequiredService<IUserEmailVerifiedService>(); }
+    public IRoleXUserService IRoleXUserService { get => serviceProvider.GetRequiredService<IRoleXUserService>(); }
 
     public async Task<IEnumerable<Provider>> GetListAsync()
     {
@@ -39,8 +55,8 @@ public class ProviderService(IServiceProvider serviceProvider)
                             ?? throw new Exception("No client section in OAuth2Providers configuration"),
                         Endpoints = child.GetSection("endpoints").Get<Dictionary<string, Endpoint>>()
                             ?? throw new Exception("No endpoints section in OAuth2Providers configuration"),
-                        Roles = child.GetSection("roles") as Roles,
-                        Features = child.GetSection("features") as Features,
+                        RolesSources = child.GetSection("roles").Get<List<RolesSource>>(),
+                        Features = child.GetSection("features").Get<Features>(),
                     };
                     configurationProviders.Add(provider);
                 }
@@ -70,7 +86,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         => (await GetListAsync())
             .FirstOrDefault(p => p.Name == name);
 
-    public async Task<object?> CallbackAsync(string name, string actionName, DataDictionary? data)
+    public async Task<SessionResponse?> CallbackAsync(string name, string actionName, DataDictionary? data)
     {
         var provider = await GetSingleOrDefaultByNameAsync(name)
             ?? throw new ProviderNotFoundException(name);
@@ -176,99 +192,110 @@ public class ProviderService(IServiceProvider serviceProvider)
         return await Get<UserInfo>(provider, userInfoEndpoint, accessToken);
     }
 
-    public async Task<object?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data)
+    public async Task<SessionResponse?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data)
     {
-        var accessToken = await GetToken(provider, data?.GetString("code") ?? "");
-        if (string.IsNullOrEmpty(accessToken))
+        var token = await GetToken(provider, data?.GetString("code") ?? "");
+        if (string.IsNullOrEmpty(token))
             throw new HttpException(400, $"No access token received.");
 
-        var userInfo = await GetUserInfo(provider, accessToken)
+        var userInfo = await GetUserInfo(provider, token)
             ?? throw new HttpException(400, $"No user info.");
 
-        throw new NotImplementedException();
+        var username = RFString.FirstNonEmpty(userInfo.PreferredUsername, userInfo.Username, userInfo.Email, userInfo.Sub, userInfo.Name);
+        var userId = await UserService.GetSingleIdOrDefaultByUsernameAsync(username);
 
-        /* var evtData = new DataDictionary {
-            { "Username", RFString.FirstNonEmpty(userInfo.Username, userInfo.Email, userInfo.Name) },
-            { "FullName", RFString.FirstNonEmpty(userInfo.FullName, userInfo.Name, userInfo.Username, userInfo.Email) },
-            { "Email", userInfo.Email },
-            { "DeviceToken", data?.GetString("deviceToken") },
-        };
-
-        if (provider.Actions.TryGet<DataDictionary>("token", out var tokenAction)
-            && tokenAction != null)
+        if (!userId.HasValue)
         {
-            var selfServiceRegistration = tokenAction.GetBool("selfServiceRegistration");
-            if (selfServiceRegistration != null)
+            if (provider.Features?.AllowSelfRegistration ?? false)
+                throw new UserNotFoundException();
+
+            var user = await RegisterUser(provider, userInfo, token, username);
+            userId = user.Id;
+        }
+        else if (provider.Features?.MandatoryRoles ?? false)
+            await SetUserRoles(provider, token, userId.Value);
+
+        var deviceId = await DeviceService.GetSingleByTokenOrCreateAsync(data?.GetString("deviceToken") ?? "");
+        var session = await LoginService.LoginAsync(new UserIdAndDeviceIdDTO { UserId = userId!.Value, DeviceId = deviceId.Id });
+
+        return new SessionResponse(session);
+    }
+
+    public async Task<User> RegisterUser(Provider provider, UserInfo userInfo, string token, string username)
+    {
+        var displayName = RFString.FirstNonEmpty(userInfo.FullName, userInfo.Name, $"{userInfo.GivenName} {userInfo.FamilyName}".Trim());
+        var user = await UserService.CreateAsync(new User
+        {
+            Username = username,
+            DisplayName = displayName,
+        });
+
+        if (!string.IsNullOrEmpty(userInfo.Email))
+        {
+            var email = await UserEmailVerifiedService.GetSingleOrDefaultForUserIdAsync(user.Id);
+            if (email is null)
             {
-                evtData["SelfServiceRegistration"] = selfServiceRegistration;
-            }
-
-            var mandatoryRoles = tokenAction.GetBool("mandatoryRoles");
-            if (mandatoryRoles != null)
-            {
-                evtData["MandatoryRoles"] = mandatoryRoles;
-            }
-
-            List<string> roles = [];
-            if (tokenAction.TryGet<DataDictionary>("rolesFrom", out var rolesFrom)
-                && rolesFrom != null)
-            {
-                List<string>? rolesFromAccessTokenList;
-
-                if (rolesFrom.TryGet<List<string>>("access_token", out var access_tokenList) && access_tokenList != null)
-                    rolesFromAccessTokenList = access_tokenList;
-                else if (rolesFrom.TryGet<string>("access_token", out var access_token) && !string.IsNullOrEmpty(access_token))
-                    rolesFromAccessTokenList = [access_token];
-                else
-                    rolesFromAccessTokenList = null;
-
-                if (rolesFromAccessTokenList != null)
+                await UserEmailVerifiedService.CreateAsync(new UserEmailVerified
                 {
-                    foreach (var rolesFromAccessToken in rolesFromAccessTokenList)
+                    UserId = user.Id,
+                    Email = userInfo.Email,
+                    IsVerified = userInfo.EmailVerified,
+                });
+            }
+            else if (email.Email != userInfo.Email || email.IsVerified != userInfo.EmailVerified)
+            {
+                await UserEmailVerifiedService.UpdateByIdAsync(
+                    email.Id,
+                    new DataDictionary {
+                        {  "Email", userInfo.Email },
+                        { "IsVerified", userInfo.EmailVerified },
+                });
+            }
+        }
+
+        if (provider.Features?.MandatoryRoles ?? false)
+            await SetUserRoles(provider, token, user.Id);
+
+        return user;
+    }
+
+    public async Task SetUserRoles(Provider provider, string token, long userId)
+    {
+        List<string> roles = [];
+        var rolesSources = provider.RolesSources ?? [];
+        foreach (var rolesSource in rolesSources)
+        {
+            JsonElement? rolesJsonData = null;
+            if (rolesSource.Endpoint == "token")
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(token);
+                rolesJsonData = JsonSerializer.Deserialize<JsonElement>(jwt.Payload.SerializeToJson());
+            }
+
+            if (rolesJsonData is not null)
+            {
+                if (!string.IsNullOrEmpty(rolesSource.Path))
+                {
+                    var path = rolesSource.Path.Split('.');
+                    foreach (var part in path)
                     {
-                        if (string.IsNullOrEmpty(rolesFromAccessToken))
-                            continue;
+                        if (!rolesJsonData.Value.TryGetProperty(part, out var nextSection))
+                            break;
 
-                        var handler = new JwtSecurityTokenHandler();
-                        var jwt = handler.ReadJwtToken(accessToken);
-                        var payload = JsonSerializer.Deserialize<JsonElement>(jwt.Payload.SerializeToJson());
-                        var path = rolesFromAccessToken.Split('.');
-                        var section = payload;
-
-                        foreach (var part in path)
-                        {
-                            if (!section.TryGetProperty(part, out var nextSection))
-                                break;
-
-                            section = nextSection;
-                        }
-
-                        roles.AddRange(section
-                            .EnumerateArray()
-                            .Select(r => r.GetString())
-                            .Where(r => !string.IsNullOrEmpty(r))
-                            .Select(r => r!.Trim())
-                        );
+                        rolesJsonData = nextSection;
                     }
                 }
+
+                roles.AddRange(rolesJsonData.Value
+                    .EnumerateArray()
+                    .Select(r => r.GetString())
+                    .Where(r => !string.IsNullOrEmpty(r))
+                    .Select(r => r!.Trim()));
             }
-
-            evtData["Roles"] = roles;
         }
 
-        var evtOptions = new DataDictionary { { "Data", evtData } };
-
-        if (evtOptions.TryGet<object?>("Response", out var response))
-            return response;
-        else
-        {
-            var logger = serviceProvider.GetService<ILoggerService>();
-            logger?.AddWarningAsync(
-                "RFOAuth2Client",
-                "No 'Result' for 'login'. Check for login decorators installed."
-            );
-        }
-
-        return null; */
+        if (roles.Count != 0)
+            await IRoleXUserService.SetAllRolesForUserIdAsync(roles, userId);
     }
 }

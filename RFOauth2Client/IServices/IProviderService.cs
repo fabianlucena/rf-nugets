@@ -1,4 +1,5 @@
-﻿using RFBase.Libs;
+﻿using RFAuth.DTO;
+using RFBase.Libs;
 using RFOauth2Client.Entities;
 
 namespace RFOauth2Client.IServices
@@ -11,8 +12,8 @@ namespace RFOauth2Client.IServices
 
         Task<Provider?> GetSingleOrDefaultByNameAsync(string name);
 
-        Task<object?> CallbackAsync(string name, string actionName, DataDictionary? data);
+        Task<SessionResponse?> CallbackAsync(string name, string actionName, DataDictionary? data);
 
-        Task<object?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data);
+        Task<SessionResponse?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data);
     }
 }
