@@ -10,6 +10,7 @@
     <ProjectReference Include="..\RFAuth\RFAuth.csproj" />
     <ProjectReference Include="..\RFBase\RFBase.csproj" />
     <ProjectReference Include="..\RFRBAC\RFRBAC.csproj" />
+    <ProjectReference Include="..\RFUserGroups\RFUserGroups.csproj" />
   </ItemGroup>
 
 </Project>
