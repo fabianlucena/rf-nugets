@@ -17,7 +17,7 @@ public class LoginService(
     IDeviceService deviceService
 ) : ILoginService
 {
-    public async Task<Session> LoginAsync(UserIdAndDeviceIdDTO request, IDataDictionary? data)
+    public async Task<Session> LoginAsync(UserIdAndDeviceIdDTO request, IDataDictionary? data = null)
     {
         var session = await sessionService.CreateAsync(request.UserId, request.DeviceId, data);
         await userService.UpdateLastLoginAtByUserIdAsync(request.UserId);
