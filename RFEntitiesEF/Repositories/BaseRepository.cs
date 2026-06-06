@@ -73,5 +73,13 @@ namespace RFEntitiesEF.Repositories
 
             return result;
         }
+
+        public virtual async Task<int> DeleteAsync(BaseQueryOptions options)
+        {
+            var result = await GetDBSet()
+                .ExecuteDeleteAsync();
+
+            return result;
+        }
     }
 }

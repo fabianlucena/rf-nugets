@@ -14,5 +14,6 @@ namespace RFIServices.IServices
         Task<T?> GetSingleOrDefaultAsync(BaseQueryOptions options);
 
         Task<int> UpdateAsync(DataDictionary data, BaseQueryOptions options);
+        Task<int> DeleteAsync(BaseQueryOptions options);
     }
 }

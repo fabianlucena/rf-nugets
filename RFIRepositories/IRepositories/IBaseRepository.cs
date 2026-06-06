@@ -10,5 +10,6 @@ namespace RFIRepositories.IRepositories
         Task<T> CreateAsync(T entity);
         Task<IEnumerable<T>> GetListAsync(BaseQueryOptions? options = null);
         Task<int> UpdateAsync(DataDictionary data, BaseQueryOptions options);
+        Task<int> DeleteAsync(BaseQueryOptions options);
     }
 }
