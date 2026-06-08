@@ -28,31 +28,31 @@ public class SessionServiceDecorator(
     {
         session = new Session(session);
 
-        var sessionDataService = serviceProvider.GetRequiredService<ISessionDataService>();
-        var sessionData = await sessionDataService.GetSingleOrDefaultBySession(session);
-        if (sessionData is null)
+        var orpgDataService = serviceProvider.GetRequiredService<IORGPDataService>();
+        var orpgData = await orpgDataService.GetSingleOrDefaultBySession(session);
+        if (orpgData is null)
             return session;
 
         session.Data ??= new DataDictionary();
-        session.Data["Organizations"] = sessionData.Organizations;
-        session.Data["CurrentOrganization"] = sessionData.CurrentOrganization;
+        session.Data["Organizations"] = orpgData.Organizations;
+        session.Data["CurrentOrganization"] = orpgData.CurrentOrganization;
 
-        if (sessionData.GroupIds is not null)
-            session.Data["GroupIds"] = sessionData.GroupIds;
+        if (orpgData.GroupIds is not null)
+            session.Data["GroupIds"] = orpgData.GroupIds;
 
-        if (sessionData.GroupIds is not null)
-            session.Data["GroupNames"] = sessionData.GroupNames;
+        if (orpgData.GroupIds is not null)
+            session.Data["GroupNames"] = orpgData.GroupNames;
 
-        if (sessionData.RoleIds is not null)
-            session.Data["RoleIds"] = sessionData.RoleIds;
+        if (orpgData.RoleIds is not null)
+            session.Data["RoleIds"] = orpgData.RoleIds;
 
-        if (sessionData.RoleNames is not null)
-            session.Data["RoleNames"] = sessionData.RoleNames;
+        if (orpgData.RoleNames is not null)
+            session.Data["RoleNames"] = orpgData.RoleNames;
 
-        if (sessionData.PermissionNames is not null)
-            session.Data["PermissionNames"] = sessionData.PermissionNames;
+        if (orpgData.PermissionNames is not null)
+            session.Data["PermissionNames"] = orpgData.PermissionNames;
 
-        var sessionDataResponse = new SessionDataResponse(sessionData);
+        var sessionDataResponse = new ORPGDataResponse(orpgData);
         if (sessionDataResponse == null)
             return session;
 

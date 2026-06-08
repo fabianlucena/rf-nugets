@@ -6,8 +6,6 @@ public sealed class RoleXUserXOrganizationQueryOptions : RoleXUserQueryOptionsBa
 {
     public bool IncludeOrganization { get; set; } = false;
 
-    public long? RoleId { get; set; }
-    public long? UserId { get; set; }
     public IEnumerable<long>? UserIds { get; set; }
     public long? OrganizationId { get; set; }
 
@@ -21,8 +19,6 @@ public sealed class RoleXUserXOrganizationQueryOptions : RoleXUserQueryOptionsBa
 
         IncludeOrganization = options.IncludeOrganization;
 
-        RoleId = options.RoleId;
-        UserId = options.UserId;
         UserIds = options.UserIds;
         OrganizationId = options.OrganizationId;
     }

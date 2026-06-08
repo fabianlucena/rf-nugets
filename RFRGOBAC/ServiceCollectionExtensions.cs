@@ -1,9 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RFAuthIServices.IServices;
+using RFAuth.IServices;
 using RFRGOBAC.Decorators;
-using RFRGOBACIServices.IServices;
-using RFRGOBACServices.Decorators;
-using RFRGOBACServices.Services;
+using RFRGOBAC.IServices;
+using RFRGOBAC.Services;
 
 namespace RFRGOBAC;
 
@@ -17,7 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrganizationService, OrganizationService>();
         services.AddScoped<IRoleXUserXOrganizationService, RoleXUserXOrganizationService>();
         services.AddScoped<ISessionOrganizationService, SessionOrganizationService>();
-        services.AddScoped<ISessionDataService, SessionDataService>();
+        services.AddScoped<IORGPDataService, ORGPDataService>();
 
         return services;
     }
