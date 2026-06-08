@@ -27,6 +27,7 @@ public class ProviderService(IServiceProvider serviceProvider)
     : IProviderService
 {
     static private List<Provider>? ConfigurationProviders = null;
+
     public IUserService UserService { get => serviceProvider.GetRequiredService<IUserService>(); }
     public IDeviceService DeviceService { get => serviceProvider.GetRequiredService<IDeviceService>(); }
     public ILoginService LoginService { get => serviceProvider.GetRequiredService<ILoginService>(); }
@@ -45,7 +46,6 @@ public class ProviderService(IServiceProvider serviceProvider)
             {
                 foreach (var child in providersSection.GetChildren())
                 {
-                    var client = child as Client;
                     var provider = new Provider
                     {
                         Name = child["name"] ?? child.Key,
@@ -130,9 +130,6 @@ public class ProviderService(IServiceProvider serviceProvider)
         };
 
         var content = new FormUrlEncodedContent(queryParams);
-
-        var raw = await content.ReadAsStringAsync();
-        Console.WriteLine(raw);
 
         var client = new HttpClient();
         var res = await client.PostAsync(tokenUrl, content);
