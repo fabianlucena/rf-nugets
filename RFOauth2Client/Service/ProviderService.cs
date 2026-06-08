@@ -232,7 +232,7 @@ public class ProviderService(IServiceProvider serviceProvider)
 
         if (!string.IsNullOrEmpty(userInfo.Email))
         {
-            var email = await UserEmailVerifiedService.GetSingleOrDefaultForUserIdAsync(user.Id);
+            var email = await UserEmailVerifiedService.GetSingleOrDefaultByUserIdAsync(user.Id);
             if (email is null)
             {
                 await UserEmailVerifiedService.CreateAsync(new UserEmailVerified
