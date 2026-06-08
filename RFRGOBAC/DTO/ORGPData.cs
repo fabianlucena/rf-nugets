@@ -2,7 +2,7 @@
 
 namespace RFRGOBAC.DTO;
 
-public class SessionData
+public class ORGPData
 {
     public IEnumerable<Organization> Organizations { get; set; } = [];
     public Organization? CurrentOrganization { get; set; }
