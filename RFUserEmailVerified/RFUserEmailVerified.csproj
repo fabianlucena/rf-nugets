@@ -17,6 +17,7 @@
     <ProjectReference Include="..\RFIServices\RFIServices.csproj" />
     <ProjectReference Include="..\RFEntities\RFEntities.csproj" />
     <ProjectReference Include="..\RFPermissions\RFPermissions.csproj" />
+    <ProjectReference Include="..\RFRolesPermissions\RFRolesPermissions.csproj" />
   </ItemGroup>
 
 </Project>

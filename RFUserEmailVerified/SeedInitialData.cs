@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFAuthControllers.Exceptions;
 using RFHttpAction.IServices;
+using RFRolesPermissions.IServices;
 using RFServices.Attributes;
 using RFUserEmailVerified.IServices;
 
@@ -11,19 +12,8 @@ namespace RFUserEmailVerified
     {
         public static void ConfigureRFUserEmailVerified(IServiceProvider provider)
         {
-            var propertiesDecorators = provider.GetRequiredService<IPropertiesDecorators>();
             var userEmailVerifiedService = provider.GetRequiredService<IUserEmailVerifiedService>();
-            propertiesDecorators.AddDecorator("LoginAttributes", async (data, newProperty, property) =>
-            {
-                var userEmail = await userEmailVerifiedService.GetSingleOrDefaultForUserIdAsync(((LoginData)data).UserId);
-                if (userEmail == null)
-                    newProperty["hasEmail"] = false;
-                else
-                {
-                    newProperty["hasEmail"] = true;
-                    newProperty["isEmailVerified"] = userEmail.IsVerified;
-                }
-            });
+            
 
             var actionListeners = provider.GetRequiredService<IHttpActionListeners>();
             actionListeners.AddListener("userEmail.verify", async token =>
