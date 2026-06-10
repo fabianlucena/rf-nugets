@@ -3,10 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RFBase.IExceptions;
 using RFL10n;
-using RFServices.Attributes;
+using RFRegisterService.Attributes;
 
 namespace RFHttpExceptionsL10n.Middlewares;
-
 
 [RegisterService]
 public class HttpExceptionL10nMiddleware(
