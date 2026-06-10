@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RFAuth.DTO;
-using RFAuth.Entities;
 using RFAuth.IServices;
 using RFBase.Exceptions;
 using RFBase.Libs;
@@ -12,10 +11,8 @@ using RFOauth2Client.Exceptions;
 using RFOauth2Client.IServices;
 using RFRBAC.IServices;
 using RFServices.Attributes;
-using RFServices.Services;
 using RFUserEmailVerified.Entities;
 using RFUserEmailVerified.IServices;
-using RFUserEmailVerified.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -203,13 +200,14 @@ public class ProviderService(IServiceProvider serviceProvider)
 
         if (!userId.HasValue)
         {
-            if (provider.Features?.AllowSelfRegistration ?? false)
+            if (!provider.Features?.AllowSelfRegistration ?? false)
                 throw new UserNotFoundException();
 
-            var user = await RegisterUser(provider, userInfo, token, username);
+            var user = await RegisterUser(userInfo, username);
             userId = user.Id;
         }
-        else if (provider.Features?.MandatoryRoles ?? false)
+        
+        if (provider.Features?.MandatoryRoles ?? false)
             await SetUserRoles(provider, token, userId.Value);
 
         var deviceId = await DeviceService.GetSingleByTokenOrCreateAsync(data?.GetString("deviceToken") ?? "");
@@ -218,7 +216,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         return new SessionResponse(session);
     }
 
-    public async Task<User> RegisterUser(Provider provider, UserInfo userInfo, string token, string username)
+    public async Task<User> RegisterUser(UserInfo userInfo, string username)
     {
         var displayName = RFString.FirstNonEmpty(userInfo.FullName, userInfo.Name, $"{userInfo.GivenName} {userInfo.FamilyName}".Trim());
         var user = await UserService.CreateAsync(new User
@@ -249,9 +247,6 @@ public class ProviderService(IServiceProvider serviceProvider)
                 });
             }
         }
-
-        if (provider.Features?.MandatoryRoles ?? false)
-            await SetUserRoles(provider, token, user.Id);
 
         return user;
     }
