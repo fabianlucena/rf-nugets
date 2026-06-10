@@ -1,9 +1,7 @@
-﻿using RFRegisterService.Attributes;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace RFL10n;
 
-[RegisterService]
 public class L10n(IServiceProvider provider, string acceptLanguage)
     : IL10n
 {
@@ -73,7 +71,7 @@ public class L10n(IServiceProvider provider, string acceptLanguage)
         table[text] = translation;
     }
 
-    public void AddTranslationsFromFile(string language, string context, string filename)
+    public static void AddTranslationsFromFile(string language, string context, string filename)
     {
         try
         {
