@@ -34,7 +34,7 @@ public class L10n(IServiceProvider provider, string acceptLanguage)
             .Select(x => x.Key)
         ];
 
-    public void AddTranslator(IL10nTranslator translator)
+    static public void AddTranslator(IL10nTranslator translator)
         => Translators.Add(translator);
 
     public static void AddToCache(string language, string context, string text, string translation)
@@ -54,7 +54,7 @@ public class L10n(IServiceProvider provider, string acceptLanguage)
         table[text] = translation;
     }
 
-    public void AddTranslation(string language, string context, string text, string translation)
+    public static void AddTranslation(string language, string context, string text, string translation)
     {
         if (!Translations.TryGetValue(language, out var tables))
         {
@@ -105,7 +105,7 @@ public class L10n(IServiceProvider provider, string acceptLanguage)
         }
     }
 
-    public void AddTranslationsFromPath(string path)
+    public static void AddTranslationsFromPath(string path)
     {
         if (!Directory.Exists(path))
             throw new DirectoryNotFoundException($"The directory {path} does not exist.");

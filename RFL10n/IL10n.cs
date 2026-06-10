@@ -2,14 +2,6 @@
 
 public interface IL10n
 {
-    void AddTranslator(IL10nTranslator translator);
-
-    void AddTranslation(string language, string context, string text, string translation);
-
-    //static abstract void AddTranslationsFromFile(string language, string context, string filename);
-
-    void AddTranslationsFromPath(string path);
-
     Task<string> _(string text, params string[] args);
 
 #pragma warning disable IDE1006 // Naming Styles
