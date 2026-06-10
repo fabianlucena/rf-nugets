@@ -4,9 +4,9 @@ using RFAuth.IServices;
 using RFAuth.IRepositories;
 using RFServices.Services;
 using RFBase.Libs;
-using RFServices.Attributes;
 using RFIServices.IServices;
 using Microsoft.Extensions.DependencyInjection;
+using RFRegisterService.Attributes;
 
 namespace RFAuth.Services;
 

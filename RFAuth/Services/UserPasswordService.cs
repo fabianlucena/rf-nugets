@@ -9,7 +9,7 @@ using RFBase.ILibs;
 using RFBase.Libs;
 using RFEntities.Entities;
 using RFIServices.IServices;
-using RFServices.Attributes;
+using RFRegisterService.Attributes;
 using RFServices.Exceptions;
 using RFServices.Services;
 using System.Security.Cryptography;

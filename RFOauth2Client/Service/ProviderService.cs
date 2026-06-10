@@ -10,7 +10,7 @@ using RFOauth2Client.Entities;
 using RFOauth2Client.Exceptions;
 using RFOauth2Client.IServices;
 using RFRBAC.IServices;
-using RFServices.Attributes;
+using RFRegisterService.Attributes;
 using RFUserEmailVerified.Entities;
 using RFUserEmailVerified.IServices;
 using System.IdentityModel.Tokens.Jwt;

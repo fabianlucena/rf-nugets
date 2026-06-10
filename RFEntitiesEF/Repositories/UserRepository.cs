@@ -2,7 +2,7 @@
 using RFEntities.Entities;
 using RFIRepositories.IRepositories;
 using RFIServices.QueryOptions;
-using RFServices.Attributes;
+using RFRegisterService.Attributes;
 
 namespace RFEntitiesEF.Repositories;
 

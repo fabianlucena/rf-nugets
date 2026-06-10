@@ -1,7 +1,7 @@
 ﻿using RFAuth.IServices;
 using RFLogger.Services;
 using RFLogger.Types;
-using RFServices.Attributes;
+using RFRegisterService.Attributes;
 
 namespace RFAuth.Services;
 

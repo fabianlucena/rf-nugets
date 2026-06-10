@@ -4,6 +4,7 @@ using RFAuth.IRepositories;
 using RFAuth.QueryOptions;
 using RFEntitiesEF.Repositories;
 using RFIServices.QueryOptions;
+using RFRegisterService.Attributes;
 using RFServices.Attributes;
 
 namespace RFAuthEF.Repositories;

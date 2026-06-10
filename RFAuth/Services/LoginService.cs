@@ -5,7 +5,7 @@ using RFAuth.IServices;
 using RFAuth.QueryOptions;
 using RFBase.ILibs;
 using RFIServices.IServices;
-using RFServices.Attributes;
+using RFRegisterService.Attributes;
 
 namespace RFAuth.Services;
 
