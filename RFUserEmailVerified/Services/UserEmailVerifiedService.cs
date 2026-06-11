@@ -1,4 +1,5 @@
 ﻿using RFBase.Libs;
+using RFRegisterService.Attributes;
 using RFServices.Services;
 using RFUserEmailVerified.Entities;
 using RFUserEmailVerified.IRepositories;
@@ -7,6 +8,7 @@ using RFUserEmailVerified.QueryOptions;
 
 namespace RFUserEmailVerified.Services;
 
+[RegisterService]
 public class UserEmailVerifiedService(
     IUserEmailVerifiedRepository UserEmailVerifiedRepository,
     IServiceProvider serviceProvider
