@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFEntitiesEF.Repositories;
 using RFIServices.QueryOptions;
+using RFRegisterService.Attributes;
 using RFUserEmailVerified.Entities;
 using RFUserEmailVerified.IRepositories;
 using RFUserEmailVerified.QueryOptions;
 
 namespace RFUserEmailVerifiedEF.Repositories;
 
+[RegisterService]
 public class UserEmailVerifiedRepository(DbContext context)
     : CommonEntityRepository<UserEmailVerified>(context),
     IUserEmailVerifiedRepository
