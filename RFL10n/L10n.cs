@@ -140,7 +140,7 @@ public class L10n(IServiceProvider provider)
     {
         var basePath = Path.Combine(absolutePath ? "" : AppContext.BaseDirectory, path);
         var indent = "      ";
-        var showPath = absolutePath ? "" : "." + Path.DirectorySeparatorChar;
+        var showPath = absolutePath ? "" : ".";
 
         if (!Directory.Exists(basePath))
         {
@@ -165,26 +165,19 @@ public class L10n(IServiceProvider provider)
         Console.WriteLine($"Loading translations from path: {showPath + Path.Combine(path, "*.txt")}");
         foreach (var file in files)
         {
-            var localFileName = file.AsSpan(pathFrom);
+            var localFileName = file[pathFrom..];
 
             Console.Write(indent);
             Console.WriteLine(string.Concat(showPath, localFileName));
 
-            var filename = Path.GetFileNameWithoutExtension(file);
-            var parts = filename.Split('_');
-            if (parts.Length == 2)
-            {
-                var language = parts[0];
-                var context = parts[1];
-                AddTranslationsFromFile(language, context, file);
-            }
-            else if (parts.Length == 1)
-            {
-                var language = parts[0];
-                AddTranslationsFromFile(language, "", file);
-            }
-            else
-                throw new DirectoryNotFoundException($"The filaname {file} is not normalized.");
+            var localPath = Path.GetDirectoryName(localFileName) ?? "";
+            while (localPath.StartsWith(Path.DirectorySeparatorChar))
+                localPath = localPath[1..];
+
+            var parts = localPath.Split(Path.DirectorySeparatorChar);
+            var language = parts[0];
+            var context = parts.Length > 1 ? parts[1] : Path.GetFileNameWithoutExtension(localFileName);
+            AddTranslationsFromFile(language, context, file);
         }
     }
 
@@ -223,6 +216,13 @@ public class L10n(IServiceProvider provider)
 
             if (Translations.TryGetValue(language, out tables)
                 && tables.TryGetValue(context, out table)
+                && table.TryGetValue(text, out translation))
+            {
+                return translation;
+            }
+
+            if (Translations.TryGetValue(language, out tables)
+                && tables.TryGetValue("", out table)
                 && table.TryGetValue(text, out translation))
             {
                 return translation;
