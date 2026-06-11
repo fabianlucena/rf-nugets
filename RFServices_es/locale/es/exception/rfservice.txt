@@ -4,6 +4,9 @@ Ya existe una fila con el nombre "{0}".
 A row with the title "{0}" already exists.
 Ya existe una fila con el título "{0}".
 
+CreatedById must be set for new entries
+Se debe establecer CreatedById para nuevas entradas
+
 Event type parameter cannot be null or empty.
 El parámetro tipo de evento no puede ser nulo o vacío.
 
@@ -33,3 +36,6 @@ El título no puede ser nulo o vacío.
 
 Unknown filter: {0}.
 Filtro desconocido: {0}.
+
+UpdatedById must be set for auditable entries
+Se debe establecer UpdatedById para entradas auditables

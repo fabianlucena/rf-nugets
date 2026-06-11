@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using RFBase.Libs;
 using RFEntities.Entities;
 using RFIRepositories.IRepositories;
@@ -11,9 +12,9 @@ namespace RFServices.Services;
 [RegisterService]
 public class UserService(
     IUserRepository userRepository,
-    IHttpContextAccessor contextAccessor
+    IServiceProvider serviceProvider
 )
-    : CommonEntityService<User>(userRepository),
+    : CommonEntityService<User>(userRepository, serviceProvider),
     IUserService
 {
     public async Task<User> GetSingleByUsernameAsync(string username, UserQueryOptions? options = null)
@@ -30,6 +31,7 @@ public class UserService(
 
     public async Task<User> GetCurrentOrSystemUserAsync()
     {
+        var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
         var items = contextAccessor.HttpContext?.Items;
         if (items?.TryGetValue("CurrentUser", out var currentUserData) == true
             && currentUserData is User currentUser
@@ -44,6 +46,7 @@ public class UserService(
 
     public async Task<long> GetCurrentOrSystemUserIdAsync()
     {
+        var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
         var items = contextAccessor.HttpContext?.Items;
         if (items?.TryGetValue("CurrentUserId", out var idCurrentUserData) == true
             && idCurrentUserData is long idCurrentUser

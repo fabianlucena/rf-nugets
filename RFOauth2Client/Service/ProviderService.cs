@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using RFAuth.DTO;
 using RFAuth.IServices;
-using RFBase.Exceptions;
 using RFBase.Libs;
 using RFEntities.Entities;
 using RFIServices.IServices;
@@ -242,7 +241,7 @@ public class ProviderService(IServiceProvider serviceProvider)
                 await UserEmailVerifiedService.UpdateByIdAsync(
                     email.Id,
                     new DataDictionary {
-                        {  "Email", userInfo.Email },
+                        { "Email", userInfo.Email },
                         { "IsVerified", userInfo.EmailVerified },
                 });
             }

@@ -4,64 +4,66 @@ using RFIRepositories.IRepositories;
 using RFIServices.IServices;
 using RFServices.Exceptions;
 
-namespace RFServices.Services
+namespace RFServices.Services;
+
+public class NominableEntityService<T>(
+    INominableEntityRepository<T> repository,
+    IServiceProvider serviceProvider
+)
+    : CommonEntityService<T>(repository, serviceProvider),
+    INominableEntityService<T>
+    where T : NominableEntity, new()
 {
-    public class NominableEntityService<T>(INominableEntityRepository<T> repository)
-        : CommonEntityService<T>(repository),
-        INominableEntityService<T>
-        where T : NominableEntity, new()
+    public override async Task<T> ValidateForCreateAsync(T entity)
     {
-        public override async Task<T> ValidateForCreateAsync(T entity)
+        entity = await base.ValidateForCreateAsync(entity);
+
+        if (string.IsNullOrWhiteSpace(entity.Name))
         {
-            entity = await base.ValidateForCreateAsync(entity);
-
-            if (string.IsNullOrWhiteSpace(entity.Name))
-            {
-                throw new NameIsMandatoryForNewEntriesException();
-            }
-
-            return entity;
+            throw new NameIsMandatoryForNewEntriesException();
         }
 
-        public Task<T?> GetSingleOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null)
-        {
-            options = (NominableEntityQueryOptions?)options?.Clone() ?? new NominableEntityQueryOptionsClonable();
-            options.Name = name;
-            return GetSingleOrDefaultAsync(options);
-        }
-
-        public async Task<T> GetSingleByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? completeCreateData = null)
-        {
-            var entity = await GetSingleOrDefaultByNameAsync(name, options);
-            if (entity != null)
-                return entity;
-
-            entity = new T { Name = name };
-            if (completeCreateData != null)
-                entity = await completeCreateData(entity);
-
-            var createdEntity = await CreateAsync(entity);
-            return createdEntity;
-        }
-
-        public Task<long?> GetSingleIdOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null)
-        {
-            options = (NominableEntityQueryOptions?)options?.Clone() ?? new NominableEntityQueryOptionsClonable();
-            options.Name = name;
-            return GetSingleIdOrDefaultAsync(options);
-        }
-
-        public async Task<long> GetSingleIdByNameAsync(string name, NominableEntityQueryOptions? options = null)
-            => await GetSingleIdOrDefaultByNameAsync(name, options)
-                ?? throw new NoEntityFoundForNameException(name);
-
-        public async Task<long> GetSingleIdByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? completeCreateData = null)
-        {
-            var entity = await GetSingleByNameOrCreateAsync(name, options, completeCreateData);
-            return entity.Id;
-        }
-
-        public Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, NominableEntityQueryOptions? options = null)
-            => GetNamesByIdsAsync(ids, options);
+        return entity;
     }
+
+    public Task<T?> GetSingleOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null)
+    {
+        options = (NominableEntityQueryOptions?)options?.Clone() ?? new NominableEntityQueryOptionsClonable();
+        options.Name = name;
+        return GetSingleOrDefaultAsync(options);
+    }
+
+    public async Task<T> GetSingleByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? completeCreateData = null)
+    {
+        var entity = await GetSingleOrDefaultByNameAsync(name, options);
+        if (entity != null)
+            return entity;
+
+        entity = new T { Name = name };
+        if (completeCreateData != null)
+            entity = await completeCreateData(entity);
+
+        var createdEntity = await CreateAsync(entity);
+        return createdEntity;
+    }
+
+    public Task<long?> GetSingleIdOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null)
+    {
+        options = (NominableEntityQueryOptions?)options?.Clone() ?? new NominableEntityQueryOptionsClonable();
+        options.Name = name;
+        return GetSingleIdOrDefaultAsync(options);
+    }
+
+    public async Task<long> GetSingleIdByNameAsync(string name, NominableEntityQueryOptions? options = null)
+        => await GetSingleIdOrDefaultByNameAsync(name, options)
+            ?? throw new NoEntityFoundForNameException(name);
+
+    public async Task<long> GetSingleIdByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? completeCreateData = null)
+    {
+        var entity = await GetSingleByNameOrCreateAsync(name, options, completeCreateData);
+        return entity.Id;
+    }
+
+    public Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, NominableEntityQueryOptions? options = null)
+        => GetNamesByIdsAsync(ids, options);
 }

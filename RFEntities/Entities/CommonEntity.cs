@@ -3,7 +3,7 @@
     public abstract class CommonEntity : AuditableEntity
     {
         public DateTime? DeletedAt { get; set; } = null;
-        public long? DeletedById { get; set; } = 0;
+        public long? DeletedById { get; set; } = null;
         public User? DeletedBy { get; set; } = null;
 
         public CommonEntity() { }

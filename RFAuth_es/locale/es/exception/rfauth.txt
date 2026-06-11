@@ -1,4 +1,7 @@
-﻿Add user
+﻿A device with the same token already exists
+Ya existe un dispositivo con el mismo token
+
+Add user
 Agregar usuario
 
 Autologin

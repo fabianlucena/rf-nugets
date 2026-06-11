@@ -11,8 +11,11 @@ using System.Text.Json;
 namespace RFAuth.Services;
 
 [RegisterService]
-public class SessionService(ISessionRepository sessionRepository)
-    : CreatableEntityService<Session>(sessionRepository),
+public class SessionService(
+    ISessionRepository sessionRepository,
+    IServiceProvider serviceProvider
+)
+    : CreatableEntityService<Session>(sessionRepository, serviceProvider),
     ISessionService
 {
     public int TokenSize { get; set; } = 64;

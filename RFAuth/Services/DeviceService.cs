@@ -1,12 +1,13 @@
-﻿using RFAuth.Entities;
-using RFAuth.QueryOptions;
-using RFAuth.IServices;
+﻿using Microsoft.Extensions.DependencyInjection;
+using RFAuth.Entities;
+using RFAuth.Exceptions;
 using RFAuth.IRepositories;
-using RFServices.Services;
+using RFAuth.IServices;
+using RFAuth.QueryOptions;
 using RFBase.Libs;
 using RFIServices.IServices;
-using Microsoft.Extensions.DependencyInjection;
 using RFRegisterService.Attributes;
+using RFServices.Services;
 
 namespace RFAuth.Services;
 
@@ -15,7 +16,7 @@ public class DeviceService(
     IDeviceRepository deviceRepository,
     IServiceProvider serviceProvider
 )
-    : CreatableEntityService<Device>(deviceRepository),
+    : CreatableEntityService<Device>(deviceRepository, serviceProvider),
     IDeviceService
 {
     public int TokenSize { get; set; } = 64;
@@ -24,7 +25,7 @@ public class DeviceService(
     {
         if (device.CreatedById == 0)
         {
-            var userService = serviceProvider.GetRequiredService<IUserService>();
+            var userService = ServiceProvider.GetRequiredService<IUserService>();
             device.CreatedById = await userService.GetCurrentOrSystemUserIdAsync();
         }
 
@@ -35,7 +36,7 @@ public class DeviceService(
             device.Token = await Token.GetString(TokenSize, async token => await GetFirstOrDefaultByTokenAsync(token) == null);
         } else if (await GetFirstOrDefaultByTokenAsync(device.Token) != null)
         {
-            throw new InvalidOperationException("A device with the same token already exists.");
+            throw new ADeviceWithTheSameTokenAlreadyExistsException();
         }
 
         return device;

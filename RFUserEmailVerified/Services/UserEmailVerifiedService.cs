@@ -7,8 +7,11 @@ using RFUserEmailVerified.QueryOptions;
 
 namespace RFUserEmailVerified.Services;
 
-public class UserEmailVerifiedService(IUserEmailVerifiedRepository UserEmailVerifiedRepository)
-    : CommonEntityService<UserEmailVerified>(UserEmailVerifiedRepository),
+public class UserEmailVerifiedService(
+    IUserEmailVerifiedRepository UserEmailVerifiedRepository,
+    IServiceProvider serviceProvider
+)
+    : CommonEntityService<UserEmailVerified>(UserEmailVerifiedRepository, serviceProvider),
     IUserEmailVerifiedService
 {
     public Task<UserEmailVerified?> GetSingleOrDefaultByUserIdAsync(long userId, UserEmailVerifiedQueryOptions? options = null)
