@@ -10,5 +10,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.10" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RFRegisterService\RFRegisterService.csproj" />
+  </ItemGroup>
 	
 </Project>

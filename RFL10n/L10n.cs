@@ -1,38 +1,69 @@
-﻿using System.Globalization;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using RFRegisterService.Attributes;
+using System.Globalization;
 
 namespace RFL10n;
 
-public class L10n(IServiceProvider provider, string acceptLanguage)
+[RegisterService]
+public class L10n(IServiceProvider provider)
     : IL10n
 {
     static private readonly List<IL10nTranslator> Translators = [];
     static private readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> Cache = [];
     static private readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> Translations = [];
 
-    private readonly string[] Languages = [
-        ..acceptLanguage.Split(',')
-            .Select(language =>
+    private string? _acceptLanguage;
+    private string[]? _languages;
+
+    public string AcceptLanguage
+    {
+        get
+        {
+            if (_acceptLanguage == null)
             {
-                var keyValue = language.Split(';');
-                var key = keyValue[0].Trim();
-                float value;
-                if (keyValue.Length > 1)
-                {
-                    if (keyValue[1].Trim().StartsWith("q="))
-                        value = float.Parse(keyValue[1].Trim().AsSpan(2), CultureInfo.InvariantCulture);
-                    else
-                        value = 1;
+                var httpContextAccessor = provider.GetService<IHttpContextAccessor>();
+                var httpContext = httpContextAccessor?.HttpContext;
+                if (httpContext != null)
+                    _acceptLanguage = httpContext.Request.Headers["Accept-Language"].ToString();
+            }
 
-                    return new KeyValuePair<string, float>(key, value);
-                }
-                else
-                    value = 1;
+            return _acceptLanguage ?? "";
+        }
+    }
 
-                return new KeyValuePair<string, float>(key, value);
-            })
-            .OrderByDescending(x => x.Value)
-            .Select(x => x.Key)
-        ];
+    public string[] Languages
+    {
+        get
+        {
+            _languages ??= [
+                ..AcceptLanguage.Split(',')
+                    .Select(language =>
+                    {
+                        var keyValue = language.Split(';');
+                        var key = keyValue[0].Trim();
+                        float value;
+                        if (keyValue.Length > 1)
+                        {
+                            if (keyValue[1].Trim().StartsWith("q="))
+                                value = float.Parse(keyValue[1].Trim().AsSpan(2), CultureInfo.InvariantCulture);
+                            else
+                                value = 1;
+
+                            return new KeyValuePair<string, float>(key, value);
+                        }
+                        else
+                            value = 1;
+
+                        return new KeyValuePair<string, float>(key, value);
+                    })
+                    .OrderByDescending(x => x.Value)
+                    .Select(x => x.Key)
+                ];
+
+            return _languages;
+        }
+    }
 
     static public void AddTranslator(IL10nTranslator translator)
         => Translators.Add(translator);
@@ -105,14 +136,13 @@ public class L10n(IServiceProvider provider, string acceptLanguage)
         }
     }
 
-    public static void AddTranslationsFromPath(string path, bool absolutePath = false, bool throwIfNoFiles = false)
+    public static void AddTranslationsFromPath(string path = "locale", bool absolutePath = false, bool throwIfNoFiles = false)
     {
-        var basePath = absolutePath ? "" : AppContext.BaseDirectory;
-        var effectivePath = Path.Combine(basePath, path);
+        var basePath = Path.Combine(absolutePath ? "" : AppContext.BaseDirectory, path);
         var indent = "      ";
         var showPath = absolutePath ? "" : "." + Path.DirectorySeparatorChar;
 
-        if (!Directory.Exists(effectivePath))
+        if (!Directory.Exists(basePath))
         {
             if (throwIfNoFiles)
                 throw new DirectoryNotFoundException($"The directory {path} does not exist.");
@@ -124,7 +154,7 @@ public class L10n(IServiceProvider provider, string acceptLanguage)
             return;
         }
 
-        var files = Directory.GetFiles(effectivePath, "*.txt", SearchOption.AllDirectories);
+        var files = Directory.GetFiles(basePath, "*.txt", SearchOption.AllDirectories);
         if (files.Length == 0)
             return;
 
@@ -135,8 +165,10 @@ public class L10n(IServiceProvider provider, string acceptLanguage)
         Console.WriteLine($"Loading translations from path: {showPath + Path.Combine(path, "*.txt")}");
         foreach (var file in files)
         {
+            var localFileName = file.AsSpan(pathFrom);
+
             Console.Write(indent);
-            Console.WriteLine(string.Concat(showPath, file.AsSpan(pathFrom)));
+            Console.WriteLine(string.Concat(showPath, localFileName));
 
             var filename = Path.GetFileNameWithoutExtension(file);
             var parts = filename.Split('_');

@@ -39,34 +39,34 @@ public class HttpExceptionL10nMiddleware(
             {
                 context.Response.StatusCode = httpException.StatusCode;
 
-            try
-            {
-                using var scope = provider.CreateScope();
-                var l10n = scope.ServiceProvider.GetService<IL10n>();
-                if (l10n != null)
+                try
                 {
-                    message = await l10n._c(
-                        "exception",
-                        httpException.MessageFormat,
-                        httpException.Parameters
-                    );
+                    using var scope = provider.CreateScope();
+                    var l10n = scope.ServiceProvider.GetService<IL10n>();
+                    if (l10n != null)
+                    {
+                        message = await l10n._c(
+                            "exception",
+                            httpException.MessageFormat,
+                            httpException.Parameters
+                        );
+                    }
+                    else
+                    {
+                        message = httpException.Message;
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    message = httpException.Message;
+                    logger.LogError(e, "Error translating exception message.");
+                    message = exception.Message;
                 }
             }
-            catch (Exception e)
+            else
             {
-                logger.LogError(e, "Error translating exception message.");
+                context.Response.StatusCode = 500;
                 message = exception.Message;
             }
-        }
-        else
-        {
-            context.Response.StatusCode = 500;
-            message = exception.Message;
-        }
 
             errorType = exception.GetType()
                 ?.GetProperty("Error")

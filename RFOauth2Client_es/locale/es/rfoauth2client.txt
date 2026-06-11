@@ -1,2 +1,5 @@
-﻿No user not found.
+﻿Error retrieving access token: {0}
+Error al recuperar el token de acceso: {0}
+
+User not found.
 Usuario no encontrado.
