@@ -49,9 +49,9 @@ public class ProviderService(IServiceProvider serviceProvider)
                         DisplayName = child["displayName"] ?? child["name"] ?? providersSection.Key,
                         IsEnabled = bool.TryParse(child["isEnabled"] ?? "true", out var isEnabled) && isEnabled,
                         Client = child.GetRequiredSection("client").Get<Client>()
-                            ?? throw new Exception("No client section in OAuth2Providers configuration"),
+                            ?? throw new NoClientSectionInOAuth2ProvidersConfigurationException(),
                         Endpoints = child.GetSection("endpoints").Get<Dictionary<string, Endpoint>>()
-                            ?? throw new Exception("No endpoints section in OAuth2Providers configuration"),
+                            ?? throw new NoEndpointsSectionInOAuth2ProvidersConfigurationException(),
                         RolesSources = child.GetSection("roles").Get<List<RolesSource>>(),
                         Features = child.GetSection("features").Get<Features>(),
                     };
@@ -190,10 +190,10 @@ public class ProviderService(IServiceProvider serviceProvider)
     {
         var token = await GetToken(provider, data?.GetString("code") ?? "");
         if (string.IsNullOrEmpty(token))
-            throw new HttpException(400, $"No access token received.");
+            throw new NoAccessTokenReceivedException();
 
         var userInfo = await GetUserInfo(provider, token)
-            ?? throw new HttpException(400, $"No user info.");
+            ?? throw new NoUserInfoException();
 
         var username = RFString.FirstNonEmpty(userInfo.PreferredUsername, userInfo.Username, userInfo.Email, userInfo.Sub, userInfo.Name);
         var userId = await UserService.GetSingleIdOrDefaultByUsernameAsync(username);
