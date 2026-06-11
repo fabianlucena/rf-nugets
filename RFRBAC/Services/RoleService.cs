@@ -9,10 +9,9 @@ namespace RFRBAC.Services;
 
 public class RoleService(
     IRoleRepository roleRepository,
-    IL10n l10n,
     IServiceProvider serviceProvider
 )
-    : LocalizableEntityService<Role>(roleRepository, l10n, serviceProvider),
+    : LocalizableEntityService<Role>(roleRepository, serviceProvider),
     IRoleService
 {
     public async Task<long> GetSingleIdOrCreateByNameAsync(string name, RoleQueryOptions? options = null)

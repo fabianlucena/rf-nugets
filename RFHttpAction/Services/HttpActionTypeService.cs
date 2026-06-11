@@ -8,10 +8,9 @@ namespace RFHttpAction.Services;
 
 public class HttpActionTypeService(
     IHttpActionTypeRepository httpActionTypeRepository,
-    IL10n l10n,
     IServiceProvider serviceProvider
 )
-    : LocalizableEntityService<HttpActionType>(httpActionTypeRepository, l10n, serviceProvider),
+    : LocalizableEntityService<HttpActionType>(httpActionTypeRepository, serviceProvider),
         IHttpActionTypeService
 {
 }

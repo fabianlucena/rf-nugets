@@ -1,4 +1,5 @@
-﻿using RFEntities.Entities;
+﻿using Microsoft.Extensions.DependencyInjection;
+using RFEntities.Entities;
 using RFIRepositories.IRepositories;
 using RFIServices.IServices;
 using RFIServices.QueryOptions;
@@ -8,13 +9,14 @@ namespace RFServices.Services;
 
 public class LocalizableEntityService<T>(
     ILocalizableEntityRepository<T> repository,
-    IL10n l10n,
     IServiceProvider serviceProvider
 )
     : TitledEntityService<T>(repository, serviceProvider),
     ILocalizableEntityService<T>
     where T : LocalizableEntity, new()
 {
+    public IL10n L10n { get => ServiceProvider.GetRequiredService<IL10n>(); }
+
     public override async Task<T> ValidateForCreateAsync(T entity)
     {
         entity = await base.ValidateForCreateAsync(entity);
@@ -27,7 +29,7 @@ public class LocalizableEntityService<T>(
         if (entity.Title is not null)
         {
             entity = (T)entity.Clone();
-            entity.Title = await l10n._(entity.Title);
+            entity.Title = await L10n._(entity.Title);
         }
 
         return entity;
