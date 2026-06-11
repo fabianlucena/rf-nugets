@@ -105,13 +105,39 @@ public class L10n(IServiceProvider provider, string acceptLanguage)
         }
     }
 
-    public static void AddTranslationsFromPath(string path)
+    public static void AddTranslationsFromPath(string path, bool absolutePath = false, bool throwIfNoFiles = false)
     {
-        if (!Directory.Exists(path))
-            throw new DirectoryNotFoundException($"The directory {path} does not exist.");
+        var indent = "      ";
+        if (!absolutePath)
+            path = Path.Combine(AppContext.BaseDirectory, path);
 
-        foreach (var file in Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories))
+        if (!Directory.Exists(path))
         {
+            if (throwIfNoFiles)
+                throw new DirectoryNotFoundException($"The directory {path} does not exist.");
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("warn: ");
+            Console.ResetColor();
+            Console.WriteLine("No translations files in path:");
+            Console.Write(indent);
+            Console.WriteLine(path);
+            return;
+        }
+
+        var files = Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories);
+        if (files.Length == 0)
+            return;
+
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.Write("info: ");
+        Console.ResetColor();
+        Console.WriteLine("Loading translations from files:");
+        foreach (var file in files)
+        {
+            Console.Write(indent);
+            Console.WriteLine(file);
+
             var filename = Path.GetFileNameWithoutExtension(file);
             var parts = filename.Split('_');
             if (parts.Length == 2)
