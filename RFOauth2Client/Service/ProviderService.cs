@@ -150,7 +150,7 @@ public class ProviderService(IServiceProvider serviceProvider)
                 ?? root.GetProperty("error").ToString();
         } catch(JsonException) { }
 
-        throw new AuthorizationErrorException($"Error retrieving access token: {message}");
+        throw new ErrorRetrivingAccessTokenException(message);
     }
 
     public static async Task<HttpResponseMessage> Get(Provider provider, Endpoint endpoint, string accessToken)
