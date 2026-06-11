@@ -8,9 +8,11 @@ namespace RFEntitiesEF.Repositories
     public class BaseRepository<T>(DbContext context)
         where T : Base, new()
     {
+        public DbContext Context { get; } = context;
+
         public virtual IQueryable<T> CreateDBSet(BaseQueryOptions? options = null)
         {
-            IQueryable<T> queryable = context.Set<T>()
+            IQueryable<T> queryable = Context.Set<T>()
                 .AsNoTracking();
 
             if (options != null)
@@ -37,9 +39,9 @@ namespace RFEntitiesEF.Repositories
 
         public virtual async Task<T> CreateAsync(T entity)
         {
-            var set = context.Set<T>();
+            var set = Context.Set<T>();
             set.Add(entity);
-            await context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
 
             return entity;
         }
@@ -59,15 +61,15 @@ namespace RFEntitiesEF.Repositories
             var result = 0;
             foreach (var entity in list)
             {
-                context.Attach(entity);
+                Context.Attach(entity);
 
                 foreach (var kv in data)
                 {
-                    context.Entry(entity).Property(kv.Key).CurrentValue = kv.Value;
-                    context.Entry(entity).Property(kv.Key).IsModified = true;
+                    Context.Entry(entity).Property(kv.Key).CurrentValue = kv.Value;
+                    Context.Entry(entity).Property(kv.Key).IsModified = true;
                 }
 
-                await context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
                 result++;
             }
 
