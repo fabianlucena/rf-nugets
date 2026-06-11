@@ -120,9 +120,7 @@ public class L10n(IServiceProvider provider, string acceptLanguage)
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write("warn: ");
             Console.ResetColor();
-            Console.WriteLine("No translations files in path:");
-            Console.Write(indent);
-            Console.WriteLine(path);
+            Console.WriteLine($"No translations files in path: {showPath + Path.Combine(path, "*.txt")}");
             return;
         }
 
@@ -134,7 +132,7 @@ public class L10n(IServiceProvider provider, string acceptLanguage)
         Console.ForegroundColor = ConsoleColor.Blue;
         Console.Write("info: ");
         Console.ResetColor();
-        Console.WriteLine($"Loading translations from path: {showPath + path}");
+        Console.WriteLine($"Loading translations from path: {showPath + Path.Combine(path, "*.txt")}");
         foreach (var file in files)
         {
             Console.Write(indent);
