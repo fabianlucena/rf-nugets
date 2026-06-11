@@ -6,6 +6,7 @@ using RFIRepositories.IRepositories;
 using RFIServices.IServices;
 using RFIServices.QueryOptions;
 using RFRegisterService.Attributes;
+using RFServices.Exceptions;
 
 namespace RFServices.Services;
 
@@ -17,6 +18,16 @@ public class UserService(
     : CommonEntityService<User>(userRepository, serviceProvider),
     IUserService
 {
+    public override async Task<User> ValidateForCreateAsync(User entity)
+    {
+        entity = await base.ValidateForCreateAsync(entity);
+
+        if (entity.TypeId <= 0)
+            throw new TypeIdIsRequiredToCreateANewUserException();
+
+        return entity;
+    }
+
     public async Task<User> GetSingleByUsernameAsync(string username, UserQueryOptions? options = null)
         => await GetSingleAsync(new UserQueryOptions(options) { Username = username });
 

@@ -28,7 +28,8 @@ public class ProviderService(IServiceProvider serviceProvider)
     public IDeviceService DeviceService { get => serviceProvider.GetRequiredService<IDeviceService>(); }
     public ILoginService LoginService { get => serviceProvider.GetRequiredService<ILoginService>(); }
     public IUserEmailVerifiedService UserEmailVerifiedService { get => serviceProvider.GetRequiredService<IUserEmailVerifiedService>(); }
-    public IRoleXUserService IRoleXUserService { get => serviceProvider.GetRequiredService<IRoleXUserService>(); }
+    public IRoleXUserService RoleXUserService { get => serviceProvider.GetRequiredService<IRoleXUserService>(); }
+    public IUserTypeService UserTypeService { get => serviceProvider.GetRequiredService<IUserTypeService>(); }
 
     public async Task<IEnumerable<Provider>> GetListAsync()
     {
@@ -222,6 +223,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         {
             Username = username,
             DisplayName = displayName,
+            TypeId = await UserTypeService.GetSingleIdByNameAsync("system"),
         });
 
         if (!string.IsNullOrEmpty(userInfo.Email))
@@ -287,6 +289,6 @@ public class ProviderService(IServiceProvider serviceProvider)
         }
 
         if (roles.Count != 0)
-            await IRoleXUserService.SetAllRolesForUserIdAsync(roles, userId);
+            await RoleXUserService.SetAllRolesForUserIdAsync(roles, userId);
     }
 }
