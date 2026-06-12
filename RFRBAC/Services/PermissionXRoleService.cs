@@ -58,11 +58,16 @@ public class PermissionXRoleService(
             var existentPermissionIds = await GetPermissionIdsByRoleIdsAsync([roleId]);
             var newPermissionIds = permissionIds.Except(existentPermissionIds);
 
-            await Task.WhenAll(newPermissionIds.Select(permissionId => CreateAsync(new PermissionXRole
+            foreach (var permissionId in newPermissionIds)
             {
-                RoleId = roleId,
-                PermissionId = permissionId
-            })));
+                await CreateAsync(new PermissionXRole
+                {
+                    RoleId = roleId,
+                    PermissionId = permissionId,
+                    CreatedById = creatorId,
+                    DeletedById = creatorId,
+                });
+            }
         }
 
         return true;
