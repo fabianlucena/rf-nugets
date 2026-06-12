@@ -45,3 +45,12 @@ Filtro desconocido: {0}.
 
 UpdatedById must be set for auditable entries
 Se debe establecer UpdatedById para entradas auditables
+
+{0} seeder cannot be abstract
+El seeder {0} no puede ser abstracto
+
+{0} seeder cannot be a generic type
+El seeder {0} no puede ser un tipo genérico
+
+{0} seeder must implement ISeedInitialData
+El seeder {0} debe implementar ISeedInitialData

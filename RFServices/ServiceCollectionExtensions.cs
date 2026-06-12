@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFIServices.IServices;
 using RFServices.Attributes;
+using RFServices.Exceptions;
+using RFServices.Interfaces;
 using RFServices.Services;
 using System.Reflection;
 
@@ -19,21 +21,25 @@ public static class ServiceCollectionExtensions
     {
         var seederTypes = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(a => a.GetTypes())
-            .Where(t => t.GetCustomAttribute<SeedDataAttribute>() != null)
-            .Where(t => t.IsClass && !t.IsAbstract)
-            .OrderBy(t => t.Name) // opcional: orden alfabético
+            .Where(t => t.IsClass && t.GetCustomAttribute<SeedDataAttribute>() != null)
             .ToList();
+
+        if (seederTypes.Count == 0)
+            return;
 
         foreach (var seederType in seederTypes)
         {
-            var seeder = provider.GetRequiredService(seederType);
+            if (!typeof(ISeedInitialData).IsAssignableFrom(seederType))
+                throw new SeederMustImplementISeedInitialDataException(seederType.Name);
 
-            var runMethod = seederType.GetMethod("Run")
-                ?? throw new InvalidOperationException($"{seederType.Name} no tiene un método Run().");
-            var result = runMethod.Invoke(seeder, null);
+            if (seederType.IsGenericType)
+                throw new SeederCannotBeAGenericTypeException(seederType.Name);
 
-            if (result is Task task)
-                await task;
+            if (seederType.IsAbstract)
+                throw new SeederCannotBeAbstractException($"{seederType.Name} no puede ser abstracta.");
+
+            var seeder = (ISeedInitialData)ActivatorUtilities.CreateInstance(provider, seederType);
+            await seeder.Run();
         }
     }
 }
