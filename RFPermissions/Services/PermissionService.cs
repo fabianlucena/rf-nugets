@@ -22,7 +22,22 @@ public class PermissionService(
         return await permissionRepository.GetIdsAsync(options);
     }
 
-    public async Task<IEnumerable<long>> GetIdsOrCreateByNamesAsync(IEnumerable<string> names, PermissionQueryOptions? options = null)
+    public async Task<long> GetSingleIdOrCreateByNameAsync(string name, PermissionQueryOptions? options = null, Func<Permission, Task<Permission>>? completeCreateData = null)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Name cannot be null or whitespace.", nameof(name));
+        var id = await GetSingleIdOrDefaultByNameAsync(name, options);
+        if (id is not null)
+            return id.Value;
+
+        var permission = new Permission { Name = name };
+        if (completeCreateData is not null)
+            permission = await completeCreateData(permission);
+
+        return (await CreateAsync(permission)).Id;
+    }
+
+    public async Task<IEnumerable<long>> GetIdsOrCreateByNamesAsync(IEnumerable<string> names, PermissionQueryOptions? options = null, Func<Permission, Task<Permission>>? completeCreateData = null)
     {
         var ids = new List<long>();
         foreach (var name in names)
@@ -30,9 +45,7 @@ public class PermissionService(
             if (string.IsNullOrWhiteSpace(name))
                 continue;
 
-            var id = await GetSingleIdOrDefaultByNameAsync(name, options)
-                ?? (await CreateAsync(new Permission { Name = name })).Id;
-
+            var id = await GetSingleIdOrCreateByNameAsync(name, options, completeCreateData);
             ids.Add(id);
         }
 

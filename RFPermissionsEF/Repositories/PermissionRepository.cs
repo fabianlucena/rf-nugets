@@ -4,9 +4,11 @@ using RFIServices.QueryOptions;
 using RFPermissions.Entities;
 using RFPermissions.IRepositories;
 using RFPermissions.QueryOptions;
+using RFRegisterService.Attributes;
 
 namespace RFPermissionsEF.Repositories;
 
+[RegisterService]
 public class PermissionRepository(DbContext context)
     : CreatableEntityRepository<Permission>(context),
     IPermissionRepository

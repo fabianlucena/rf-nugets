@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using RFIServices.IServices;
 using RFPermissions.IServices;
 using RFRBAC.Entities;
 using RFRBAC.IRepositories;
@@ -20,6 +21,7 @@ public class PermissionXRoleService(
 
     public IPermissionService PermissionService { get => ServiceProvider.GetRequiredService<IPermissionService>(); }
     public IRoleService RoleService { get => ServiceProvider.GetRequiredService<IRoleService>(); }
+    public IUserService UserService { get => ServiceProvider.GetRequiredService<IUserService>(); }
 
     public async Task<IEnumerable<long>> GetPermissionIdsByRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null)
         => await permissionXRoleRepository.GetPermissionIdsByRoleIdsAsync(roleIds, options);
@@ -36,8 +38,22 @@ public class PermissionXRoleService(
         {
             var roleName = kvp.Key;
             var permissionNames = kvp.Value;
-            var permissionIds = await PermissionService.GetIdsOrCreateByNamesAsync(permissionNames);
-            var roleId = await RoleService.GetSingleIdOrCreateByNameAsync(roleName);
+            var creatorId = await UserService.GetCurrentOrSystemUserIdAsync();
+            var permissionIds = await PermissionService.GetIdsOrCreateByNamesAsync(
+                permissionNames,
+                completeCreateData: async permission =>
+                {
+                    permission.CreatedById = creatorId;
+                    return permission;
+                });
+            var roleId = await RoleService.GetSingleIdOrCreateByNameAsync(
+                roleName,
+                completeCreateData: async role =>
+                {
+                    role.CreatedById = creatorId;
+                    role.UpdatedById = creatorId;
+                    return role;
+                });
 
             var existentPermissionIds = await GetPermissionIdsByRoleIdsAsync([roleId]);
             var newPermissionIds = permissionIds.Except(existentPermissionIds);
