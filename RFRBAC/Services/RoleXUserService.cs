@@ -43,7 +43,15 @@ public class RoleXUserService(
         var systemUserId = await UserService.GetSystemUserIdAsync();
         foreach (var role in addRoles)
         {
-            var roleId = await roleService.GetSingleIdByNameOrCreateAsync(role);
+            var roleId = await roleService.GetIdOrCreateByNameAsync(
+                role,
+                createFactory: async r =>
+                {
+                    r.CreatedById = systemUserId;
+                    r.UpdatedById = systemUserId;
+                    return r;
+                }
+            );
             await CreateAsync(new RoleXUser
             {
                 UserId = userId,
