@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace RFRegisterService;
 
-public static class ServiceCollectionExtensions
+public static class AttributedServiceRegistration
 {
     public static IServiceCollection AddAttributedServices(this IServiceCollection services)
     {

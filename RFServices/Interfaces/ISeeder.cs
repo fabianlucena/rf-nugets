@@ -1,6 +1,6 @@
 ﻿namespace RFServices.Interfaces;
 
-public interface ISeedInitialData
+public interface ISeeder
 {
     Task Run();
 }

@@ -4,9 +4,9 @@ using RFUserEmailVerifiedEF.Repositories;
 
 namespace RFUserEmailVerifiedEF;
 
-public static class ServiceCollectionExtensions
+public static class AddRFUserEmailVerifiedEFServicesRegistration
 {
-    public static IServiceCollection AddRFUserEmailVerifiedEF(this IServiceCollection services)
+    public static IServiceCollection AddRFUserEmailVerifiedEFServices(this IServiceCollection services)
     {
         services.AddScoped<IUserEmailVerifiedRepository, UserEmailVerifiedRepository>();
 

@@ -4,7 +4,7 @@ using RFRBAC.Services;
 
 namespace RFRBAC
 {
-    public static class ServiceCollectionExtensions
+    public static class AddRFRBACServicesRegistration
     {
         public static IServiceCollection AddRFRBACServices(this IServiceCollection services)
         {

@@ -4,9 +4,9 @@ using RFPermissionsEF.Repositories;
 
 namespace RFPermissionsEF;
 
-public static class ServiceCollectionExtensions
+public static class AddRFPermissionsEFServicesRegistration
 {
-    public static IServiceCollection AddRFPermissionsEF(this IServiceCollection services)
+    public static IServiceCollection AddRFPermissionsEFServices(this IServiceCollection services)
     {
         services.AddScoped<IPermissionRepository, PermissionRepository>();
 

@@ -9,8 +9,9 @@ namespace RFRGOBAC.Services;
 
 public class RoleXUserXOrganizationService(
     IRoleXUserXOrganizationRepository roleXUserXOrganizationRepository,
-    IRoleIncludeService roleIncludeService
-) : CommonJoinService<RoleXUserXOrganization>(roleXUserXOrganizationRepository),
+    IRoleIncludeService roleIncludeService,
+    IServiceProvider serviceProvider
+) : CommonJoinService<RoleXUserXOrganization>(roleXUserXOrganizationRepository, serviceProvider),
     IRoleXUserXOrganizationService
 {
     public async Task<IEnumerable<long>> GetRoleIdsByUserIdsAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)

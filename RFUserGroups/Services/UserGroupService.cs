@@ -9,9 +9,10 @@ namespace RFUserGroups.Services
 {
     public class UserGroupService(
         IUserGroupRepository userGroupRepository,
-        IUserService userService
+        IUserService userService,
+        IServiceProvider serviceProvider
     )
-        : CommonJoinService<UserGroup>(userGroupRepository),
+        : CommonJoinService<UserGroup>(userGroupRepository, serviceProvider),
         IUserGroupService
     {
         public async Task<IEnumerable<long>> GetAllGroupIdsByUserIdsAsync(IEnumerable<long> userIds, UserGroupQueryOptions? options = null)

@@ -7,8 +7,9 @@ using RFServices.Services;
 namespace RFRGOBAC.Services;
 
 public class SessionOrganizationService(
-    ISessionOrganizationRepository sessionOrganizationRepository
-) : NoIdEntityService<SessionOrganization>(sessionOrganizationRepository),
+    ISessionOrganizationRepository sessionOrganizationRepository,
+    IServiceProvider serviceProvider
+) : NoIdEntityService<SessionOrganization>(sessionOrganizationRepository, serviceProvider),
     ISessionOrganizationService
 {
     public async Task<Organization> GetSingleOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)

@@ -17,28 +17,27 @@ public class PermissionXRoleService(
     : CommonJoinService<PermissionXRole>(permissionXRoleRepository, serviceProvider),
     IPermissionXRoleService
 {
+
+    public IPermissionService PermissionService { get => ServiceProvider.GetRequiredService<IPermissionService>(); }
+    public IRoleService RoleService { get => ServiceProvider.GetRequiredService<IRoleService>(); }
+
     public async Task<IEnumerable<long>> GetPermissionIdsByRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null)
         => await permissionXRoleRepository.GetPermissionIdsByRoleIdsAsync(roleIds, options);
 
     public async Task<IEnumerable<string>> GetPermissionNamesByRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null)
     {
-        IPermissionService permissionService = ServiceProvider.GetRequiredService<IPermissionService>();
-
         var allPermissionIds = await GetPermissionIdsByRoleIdsAsync(roleIds, options);
-        return await permissionService.GetNamesByIdsAsync(allPermissionIds);
+        return await PermissionService.GetNamesByIdsAsync(allPermissionIds);
     }
 
     public async Task<bool> CreateIfNotExistsAsync(IDictionary<string, IEnumerable<string>> rolesPermissions)
     {
-        IPermissionService permissionService = ServiceProvider.GetRequiredService<IPermissionService>();
-        IRoleService roleService = ServiceProvider.GetRequiredService<IRoleService>();
-
         foreach (var kvp in rolesPermissions)
         {
             var roleName = kvp.Key;
             var permissionNames = kvp.Value;
-            var permissionIds = await permissionService.GetIdsOrCreateByNamesAsync(permissionNames);
-            var roleId = await roleService.GetSingleIdOrCreateByNameAsync(roleName);
+            var permissionIds = await PermissionService.GetIdsOrCreateByNamesAsync(permissionNames);
+            var roleId = await RoleService.GetSingleIdOrCreateByNameAsync(roleName);
 
             var existentPermissionIds = await GetPermissionIdsByRoleIdsAsync([roleId]);
             var newPermissionIds = permissionIds.Except(existentPermissionIds);

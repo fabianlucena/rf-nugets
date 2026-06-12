@@ -6,7 +6,7 @@ using RFRGOBAC.Services;
 
 namespace RFRGOBAC;
 
-public static class ServiceCollectionExtensions
+public static class AddRFRGOBACServicesRegistration
 {
     public static IServiceCollection AddRFRGOBACServices(this IServiceCollection services)
     {

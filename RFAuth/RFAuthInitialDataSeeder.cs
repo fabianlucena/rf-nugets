@@ -7,11 +7,11 @@ using RFServices.Interfaces;
 namespace RFAuth;
 
 [SeedData(true)]
-public class SeedInitialData(
+public class RFAuthInitialDataSeeder(
     IUserService userService,
     IUserTypeService userTypeService,
     IUserPasswordService userPasswordService
-) : ISeedInitialData
+) : ISeeder
 {
     public async Task Run()
     {

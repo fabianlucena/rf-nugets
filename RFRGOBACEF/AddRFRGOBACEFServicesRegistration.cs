@@ -6,9 +6,9 @@ using RFRGOBACEF.Repositories;
 
 namespace RFRGOBACEF;
 
-public static class ServiceCollectionExtensions
+public static class AddRFRGOBACEFServicesRegistration
 {
-    public static IServiceCollection AddRFRGOBACEF(this IServiceCollection services)
+    public static IServiceCollection AddRFRGOBACEFServices(this IServiceCollection services)
     {
         services.AddScoped<IOrganizationRepository, OrganizationRepository>();
         services.AddScoped<ISessionOrganizationRepository, SessionOrganizationRepository>();

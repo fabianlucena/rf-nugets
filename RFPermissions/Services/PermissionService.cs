@@ -2,10 +2,12 @@
 using RFPermissions.IRepositories;
 using RFPermissions.IServices;
 using RFPermissions.QueryOptions;
+using RFRegisterService.Attributes;
 using RFServices.Services;
 
 namespace RFPermissions.Services;
 
+[RegisterService]
 public class PermissionService(
     IPermissionRepository permissionRepository,
     IServiceProvider serviceProvider

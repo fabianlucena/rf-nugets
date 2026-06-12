@@ -4,7 +4,7 @@ using RFAuth.Services;
 
 namespace RFAuth
 {
-    public static class ServiceCollectionExtensions
+    public static class AddRFAuthServicesRegistration
     {
         public static IServiceCollection AddRFAuthServices(this IServiceCollection services)
         {

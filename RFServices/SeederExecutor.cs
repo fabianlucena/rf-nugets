@@ -1,22 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RFIServices.IServices;
 using RFServices.Attributes;
 using RFServices.Exceptions;
 using RFServices.Interfaces;
-using RFServices.Services;
 using System.Reflection;
 
 namespace RFServices;
 
-public static class ServiceCollectionExtensions
+public static class SeederExecutor
 {
-    public static IServiceCollection AddRFBaseServices(this IServiceCollection services)
-    {
-        services.AddScoped<IUserService, UserService>();
-
-        return services;
-    }
-
     public static async Task ExecuteSeedersAsync(this IServiceProvider provider)
     {
         var seederTypes = AppDomain.CurrentDomain.GetAssemblies()
@@ -29,7 +20,7 @@ public static class ServiceCollectionExtensions
 
         foreach (var seederType in seederTypes)
         {
-            if (!typeof(ISeedInitialData).IsAssignableFrom(seederType))
+            if (!typeof(ISeeder).IsAssignableFrom(seederType))
                 throw new SeederMustImplementISeedInitialDataException(seederType.FullName ?? seederType.Name);
 
             if (seederType.IsGenericType)
@@ -38,7 +29,7 @@ public static class ServiceCollectionExtensions
             if (seederType.IsAbstract)
                 throw new SeederCannotBeAbstractException(seederType.FullName ?? seederType.Name);
 
-            var seeder = (ISeedInitialData)ActivatorUtilities.CreateInstance(provider, seederType);
+            var seeder = (ISeeder)ActivatorUtilities.CreateInstance(provider, seederType);
             await seeder.Run();
         }
     }

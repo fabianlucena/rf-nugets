@@ -4,7 +4,7 @@ using RFUserGroupsIServices.IServices;
 
 namespace RFUserGroups;
 
-public static class ServiceCollectionExtensions
+public static class AddRFUserGroupsServicesRegistration
 {
     public static IServiceCollection AddRFUserGroupsServices(this IServiceCollection services)
     {
