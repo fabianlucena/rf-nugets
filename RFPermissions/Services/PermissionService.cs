@@ -15,6 +15,9 @@ public class PermissionService(
     : ImmutableEntityService<Permission>(permissionRepository, serviceProvider),
     IPermissionService
 {
+    public async Task<IEnumerable<string>> GetNamesAsync(PermissionQueryOptions options)
+        => await permissionRepository.GetNamesAsync(options);
+
     public async Task<IEnumerable<long>> GetIdsByNamesAsync(IEnumerable<string> names, PermissionQueryOptions? options = null)
     {
         options = (PermissionQueryOptions?)(options?.Clone() ?? new PermissionQueryOptions());
