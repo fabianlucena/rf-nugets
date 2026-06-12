@@ -30,13 +30,13 @@ public static class ServiceCollectionExtensions
         foreach (var seederType in seederTypes)
         {
             if (!typeof(ISeedInitialData).IsAssignableFrom(seederType))
-                throw new SeederMustImplementISeedInitialDataException(seederType.Name);
+                throw new SeederMustImplementISeedInitialDataException(seederType.FullName ?? seederType.Name);
 
             if (seederType.IsGenericType)
-                throw new SeederCannotBeAGenericTypeException(seederType.Name);
+                throw new SeederCannotBeAGenericTypeException(seederType.FullName ?? seederType.Name);
 
             if (seederType.IsAbstract)
-                throw new SeederCannotBeAbstractException($"{seederType.Name} no puede ser abstracta.");
+                throw new SeederCannotBeAbstractException(seederType.FullName ?? seederType.Name);
 
             var seeder = (ISeedInitialData)ActivatorUtilities.CreateInstance(provider, seederType);
             await seeder.Run();
