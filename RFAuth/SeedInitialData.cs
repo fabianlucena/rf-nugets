@@ -1,48 +1,42 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using RFAuth.IServices;
+﻿using RFAuth.IServices;
 using RFEntities.Entities;
 using RFIServices.IServices;
 using RFServices.Attributes;
+using RFServices.Interfaces;
 
-namespace RFAuth
+namespace RFAuth;
+
+[SeedData(true)]
+public class SeedInitialData(
+    IUserService userService,
+    IUserTypeService userTypeService,
+    IUserPasswordService userPasswordService
+) : ISeedInitialData
 {
-    [SeedData(true)]
-    public static class SeedInitialData
+    public async Task Run()
     {
-        public static async Task Run(IServiceProvider provider)
-        {
-            var userTypeService = provider.GetService<IUserTypeService>() ??
-                throw new Exception("Can't get IUserTypeService.");
+        var userType = await userTypeService.GetSingleByNameOrCreateAsync(
+            "user",
+            null,
+            async T => new UserType
+            {
+                Name = "user",
+                Title = "User",
+                IsTranslatable = true,
+            }
+        ); 
 
-            var userService = provider.GetService<IUserService>() ??
-                throw new Exception("Can't get IUserService.");
+        var user = await userService.GetSingleByUsernameOrCreateAsync(
+            "admin",
+            null,
+            async T => new User
+            {
+                TypeId = userType.Id,
+                Username = "admin",
+                DisplayName = "Administrador",
+            }
+        );
 
-            var userType = await userTypeService.GetSingleByNameOrCreateAsync(
-                "user",
-                null,
-                async T => new UserType
-                {
-                    Name = "user",
-                    Title = "User",
-                    IsTranslatable = true,
-                }
-            ); 
-
-            var user = await userService.GetSingleByUsernameOrCreateAsync(
-                "admin",
-                null,
-                async T => new User
-                {
-                    TypeId = userType.Id,
-                    Username = "admin",
-                    DisplayName = "Administrador",
-                }
-            );
-
-            var userPasswordService = provider.GetService<IUserPasswordService>() ??
-                throw new Exception("Can't get IUserPasswordService.");
-
-            await userPasswordService.CreateIfNotExistsByUsernameAsync("admin", "admin");
-        }
+        await userPasswordService.CreateIfNotExistsByUsernameAsync("admin", "admin");
     }
 }
