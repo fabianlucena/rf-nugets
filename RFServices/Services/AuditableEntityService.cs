@@ -24,7 +24,7 @@ public class AuditableEntityService<T>(
             var userService = ServiceProvider.GetService<IUserService>()
                 ?? throw new UpdatedByIdMustBeSetForAuditableEntriesException();
 
-            var updatedById = await userService.GetCurrentOrSystemUserIdAsync();
+            var updatedById = await userService.GetCurrentUserIdAsync();
             if (updatedById <= 0)
                 throw new UpdatedByIdMustBeSetForAuditableEntriesException();
 
@@ -45,7 +45,7 @@ public class AuditableEntityService<T>(
             var userService = ServiceProvider.GetService<IUserService>()
                 ?? throw new UpdatedByIdMustBeSetForAuditableEntriesException();
 
-            var updatedById = await userService.GetCurrentOrSystemUserIdAsync();
+            var updatedById = await userService.GetCurrentUserIdAsync();
             if (updatedById <= 0)
                 throw new UpdatedByIdMustBeSetForAuditableEntriesException();
 

@@ -1,11 +1,16 @@
-﻿using RFEntities.Entities;
+﻿using Microsoft.Extensions.DependencyInjection;
+using RFEntities.Entities;
 using RFIRepositories.IRepositories;
 using RFIServices.IServices;
+using RFServices.Exceptions;
 
 namespace RFServices.Services;
 
-public class CreatableJoinService<T>(ICreatableJoinRepository<T> repository)
-    : JoinService<T>(repository),
+public class CreatableJoinService<T>(
+    ICreatableJoinRepository<T> repository,
+    IServiceProvider serviceProvider
+)
+    : JoinService<T>(repository, serviceProvider),
     ICreatableJoinService<T>
     where T : CreatableJoin, new()
 {
@@ -15,7 +20,14 @@ public class CreatableJoinService<T>(ICreatableJoinRepository<T> repository)
 
         if (entity.CreatedById == 0)
         {
-            throw new ArgumentException("CreatedById must be set for new entries.");
+            var userService = ServiceProvider.GetService<IUserService>()
+                ?? throw new CreatedByIdMustBeSetForNewEntriesException();
+
+            var createdById = await userService.GetCurrentUserIdAsync();
+            if (createdById <= 0)
+                throw new CreatedByIdMustBeSetForNewEntriesException();
+
+            entity.CreatedById = createdById;
         }
 
         entity.CreatedAt = DateTime.UtcNow;

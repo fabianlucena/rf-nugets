@@ -5,8 +5,11 @@ using RFIServices.IServices;
 
 namespace RFServices.Services;
 
-public class NoIdEntityService<T>(INoIdEntityRepository<T> repository)
-    : BaseService<T>(repository),
+public class NoIdEntityService<T>(
+    INoIdEntityRepository<T> repository,
+    IServiceProvider serviceProvider
+)
+    : BaseService<T>(repository, serviceProvider),
     INoIdEntityService<T>
     where T : NoIdEntity, new()
 {

@@ -8,10 +8,15 @@ using RFServices.Exceptions;
 
 namespace RFServices.Services;
 
-public class BaseService<T>(IBaseRepository<T> repository)
+public class BaseService<T>(
+    IBaseRepository<T> repository,
+    IServiceProvider serviceProvider
+)
     : IBaseService<T>
     where T : Base
 {
+    public IServiceProvider ServiceProvider { get => serviceProvider; }
+
     public virtual async Task<T> ValidateForCreateAsync(T entity)
     {
         return entity;

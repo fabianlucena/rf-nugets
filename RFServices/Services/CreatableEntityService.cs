@@ -10,12 +10,10 @@ public class CreatableEntityService<T>(
     ICreatableEntityRepository<T> repository,
     IServiceProvider serviceProvider
 )
-    : EntityService<T>(repository),
+    : EntityService<T>(repository, serviceProvider),
     ICreatableEntityService<T>
     where T : CreatableEntity, new()
 {
-    public IServiceProvider ServiceProvider { get; } = serviceProvider;
-
     public override async Task<T> ValidateForCreateAsync(T entity)
     {
         entity = await base.ValidateForCreateAsync(entity);
@@ -25,7 +23,7 @@ public class CreatableEntityService<T>(
             var userService = ServiceProvider.GetService<IUserService>()
                 ?? throw new CreatedByIdMustBeSetForNewEntriesException();
 
-            var createdById = await userService.GetCurrentOrSystemUserIdAsync();
+            var createdById = await userService.GetCurrentUserIdAsync();
             if (createdById <= 0)
                 throw new CreatedByIdMustBeSetForNewEntriesException();
 

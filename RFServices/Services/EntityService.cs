@@ -7,8 +7,11 @@ using RFBase.ILibs;
 
 namespace RFServices.Services;
 
-public class EntityService<T>(IEntityRepository<T> repository)
-    : BaseService<T>(repository),
+public class EntityService<T>(
+    IEntityRepository<T> repository,
+    IServiceProvider serviceProvider
+)
+    : BaseService<T>(repository, serviceProvider),
     IEntityService<T>
     where T : Entity, new()
 {

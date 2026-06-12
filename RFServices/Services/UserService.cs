@@ -40,6 +40,27 @@ public class UserService(
     public async Task<User> GetSystemUserAsync()
         => await GetSingleByUsernameAsync("system");
 
+    public async Task<long> GetSystemUserIdAsync()
+        => (await GetSystemUserAsync()).Id;
+
+    public async Task<User> GetCurrentUserAsync()
+    {
+        var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
+        var items = contextAccessor.HttpContext?.Items;
+        if (items?.TryGetValue("CurrentUser", out var currentUserData) == true
+            && currentUserData is User currentUser
+            && currentUser is not null
+        )
+        {
+            return currentUser;
+        }
+
+        throw new NoCurrentUserException();
+    }
+
+    public async Task<long> GetCurrentUserIdAsync()
+        => (await GetCurrentUserAsync()).Id;
+
     public async Task<User> GetCurrentOrSystemUserAsync()
     {
         var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();

@@ -4,8 +4,11 @@ using RFIServices.IServices;
 
 namespace RFServices.Services;
 
-public class JoinService<T>(IJoinRepository<T> repository)
-    : BaseService<T>(repository),
+public class JoinService<T>(
+    IJoinRepository<T> repository,
+    IServiceProvider serviceProvider
+)
+    : BaseService<T>(repository, serviceProvider),
     IJoinService<T>
     where T : Join, new()
 {
