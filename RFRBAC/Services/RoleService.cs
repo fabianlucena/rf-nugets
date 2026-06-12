@@ -1,7 +1,6 @@
 ﻿using RFRBAC.Entities;
 using RFRBAC.IRepositories;
 using RFRBAC.IServices;
-using RFRBAC.QueryOptions;
 using RFRegisterService.Attributes;
 using RFServices.Services;
 
@@ -14,7 +13,4 @@ public class RoleService(
 )
     : LocalizableEntityService<Role>(roleRepository, serviceProvider),
     IRoleService
-{
-    public async Task<long> GetSingleIdOrCreateByNameAsync(string name, RoleQueryOptions? options = null)
-        => (await GetSingleByNameOrCreateAsync(name, options)).Id;
-}
+{}
