@@ -113,15 +113,15 @@ public class UserService(
         return await userRepository.GetUsernamesAsync(options);
     }
 
-    public async Task<User> GetSingleByUsernameOrCreateAsync(string username, UserQueryOptions? options = null, Func<User, Task<User>>? completeCreateData = null)
+    public async Task<User> GetOrCreateByUsernameAsync(string username, UserQueryOptions? options = null, Func<User, Task<User>>? createFactory = null)
     {
         var user = await GetSingleOrDefaultByUsernameAsync(username, options);
         if (user != null)
             return user;
 
         user = new User { Username = username };
-        if (completeCreateData != null)
-            user = await completeCreateData(user);
+        if (createFactory != null)
+            user = await createFactory(user);
 
         user = await CreateAsync(user);
 

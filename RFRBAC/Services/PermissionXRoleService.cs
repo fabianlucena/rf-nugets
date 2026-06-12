@@ -39,16 +39,16 @@ public class PermissionXRoleService(
             var roleName = kvp.Key;
             var permissionNames = kvp.Value;
             var creatorId = await UserService.GetCurrentOrSystemUserIdAsync();
-            var permissionIds = await PermissionService.GetIdsByNamesOrCreateAsync(
+            var permissionIds = await PermissionService.GetIdsOrCreateByNamesAsync(
                 permissionNames,
-                createData: async permission =>
+                createFactory: async permission =>
                 {
                     permission.CreatedById = creatorId;
                     return permission;
                 });
-            var roleId = await RoleService.GetSingleIdByNameOrCreateAsync(
+            var roleId = await RoleService.GetIdOrCreateByNameAsync(
                 roleName,
-                createData: async role =>
+                createFactory: async role =>
                 {
                     role.CreatedById = creatorId;
                     role.UpdatedById = creatorId;

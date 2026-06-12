@@ -12,14 +12,14 @@ namespace RFServices.Decorators
         public Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, NominableEntityQueryOptions? options = null)
             => nominableEntityService.GetNamesByIdsAsync(ids, options);
 
-        public Task<T> GetSingleByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? createData = null)
-            => nominableEntityService.GetSingleByNameOrCreateAsync(name, options, createData);
+        public Task<T> GetOrCreateByNameAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? createFactory = null)
+            => nominableEntityService.GetOrCreateByNameAsync(name, options, createFactory);
 
         public Task<long> GetSingleIdByNameAsync(string name, NominableEntityQueryOptions? options = null)
             => nominableEntityService.GetSingleIdByNameAsync(name, options);
 
-        public Task<long> GetSingleIdByNameOrCreateAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? completeCreateData = null)
-            => nominableEntityService.GetSingleIdByNameOrCreateAsync(name, options, completeCreateData);
+        public Task<long> GetIdOrCreateByNameAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? createFactory = null)
+            => nominableEntityService.GetIdOrCreateByNameAsync(name, options, createFactory);
 
         public Task<long?> GetSingleIdOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null)
             => nominableEntityService.GetSingleIdOrDefaultByNameAsync(name, options);
