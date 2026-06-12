@@ -4,15 +4,15 @@ using RFIServices.QueryOptions;
 using RFRBAC.Entities;
 using RFRBAC.IRepositories;
 using RFRBAC.QueryOptions;
+using RFRegisterService.Attributes;
 
 namespace RFRBACEF.Repositories;
 
-public class RoleXUserRepository
-    : CommonJoinRepository<RoleXUser>,
+[RegisterService]
+public class RoleXUserRepository(DbContext context)
+    : CommonJoinRepository<RoleXUser>(context),
     IRoleXUserRepository
 {
-    public RoleXUserRepository(DbContext context) : base(context) { }
-
     public override IQueryable<RoleXUser> CreateDBSet(BaseQueryOptions? options = null)
     {
         var queryable = base.CreateDBSet(options);

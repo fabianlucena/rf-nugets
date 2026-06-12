@@ -12,7 +12,7 @@ public class RoleXUserConfiguration
     {
         base.Configure(entity);
 
-        entity.HasNoKey();
+        entity.HasKey(x => new { x.RoleId, x.UserId });
 
         entity.HasOne(u => u.Role)
               .WithMany()

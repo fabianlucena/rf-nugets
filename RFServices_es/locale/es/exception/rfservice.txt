@@ -22,6 +22,9 @@ El elemento con el UUID "{0}" no se encuentra.
 Item with the ID "{0}" is not found.
 El elemento con el ID "{0}" no se encuentra.
 
+No current user
+No hay usuario actual
+
 Query returned no rows
 La consulta no retornó filas
 

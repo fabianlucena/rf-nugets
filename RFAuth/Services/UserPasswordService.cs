@@ -21,7 +21,7 @@ public class UserPasswordService(
     IUserPasswordRepository userPasswordRepository,
     IServiceProvider serviceProvider
 )
-    : NoIdEntityService<UserPassword>(userPasswordRepository),
+    : NoIdEntityService<UserPassword>(userPasswordRepository, serviceProvider),
     IUserPasswordService
 {
     private const int SaltSize = 16; // 128 bits
@@ -120,7 +120,7 @@ public class UserPasswordService(
 
     public async Task<bool> CreateOrUpdateByUsernameAsync(string password, string username)
     {
-        var userService = serviceProvider.GetRequiredService<IUserService>();
+        var userService = ServiceProvider.GetRequiredService<IUserService>();
         var userId = await userService.GetSingleIdByUsernameAsync(username);
         return await CreateOrUpdateByUserIdAsync(password, userId);
     }
@@ -153,7 +153,7 @@ public class UserPasswordService(
 
     public async Task<bool> CreateIfNotExistsByUsernameAsync(string password, string username)
     {
-        var userService = serviceProvider.GetRequiredService<IUserService>();
+        var userService = ServiceProvider.GetRequiredService<IUserService>();
         var userId = await userService.GetSingleIdByUsernameAsync(username);
 
         var userPassword = await GetSingleOrDefaultByUserIdAsync(userId);
