@@ -74,4 +74,13 @@ public class RoleXUserService(
 
         return updated;
     }
+
+    public async Task<bool> UserIdHasRoleIdAsync(long userId, long roleId, RoleXUserQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserQueryOptions();
+        options.UserId = userId;
+        options.RoleId = roleId;
+        var rows = await GetListAsync(options);
+        return rows.Any();
+    }
 }
