@@ -1,12 +1,13 @@
-﻿using RFL10n;
-using RFRBAC.Entities;
+﻿using RFRBAC.Entities;
 using RFRBAC.IRepositories;
 using RFRBAC.IServices;
 using RFRBAC.QueryOptions;
+using RFRegisterService.Attributes;
 using RFServices.Services;
 
 namespace RFRBAC.Services;
 
+[RegisterService]
 public class RoleService(
     IRoleRepository roleRepository,
     IServiceProvider serviceProvider
