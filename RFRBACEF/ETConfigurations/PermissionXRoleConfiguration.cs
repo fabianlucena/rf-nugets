@@ -12,6 +12,8 @@ namespace RFRBACEF.ETConfigurations
         {
             base.Configure(entity);
 
+            entity.HasKey(x => new { x.PermissionId, x.RoleId });
+
             entity.HasOne(u => u.Permission)
                   .WithMany()
                   .HasForeignKey(u => u.PermissionId)
