@@ -258,29 +258,29 @@ public class ProviderService(IServiceProvider serviceProvider)
         var rolesSources = provider.RolesSources ?? [];
         foreach (var rolesSource in rolesSources)
         {
-            JsonElement? rolesJsonData = null;
-            if (rolesSource.Endpoint == "token")
+            JsonElement? jsonData = null;
+            if (rolesSource.Source == "token")
             {
                 var handler = new JwtSecurityTokenHandler();
                 var jwt = handler.ReadJwtToken(token);
-                rolesJsonData = JsonSerializer.Deserialize<JsonElement>(jwt.Payload.SerializeToJson());
+                jsonData = JsonSerializer.Deserialize<JsonElement>(jwt.Payload.SerializeToJson());
             }
 
-            if (rolesJsonData is not null)
+            if (jsonData is not null)
             {
                 if (!string.IsNullOrEmpty(rolesSource.Path))
                 {
                     var path = rolesSource.Path.Split('.');
                     foreach (var part in path)
                     {
-                        if (!rolesJsonData.Value.TryGetProperty(part, out var nextSection))
+                        if (!jsonData.Value.TryGetProperty(part, out var nextSection))
                             break;
 
-                        rolesJsonData = nextSection;
+                        jsonData = nextSection;
                     }
                 }
 
-                roles.AddRange(rolesJsonData.Value
+                roles.AddRange(jsonData.Value
                     .EnumerateArray()
                     .Select(r => r.GetString())
                     .Where(r => !string.IsNullOrEmpty(r))
