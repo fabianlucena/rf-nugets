@@ -65,7 +65,6 @@ public class PermissionXRoleService(
                     RoleId = roleId,
                     PermissionId = permissionId,
                     CreatedById = creatorId,
-                    DeletedById = creatorId,
                 });
             }
         }
