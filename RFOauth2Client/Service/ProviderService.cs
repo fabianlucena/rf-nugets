@@ -106,7 +106,7 @@ public class ProviderService(IServiceProvider serviceProvider)
             || tokenEndpoint == null)
             throw new ActionNotFoundInProviderException("token", provider.Name);
         
-        var tokenUrl = tokenEndpoint.URL;
+        var tokenUrl = provider.Client.URLBase + tokenEndpoint.URL;
         if (string.IsNullOrEmpty(tokenUrl))
             throw new NoTokenURLInActionException();
 
@@ -268,23 +268,30 @@ public class ProviderService(IServiceProvider serviceProvider)
 
             if (jsonData is not null)
             {
+                var rolesSection = jsonData;
                 if (!string.IsNullOrEmpty(rolesSource.Path))
                 {
                     var path = rolesSource.Path.Split('.');
-                    foreach (var part in path)
+                    foreach (var step in path)
                     {
-                        if (!jsonData.Value.TryGetProperty(part, out var nextSection))
+                        if (!rolesSection.Value.TryGetProperty(step, out var nextSection))
+                        {
+                            rolesSection = null;
                             break;
+                        }
 
-                        jsonData = nextSection;
+                        rolesSection = nextSection;
                     }
                 }
 
-                roles.AddRange(jsonData.Value
-                    .EnumerateArray()
-                    .Select(r => r.GetString())
-                    .Where(r => !string.IsNullOrEmpty(r))
-                    .Select(r => r!.Trim()));
+                if (rolesSection is not null)
+                {
+                    roles.AddRange(rolesSection.Value
+                        .EnumerateArray()
+                        .Select(r => r.GetString())
+                        .Where(r => !string.IsNullOrEmpty(r))
+                        .Select(r => r!.Trim()));
+                }
             }
         }
 

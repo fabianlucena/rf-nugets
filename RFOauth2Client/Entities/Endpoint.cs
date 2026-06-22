@@ -35,7 +35,7 @@
 
         public string GetFullURL(Provider provider, Dictionary<string, string>? defaultValues = null)
         {
-            var fullURL = URL;
+            var fullURL = provider.Client.URLBase + URL;
 
             var parameters = GetParameters(provider, defaultValues);
             if (parameters.Count > 0)
