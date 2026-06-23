@@ -6,9 +6,11 @@ using RFBase.ILibs;
 using RFBase.Libs;
 using RFRBAC.DTO;
 using RFRBAC.IServices;
+using RFRegisterService.Attributes;
 
 namespace RFRBAC.Decorators;
 
+[RegisterDecorator]
 public class LoginServiceDecorator(
     ILoginService _loginService,
     IRPDataService rpDataService
