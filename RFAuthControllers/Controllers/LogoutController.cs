@@ -14,8 +14,8 @@ namespace RFAuthControllers.Controllers
         IL10n l10n
     ) : ControllerBase
     {
-        [HttpPost]
-        public async Task<IActionResult> PostAsync()
+        [HttpGet]
+        public async Task<IActionResult> GetAsync()
         {
             await loggerService.AddInfoGetAsync("Logout");
 
