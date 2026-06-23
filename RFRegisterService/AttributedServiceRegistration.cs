@@ -8,14 +8,48 @@ public static class AttributedServiceRegistration
 {
     public static IServiceCollection AddAttributedServices(this IServiceCollection services)
     {
+        var servicesToRegister = GetServicesToRegister<RegisterServiceAttribute>();
+        if (servicesToRegister.Count > 0)
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("info: ");
+            Console.ResetColor();
+            Console.WriteLine("Registering services:");
+            foreach (var (ServiceType, ImplementationType, Lifetime) in servicesToRegister)
+            {
+                Console.WriteLine($"      {ServiceType.Name} -> {ImplementationType.Name}");
+                services.Add(new ServiceDescriptor(ServiceType, ImplementationType, Lifetime));
+            }
+        }
+
+        var decoratorsToRegister = GetServicesToRegister<RegisterDecoratorAttribute>();
+        if (decoratorsToRegister.Count > 0)
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("info: ");
+            Console.ResetColor();
+            Console.WriteLine("Registering decorators:");
+            foreach (var (ServiceType, DecoratorType, Lifetime) in decoratorsToRegister)
+            {
+                Console.WriteLine($"      {ServiceType.Name} -> {DecoratorType.Name}");
+                services.Decorate(ServiceType, DecoratorType, Lifetime);
+            }
+        }
+
+        return services;
+    }
+
+    public static List<(Type ServiceType, Type ImplementationType, ServiceLifetime Lifetime)> GetServicesToRegister<TAttribute>() where TAttribute : RegisterServiceAttributeBase
+    {
         var types = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(a => a.GetTypes())
-            .Where(t => t.IsClass && !t.IsAbstract && t.GetCustomAttribute<RegisterServiceAttribute>() != null);
+            .Where(t => t.IsClass && !t.IsAbstract)
+            .Where(t => t.GetCustomAttribute<TAttribute>() != null);
 
-        var interfacesToRegister = new List<(Type ServiceType, Type ImplementationType, ServiceLifetime Lifetime)>();
+        var servicesToRegister = new List<(Type ServiceType, Type ImplementationType, ServiceLifetime Lifetime)>();
         foreach (var type in types)
         {
-            var attr = type.GetCustomAttribute<RegisterServiceAttribute>()!;
+            var attr = type.GetCustomAttribute<TAttribute>()!;
             var interfaces = attr.Interfaces ?? [];
 
             if (interfaces.Length == 0)
@@ -28,32 +62,19 @@ public static class AttributedServiceRegistration
                 {
                     interfaces = [.. allInterfaces.Where(i => i.Name == iName)];
                     if (interfaces.Length == 0)
-                        interfaces = [..allInterfaces.Where(i => i.Namespace != null && !i.Namespace.StartsWith("Microsoft."))];
+                        interfaces = [.. allInterfaces.Where(i => i.Namespace != null && !i.Namespace.StartsWith("Microsoft."))];
                 }
 
                 if (interfaces.Length == 0)
                     interfaces = [type];
             }
 
-            interfacesToRegister = [
-                ..interfacesToRegister,
+            servicesToRegister = [
+                ..servicesToRegister,
                 ..interfaces.Select(t => (ServiceType: t, ImplementationType: type, attr.Lifetime))
             ];
         }
 
-        if (interfacesToRegister.Count > 0)
-        {
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("info: ");
-            Console.ResetColor();
-            Console.WriteLine("Registering services:");
-            foreach (var (ServiceType, ImplementationType, Lifetime) in interfacesToRegister)
-            {
-                Console.WriteLine($"      {ServiceType.Name} -> {ImplementationType.Name}");
-                services.Add(new ServiceDescriptor(ServiceType, ImplementationType, Lifetime));
-            }
-        }
-
-        return services;
+        return servicesToRegister;
     }
 }

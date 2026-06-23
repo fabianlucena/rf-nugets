@@ -3,7 +3,6 @@
 namespace RFRegisterService.Attributes;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-public class RegisterServiceAttribute : RegisterServiceAttributeBase
+public class RegisterDecoratorAttribute : RegisterServiceAttributeBase
 {
 }
-
