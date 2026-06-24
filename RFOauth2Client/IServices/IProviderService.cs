@@ -1,4 +1,5 @@
-﻿using RFAuth.DTO;
+﻿using Microsoft.AspNetCore.Http;
+using RFAuth.DTO;
 using RFBase.Libs;
 using RFOauth2Client.Entities;
 
@@ -12,8 +13,8 @@ namespace RFOauth2Client.IServices
 
         Task<Provider?> GetSingleOrDefaultByNameAsync(string name);
 
-        Task<SessionResponse?> CallbackAsync(string name, string actionName, DataDictionary? data);
+        Task<SessionResponse?> CallbackAsync(string name, string actionName, DataDictionary? data, HttpRequest request);
 
-        Task<SessionResponse?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data);
+        Task<SessionResponse?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data, HttpRequest request);
     }
 }

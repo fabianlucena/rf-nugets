@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using RFAuth.DTO;
 using RFBase.Exceptions;
 using RFBase.Libs;
 using RFOauth2Client.Entities;
@@ -49,11 +50,12 @@ public class OAuth2ClientController(
         var response = await providerService.CallbackAsync(
             name,
             actionName,
-            new DataDictionary { 
+            new DataDictionary {
                 { "deviceToken", deviceToken },
                 { "code", code },
                 { "state", state },
-            }
+            },
+            Request
         );
 
         return Ok(response);

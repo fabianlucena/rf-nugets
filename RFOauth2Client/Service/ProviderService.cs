@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RFAuth.DTO;
 using RFAuth.IServices;
@@ -50,7 +51,7 @@ public class ProviderService(IServiceProvider serviceProvider)
                         IsEnabled = bool.TryParse(child["isEnabled"] ?? "true", out var isEnabled) && isEnabled,
                         Client = child.GetRequiredSection("client").Get<Client>()
                             ?? throw new NoClientSectionInOAuth2ProvidersConfigurationException(),
-                        Endpoints = child.GetSection("endpoints").Get<Dictionary<string, Endpoint>>()
+                        Endpoints = child.GetSection("endpoints").Get<Dictionary<string, Entities.Endpoint>>()
                             ?? throw new NoEndpointsSectionInOAuth2ProvidersConfigurationException(),
                         RolesSources = child.GetSection("roles").Get<List<RolesSource>>(),
                         Features = child.GetSection("features").Get<Features>(),
@@ -83,13 +84,13 @@ public class ProviderService(IServiceProvider serviceProvider)
         => (await GetListAsync())
             .FirstOrDefault(p => p.Name == name);
 
-    public async Task<SessionResponse?> CallbackAsync(string name, string actionName, DataDictionary? data)
+    public async Task<SessionResponse?> CallbackAsync(string name, string actionName, DataDictionary? data, HttpRequest request)
     {
         var provider = await GetSingleOrDefaultByNameAsync(name)
             ?? throw new ProviderNotFoundException(name);
 
         if (actionName == "authorize")
-            return await CallbackAuthorizeAsync(provider, data);
+            return await CallbackAuthorizeAsync(provider, data, request);
         
         throw new ActionNotSupportedForProviderException(actionName, name);
     }
@@ -153,7 +154,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         throw new ErrorRetrivingAccessTokenException(message);
     }
 
-    public static async Task<HttpResponseMessage> Get(Provider provider, Endpoint endpoint, string accessToken)
+    public static async Task<HttpResponseMessage> Get(Provider provider, Entities.Endpoint endpoint, string accessToken)
     {
         var userInfoUrl = endpoint.GetFullURL(provider);
         if (string.IsNullOrEmpty(userInfoUrl))
@@ -168,7 +169,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         return response;
     }
 
-    public static async Task<T?> Get<T>(Provider provider, Endpoint endpoint, string accessToken)
+    public static async Task<T?> Get<T>(Provider provider, Entities.Endpoint endpoint, string accessToken)
     {
         var response = await Get(provider, endpoint, accessToken);
         var body = await response.Content.ReadAsStringAsync();
@@ -186,7 +187,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         return await Get<UserInfo>(provider, userInfoEndpoint, accessToken);
     }
 
-    public async Task<SessionResponse?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data)
+    public async Task<SessionResponse?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data, HttpRequest request)
     {
         var token = await GetToken(provider, data?.GetString("code") ?? "");
         if (string.IsNullOrEmpty(token))
@@ -211,7 +212,16 @@ public class ProviderService(IServiceProvider serviceProvider)
             await SetUserRoles(provider, token, userId.Value);
 
         var deviceId = await DeviceService.GetSingleByTokenOrCreateAsync(data?.GetString("deviceToken") ?? "");
-        var session = await LoginService.LoginAsync(new UserIdAndDeviceIdDTO { UserId = userId!.Value, DeviceId = deviceId.Id });
+        var userDeviceDTO = new UserIdAndDeviceIdDTO { UserId = userId!.Value, DeviceId = deviceId.Id };
+
+        var httpContext = serviceProvider.GetService<IHttpContextAccessor>()?.HttpContext;
+
+        dynamic sessionData = new SessionData();
+        sessionData.ip = request.Headers["X-Forwarded-For"].FirstOrDefault()
+            ?? httpContext?.Connection.RemoteIpAddress?.ToString();
+        sessionData.userAgent = request.Headers.UserAgent.ToString();
+
+        var session = await LoginService.LoginAsync(userDeviceDTO, sessionData);
 
         return new SessionResponse(session);
     }

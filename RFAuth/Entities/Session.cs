@@ -1,5 +1,4 @@
-﻿using RFBase.ILibs;
-using RFBase.Libs;
+﻿using RFAuth.DTO;
 using RFEntities.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
@@ -21,14 +20,11 @@ namespace RFAuth.Entities
         public long DeviceId { get; set; }
         public Device? Device { get; set; }
 
-        [NotMapped]
-        private DataDictionary data = [];
-
         public string? DataJson
         {
             get
             {
-                var json = JsonSerializer.Serialize(data);
+                var json = JsonSerializer.Serialize(Data.ToDictionary());
                 if (string.IsNullOrWhiteSpace(json))
                     return null;
 
@@ -37,22 +33,18 @@ namespace RFAuth.Entities
 
             set
             {
-                if (value is null)
-                    data = [];
+                if (value is not null)
+                    Data = JsonSerializer.Deserialize<SessionData>(value) ?? new SessionData();
                 else
-                    data = JsonSerializer.Deserialize<DataDictionary>(value) ?? [];
+                    Data = new SessionData();
             }
         }
 
         [NotMapped]
-        public IDataDictionary? Data
-        {
-            get => data;
-            set => data = (DataDictionary)(value ?? new DataDictionary());
-        }
+        public SessionData Data { get; set; } = new SessionData();
 
         [NotMapped]
-        public DataDictionary DataResponse = [];
+        public SessionData DataResponse { get; set; } = new SessionData();
 
         public Session() { }
 
@@ -74,8 +66,8 @@ namespace RFAuth.Entities
             DeviceId = session.DeviceId;
             Device = session.Device;
 
-            data = new DataDictionary(session.data);
-            DataResponse = new DataDictionary(session.DataResponse);
+            Data = session.Data.Clone();
+            DataResponse = session.Data.Clone();
         }
     
         public override Session Clone()

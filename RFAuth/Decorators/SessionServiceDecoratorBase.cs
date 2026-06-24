@@ -1,8 +1,8 @@
 ﻿using RFAuth.Entities;
 using RFAuth.QueryOptions;
 using RFAuth.IServices;
-using RFBase.ILibs;
 using RFServices.Decorators;
+using RFAuth.DTO;
 
 namespace RFAuth.Decorators
 {
@@ -16,7 +16,7 @@ namespace RFAuth.Decorators
         public virtual Task CloseByIdAsync(long sessionId)
             => sessionService.CloseByIdAsync(sessionId);
 
-        public virtual Task<Session> CreateAsync(long userId, long deviceId, IDataDictionary? data = null)
+        public virtual Task<Session> CreateAsync(long userId, long deviceId, SessionData? data = null)
             => sessionService.CreateAsync(userId, deviceId, data);
 
         public virtual Task<Session> DecorateAsync(Session session)

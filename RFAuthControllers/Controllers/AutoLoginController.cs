@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using RFAuth.DTO;
 using RFAuth.IServices;
-using RFBase.Libs;
 
 namespace RFAuthControllers.Controllers
 {
@@ -18,13 +16,11 @@ namespace RFAuthControllers.Controllers
         {
             await loggerService.AddInfoGetAsync("Autologin", request);
 
-            var sessionData = new DataDictionary
-            {
-                { "ip", Request.Headers["X-Forwarded-For"].FirstOrDefault()
-                    ?? HttpContext.Connection.RemoteIpAddress?.ToString() },
+            dynamic sessionData = new SessionData();
+            sessionData.ip = Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                ?? HttpContext.Connection.RemoteIpAddress?.ToString();
 
-                { "userAgent", Request.Headers.UserAgent.ToString() },
-            };
+            sessionData.userAgent = Request.Headers.UserAgent.ToString();
 
             var session = await loginService.AutoLoginAsync(request, sessionData);
             var response = new SessionResponse(session);

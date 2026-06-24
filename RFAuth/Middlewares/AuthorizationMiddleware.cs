@@ -87,14 +87,8 @@ namespace RFAuth.Middlewares
             cachedSession.Items["Device"] = session.Device;
             if (session.Data is not null)
             {
-                for (int i = 0; i < session.Data.Count; i++)
-                {
-                    {
-                        var key = session.Data.Keys.ElementAt(i);
-                        var value = session.Data.Values.ElementAt(i);
-                        cachedSession.Items[key] = value;
-                    }
-                }
+                foreach (var kv in session.Data.GetAll())
+                    cachedSession.Items[kv.Key] = kv.Value;
             }
 
             cache[token] = cachedSession;

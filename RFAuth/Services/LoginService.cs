@@ -17,7 +17,7 @@ public class LoginService(
     IDeviceService deviceService
 ) : ILoginService
 {
-    public async Task<Session> LoginAsync(UserIdAndDeviceIdDTO request, IDataDictionary? data = null)
+    public async Task<Session> LoginAsync(UserIdAndDeviceIdDTO request, SessionData? data = null)
     {
         var session = await sessionService.CreateAsync(request.UserId, request.DeviceId, data);
         await userService.UpdateLastLoginAtByUserIdAsync(request.UserId);
@@ -25,7 +25,7 @@ public class LoginService(
         return session;
     }
 
-    public async Task<Session> LoginAsync(LoginRequest request, IDataDictionary? data)
+    public async Task<Session> LoginAsync(LoginRequest request, SessionData? data)
     {
         var user = await userService.GetSingleByUsernameAsync(request.Username)
             ?? throw new UserNotFoundException();
@@ -51,7 +51,7 @@ public class LoginService(
         return session;
     }
 
-    public async Task<Session> AutoLoginAsync(AutoLoginRequest request, IDataDictionary? data = null)
+    public async Task<Session> AutoLoginAsync(AutoLoginRequest request, SessionData? data = null)
     {
         var previousSession = await sessionService.GetFirstOrDefaultByAutoLoginTokenAsync(
                 request.AutoLoginToken,
@@ -63,9 +63,7 @@ public class LoginService(
             ) ?? throw new SessionNotFoundException();
 
         if (previousSession.ClosedAt is not null)
-        {
             throw new SessionIsClosedException();
-        }
 
         await sessionService.CloseByIdAsync(previousSession.Id);
 

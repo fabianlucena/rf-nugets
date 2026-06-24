@@ -1,4 +1,5 @@
-﻿using RFAuth.Entities;
+﻿using RFAuth.DTO;
+using RFAuth.Entities;
 using RFAuth.IRepositories;
 using RFAuth.IServices;
 using RFAuth.QueryOptions;
@@ -57,7 +58,7 @@ public class SessionService(
         return data;
     }
 
-    public async Task<Session> CreateAsync(long userId, long deviceId, IDataDictionary? data = null)
+    public async Task<Session> CreateAsync(long userId, long deviceId, SessionData? data = null)
     {
         var session = new Session
         {
@@ -66,7 +67,7 @@ public class SessionService(
             UserId = userId,
             DeviceId = deviceId,
             CreatedById = userId,
-            Data = data,
+            Data = data ?? new SessionData(),
         };
 
         session = await CreateAsync(session);
@@ -93,7 +94,6 @@ public class SessionService(
     public async Task AddDataByIdAsync(long sessionId, string key, object value)
     {
         var session = await GetSingleByIdAsync(sessionId);
-        session.Data ??= new DataDictionary();
         session.Data[key] = value;
         await UpdateByIdAsync(
             sessionId,
