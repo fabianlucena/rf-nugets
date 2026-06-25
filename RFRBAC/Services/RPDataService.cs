@@ -1,27 +1,46 @@
 ﻿using RFAuth.Entities;
 using RFBase.ILibs;
 using RFRBAC.DTO;
+using RFRBAC.Exceptions;
 using RFRBAC.IServices;
+using RFRBAC.QueryOptions;
 using RFRegisterService.Attributes;
-using System.Xml.Linq;
 
 namespace RFRBAC.Services;
 
 [RegisterService]
-public class RPDataService : IRPDataService
+public class RPDataService(
+    IRoleXUserService roleXUserService,
+    IRoleService roleService,
+    IPermissionXRoleService permissionXRoleService
+) : IRPDataService
 {
-    public async Task<RPData> GetSingleBySession(Session session)
+    public async Task<RPData?> GetSingleOrDefaultBySession(Session session, RPDataQueryOptions? options = null)
     {
+        var userId = session.UserId;
+        if (userId <= 0)
+            return null;
+
+#pragma warning disable IDE0017 // Simplify object initialization
         var rpData = new RPData();
-        rpData.RoleNames = [..rpData.RoleNames, "test"];
+#pragma warning restore IDE0017 // Simplify object initialization
+
+        rpData.RoleIds = await roleXUserService.GetAllRoleIdsByUserIdAsync(userId);
+        rpData.RoleNames = await roleService.GetNamesByIdsAsync(rpData.RoleIds);
+        rpData.PermissionNames = await permissionXRoleService.GetPermissionNamesByRoleIdsAsync(rpData.RoleIds);
+
         return rpData;
     }
 
-    public async Task<Session> DecorateSession(Session session)
+    public async Task<RPData> GetSingleBySession(Session session, RPDataQueryOptions? options = null)
+        => await GetSingleOrDefaultBySession(session, options)
+            ?? throw new NoRPDataFoundForSessionException(session.Id);
+
+    public async Task<Session> DecorateSession(Session session, RPDataQueryOptions? options = null)
     {
         session = new Session(session);
 
-        var rpData = await GetSingleBySession(session);
+        var rpData = await GetSingleBySession(session, options);
 
         CombineLongs(session.InternalData, "RolesIds", rpData.RoleIds);
         CombineStrings(session.InternalData, "RoleNames", rpData.RoleNames);
