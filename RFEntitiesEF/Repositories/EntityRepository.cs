@@ -21,6 +21,9 @@ public class EntityRepository<T>(DbContext context)
             if (entityOptions.Id != null)
                 queryable = queryable.Where(e => e.Id == entityOptions.Id);
 
+            if (entityOptions.Ids != null)
+                queryable = queryable.Where(e => entityOptions.Ids.Contains(e.Id));
+
             if (entityOptions.Uuid != null)
                 queryable = queryable.Where(e => e.Uuid == entityOptions.Uuid);
         }
