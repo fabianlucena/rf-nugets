@@ -56,9 +56,8 @@ public class SessionServiceDecorator(
         if (sessionDataResponse == null)
             return session;
 
-        session.DataResponse ??= [];
         foreach (var item in sessionDataResponse.Data)
-            session.DataResponse[item.Key] = item.Value;
+            session.ResponseData[item.Key] = item.Value;
 
         return session;
     }
