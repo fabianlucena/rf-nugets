@@ -64,6 +64,16 @@ public class NominableEntityService<T>(
         return entity.Id;
     }
 
-    public Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, NominableEntityQueryOptions? options = null)
-        => GetNamesByIdsAsync(ids, options);
+    public async Task<IEnumerable<string>> GetNamesAsync(NominableEntityQueryOptions options)
+        => await repository.GetNamesAsync(options);
+
+    public async Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, NominableEntityQueryOptions? options = null)
+    {
+        options = new NominableEntityQueryOptions(options)
+        {
+            Ids = [.. ids]
+        };
+
+        return await GetNamesAsync(options);
+    }
 }

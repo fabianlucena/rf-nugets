@@ -1,6 +1,6 @@
 ﻿namespace RFIServices.QueryOptions
 {
-    public abstract class NominableEntityQueryOptions : CommonEntityQueryOptions
+    public class NominableEntityQueryOptions : CommonEntityQueryOptions
     {
         public string? Name { get; set; }
 
@@ -14,5 +14,8 @@
 
             Name = options.Name;
         }
+
+        public override NominableEntityQueryOptions Clone()
+            => new(this);
     }
 }

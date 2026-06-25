@@ -24,9 +24,7 @@ namespace RFIServices.QueryOptions
         }
 
         public override UserQueryOptions Clone()
-        {
-            return new UserQueryOptions(this);
-        }
+            => new(this);
 
         public UserQueryOptions BuildFromRequest(HttpRequest request)
         {
