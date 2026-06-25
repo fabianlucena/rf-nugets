@@ -58,7 +58,7 @@ public class SessionService(
         return data;
     }
 
-    public async Task<Session> CreateAsync(long userId, long deviceId, SessionData? data = null)
+    public async Task<Session> CreateAsync(long userId, long deviceId, IDataDictionary? data = null)
     {
         var session = new Session
         {
@@ -67,8 +67,10 @@ public class SessionService(
             UserId = userId,
             DeviceId = deviceId,
             CreatedById = userId,
-            Data = data ?? new SessionData(),
         };
+
+        if (data is not null)
+            session.Data = data;
 
         session = await CreateAsync(session);
         session = await GetSingleByIdAsync(session.Id, new SessionQueryOptions

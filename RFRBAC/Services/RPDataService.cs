@@ -1,7 +1,9 @@
 ﻿using RFAuth.Entities;
+using RFBase.ILibs;
 using RFRBAC.DTO;
 using RFRBAC.IServices;
 using RFRegisterService.Attributes;
+using System.Xml.Linq;
 
 namespace RFRBAC.Services;
 
@@ -17,32 +19,69 @@ public class RPDataService : IRPDataService
 
     public async Task<Session> DecorateSession(Session session)
     {
+        session = new Session(session);
+
         var rpData = await GetSingleBySession(session);
 
-        dynamic sessionData = session.Data;
+        CombineLongs(session.InternalData, "RolesIds", rpData.RoleIds);
+        CombineStrings(session.InternalData, "RoleNames", rpData.RoleNames);
+        CombineStrings(session.InternalData, "PermissionNames", rpData.PermissionNames);
 
-        sessionData.RoleIds ??= new List<long>();
-        var roleIds = sessionData.RoleIds as List<long>;
-        roleIds?.AddRange(rpData.RoleIds);
-
-        sessionData.RoleNames ??= new List<string>();
-        var roleNames = sessionData.RoleNames as List<string>;
-        roleNames?.AddRange(rpData.RoleNames);
-
-        sessionData.PermissionNames ??= new List<string>();
-        var permissionNames = sessionData.PermissionNames as List<string>;
-        permissionNames?.AddRange(rpData.PermissionNames);
-
-        dynamic sessionDataResponse = session.DataResponse;
-
-        sessionDataResponse.RoleNames ??= new List<string>();
-        roleNames = sessionDataResponse.RoleNames as List<string>;
-        roleNames?.AddRange(rpData.RoleNames);
-
-        sessionDataResponse.PermissionNames ??= new List<string>();
-        permissionNames = sessionDataResponse.PermissionNames as List<string>;
-        permissionNames?.AddRange(rpData.PermissionNames);
+        CombineStrings(session.ResponseData, "roles", rpData.RoleNames);
+        CombineStrings(session.ResponseData, "permissions", rpData.PermissionNames);
 
         return session;
+    }
+
+    private static bool CombineLongs(IDataDictionary currentData, string dataName, IEnumerable<long> newData)
+    {
+        if (!newData.Any())
+            return false;
+
+        HashSet<long> set;
+        if (currentData.TryGetValue(dataName, out var value) && value is not null)
+        {
+            var enumerable = value as IEnumerable<long>
+                ?? throw new Exception($"Current data is not of type IEnumerable<long> for {dataName}");
+
+            set = [.. enumerable];
+        }
+        else
+        {
+            set = [];
+        }
+
+        foreach (var item in newData)
+            set.Add(item);
+
+        currentData[dataName] = set.ToList();
+        
+        return true;
+    }
+
+    private static bool CombineStrings(IDataDictionary currentData, string dataName, IEnumerable<string> newData)
+    {
+        if (!newData.Any())
+            return false;
+
+        HashSet<string> set;
+        if (currentData.TryGetValue(dataName, out var value) && value is not null)
+        {
+            var enumerable = value as IEnumerable<string>
+                ?? throw new Exception($"Current data is not of type IEnumerable<string> for {dataName}");
+
+            set = [.. enumerable];
+        }
+        else
+        {
+            set = [];
+        }
+
+        foreach (var item in newData)
+            set.Add(item);
+
+        currentData[dataName] = set.ToList();
+
+        return true;
     }
 }

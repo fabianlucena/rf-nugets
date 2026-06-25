@@ -1,9 +1,11 @@
 ﻿using RFAuth.Entities;
+using RFBase.ILibs;
+using RFBase.Libs;
 
 namespace RFAuth.DTO
 {
     public class SessionMinDTO(Session session)
     {
-        public SessionData? Data { get; set; } = session.DataResponse;
+        public IDataDictionary? Data { get; set; } = new DataDictionary(session.ResponseData);
     }
 }

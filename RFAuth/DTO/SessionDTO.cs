@@ -1,5 +1,4 @@
 ﻿using RFAuth.Entities;
-using RFAuth.DTO;
 using RFIServices.DTO;
 
 namespace RFAuth.DTO

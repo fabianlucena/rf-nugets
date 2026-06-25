@@ -22,7 +22,7 @@ public static class AttributedServiceRegistration
             }
         }
 
-        var decoratorsToRegister = GetServicesToRegister<RegisterDecoratorAttribute>();
+        var decoratorsToRegister = GetServicesToRegister<RegisterDecoratorAttribute>(name => name.EndsWith("Decorator") ? name[..^"Decorator".Length] : name);
         if (decoratorsToRegister.Count > 0)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -39,7 +39,9 @@ public static class AttributedServiceRegistration
         return services;
     }
 
-    public static List<(Type ServiceType, Type ImplementationType, ServiceLifetime Lifetime)> GetServicesToRegister<TAttribute>() where TAttribute : RegisterServiceAttributeBase
+    public static List<(Type ServiceType, Type ImplementationType, ServiceLifetime Lifetime)> GetServicesToRegister<TAttribute>(
+        Func<string, string>? sanitizeName = null
+    ) where TAttribute : RegisterServiceAttributeBase
     {
         var types = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(a => a.GetTypes())
@@ -54,12 +56,14 @@ public static class AttributedServiceRegistration
 
             if (interfaces.Length == 0)
             {
-                var name = type.Name;
-                var iName = "I" + name;
                 var allInterfaces = type.GetInterfaces();
-
                 if (allInterfaces.Length > 0)
                 {
+                    var name = type.Name;
+                    var iName = "I" + name;
+                    if (sanitizeName is not null)
+                        iName = sanitizeName(iName);
+
                     interfaces = [.. allInterfaces.Where(i => i.Name == iName)];
                     if (interfaces.Length == 0)
                         interfaces = [.. allInterfaces.Where(i => i.Namespace != null && !i.Namespace.StartsWith("Microsoft."))];

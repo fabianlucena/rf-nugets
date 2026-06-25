@@ -10,7 +10,6 @@ public static class AddRFRGOBACServicesRegistration
 {
     public static IServiceCollection AddRFRGOBACServices(this IServiceCollection services)
     {
-        services.Decorate<ILoginService, LoginServiceDecorator>();
         services.Decorate<ISessionService, SessionServiceDecorator>();
 
         services.AddScoped<IOrganizationService, OrganizationService>();

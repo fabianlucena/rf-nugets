@@ -2,9 +2,11 @@
 using RFAuth.Entities;
 using RFAuth.IServices;
 using RFRBAC.IServices;
+using RFRegisterService.Attributes;
 
 namespace RFRBAC.Decorators;
 
+[RegisterDecorator]
 public class SessionServiceDecorator(
     ISessionService _sessionService,
     IRPDataService rpDataService

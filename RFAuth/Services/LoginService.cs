@@ -17,15 +17,16 @@ public class LoginService(
     IDeviceService deviceService
 ) : ILoginService
 {
-    public async Task<Session> LoginAsync(UserIdAndDeviceIdDTO request, SessionData? data = null)
+    public async Task<Session> LoginAsync(UserIdAndDeviceIdDTO request, IDataDictionary? data = null)
     {
         var session = await sessionService.CreateAsync(request.UserId, request.DeviceId, data);
+        session = await sessionService.DecorateAsync(session);
         await userService.UpdateLastLoginAtByUserIdAsync(request.UserId);
 
         return session;
     }
 
-    public async Task<Session> LoginAsync(LoginRequest request, SessionData? data)
+    public async Task<Session> LoginAsync(LoginRequest request, IDataDictionary? data)
     {
         var user = await userService.GetSingleByUsernameAsync(request.Username)
             ?? throw new UserNotFoundException();
@@ -45,13 +46,11 @@ public class LoginService(
         var device = await deviceService.GetSingleByTokenOrCreateAsync(request.DeviceToken);
 
         var session = await LoginAsync(new UserIdAndDeviceIdDTO { UserId = user.Id, DeviceId = device.Id }, data);
-        session.User = user;
-        session.Device = device;
 
         return session;
     }
 
-    public async Task<Session> AutoLoginAsync(AutoLoginRequest request, SessionData? data = null)
+    public async Task<Session> AutoLoginAsync(AutoLoginRequest request, IDataDictionary? data = null)
     {
         var previousSession = await sessionService.GetFirstOrDefaultByAutoLoginTokenAsync(
                 request.AutoLoginToken,
@@ -85,11 +84,7 @@ public class LoginService(
         if (device.Token != request.DeviceToken)
             throw new DeviceTokenMismatchException();
 
-        var session = await sessionService.CreateAsync(user.Id, device.Id, data);
-        session.User = user;
-        session.Device = device;
-
-        await userService.UpdateLastLoginAtByUserIdAsync(user.Id);
+        var session = await LoginAsync(new UserIdAndDeviceIdDTO { UserId = user.Id, DeviceId = device.Id }, data);
 
         return session;
     }

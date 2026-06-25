@@ -216,12 +216,14 @@ public class ProviderService(IServiceProvider serviceProvider)
 
         var httpContext = serviceProvider.GetService<IHttpContextAccessor>()?.HttpContext;
 
-        dynamic sessionData = new SessionData();
-        sessionData.ip = request.Headers["X-Forwarded-For"].FirstOrDefault()
-            ?? httpContext?.Connection.RemoteIpAddress?.ToString();
-        sessionData.userAgent = request.Headers.UserAgent.ToString();
+        var clientData = new DataDictionary {
+            { "ip", request.Headers["X-Forwarded-For"].FirstOrDefault()
+                ?? httpContext?.Connection.RemoteIpAddress?.ToString() },
 
-        var session = await LoginService.LoginAsync(userDeviceDTO, sessionData);
+            { "userAgent", request.Headers.UserAgent.ToString() },
+        };
+
+        var session = await LoginService.LoginAsync(userDeviceDTO, clientData);
 
         return new SessionResponse(session);
     }

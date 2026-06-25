@@ -16,11 +16,11 @@ public class LoginServiceDecorator(
     {
         var userEmail = await userEmailVerifiedService.GetSingleOrDefaultByUserIdAsync(session.UserId);
         if (userEmail == null)
-            session.DataResponse["hasEmail"] = false;
+            session.ResponseData["hasEmail"] = false;
         else
         {
-            session.DataResponse["hasEmail"] = true;
-            session.DataResponse["isEmailVerified"] = userEmail.IsVerified;
+            session.ResponseData["hasEmail"] = true;
+            session.ResponseData["isEmailVerified"] = userEmail.IsVerified;
         }
 
         return session;

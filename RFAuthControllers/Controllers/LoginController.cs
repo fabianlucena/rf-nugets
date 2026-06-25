@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using RFAuth.IServices;
 using RFAuth.DTO;
+using RFAuth.IServices;
+using RFBase.Libs;
 
 namespace RFAuthControllers.Controllers
 {
@@ -21,12 +22,14 @@ namespace RFAuthControllers.Controllers
                 request.DeviceToken
             });
 
-            dynamic sessionData = new SessionData();
-            sessionData.ip = Request.Headers["X-Forwarded-For"].FirstOrDefault()
-                ?? HttpContext.Connection.RemoteIpAddress?.ToString();
-            sessionData.userAgent = Request.Headers.UserAgent.ToString();
-            
-            var session = await loginService.LoginAsync(request, sessionData);
+            var clientData = new DataDictionary {
+                { "ip", Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                ?? HttpContext.Connection.RemoteIpAddress?.ToString() },
+
+                { "userAgent", Request.Headers.UserAgent.ToString() },
+            };
+
+            var session = await loginService.LoginAsync(request, clientData);
             var response = new SessionResponse(session);
 
             return Ok(response);
