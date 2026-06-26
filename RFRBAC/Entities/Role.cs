@@ -10,9 +10,9 @@ namespace RFRBAC.Entities
     public sealed class Role : LocalizableEntity
     {
         [Required]
-        public bool IsSelectable { get; set; } = false;
+        public bool IsSelectable { get; set; }
 
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
         public Role() { }
 
