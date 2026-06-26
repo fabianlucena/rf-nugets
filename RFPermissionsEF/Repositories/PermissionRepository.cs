@@ -19,9 +19,6 @@ public class PermissionRepository(DbContext context)
 
         if (options is PermissionQueryOptions permissionOptions)
         {
-            if (permissionOptions.Ids is not null)
-                queryable = queryable.Where(p => permissionOptions.Ids.Contains(p.Id));
-
             if (permissionOptions.Names is not null)
                 queryable = queryable.Where(p => permissionOptions.Names.Contains(p.Name));
         }

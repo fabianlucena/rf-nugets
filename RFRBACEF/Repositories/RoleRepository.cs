@@ -19,8 +19,6 @@ public class RoleRepository(DbContext context)
 
         if (options is RoleQueryOptions roleOptions)
         {
-            if (roleOptions.Ids is not null)
-                queryable = queryable.Where(r => roleOptions.Ids.Contains(r.Id));
         }
 
         return queryable;

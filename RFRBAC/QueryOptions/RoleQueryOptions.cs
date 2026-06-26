@@ -4,8 +4,6 @@ namespace RFRBAC.QueryOptions
 {
     public class RoleQueryOptions : LocalizableEntityQueryOptions
     {
-        public IEnumerable<long>? Ids { get; set; }
-
         public RoleQueryOptions() { }
 
         public RoleQueryOptions(RoleQueryOptions? options)
@@ -13,8 +11,6 @@ namespace RFRBAC.QueryOptions
         {
             if (options == null)
                 return;
-
-            Ids = options.Ids != null ? [.. options.Ids] : null;
         }
 
         public override RoleQueryOptions Clone()
