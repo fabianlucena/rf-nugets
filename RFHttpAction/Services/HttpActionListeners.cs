@@ -1,27 +1,28 @@
 ﻿global using HttpActionListener = System.Func<RFHttpAction.Entities.HttpAction, System.Threading.Tasks.Task>;
 
 using RFHttpAction.IServices;
+using RFRegisterService.Attributes;
 
-namespace RFHttpAction.Services
+namespace RFHttpAction.Services;
+
+[RegisterService]
+public class HttpActionListeners : IHttpActionListeners
 {
-    public class HttpActionListeners : IHttpActionListeners
+    static readonly Dictionary<string, List<HttpActionListener>> listeners = [];
+
+    public void AddListener(string name, HttpActionListener decorator)
     {
-        static readonly Dictionary<string, List<HttpActionListener>> listeners = [];
+        if (!listeners.TryGetValue(name, out var list))
+            listeners[name] = list = [];
 
-        public void AddListener(string name, HttpActionListener decorator)
-        {
-            if (!listeners.TryGetValue(name, out var list))
-                listeners[name] = list = [];
+        list.Add(decorator);
+    }
 
-            list.Add(decorator);
-        }
+    public IEnumerable<HttpActionListener>? GetListeners(string name)
+    {
+        if (!listeners.TryGetValue(name, out var list))
+            return null;
 
-        public IEnumerable<HttpActionListener>? GetListeners(string name)
-        {
-            if (!listeners.TryGetValue(name, out var list))
-                return null;
-
-            return list;
-        }
+        return list;
     }
 }

@@ -4,10 +4,12 @@ using RFHttpAction.Exceptions;
 using RFHttpAction.IRepositories;
 using RFHttpAction.IServices;
 using RFHttpAction.QueryOptions;
+using RFRegisterService.Attributes;
 using RFServices.Services;
 
 namespace RFHttpAction.Services;
 
+[RegisterService]
 public class HttpActionService(
     IHttpActionRepository httpActionRepository,
     IServiceProvider serviceProvider
