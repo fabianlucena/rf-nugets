@@ -4,6 +4,7 @@ using RFAuth.Exceptions;
 using RFAuth.IServices;
 using RFAuth.QueryOptions;
 using RFBase.ILibs;
+using RFBase.Libs;
 using RFIServices.IServices;
 using RFRegisterService.Attributes;
 
@@ -19,6 +20,10 @@ public class LoginService(
 {
     public async Task<Session> LoginAsync(UserIdAndDeviceIdDTO request, IDataDictionary? data = null)
     {
+        data ??= new DataDictionary();
+        if (!data.ContainsKey("service"))
+            data["service"] = "login";
+
         var session = await sessionService.CreateAsync(request.UserId, request.DeviceId, data);
         session = await sessionService.DecorateAsync(session);
         await userService.UpdateLastLoginAtByUserIdAsync(request.UserId);
@@ -44,6 +49,10 @@ public class LoginService(
             throw new InvalidPasswordException();
 
         var device = await deviceService.GetSingleByTokenOrCreateAsync(request.DeviceToken);
+
+        data ??= new DataDictionary();
+        if (!data.ContainsKey("service"))
+            data["service"] = "login";
 
         var session = await LoginAsync(new UserIdAndDeviceIdDTO { UserId = user.Id, DeviceId = device.Id }, data);
 
@@ -83,6 +92,12 @@ public class LoginService(
 
         if (device.Token != request.DeviceToken)
             throw new DeviceTokenMismatchException();
+
+        data ??= new DataDictionary();
+        if (!data.ContainsKey("service"))
+            data["service"] = "autologin";
+        if (!data.ContainsKey("previousSessionId"))
+            data["previousSessionId"] = previousSession.Id;
 
         var session = await LoginAsync(new UserIdAndDeviceIdDTO { UserId = user.Id, DeviceId = device.Id }, data);
 

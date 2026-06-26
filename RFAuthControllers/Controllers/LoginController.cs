@@ -24,8 +24,7 @@ namespace RFAuthControllers.Controllers
 
             var clientData = new DataDictionary {
                 { "ip", Request.Headers["X-Forwarded-For"].FirstOrDefault()
-                ?? HttpContext.Connection.RemoteIpAddress?.ToString() },
-
+                    ?? HttpContext.Connection.RemoteIpAddress?.ToString() },
                 { "userAgent", Request.Headers.UserAgent.ToString() },
             };
 

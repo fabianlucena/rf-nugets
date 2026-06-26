@@ -219,8 +219,9 @@ public class ProviderService(IServiceProvider serviceProvider)
         var clientData = new DataDictionary {
             { "ip", request.Headers["X-Forwarded-For"].FirstOrDefault()
                 ?? httpContext?.Connection.RemoteIpAddress?.ToString() },
-
             { "userAgent", request.Headers.UserAgent.ToString() },
+            { "service", "oauth2"},
+            { "identityProvider", provider.Name },
         };
 
         var session = await LoginService.LoginAsync(userDeviceDTO, clientData);
