@@ -3,7 +3,7 @@ using RFIRepositories.IRepositories;
 
 namespace RFHttpAction.IRepositories
 {
-    public interface IHttpActionRepository : ICreatableEntityRepository<HttpAction>
+    public interface IHttpActionRepository : IAuditableEntityRepository<HttpAction>
     {
     }
 }

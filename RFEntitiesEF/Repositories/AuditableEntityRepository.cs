@@ -1,29 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFEntities.Entities;
-using RFEntitiesEF.Repositories;
 using RFIServices.QueryOptions;
 
-namespace RFEntitiesEF.Repositories
+namespace RFEntitiesEF.Repositories;
+
+public class AuditableEntityRepository<T>(DbContext context)
+    : CreatableEntityRepository<T>(context)
+    where T : AuditableEntity, new()
 {
-    public class AuditableEntityRepository<T>
-        : CreatableEntityRepository<T>
-        where T : AuditableEntity, new()
+    public override IQueryable<T> CreateDBSet(BaseQueryOptions? options = null)
     {
-        public AuditableEntityRepository(DbContext context) : base(context) { }
+        var queryable = base.CreateDBSet(options);
 
-        public override IQueryable<T> CreateDBSet(BaseQueryOptions? options = null)
+        if (options is AuditableEntityQueryOptions auditableOptions)
         {
-            var queryable = base.CreateDBSet(options);
-
-            if (options is AuditableEntityQueryOptions auditableOptions)
+            if (auditableOptions.IncludeUpdatedBy)
             {
-                if (auditableOptions.IncludeUpdatedBy)
-                {
-                    queryable = queryable.Include(u => u.UpdatedBy);
-                }
+                queryable = queryable.Include(u => u.UpdatedBy);
             }
-
-            return queryable;
         }
+
+        return queryable;
     }
 }
