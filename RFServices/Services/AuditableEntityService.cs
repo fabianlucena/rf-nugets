@@ -21,14 +21,9 @@ public class AuditableEntityService<T>(
 
         if (entity.UpdatedById <= 0)
         {
-            var userService = ServiceProvider.GetService<IUserService>()
-                ?? throw new UpdatedByIdMustBeSetForAuditableEntriesException();
-
-            var updatedById = await userService.GetCurrentUserIdAsync();
-            if (updatedById <= 0)
-                throw new UpdatedByIdMustBeSetForAuditableEntriesException();
-
-            entity.UpdatedById = updatedById;
+            entity.UpdatedById = await GetCurrentUserId();
+            if (entity.UpdatedById <= 0)
+                throw new CreatedByIdMustBeSetForNewEntriesException();
         }
 
         entity.UpdatedAt = DateTime.UtcNow;
@@ -42,10 +37,7 @@ public class AuditableEntityService<T>(
 
         if (!data.TryGetValue("UpdatedById", out object? value) || value is null || (long)value <= 0)
         {
-            var userService = ServiceProvider.GetService<IUserService>()
-                ?? throw new UpdatedByIdMustBeSetForAuditableEntriesException();
-
-            var updatedById = await userService.GetCurrentUserIdAsync();
+            var updatedById = await GetCurrentUserId();
             if (updatedById <= 0)
                 throw new UpdatedByIdMustBeSetForAuditableEntriesException();
 

@@ -1,10 +1,15 @@
-﻿using RFBase.Libs;
+﻿using Microsoft.Extensions.DependencyInjection;
+using RFBase.ILibs;
+using RFBase.Libs;
+using RFEntities.Entities;
 using RFHttpAction.Entities;
 using RFHttpAction.Exceptions;
 using RFHttpAction.IRepositories;
 using RFHttpAction.IServices;
 using RFHttpAction.QueryOptions;
+using RFIServices.IServices;
 using RFRegisterService.Attributes;
+using RFServices.Exceptions;
 using RFServices.Services;
 
 namespace RFHttpAction.Services;
@@ -17,16 +22,22 @@ public class HttpActionService(
     : AuditableEntityService<HttpAction>(httpActionRepository, serviceProvider),
         IHttpActionService
 {
-    public override async Task<HttpAction> ValidateForCreateAsync(HttpAction data)
+    public override async Task<long> GetCurrentUserId()
     {
-        data = await base.ValidateForCreateAsync(data);
+        if (catchedCurrentUserId <= 0)
+            catchedCurrentUserId = await UserService.GetCurrentOrSystemUserIdAsync();
 
-        if (string.IsNullOrEmpty(data.Token))
-        {
-            data.Token = await Token.GetString(64, async token => await GetSingleOrDefaultByTokenAsync(token) == null);
-        }
+        return catchedCurrentUserId;
+    }
 
-        return data;
+    public override async Task<HttpAction> ValidateForCreateAsync(HttpAction entity)
+    {
+        entity = await base.ValidateForCreateAsync(entity);
+
+        if (string.IsNullOrEmpty(entity.Token))
+            entity.Token = await Token.GetString(64, async token => await GetSingleOrDefaultByTokenAsync(token) == null);
+
+        return entity;
     }
 
     public async Task<HttpAction?> GetSingleOrDefaultByTokenAsync(string token, HttpActionQueryOptions? options = null)
@@ -44,7 +55,9 @@ public class HttpActionService(
     {
         await UpdateByIdAsync(
             id,
-            new DataDictionary { { "ClosedAt", DateTime.UtcNow } }
+            new DataDictionary {
+                { "ClosedAt", DateTime.UtcNow },
+            }
         );
     }
 

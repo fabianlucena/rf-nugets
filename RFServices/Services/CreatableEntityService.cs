@@ -14,20 +14,26 @@ public class CreatableEntityService<T>(
     ICreatableEntityService<T>
     where T : CreatableEntity, new()
 {
+    public IUserService UserService => ServiceProvider.GetRequiredService<IUserService>();
+
+    protected long catchedCurrentUserId = 0;
+    public virtual async Task<long> GetCurrentUserId()
+    {
+        if (catchedCurrentUserId <= 0)
+            catchedCurrentUserId = await UserService.GetCurrentUserIdAsync();
+
+        return catchedCurrentUserId;
+    }
+
     public override async Task<T> ValidateForCreateAsync(T entity)
     {
         entity = await base.ValidateForCreateAsync(entity);
 
-        if (entity.CreatedById == 0)
+        if (entity.CreatedById <= 0)
         {
-            var userService = ServiceProvider.GetService<IUserService>()
-                ?? throw new CreatedByIdMustBeSetForNewEntriesException();
-
-            var createdById = await userService.GetCurrentUserIdAsync();
-            if (createdById <= 0)
+            entity.CreatedById = await GetCurrentUserId();
+            if (entity.CreatedById <= 0)
                 throw new CreatedByIdMustBeSetForNewEntriesException();
-
-            entity.CreatedById = createdById;
         }
 
         entity.CreatedAt = DateTime.UtcNow;
