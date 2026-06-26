@@ -17,9 +17,6 @@ public class UserRepository(DbContext context)
 
         if (options is UserQueryOptions userOptions)
         {
-            if (userOptions.Ids is not null)
-                queryable = queryable.Where(u => userOptions.Ids.Contains(u.Id));
-
             if (userOptions.Username != null)
                 queryable = queryable.Where(u => u.Username == userOptions.Username);
 
