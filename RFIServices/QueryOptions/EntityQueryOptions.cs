@@ -17,7 +17,7 @@
                 return;
 
             Id = options.Id;
-            Ids = options.Ids;
+            Ids = options.Ids != null ? [.. options.Ids] : null;
             Uuid = options.Uuid;
 
             SkipOrderById = options.SkipOrderById;
