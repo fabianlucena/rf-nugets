@@ -14,7 +14,7 @@ public class HttpActionService(
     IHttpActionRepository httpActionRepository,
     IServiceProvider serviceProvider
 )
-    : CreatableEntityService<HttpAction>(httpActionRepository, serviceProvider),
+    : AuditableEntityService<HttpAction>(httpActionRepository, serviceProvider),
         IHttpActionService
 {
     public override async Task<HttpAction> ValidateForCreateAsync(HttpAction data)

@@ -4,7 +4,7 @@ using RFIServices.IServices;
 
 namespace RFHttpAction.IServices
 {
-    public interface IHttpActionService : ICreatableEntityService<HttpAction>
+    public interface IHttpActionService : IAuditableEntityService<HttpAction>
     {
         Task<HttpAction> GetSingleByTokenAsync(string token, HttpActionQueryOptions? options = null);
 
