@@ -22,6 +22,6 @@ namespace RFHttpAction.DTO
 
         public DateTime? ClosedAt { get; set; } = action.ClosedAt;
 
-        public object? Data { get; set; } = JsonSerializer.Deserialize<object>(action.Data);
+        public object? Data { get; set; } = action.Data is not null ? JsonSerializer.Deserialize<object>(action.Data) : null;
     }
 }
