@@ -34,11 +34,11 @@ public class PermissionXRoleService(
 
     public async Task<bool> CreateIfNotExistsAsync(IDictionary<string, IEnumerable<string>> rolesPermissions)
     {
+        var creatorId = await UserService.GetCurrentOrSystemUserIdAsync();
         foreach (var kvp in rolesPermissions)
         {
             var roleName = kvp.Key;
             var permissionNames = kvp.Value;
-            var creatorId = await UserService.GetCurrentOrSystemUserIdAsync();
             var permissionIds = await PermissionService.GetIdsOrCreateByNamesAsync(
                 permissionNames,
                 createFactory: async permission =>

@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using RFEntities.Entities;
 using RFIServices.IServices;
+using RFPermissions.Services;
 using RFRBAC.Entities;
+using RFRBAC.Exceptions;
 using RFRBAC.IRepositories;
 using RFRBAC.IServices;
 using RFRBAC.QueryOptions;
@@ -18,13 +21,28 @@ public class RoleXUserService(
 ) : CommonJoinService<RoleXUser>(roleXUserRepository, serviceProvider),
     IRoleXUserService
 {
+    public IRoleService RoleService { get => ServiceProvider.GetRequiredService<IRoleService>(); }
     public IUserService UserService { get => ServiceProvider.GetRequiredService<IUserService>(); }
 
+    public async Task<IEnumerable<long>> GetRoleIdsByUserIdsAsync(IEnumerable<long> userIds, RoleXUserQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserQueryOptions();
+        options.UserIds = userIds;
+        return await roleXUserRepository.GetRoleIdsAsync(options);
+    }
+
     public async Task<IEnumerable<long>> GetRoleIdsByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
-        => await roleXUserRepository.GetListRoleIdsByUserIdAsync(userId, options);
+        => await GetRoleIdsByUserIdsAsync([userId], options);
+
+    public async Task<IEnumerable<string>> GetRoleNamesByUserIdsAsync(IEnumerable<long> userIds, RoleXUserQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserQueryOptions();
+        options.UserIds = userIds;
+        return await roleXUserRepository.GetRoleNamesAsync(options);
+    }
 
     public async Task<IEnumerable<string>> GetRoleNamesByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
-        => await roleXUserRepository.GetListRoleNamesByUserIdAsync(userId, options);
+        => await GetRoleNamesByUserIdsAsync([userId], options);
 
     public async Task<IEnumerable<long>> GetAllRoleIdsByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
     {
@@ -82,5 +100,35 @@ public class RoleXUserService(
         options.RoleId = roleId;
         var rows = await GetListAsync(options);
         return rows.Any();
+    }
+
+    public async Task<bool> CreateIfNotExistsAsync(IDictionary<string, IEnumerable<string>> usersRoles)
+    {
+        var creatorId = await UserService.GetCurrentOrSystemUserIdAsync();
+        foreach (var kvp in usersRoles)
+        {
+            var username = kvp.Key;
+            var roleNames = kvp.Value;
+            var roleIds = await RoleService.GetIdsByNamesAsync(roleNames);
+            if (roleIds.Count() != roleNames.Count())
+                throw new SomeRolesDoNotExistException(roleNames.Except(await RoleService.GetNamesByIdsAsync(roleIds)));
+
+            var userId = await UserService.GetSingleIdByUsernameAsync(username);
+
+            var existentRoleIds = await this.GetRoleIdsByUserIdsAsync([userId]);
+            var newRoleIds = roleIds.Except(existentRoleIds);
+
+            foreach (var roleId in newRoleIds)
+            {
+                await CreateAsync(new RoleXUser
+                {
+                    UserId = userId,
+                    RoleId = roleId,
+                    CreatedById = creatorId,
+                });
+            }
+        }
+
+        return true;
     }
 }

@@ -30,24 +30,29 @@ public class RoleXUserRepository(DbContext context)
             if (roleXUserOptions.RoleId.HasValue)
                 queryable = queryable.Where(ru => ru.RoleId == roleXUserOptions.RoleId.Value);
 
+            if (roleXUserOptions.RoleIds is not null)
+                queryable = queryable.Where(ru => roleXUserOptions.RoleIds.Contains(ru.RoleId));
+
             if (roleXUserOptions.UserId.HasValue)
                 queryable = queryable.Where(ru => ru.UserId == roleXUserOptions.UserId.Value);
+
+            if (roleXUserOptions.UserIds is not null)
+                queryable = queryable.Where(ru => roleXUserOptions.UserIds.Contains(ru.UserId));
         }
 
         return queryable;
     }
 
-    public async Task<IEnumerable<long>> GetListRoleIdsByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetRoleIdsAsync(RoleXUserQueryOptions? options = null)
     {
         var set = GetDBSet(options);
         var roleIds = await set
-            .Where(x => x.UserId == userId)
             .Select(x => x.RoleId)
             .ToListAsync();
         return roleIds;
     }
 
-    public async Task<IEnumerable<string>> GetListRoleNamesByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
+    public async Task<IEnumerable<string>> GetRoleNamesAsync(RoleXUserQueryOptions? options = null)
     {
         options = new RoleXUserQueryOptions(options)
         {
@@ -56,7 +61,6 @@ public class RoleXUserRepository(DbContext context)
 
         var set = GetDBSet(options);
         var roleNames = await set
-            .Where(x => x.UserId == userId)
             .Select(x => x.Role!.Name)
             .ToListAsync();
         return roleNames;

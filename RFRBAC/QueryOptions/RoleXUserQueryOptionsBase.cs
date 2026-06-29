@@ -8,7 +8,9 @@ namespace RFRBAC.QueryOptions
         public bool IncludeUser { get; set; } = false;
 
         public long? RoleId { get; set; }
+        public IEnumerable<long>? RoleIds { get; set; }
         public long? UserId { get; set; }
+        public IEnumerable<long>? UserIds { get; set; }
 
         public RoleXUserQueryOptionsBase() { }
 
@@ -22,7 +24,9 @@ namespace RFRBAC.QueryOptions
             IncludeUser = options.IncludeUser;
 
             RoleId = options.RoleId;
+            RoleIds = options.RoleIds;
             UserId = options.UserId;
+            UserIds = options.UserIds;
         }
     }
 }

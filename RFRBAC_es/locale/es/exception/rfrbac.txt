@@ -1,2 +1,5 @@
 ﻿No RPData found for session ID {0}
 No se encontró RPData para la sesión ID {0}
+
+Some roles do not exist: {0}
+Algunos roles no existen: {0}
