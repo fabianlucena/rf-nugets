@@ -14,8 +14,11 @@ namespace RFEntitiesEF.Repositories
 
             if (options is NominableEntityQueryOptions nominableQueryOptions)
             {
-                if (!string.IsNullOrEmpty(nominableQueryOptions.Name))
+                if (nominableQueryOptions.Name is not null)
                     queryable = queryable.Where(e => e.Name == nominableQueryOptions.Name);
+
+                if (nominableQueryOptions.Names is not null)
+                    queryable = queryable.Where(e => nominableQueryOptions.Names.Contains(e.Name));
             }
 
             return queryable;

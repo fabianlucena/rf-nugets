@@ -1,7 +1,6 @@
 ﻿using RFEntities.Entities;
 using RFIServices.IServices;
 using RFIServices.QueryOptions;
-using System.Xml.Linq;
 
 namespace RFServices.Decorators
 {
@@ -33,5 +32,8 @@ namespace RFServices.Decorators
 
         public Task<long?> GetSingleOrDefaultIdByNameAsync(string name, NominableEntityQueryOptions? options = null)
              => nominableEntityService.GetSingleIdOrDefaultByNameAsync(name, options);
+
+        public Task<IEnumerable<long>> GetIdsByNamesAsync(IEnumerable<string> names, NominableEntityQueryOptions? options = null)
+             => nominableEntityService.GetIdsByNamesAsync(names, options);
     }
 }
