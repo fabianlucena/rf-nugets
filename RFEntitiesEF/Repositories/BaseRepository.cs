@@ -46,7 +46,7 @@ namespace RFEntitiesEF.Repositories
             return entity;
         }
 
-        public virtual async Task<IEnumerable<T>> GetListAsync(BaseQueryOptions? options = null)
+        public virtual async Task<IEnumerable<T>> GetListAsync(BaseQueryOptions options)
         {
             var list = await GetDBSet(options)
                 .ToListAsync();
