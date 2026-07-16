@@ -1,17 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using RFUserGroups.IRepositories;
 using RFUserGroupsEF.Repositories;
-using RFUserGroupsIRepositories.IRepositories;
 
-namespace RFUserGroupsEF
+namespace RFUserGroupsEF;
+
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    public static IServiceCollection AddRFUserGroupsEF(this IServiceCollection services)
     {
-        public static IServiceCollection AddRFUserGroupsEF(this IServiceCollection services)
-        {
-            services.AddScoped<IUserGroupRepository, UserGroupRepository>();
+        services.AddScoped<IUserGroupRepository, UserGroupRepository>();
 
-            return services;
-        }
-
+        return services;
     }
+
 }

@@ -11,8 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RFBaseEF\RFBaseEF.csproj" />
-    <ProjectReference Include="..\RFUserGroupsIRepositories\RFUserGroupsIRepositories.csproj" />
+    <ProjectReference Include="..\..\..\loat-horas-docentes\rf-nugets\RFEntitiesEF\RFEntitiesEF.csproj" />
+    <ProjectReference Include="..\RFIServices\RFIServices.csproj" />
+    <ProjectReference Include="..\RFUserGroups\RFUserGroups.csproj" />
   </ItemGroup>
 
 </Project>
