@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using RFBaseEF.ETConfigurations;
-using RFRBACEntities.Entities;
+using RFEntitiesEF.ETConfigurations;
+using RFRBAC.Entities;
 
 namespace RFRBACEF.ETConfigurations
 {
@@ -11,6 +11,8 @@ namespace RFRBACEF.ETConfigurations
         public override void Configure(EntityTypeBuilder<PermissionXRole> entity)
         {
             base.Configure(entity);
+
+            entity.HasKey(x => new { x.PermissionId, x.RoleId });
 
             entity.HasOne(u => u.Permission)
                   .WithMany()

@@ -1,0 +1,44 @@
+﻿Action '{0}' is not supported for provider '{1}'.
+La acción '{0}' no es compatible con el proveedor '{1}'.
+
+Action '{0}' not found in provider '{1}'.
+Acción '{0}' no encontrada en el proveedor '{1}'.
+
+Error retrieving access token: {0}
+Error al recuperar el token de acceso: {0}
+
+No access token received
+No se recibió token de acceso
+
+No client section in OAuth2Providers configuration
+No hay sección de cliente en la configuración de OAuth2Providers
+
+No code provided in data.
+No se proporcionó código en los datos.
+
+No endpoints section in OAuth2Providers configuration
+No hay sección de endpoints en la configuración de OAuth2Providers
+
+No redirect_uri in action.
+No hay redirect_uri en la acción.
+
+No token URL in action.
+No hay URL de token en la acción.
+
+No user info
+No hay información de usuario
+
+No user info in action.
+No hay información de usuario en la acción.
+
+No user info in provider '{0}'.
+No hay información de usuario en el proveedor '{0}'.
+
+Provider '{0}' not found.
+Proveedor '{0}' no encontrado.
+
+Provider cannot be null.
+El proveedor no puede ser nulo.
+
+User not found.
+Usuario no encontrado.

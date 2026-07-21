@@ -1,52 +1,51 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RFBaseEF.Repositories;
-using RFBaseEntities.QueryOptions;
+using RFEntitiesEF.Repositories;
+using RFIServices.QueryOptions;
+using RFRGOBAC.Entities;
+using RFRGOBAC.IRepositories;
+using RFRGOBAC.QueryOptions;
 using RFRGOBACEF.Exceptions;
-using RFRGOBACEntities.Entities;
-using RFRGOBACEntities.QueryOptions;
-using RFRGOBACIRepositories.IRepositories;
 
-namespace RFRGOBACEF.Repositories
+namespace RFRGOBACEF.Repositories;
+
+public class SessionOrganizationRepository(DbContext context)
+    : NoIdEntityRepository<SessionOrganization>(context),
+    ISessionOrganizationRepository
 {
-    public class SessionOrganizationRepository(DbContext context)
-        : NoIdEntityRepository<SessionOrganization>(context),
-        ISessionOrganizationRepository
+    public override IQueryable<SessionOrganization> CreateDBSet(BaseQueryOptions? options = null)
     {
-        public override IQueryable<SessionOrganization> CreateDBSet(BaseQueryOptions? options = null)
+        var queryable = base.CreateDBSet(options);
+
+        queryable = queryable.OrderBy(so => so.SessionId);
+
+        if (options is SessionOrganizationQueryOptions sessionOrganizationOptions)
         {
-            var queryable = base.CreateDBSet(options);
+            if (sessionOrganizationOptions.IncludeSession)
+                queryable = queryable.Include(so => so.Session);
 
-            queryable = queryable.OrderBy(so => so.SessionId);
-
-            if (options is SessionOrganizationQueryOptions sessionOrganizationOptions)
-            {
-                if (sessionOrganizationOptions.IncludeSession)
-                    queryable = queryable.Include(so => so.Session);
-
-                if (sessionOrganizationOptions.IncludeOrganization)
-                    queryable = queryable.Include(so => so.Organization);
-            }
-
-            return queryable;
+            if (sessionOrganizationOptions.IncludeOrganization)
+                queryable = queryable.Include(so => so.Organization);
         }
 
-        public async Task<Organization?> GetSingleOrDefaultOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
-        {
-            var set = GetDBSet(options);
-            var Organization = await set
-                .Where(e => e.SessionId == sessionId)
-                .Select(e => e.Organization)
-                .FirstOrDefaultAsync();
+        return queryable;
+    }
 
-            return Organization;
-        }
-        
-        public async Task<Organization> GetSingleOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
-        {
-            var Organization = (await GetSingleOrDefaultOrganizationBySessionIdAsync(sessionId, options))
-                ?? throw new OrganizationWithSessionIdNotFoundException(sessionId);
+    public async Task<Organization?> GetSingleOrDefaultOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
+    {
+        var set = GetDBSet(options);
+        var Organization = await set
+            .Where(e => e.SessionId == sessionId)
+            .Select(e => e.Organization)
+            .FirstOrDefaultAsync();
 
-            return Organization;
-        }
+        return Organization;
+    }
+    
+    public async Task<Organization> GetSingleOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
+    {
+        var Organization = (await GetSingleOrDefaultOrganizationBySessionIdAsync(sessionId, options))
+            ?? throw new OrganizationWithSessionIdNotFoundException(sessionId);
+
+        return Organization;
     }
 }

@@ -7,12 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RFBaseEF\RFBaseEF.csproj" />
-    <ProjectReference Include="..\RFUserGroupsIRepositories\RFUserGroupsIRepositories.csproj" />
+    <ProjectReference Include="..\..\..\loat-horas-docentes\rf-nugets\RFEntitiesEF\RFEntitiesEF.csproj" />
+    <ProjectReference Include="..\RFIServices\RFIServices.csproj" />
+    <ProjectReference Include="..\RFUserGroups\RFUserGroups.csproj" />
   </ItemGroup>
 
 </Project>

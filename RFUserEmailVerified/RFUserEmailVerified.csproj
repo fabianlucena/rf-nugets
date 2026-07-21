@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RFBase\RFBase.csproj" />
+    <ProjectReference Include="..\RFAuthControllers\RFAuthControllers.csproj" />
+    <ProjectReference Include="..\RFHttpAction\RFHttpAction.csproj" />
+    <ProjectReference Include="..\RFIServices\RFIServices.csproj" />
+    <ProjectReference Include="..\RFEntities\RFEntities.csproj" />
+    <ProjectReference Include="..\RFPermissions\RFPermissions.csproj" />
+    <ProjectReference Include="..\RFRolesPermissions\RFRolesPermissions.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -2,8 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RFHttpAction.Entities;
 using RFHttpAction.IServices;
-using RFService.Authorization;
-using RFService.Repo;
+using RFPermissions.Attributes;
 using RFUserEmailVerified.DTO;
 using RFUserEmailVerified.Exceptions;
 using RFUserEmailVerified.IServices;
@@ -25,18 +24,17 @@ namespace RFUserEmailVerified.Controllers
         {
             logger.LogInformation("Recovering password");
 
-            var userEmail = await userEmailVerifiedService.GetSingleOrDefaultAsync(new QueryOptions { Filters = { { "Email", request.Email } } })
+            var userEmail = await userEmailVerifiedService.GetSingleOrDefaultByEmailAsync(request.Email)
                 ?? throw new UserDoesNotHaveEmailException();
 
             var action = await httpActionService.CreateAsync(
                 new HttpAction
                 {
-                    TypeId = await httpActionTypeService.GetSingleIdForNameAsync(
+                    TypeId = await httpActionTypeService.GetIdOrCreateByNameAsync(
                         "passwordRecovery",
-                        creator: name => new HttpActionType
-                        {
-                            Name = name,
-                            Title = "PasswordRecovery",
+                        createFactory: async httpActionType => {
+                            httpActionType.Title = "PasswordRecovery";
+                            return httpActionType;
                         }
                     ),
                     Data = userEmail.Id.ToString(),

@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Scrutor" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RFAuth\RFAuth.csproj" />
+    <ProjectReference Include="..\RFBase\RFBase.csproj" />
+    <ProjectReference Include="..\RFRBAC\RFRBAC.csproj" />
+    <ProjectReference Include="..\RFUserGroups\RFUserGroups.csproj" />
+  </ItemGroup>
+
+</Project>

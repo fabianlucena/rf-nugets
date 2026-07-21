@@ -7,9 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RFBaseEF\RFBaseEF.csproj" />
-    <ProjectReference Include="..\RFRBACEntities\RFRBACEntities.csproj" />
-    <ProjectReference Include="..\RFRBACIRepositories\RFRBACIRepositories.csproj" />
+    <ProjectReference Include="..\RFEntitiesEF\RFEntitiesEF.csproj" />
+    <ProjectReference Include="..\RFRBAC\RFRBAC.csproj" />
   </ItemGroup>
 
 </Project>

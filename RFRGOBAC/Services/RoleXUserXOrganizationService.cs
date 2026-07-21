@@ -1,0 +1,38 @@
+﻿using RFRBAC.IServices;
+using RFRGOBAC.Entities;
+using RFRGOBAC.IRepositories;
+using RFRGOBAC.IServices;
+using RFRGOBAC.QueryOptions;
+using RFServices.Services;
+
+namespace RFRGOBAC.Services;
+
+public class RoleXUserXOrganizationService(
+    IRoleXUserXOrganizationRepository roleXUserXOrganizationRepository,
+    IRoleIncludeService roleIncludeService,
+    IServiceProvider serviceProvider
+) : CommonJoinService<RoleXUserXOrganization>(roleXUserXOrganizationRepository, serviceProvider),
+    IRoleXUserXOrganizationService
+{
+    public async Task<IEnumerable<long>> GetRoleIdsByUserIdsAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+        options.UserIds = userIds;
+        options.OrganizationId = OrganizationId;
+        return await roleXUserXOrganizationRepository.GetIdsAsync(options);
+    }
+
+    public async Task<IEnumerable<long>> GetAllRoleIdsByUserIdsAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        var roleIds = await GetRoleIdsByUserIdsAndOrganizationIdAsync(userIds, OrganizationId, options);
+        var allRoleIds = await roleIncludeService.GetAllRoleIdsByRoleIdsAsync(roleIds);
+        return allRoleIds;
+    }
+
+    public async Task<IEnumerable<Organization>> GetListOrganizationsByUserIdsAsync(IEnumerable<long> userIds, RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+        options.UserIds = userIds;
+        return await roleXUserXOrganizationRepository.GetOrganizationsAsync(options);
+    }
+}
