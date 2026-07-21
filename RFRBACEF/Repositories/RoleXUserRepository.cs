@@ -1,44 +1,68 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RFBaseEF.Repositories;
-using RFBaseEntities.QueryOptions;
-using RFRBACEntities.Entities;
-using RFRBACEntities.QueryOptions;
-using RFRBACIRepositories.IRepositories;
+using RFEntitiesEF.Repositories;
+using RFIServices.QueryOptions;
+using RFRBAC.Entities;
+using RFRBAC.IRepositories;
+using RFRBAC.QueryOptions;
+using RFRegisterService.Attributes;
 
-namespace RFRBACEF.Repositories
+namespace RFRBACEF.Repositories;
+
+[RegisterService]
+public class RoleXUserRepository(DbContext context)
+    : CommonJoinRepository<RoleXUser>(context),
+    IRoleXUserRepository
 {
-    public class RoleXUserRepository
-        : CommonJoinRepository<RoleXUser>,
-        IRoleXUserRepository
+    public override IQueryable<RoleXUser> CreateDBSet(BaseQueryOptions? options = null)
     {
-        public RoleXUserRepository(DbContext context) : base(context) { }
+        var queryable = base.CreateDBSet(options);
 
-        public override IQueryable<RoleXUser> CreateDBSet(BaseQueryOptions? options = null)
+        queryable = queryable.OrderBy(ru => ru.RoleId);
+
+        if (options is RoleXUserQueryOptions roleXUserOptions)
         {
-            var queryable = base.CreateDBSet(options);
+            if (roleXUserOptions.IncludeRole)
+                queryable = queryable.Include(ru => ru.Role);
 
-            queryable = queryable.OrderBy(ru => ru.RoleId);
+            if (roleXUserOptions.IncludeUser)
+                queryable = queryable.Include(ru => ru.User);
 
-            if (options is RoleXUserQueryOptions roleXUserOptions)
-            {
-                if (roleXUserOptions.IncludeRole)
-                    queryable = queryable.Include(ru => ru.Role);
+            if (roleXUserOptions.RoleId.HasValue)
+                queryable = queryable.Where(ru => ru.RoleId == roleXUserOptions.RoleId.Value);
 
-                if (roleXUserOptions.IncludeUser)
-                    queryable = queryable.Include(ru => ru.User);
-            }
+            if (roleXUserOptions.RoleIds is not null)
+                queryable = queryable.Where(ru => roleXUserOptions.RoleIds.Contains(ru.RoleId));
 
-            return queryable;
+            if (roleXUserOptions.UserId.HasValue)
+                queryable = queryable.Where(ru => ru.UserId == roleXUserOptions.UserId.Value);
+
+            if (roleXUserOptions.UserIds is not null)
+                queryable = queryable.Where(ru => roleXUserOptions.UserIds.Contains(ru.UserId));
         }
 
-        public async Task<IEnumerable<long>> GetListRoleIdsByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
+        return queryable;
+    }
+
+    public async Task<IEnumerable<long>> GetRoleIdsAsync(RoleXUserQueryOptions? options = null)
+    {
+        var set = GetDBSet(options);
+        var roleIds = await set
+            .Select(x => x.RoleId)
+            .ToListAsync();
+        return roleIds;
+    }
+
+    public async Task<IEnumerable<string>> GetRoleNamesAsync(RoleXUserQueryOptions? options = null)
+    {
+        options = new RoleXUserQueryOptions(options)
         {
-            var set = GetDBSet(options);
-            var roleIds = await set
-                .Where(x =>  x.UserId == userId)
-                .Select(x => x.RoleId)
-                .ToListAsync();
-            return roleIds;
-        }
+            IncludeRole = true
+        };
+
+        var set = GetDBSet(options);
+        var roleNames = await set
+            .Select(x => x.Role!.Name)
+            .ToListAsync();
+        return roleNames;
     }
 }

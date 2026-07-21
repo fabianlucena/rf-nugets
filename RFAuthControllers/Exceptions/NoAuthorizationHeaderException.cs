@@ -1,4 +1,4 @@
-﻿using RFHttpExceptions.Exceptions;
+﻿using RFBase.Exceptions;
 
 namespace RFAuthControllers.Exceptions
 {

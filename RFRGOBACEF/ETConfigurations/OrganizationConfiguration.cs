@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using RFBaseEF.ETConfigurations;
-using RFRGOBACEntities.Entities;
+using RFEntitiesEF.ETConfigurations;
+using RFRGOBAC.Entities;
 
-namespace RFRGOBACEF.ETConfigurations
+namespace RFRGOBACEF.ETConfigurations;
+
+public class OrganizationConfiguration : CommonEntityConfiguration<Organization>
 {
-    public class OrganizationConfiguration : CommonEntityConfiguration<Organization>
+    public override void Configure(EntityTypeBuilder<Organization> entity)
     {
-        public override void Configure(EntityTypeBuilder<Organization> entity)
-        {
-            base.Configure(entity);
-        }
+        base.Configure(entity);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using RFAuthEntities.Entities;
-using RFBaseEF.ETConfigurations;
+using RFAuth.Entities;
+using RFEntitiesEF.ETConfigurations;
 
 namespace RFAuthEF.ETConfigurations
 {

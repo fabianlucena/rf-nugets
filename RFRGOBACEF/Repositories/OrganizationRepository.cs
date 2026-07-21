@@ -1,20 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RFBaseEF.Repositories;
-using RFBaseEntities.QueryOptions;
-using RFRGOBACEntities.Entities;
-using RFRGOBACIRepositories.IRepositories;
+using RFEntitiesEF.Repositories;
+using RFIServices.QueryOptions;
+using RFRGOBAC.Entities;
+using RFRGOBAC.IRepositories;
 
-namespace RFRGOBACEF.Repositories
+namespace RFRGOBACEF.Repositories;
+
+public class OrganizationRepository(DbContext context)
+    : LocalizableEntityRepository<Organization>(context),
+    IOrganizationRepository
 {
-    public class OrganizationRepository(DbContext context)
-        : LocalizableEntityRepository<Organization>(context),
-        IOrganizationRepository
+    public override IQueryable<Organization> CreateDBSet(BaseQueryOptions? options = null)
     {
-        public override IQueryable<Organization> CreateDBSet(BaseQueryOptions? options = null)
-        {
-            var queryable = base.CreateDBSet(options);
+        var queryable = base.CreateDBSet(options);
 
-            return queryable;
-        }
+        return queryable;
     }
 }

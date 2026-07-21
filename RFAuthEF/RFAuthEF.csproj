@@ -7,13 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RFAuthEntities\RFAuthEntities.csproj" />
-    <ProjectReference Include="..\RFAuthIRepositories\RFAuthIRepositories.csproj" />
-    <ProjectReference Include="..\RFBaseEF\RFBaseEF.csproj" />
+    <ProjectReference Include="..\RFAuth\RFAuth.csproj" />
+    <ProjectReference Include="..\RFEntitiesEF\RFEntitiesEF.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.10" />
   </ItemGroup>
 
 </Project>

@@ -1,34 +1,35 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RFBaseEF.Repositories;
-using RFBaseEntities.QueryOptions;
-using RFPermissionsEntities.Entities;
-using RFPermissionsEntities.QueryOptions;
-using RFPermissionsIRepositories.Repositories;
+using RFEntitiesEF.Repositories;
+using RFIServices.QueryOptions;
+using RFPermissions.Entities;
+using RFPermissions.IRepositories;
+using RFPermissions.QueryOptions;
+using RFRegisterService.Attributes;
 
-namespace RFPermissionsEF.Repositories
+namespace RFPermissionsEF.Repositories;
+
+[RegisterService]
+public class PermissionRepository(DbContext context)
+    : CreatableEntityRepository<Permission>(context),
+    IPermissionRepository
 {
-    public class PermissionRepository(DbContext context)
-        : CreatableEntityRepository<Permission>(context),
-        IPermissionRepository
+    public override IQueryable<Permission> CreateDBSet(BaseQueryOptions? options = null)
     {
-        public override IQueryable<Permission> CreateDBSet(BaseQueryOptions? options = null)
+        var queryable = base.CreateDBSet(options);
+
+        if (options is PermissionQueryOptions permissionOptions)
         {
-            var queryable = base.CreateDBSet(options);
-
-            if (options is PermissionQueryOptions permissionOptions)
-            {
-                if (permissionOptions.Ids is not null)
-                    queryable = queryable.Where(p => permissionOptions.Ids.Contains(p.Id));
-            }
-
-            return queryable;
+            if (permissionOptions.Names is not null)
+                queryable = queryable.Where(p => permissionOptions.Names.Contains(p.Name));
         }
 
-        public async Task<IEnumerable<string>> GetNamesAsync(PermissionQueryOptions options)
-        {
-            return await GetDBSet(options)
-                .Select(r => r.Name)
-                .ToListAsync();
-        }
+        return queryable;
+    }
+
+    public async Task<IEnumerable<string>> GetNamesAsync(PermissionQueryOptions options)
+    {
+        return await GetDBSet(options)
+            .Select(r => r.Name)
+            .ToListAsync();
     }
 }

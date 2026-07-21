@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using RFAuthIServices.DTO;
-using RFAuthIServices.IServices;
-using RFBaseEntities.Libs;
-using RFBaseEntities.ILibs;
+using RFAuth.DTO;
+using RFAuth.IServices;
+using RFBase.Libs;
 
 namespace RFAuthControllers.Controllers
 {
@@ -11,28 +9,26 @@ namespace RFAuthControllers.Controllers
     [Route("v1/login")]
     public class LoginController(
         ILoginService loginService,
-        ILogger<LoginController> logger
+        IRFAuthLoggerService loggerService
     ) : ControllerBase
     {
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] LoginRequest request)
         {
-            logger.LogInformation("Login {@Data}", new
+            await loggerService.AddInfoGetAsync("Login", () => new
             {
-                Username = request.Username,
+                request.Username,
                 Password = "****",
-                DeviceToken = request.DeviceToken
+                request.DeviceToken
             });
 
-            var sessionData = new DataDictionary
-            {
+            var clientData = new DataDictionary {
                 { "ip", Request.Headers["X-Forwarded-For"].FirstOrDefault()
                     ?? HttpContext.Connection.RemoteIpAddress?.ToString() },
-
                 { "userAgent", Request.Headers.UserAgent.ToString() },
             };
 
-            var session = await loginService.LoginAsync(request, sessionData);
+            var session = await loginService.LoginAsync(request, clientData);
             var response = new SessionResponse(session);
 
             return Ok(response);

@@ -1,22 +1,23 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using RFAuth.IServices;
 using RFAuthControllers.Exceptions;
-using RFAuthIServices.IServices;
+using RFL10n;
 
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
     [Route("v1/logout")]
     public class LogoutController(
-        ILogger<LoginController> logger,
-        ISessionService sessionService
+        IRFAuthLoggerService loggerService,
+        ISessionService sessionService,
+        IL10n l10n
     ) : ControllerBase
     {
-        [HttpPost]
-        public async Task<IActionResult> PostAsync()
+        [HttpGet]
+        public async Task<IActionResult> GetAsync()
         {
-            logger.LogInformation("Logout");
+            await loggerService.AddInfoGetAsync("Logout");
 
             var sessionId = HttpContext.Items["SessionId"] as long?
                 ?? throw new NoAuthorizationHeaderException();
@@ -26,7 +27,7 @@ namespace RFAuthControllers.Controllers
 
             await sessionService.CloseByIdAsync(sessionId);
 
-            return Ok();
+            return Ok(new { message = await l10n._("Session closed") });
         }
     }
 }

@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RFAuth.DTO;
+using RFAuth.IServices;
 using RFAuthControllers.Exceptions;
-using RFAuthIServices.DTO;
-using RFAuthIServices.IServices;
-using RFPermissionsEntities.Attributes;
+using RFPermissions.Attributes;
 
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
     [Route("v1/change-password")]
     public class ChangePasswordController(
-        ILogger<LoginController> logger,
+        IRFAuthLoggerService loggerService,
         IUserPasswordService userPasswordService
     ) : ControllerBase
     {
@@ -19,7 +19,7 @@ namespace RFAuthControllers.Controllers
         [Permission("changePassword")]
         public async Task<IActionResult> PostAsync([FromBody] ChangePasswordRequest data)
         {
-            logger.LogInformation("Change password");
+            await loggerService.AddInfoGetAsync("Change password");
 
             var userId = HttpContext.Items["UserId"] as long?
                 ?? throw new NoAuthorizationHeaderException();
@@ -28,8 +28,6 @@ namespace RFAuthControllers.Controllers
                 throw new NoAuthorizationHeaderException();
 
             await userPasswordService.ChangePasswordByUserIdAsync(data.CurrentPassword, data.NewPassword, userId);
-
-            
 
             return Ok();
         }

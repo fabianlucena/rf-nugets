@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RFBaseEF\RFBaseEF.csproj" />
-    <ProjectReference Include="..\RFPermissionsIRepositories\RFPermissionsIRepositories.csproj" />
+    <ProjectReference Include="..\RFEntitiesEF\RFEntitiesEF.csproj" />
+    <ProjectReference Include="..\RFPermissions\RFPermissions.csproj" />
   </ItemGroup>
 
 </Project>

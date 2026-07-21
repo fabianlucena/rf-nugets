@@ -1,32 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using RFAuthIServices.DTO;
-using RFAuthIServices.IServices;
-using RFBaseEntities.Libs;
+using RFAuth.DTO;
+using RFAuth.IServices;
+using RFBase.Libs;
 
 namespace RFAuthControllers.Controllers
 {
     [ApiController]
     [Route("v1/auto-login")]
     public class AutoLoginController(
-        ILogger<LoginController> logger,
+        IRFAuthLoggerService loggerService,
         ILoginService loginService
     ) : ControllerBase
     {
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody] AutoLoginRequest request)
         {
-            logger.LogInformation("Login {@Data}", request);
+            await loggerService.AddInfoGetAsync("Autologin", request);
 
-            var sessionData = new DataDictionary
-            {
+            var clientData = new DataDictionary {
                 { "ip", Request.Headers["X-Forwarded-For"].FirstOrDefault()
                     ?? HttpContext.Connection.RemoteIpAddress?.ToString() },
-
                 { "userAgent", Request.Headers.UserAgent.ToString() },
             };
 
-            var session = await loginService.AutoLoginAsync(request, sessionData);
+            var session = await loginService.AutoLoginAsync(request, clientData);
             var response = new SessionResponse(session);
 
             return Ok(response);
