@@ -113,10 +113,7 @@ public class ProviderService(IServiceProvider serviceProvider)
 
         var redirectUri = provider.Client.RedirectUri;
         if (string.IsNullOrEmpty(redirectUri))
-        {
-            if (string.IsNullOrEmpty(redirectUri))
-                throw new NoRedirectURIInActionException();
-        }
+            throw new NoRedirectURIInActionException();
 
         var queryParams = new Dictionary<string, string>
         {
@@ -156,15 +153,15 @@ public class ProviderService(IServiceProvider serviceProvider)
 
     public static async Task<HttpResponseMessage> Get(Provider provider, Entities.Endpoint endpoint, string accessToken)
     {
-        var userInfoUrl = endpoint.GetFullURL(provider);
-        if (string.IsNullOrEmpty(userInfoUrl))
+        var url = endpoint.GetFullURL(provider);
+        if (string.IsNullOrEmpty(url))
             throw new NoUserInfoInActionException();
 
-        var userInfoRequest = new HttpRequestMessage(HttpMethod.Get, userInfoUrl);
-        userInfoRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var client = new HttpClient();
-        var response = await client.SendAsync(userInfoRequest);
+        var response = await client.SendAsync(request);
 
         return response;
     }
@@ -236,7 +233,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         {
             Username = username,
             DisplayName = displayName,
-            TypeId = await UserTypeService.GetSingleIdByNameAsync("system"),
+            TypeId = await UserTypeService.GetSingleIdByNameAsync("user"),
         });
 
         if (!string.IsNullOrEmpty(userInfo.Email))
