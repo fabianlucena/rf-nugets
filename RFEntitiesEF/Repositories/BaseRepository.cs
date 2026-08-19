@@ -42,6 +42,7 @@ namespace RFEntitiesEF.Repositories
             var set = Context.Set<T>();
             set.Add(entity);
             await Context.SaveChangesAsync();
+            Context.Entry(entity).State = EntityState.Detached;
 
             return entity;
         }
