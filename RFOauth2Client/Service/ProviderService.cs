@@ -242,12 +242,15 @@ public class ProviderService(IServiceProvider serviceProvider)
 
     public async Task<User> RegisterUser(UserInfo userInfo, string username)
     {
+        var systemUserId = await UserService.GetCurrentOrSystemUserIdAsync();
         var displayName = RFString.FirstNonEmpty(userInfo.FullName, userInfo.Name, $"{userInfo.GivenName} {userInfo.FamilyName}".Trim());
         var user = await UserService.CreateAsync(new User
         {
             Username = username,
             DisplayName = displayName,
             TypeId = await UserTypeService.GetSingleIdByNameAsync("user"),
+            CreatedById = systemUserId,
+            UpdatedById = systemUserId,
         });
 
         if (!string.IsNullOrEmpty(userInfo.Email))
@@ -260,6 +263,8 @@ public class ProviderService(IServiceProvider serviceProvider)
                     UserId = user.Id,
                     Email = userInfo.Email,
                     IsVerified = userInfo.EmailVerified,
+                    CreatedById = systemUserId,
+                    UpdatedById = systemUserId,
                 });
             }
             else if (email.Email != userInfo.Email || email.IsVerified != userInfo.EmailVerified)
@@ -269,7 +274,9 @@ public class ProviderService(IServiceProvider serviceProvider)
                     new DataDictionary {
                         { "Email", userInfo.Email },
                         { "IsVerified", userInfo.EmailVerified },
-                });
+                        { "UpdatedById", systemUserId },
+                    }
+                );
             }
         }
 
