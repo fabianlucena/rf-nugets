@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RFAuth\RFAuth.csproj" />
     <ProjectReference Include="..\RFControllers\RFControllers.csproj" />
+    <ProjectReference Include="..\RFEventBus\RFEventBus.csproj" />
   </ItemGroup>
 
 </Project>

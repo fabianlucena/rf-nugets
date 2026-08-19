@@ -28,7 +28,7 @@ namespace RFAuthControllers.Controllers
                 { "userAgent", Request.Headers.UserAgent.ToString() },
             };
 
-            var session = await loginService.LoginAsync(request, clientData);
+            var session = await loginService.LoginAsync(request, "local", clientData);
             var response = new SessionResponse(session);
 
             return Ok(response);

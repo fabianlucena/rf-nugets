@@ -18,20 +18,20 @@ public class LoginService(
     IDeviceService deviceService
 ) : ILoginService
 {
-    public async Task<Session> LoginAsync(UserIdAndDeviceIdDTO request, IDataDictionary? data = null)
+    public async Task<Session> LoginAsync(UserIdAndDeviceIdDTO request, string identityProvider, IDataDictionary? data = null)
     {
         data ??= new DataDictionary();
         if (!data.ContainsKey("service"))
             data["service"] = "login";
 
-        var session = await sessionService.CreateAsync(request.UserId, request.DeviceId, data);
+        var session = await sessionService.CreateAsync(request.UserId, request.DeviceId, identityProvider, data);
         session = await sessionService.DecorateAsync(session);
         await userService.UpdateLastLoginAtByUserIdAsync(request.UserId);
 
         return session;
     }
 
-    public async Task<Session> LoginAsync(LoginRequest request, IDataDictionary? data)
+    public async Task<Session> LoginAsync(LoginRequest request, string identityProvider, IDataDictionary? data)
     {
         var user = await userService.GetSingleByUsernameAsync(request.Username)
             ?? throw new UserNotFoundException();
@@ -54,7 +54,7 @@ public class LoginService(
         if (!data.ContainsKey("service"))
             data["service"] = "login";
 
-        var session = await LoginAsync(new UserIdAndDeviceIdDTO { UserId = user.Id, DeviceId = device.Id }, data);
+        var session = await LoginAsync(new UserIdAndDeviceIdDTO { UserId = user.Id, DeviceId = device.Id }, identityProvider, data);
 
         return session;
     }
@@ -99,7 +99,7 @@ public class LoginService(
         if (!data.ContainsKey("previousSessionId"))
             data["previousSessionId"] = previousSession.Id;
 
-        var session = await LoginAsync(new UserIdAndDeviceIdDTO { UserId = user.Id, DeviceId = device.Id }, data);
+        var session = await LoginAsync(new UserIdAndDeviceIdDTO { UserId = user.Id, DeviceId = device.Id }, previousSession.IdentityProvider, data);
 
         return session;
     }

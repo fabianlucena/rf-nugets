@@ -16,5 +16,7 @@ namespace RFOauth2Client.IServices
         Task<SessionResponse?> CallbackAsync(string name, string actionName, DataDictionary? data, HttpRequest request);
 
         Task<SessionResponse?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data, HttpRequest request);
+
+        Task<bool> Logout(Provider provider, string accessToken);
     }
 }

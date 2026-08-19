@@ -7,8 +7,10 @@
         public Dictionary<string, string>? Parameters { get; set; }
         public bool? IncludeClientId { get; set; }
         public bool? IncludeRedirectUri { get; set; }
+        public bool? IncludeClientSecret { get; set; }
+        public bool? IncludeRefreshToken { get; set; }
 
-        public Dictionary<string, string> GetParameters(Provider provider, Dictionary<string, string>? defaultValues = null)
+        public Dictionary<string, string> GetParameters(Provider provider, TokenResponse tokenResponse, Dictionary<string, string>? defaultValues = null)
         {
             Dictionary<string, string> parameters = [];
 
@@ -23,7 +25,13 @@
             
             if (IncludeRedirectUri is null || IncludeRedirectUri == true)
                 parameters["redirect_uri"] = provider.Client.RedirectUri;
-            
+
+            if (IncludeClientSecret is not null && IncludeClientSecret == true)
+                parameters["client_secret"] = provider.Client.ClientSecret;
+
+            if (IncludeRefreshToken is not null && IncludeRefreshToken == true && tokenResponse != null)
+                parameters["refresh_token"] = tokenResponse.RefreshToken;
+
             if (Parameters is not null)
             {
                 foreach (var param in Parameters)
@@ -33,11 +41,14 @@
             return parameters;
         }
 
-        public string GetFullURL(Provider provider, Dictionary<string, string>? defaultValues = null)
+        public string GetFullURL(Provider provider, TokenResponse tokenResponse, Dictionary<string, string>? defaultValues = null)
         {
             var fullURL = provider.Client.URLBase + URL;
 
-            var parameters = GetParameters(provider, defaultValues);
+            if (Method?.ToUpper() == "POST")
+                return fullURL;
+
+            var parameters = GetParameters(provider, tokenResponse, defaultValues);
             if (parameters.Count > 0)
             {
                 fullURL += fullURL.Contains('?') ? '&' : '?';

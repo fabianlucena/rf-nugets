@@ -15,6 +15,8 @@ using RFUserEmailVerified.Entities;
 using RFUserEmailVerified.IServices;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 
 namespace RFOauth2Client.Service;
@@ -23,6 +25,8 @@ namespace RFOauth2Client.Service;
 public class ProviderService(IServiceProvider serviceProvider)
     : IProviderService
 {
+    private static readonly Dictionary<string, Dictionary<string, TokenResponse>> UserTokens = [];
+
     static private List<Provider>? ConfigurationProviders = null;
 
     public IUserService UserService { get => serviceProvider.GetRequiredService<IUserService>(); }
@@ -95,7 +99,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         throw new ActionNotSupportedForProviderException(actionName, name);
     }
 
-    public static async Task<string?> GetToken(Provider provider, string code)
+    public static async Task<TokenResponse?> GetToken(Provider provider, string code)
     {
         if (provider == null)
             throw new ProviderIsNullException();
@@ -132,9 +136,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         if (res.IsSuccessStatusCode)
         {
             var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(body);
-            var accessToken = tokenResponse?.AccessToken;
-
-            return accessToken;
+            return tokenResponse;
         }
 
         var message = body;
@@ -151,14 +153,18 @@ public class ProviderService(IServiceProvider serviceProvider)
         throw new ErrorRetrivingAccessTokenException(message);
     }
 
-    public static async Task<HttpResponseMessage> Get(Provider provider, Entities.Endpoint endpoint, string accessToken)
+    public static async Task<HttpResponseMessage> Request(Provider provider, Entities.Endpoint endpoint, TokenResponse tokenResponse)
     {
-        var url = endpoint.GetFullURL(provider);
+        var url = endpoint.GetFullURL(provider, tokenResponse);
         if (string.IsNullOrEmpty(url))
             throw new NoUserInfoInActionException();
 
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var method = HttpMethod.Parse(endpoint.Method ?? "GET");
+
+        var request = new HttpRequestMessage(method, url);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+        if (method == HttpMethod.Post || method == HttpMethod.Put)
+            request.Content = new FormUrlEncodedContent(endpoint.GetParameters(provider, tokenResponse));
 
         var client = new HttpClient();
         var response = await client.SendAsync(request);
@@ -166,35 +172,44 @@ public class ProviderService(IServiceProvider serviceProvider)
         return response;
     }
 
-    public static async Task<T?> Get<T>(Provider provider, Entities.Endpoint endpoint, string accessToken)
+    public static async Task<T?> Request<T>(Provider provider, Entities.Endpoint endpoint, TokenResponse tokenResponse)
     {
-        var response = await Get(provider, endpoint, accessToken);
+        var response = await Request(provider, endpoint, tokenResponse);
         var body = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<T>(body);
 
         return data;
     }
 
-    public static async Task<UserInfo?> GetUserInfo(Provider provider, string accessToken)
+    public static async Task<UserInfo?> GetUserInfo(Provider provider, TokenResponse tokenResponse)
     {
         if (!provider.Endpoints.TryGetValue("userInfo", out var userInfoEndpoint)
             || userInfoEndpoint == null)
             throw new NoUserInfoInProviderException(provider.Name);
 
-        return await Get<UserInfo>(provider, userInfoEndpoint, accessToken);
+        return await Request<UserInfo>(provider, userInfoEndpoint, tokenResponse);
     }
 
     public async Task<SessionResponse?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data, HttpRequest request)
     {
-        var token = await GetToken(provider, data?.GetString("code") ?? "");
-        if (string.IsNullOrEmpty(token))
+        var tokenResponse = await GetToken(provider, data?.GetString("code") ?? "")
+            ?? throw new NoAccessTokenReceivedException();
+        if (string.IsNullOrEmpty(tokenResponse.AccessToken))
             throw new NoAccessTokenReceivedException();
 
-        var userInfo = await GetUserInfo(provider, token)
+        var userInfo = await GetUserInfo(provider, tokenResponse)
             ?? throw new NoUserInfoException();
 
         var username = RFString.FirstNonEmpty(userInfo.PreferredUsername, userInfo.Username, userInfo.Email, userInfo.Sub, userInfo.Name);
         var userId = await UserService.GetSingleIdOrDefaultByUsernameAsync(username);
+
+        var accessToken = tokenResponse.AccessToken;
+
+        if (!UserTokens.ContainsKey(provider.Name))
+            UserTokens[provider.Name] = [];
+
+        var userTokens = UserTokens[provider.Name];
+        userTokens[username] = tokenResponse;
 
         if (!userId.HasValue)
         {
@@ -206,7 +221,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         }
         
         if (provider.Features?.MandatoryRoles ?? false)
-            await SetUserRoles(provider, token, userId.Value);
+            await SetUserRoles(provider, tokenResponse, userId.Value);
 
         var deviceId = await DeviceService.GetSingleByTokenOrCreateAsync(data?.GetString("deviceToken") ?? "");
         var userDeviceDTO = new UserIdAndDeviceIdDTO { UserId = userId!.Value, DeviceId = deviceId.Id };
@@ -218,10 +233,9 @@ public class ProviderService(IServiceProvider serviceProvider)
                 ?? httpContext?.Connection.RemoteIpAddress?.ToString() },
             { "userAgent", request.Headers.UserAgent.ToString() },
             { "service", "oauth2"},
-            { "identityProvider", provider.Name },
         };
 
-        var session = await LoginService.LoginAsync(userDeviceDTO, clientData);
+        var session = await LoginService.LoginAsync(userDeviceDTO, provider.Name, clientData);
 
         return new SessionResponse(session);
     }
@@ -262,7 +276,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         return user;
     }
 
-    public async Task SetUserRoles(Provider provider, string token, long userId)
+    public async Task SetUserRoles(Provider provider, TokenResponse tokenResponse, long userId)
     {
         List<string> roles = [];
         var rolesSources = provider.RolesSources ?? [];
@@ -272,7 +286,7 @@ public class ProviderService(IServiceProvider serviceProvider)
             if (rolesSource.Source == "token")
             {
                 var handler = new JwtSecurityTokenHandler();
-                var jwt = handler.ReadJwtToken(token);
+                var jwt = handler.ReadJwtToken(tokenResponse.AccessToken);
                 jsonData = JsonSerializer.Deserialize<JsonElement>(jwt.Payload.SerializeToJson());
             }
 
@@ -307,5 +321,18 @@ public class ProviderService(IServiceProvider serviceProvider)
 
         if (roles.Count != 0)
             await RoleXUserService.SetAllRolesForUserIdAsync(roles, userId);
+    }
+
+    public async Task<bool> Logout(Provider provider, string username)
+    {
+        if (!provider.Endpoints.TryGetValue("logout", out var logoutEndpoint)
+            || logoutEndpoint == null
+            || !UserTokens.TryGetValue(provider.Name, out var userTokens)
+            || !userTokens.TryGetValue(username, out var tokenResponse)
+        )
+            return false;
+
+        await Request(provider, logoutEndpoint, tokenResponse);
+        return true;
     }
 }

@@ -58,10 +58,11 @@ public class SessionService(
         return data;
     }
 
-    public async Task<Session> CreateAsync(long userId, long deviceId, IDataDictionary? data = null)
+    public async Task<Session> CreateAsync(long userId, long deviceId, string identityProvider, IDataDictionary? data = null)
     {
         var session = new Session
         {
+            IdentityProvider = identityProvider,
             ExpireAt = DateTime.MinValue,
             AutoLoginToken = string.Empty,
             UserId = userId,

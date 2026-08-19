@@ -16,8 +16,8 @@ namespace RFAuth.Decorators
         public virtual Task CloseByIdAsync(long sessionId)
             => sessionService.CloseByIdAsync(sessionId);
 
-        public virtual Task<Session> CreateAsync(long userId, long deviceId, IDataDictionary? data = null)
-            => sessionService.CreateAsync(userId, deviceId, data);
+        public virtual Task<Session> CreateAsync(long userId, long deviceId, string identityProvider, IDataDictionary? data = null)
+            => sessionService.CreateAsync(userId, deviceId, identityProvider, data);
 
         public virtual Task<Session> DecorateAsync(Session session)
             => sessionService.DecorateAsync(session);
