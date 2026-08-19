@@ -14,9 +14,6 @@ using RFRegisterService.Attributes;
 using RFUserEmailVerified.Entities;
 using RFUserEmailVerified.IServices;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 
 namespace RFOauth2Client.Service;
@@ -60,6 +57,38 @@ public class ProviderService(IServiceProvider serviceProvider)
                         RolesSources = child.GetSection("roles").Get<List<RolesSource>>(),
                         Features = child.GetSection("features").Get<Features>(),
                     };
+
+                    foreach (var kv in provider.Endpoints)
+                    {
+                        var name = kv.Key;
+                        var endpoint = kv.Value;
+                        
+                        endpoint.Name = name;
+
+                        if (name == "token")
+                        {
+                            endpoint.Method = "POST";
+                            endpoint.AuthorizationHeader ??= false;
+                            endpoint.ContentType ??= ContentType.FormUrlEncoded;
+                            endpoint.ClientIdInBody??= true;
+                            endpoint.ClientSecretInBody ??= true;
+                            endpoint.RedirectUriInBody ??= true;
+
+                            endpoint.AddBodyParameter("grant_type", "authorization_code");
+                            endpoint.AddBodyParameter("response_type", "code");
+                        }
+
+                        endpoint.AuthorizationHeader ??= true;
+                        endpoint.ClientIdInQuery ??= false;
+                        endpoint.RedirectUriInQuery ??= false;
+                        endpoint.ClientSecretInQuery ??= false;
+                        endpoint.RefreshTokenInQuery ??= false;
+                        endpoint.ClientIdInBody ??= false;
+                        endpoint.RedirectUriInBody ??= false;
+                        endpoint.ClientSecretInBody ??= false;
+                        endpoint.RefreshTokenInBody ??= false;
+                    }
+
                     configurationProviders.Add(provider);
                 }
             }
@@ -110,28 +139,10 @@ public class ProviderService(IServiceProvider serviceProvider)
         if (!provider.Endpoints.TryGetValue("token", out var tokenEndpoint)
             || tokenEndpoint == null)
             throw new ActionNotFoundInProviderException("token", provider.Name);
-        
-        var tokenUrl = provider.Client.URLBase + tokenEndpoint.URL;
-        if (string.IsNullOrEmpty(tokenUrl))
-            throw new NoTokenURLInActionException();
 
-        var redirectUri = provider.Client.RedirectUri;
-        if (string.IsNullOrEmpty(redirectUri))
-            throw new NoRedirectURIInActionException();
+        tokenEndpoint.AddBodyParameter("code", code);
+        var res = await tokenEndpoint.Request(provider, null);
 
-        var queryParams = new Dictionary<string, string>
-        {
-            { "client_id", provider.Client.ClientId },
-            { "client_secret", provider.Client.ClientSecret },
-            { "code", code },
-            { "grant_type", "authorization_code" },
-            { "redirect_uri", redirectUri }
-        };
-
-        var content = new FormUrlEncodedContent(queryParams);
-
-        var client = new HttpClient();
-        var res = await client.PostAsync(tokenUrl, content);
         var body = await res.Content.ReadAsStringAsync();
         if (res.IsSuccessStatusCode)
         {
@@ -153,28 +164,9 @@ public class ProviderService(IServiceProvider serviceProvider)
         throw new ErrorRetrivingAccessTokenException(message);
     }
 
-    public static async Task<HttpResponseMessage> Request(Provider provider, Entities.Endpoint endpoint, TokenResponse tokenResponse)
-    {
-        var url = endpoint.GetFullURL(provider, tokenResponse);
-        if (string.IsNullOrEmpty(url))
-            throw new NoUserInfoInActionException();
-
-        var method = HttpMethod.Parse(endpoint.Method ?? "GET");
-
-        var request = new HttpRequestMessage(method, url);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
-        if (method == HttpMethod.Post || method == HttpMethod.Put)
-            request.Content = new FormUrlEncodedContent(endpoint.GetParameters(provider, tokenResponse));
-
-        var client = new HttpClient();
-        var response = await client.SendAsync(request);
-
-        return response;
-    }
-
     public static async Task<T?> Request<T>(Provider provider, Entities.Endpoint endpoint, TokenResponse tokenResponse)
     {
-        var response = await Request(provider, endpoint, tokenResponse);
+        var response = await endpoint.Request(provider, tokenResponse);
         var body = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<T>(body);
 
@@ -339,7 +331,7 @@ public class ProviderService(IServiceProvider serviceProvider)
         )
             return false;
 
-        await Request(provider, logoutEndpoint, tokenResponse);
+        await logoutEndpoint.Request(provider, tokenResponse);
         return true;
     }
 }
