@@ -67,8 +67,9 @@ public class ProviderService(IServiceProvider serviceProvider)
 
                         if (name == "token")
                         {
-                            endpoint.Method = "POST";
+                            endpoint.Method ??= Method.POST;
                             endpoint.AuthorizationHeader ??= false;
+
                             endpoint.ContentType ??= ContentType.FormUrlEncoded;
                             endpoint.ClientIdInBody??= true;
                             endpoint.ClientSecretInBody ??= true;
@@ -78,11 +79,15 @@ public class ProviderService(IServiceProvider serviceProvider)
                             endpoint.AddBodyParameter("response_type", "code");
                         }
 
+                        endpoint.Method ??= Method.GET;
                         endpoint.AuthorizationHeader ??= true;
+
                         endpoint.ClientIdInQuery ??= false;
                         endpoint.RedirectUriInQuery ??= false;
                         endpoint.ClientSecretInQuery ??= false;
                         endpoint.RefreshTokenInQuery ??= false;
+
+                        endpoint.ContentType ??= ContentType.FormUrlEncoded;
                         endpoint.ClientIdInBody ??= false;
                         endpoint.RedirectUriInBody ??= false;
                         endpoint.ClientSecretInBody ??= false;

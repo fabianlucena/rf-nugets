@@ -9,7 +9,7 @@ public class Endpoint
 {
     public string Name { get; set; } = string.Empty;
     public string URL { get; set; } = string.Empty;
-    public string? Method { get; set; }
+    public Method? Method { get; set; }
     public bool? AuthorizationHeader { get; set; }
 
     public Dictionary<string, string>? Query { get; set; }
@@ -157,7 +157,7 @@ public class Endpoint
         if (string.IsNullOrEmpty(url))
             throw new NoUserInfoInActionException();
 
-        var method = HttpMethod.Parse(Method ?? "GET");
+        var method = HttpMethod.Parse(Method?.ToString() ?? "GET");
 
         var request = new HttpRequestMessage(method, url);
         if (AuthorizationHeader != false)
