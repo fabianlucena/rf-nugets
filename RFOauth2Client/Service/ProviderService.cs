@@ -64,8 +64,12 @@ public class ProviderService(IServiceProvider serviceProvider)
                         var endpoint = kv.Value;
                         
                         endpoint.Name = name;
-
-                        if (name == "token")
+                        if (name == "authorize")
+                        {
+                            endpoint.ClientIdInBody ??= true;
+                            endpoint.ClientSecretInBody ??= true;
+                        }
+                        else if (name == "token")
                         {
                             endpoint.Method ??= Method.POST;
                             endpoint.AuthorizationHeader ??= false;
