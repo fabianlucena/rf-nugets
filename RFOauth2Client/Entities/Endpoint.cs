@@ -33,6 +33,13 @@ public class Endpoint
         Query[key] = value;
     }
 
+    public void AddQueryParameterIfNotExists(string key, string value)
+    {
+        Query ??= [];
+        if (!Query.ContainsKey(key))
+            Query[key] = value;
+    }
+
     public void AddBodyParameter(string key, string value)
     {
         Body ??= [];

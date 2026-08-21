@@ -52,11 +52,14 @@ public class ProviderService(IServiceProvider serviceProvider)
                         IsEnabled = bool.TryParse(child["isEnabled"] ?? "true", out var isEnabled) && isEnabled,
                         Client = child.GetRequiredSection("client").Get<Client>()
                             ?? throw new NoClientSectionInOAuth2ProvidersConfigurationException(),
-                        Endpoints = child.GetSection("endpoints").Get<Dictionary<string, Entities.Endpoint>>()
-                            ?? throw new NoEndpointsSectionInOAuth2ProvidersConfigurationException(),
+                        Endpoints = child.GetSection("endpoints").Get<Dictionary<string, Entities.Endpoint>>() ?? [],
                         RolesSources = child.GetSection("roles").Get<List<RolesSource>>(),
                         Features = child.GetSection("features").Get<Features>(),
                     };
+
+                    CheckEndpointConfiguration(provider, child, "authorize");
+                    CheckEndpointConfiguration(provider, child, "token");
+                    CheckEndpointConfiguration(provider, child, "userInfo");
 
                     foreach (var kv in provider.Endpoints)
                     {
@@ -66,11 +69,15 @@ public class ProviderService(IServiceProvider serviceProvider)
                         endpoint.Name = name;
                         if (name == "authorize")
                         {
-                            endpoint.ClientIdInBody ??= true;
+                            endpoint.URL ??= "/auth";
+                            endpoint.Method ??= Method.GET;
+                            endpoint.AuthorizationHeader ??= false;
+                            endpoint.ClientIdInQuery ??= true;
                             endpoint.ClientSecretInBody ??= true;
                         }
                         else if (name == "token")
                         {
+                            endpoint.URL ??= "/token";
                             endpoint.Method ??= Method.POST;
                             endpoint.AuthorizationHeader ??= false;
 
@@ -83,6 +90,7 @@ public class ProviderService(IServiceProvider serviceProvider)
                             endpoint.AddBodyParameter("response_type", "code");
                         }
 
+                        endpoint.URL ??= $"/{name}";
                         endpoint.Method ??= Method.GET;
                         endpoint.AuthorizationHeader ??= true;
 
@@ -106,6 +114,37 @@ public class ProviderService(IServiceProvider serviceProvider)
         }
 
         return ConfigurationProviders;
+    }
+
+    public void CheckEndpointConfiguration(Provider provider, IConfigurationSection child, string endpoint)
+    {
+        if (provider.Endpoints.ContainsKey(endpoint))
+            return;
+
+        var section = child.GetSection($"endpoints:{endpoint}");
+        if (!section.Exists())
+        {
+            provider.Endpoints[endpoint] = new Entities.Endpoint();
+            return;
+        }
+
+        var value = section.Get<bool?>();
+        if (value is null)
+        {
+            var url = section.Get<string?>()
+                ?? throw new InvalidConfigurationException($"{provider.Name}:endpoints:{endpoint}");
+
+            provider.Endpoints[endpoint] = new Entities.Endpoint()
+            {
+                URL = url,
+            };
+            return;
+        }
+
+        if (!value.Value)
+            return;
+
+        provider.Endpoints[endpoint] = new Entities.Endpoint();
     }
 
     public async Task<IEnumerable<Provider>> GetListAuthorizeAsync()
