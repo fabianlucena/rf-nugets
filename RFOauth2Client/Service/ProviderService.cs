@@ -69,15 +69,21 @@ public class ProviderService(IServiceProvider serviceProvider)
                         endpoint.Name = name;
                         if (name == "authorize")
                         {
-                            endpoint.URL ??= "/auth";
                             endpoint.Method ??= Method.GET;
                             endpoint.AuthorizationHeader ??= false;
                             endpoint.ClientIdInQuery ??= true;
-                            endpoint.ClientSecretInBody ??= true;
+                            endpoint.RedirectUriInQuery ??= true;
+
+                            if (!(endpoint.Query?.ContainsKey("scope") ?? true))
+                            {
+                                var scope = child.GetSection("scope")?.Get<string>()
+                                    ?? "openid email profile";
+
+                                endpoint.AddQueryParameterIfNotExists("scope", scope);
+                            }
                         }
                         else if (name == "token")
                         {
-                            endpoint.URL ??= "/token";
                             endpoint.Method ??= Method.POST;
                             endpoint.AuthorizationHeader ??= false;
 
@@ -89,9 +95,13 @@ public class ProviderService(IServiceProvider serviceProvider)
                             endpoint.AddBodyParameter("grant_type", "authorization_code");
                             endpoint.AddBodyParameter("response_type", "code");
                         }
+                        else if (name == "logout")
+                        {
+                            endpoint.Method ??= Method.GET;
+                        }
 
                         endpoint.URL ??= $"/{name}";
-                        endpoint.Method ??= Method.GET;
+                        endpoint.Method ??= Method.POST;
                         endpoint.AuthorizationHeader ??= true;
 
                         endpoint.ClientIdInQuery ??= false;
@@ -116,35 +126,38 @@ public class ProviderService(IServiceProvider serviceProvider)
         return ConfigurationProviders;
     }
 
-    public void CheckEndpointConfiguration(Provider provider, IConfigurationSection child, string endpoint)
+    public static void CheckEndpointConfiguration(Provider provider, IConfigurationSection child, string endpointName)
     {
-        if (provider.Endpoints.ContainsKey(endpoint))
+        if (provider.Endpoints.ContainsKey(endpointName))
             return;
 
-        var section = child.GetSection($"endpoints:{endpoint}");
+        var section = child.GetSection($"endpoints:{endpointName}");
         if (!section.Exists())
         {
-            provider.Endpoints[endpoint] = new Entities.Endpoint();
-            return;
-        }
-
-        var value = section.Get<bool?>();
-        if (value is null)
-        {
-            var url = section.Get<string?>()
-                ?? throw new InvalidConfigurationException($"{provider.Name}:endpoints:{endpoint}");
-
-            provider.Endpoints[endpoint] = new Entities.Endpoint()
+            provider.Endpoints[endpointName] = new Entities.Endpoint()
             {
-                URL = url,
+                URL = $"/{endpointName}",
             };
+
             return;
         }
 
-        if (!value.Value)
-            return;
+        var raw = section.Value;
+        if (bool.TryParse(raw, out var flag))
+        {
+            if (!flag)
+                return;
 
-        provider.Endpoints[endpoint] = new Entities.Endpoint();
+            provider.Endpoints[endpointName] = new Entities.Endpoint()
+            {
+                URL = $"/{endpointName}",
+            };
+        }
+
+        provider.Endpoints[endpointName] = new Entities.Endpoint()
+        {
+            URL = raw,
+        };
     }
 
     public async Task<IEnumerable<Provider>> GetListAuthorizeAsync()

@@ -8,7 +8,7 @@ namespace RFOauth2Client.Entities;
 public class Endpoint
 {
     public string Name { get; set; } = string.Empty;
-    public string URL { get; set; } = string.Empty;
+    public string? URL { get; set; } = string.Empty;
     public Method? Method { get; set; }
     public bool? AuthorizationHeader { get; set; }
 

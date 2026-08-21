@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RFAuth.DTO;
 using RFBase.Exceptions;
 using RFBase.Libs;
 using RFOauth2Client.Entities;
@@ -22,9 +21,8 @@ public class OAuth2ClientController(
         logger.LogInformation("Getting OAuth2 providers.");
 
         var providerService = serviceProvider.GetRequiredService<IProviderService>();
-
         var providers = (await providerService.GetListAuthorizeAsync())
-            .Select(i => new LoginProviderResponse(i));
+            .Select(p => new LoginProviderResponse(p));
 
         return Ok(providers);
     }
