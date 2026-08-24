@@ -15,7 +15,7 @@ namespace RFOauth2Client.Entities
 
             Name = provider.Name;
             DisplayName = string.IsNullOrEmpty(provider.DisplayName) ? $"Login with {provider.Name}" : provider.DisplayName;
-            URL = autorizeEndpoint.GetFullURL(provider, null, new Dictionary<string, string>{ { "response_type", "code" } });
+            URL = autorizeEndpoint.GetFullURL(provider, null);
         }
     }
 }

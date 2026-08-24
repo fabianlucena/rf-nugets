@@ -25,6 +25,9 @@ No hay redirect_uri en la acción.
 No token URL in action.
 No hay URL de token en la acción.
 
+No username found.
+No se encontró nombre de usuario.
+
 No user info
 No hay información de usuario
 

@@ -59,7 +59,7 @@ public class ProviderService(IServiceProvider serviceProvider)
 
                     CheckEndpointConfiguration(provider, child, "authorize");
                     CheckEndpointConfiguration(provider, child, "token");
-                    CheckEndpointConfiguration(provider, child, "userInfo");
+                    CheckEndpointConfiguration(provider, child, "userinfo");
 
                     foreach (var kv in provider.Endpoints)
                     {
@@ -74,7 +74,9 @@ public class ProviderService(IServiceProvider serviceProvider)
                             endpoint.ClientIdInQuery ??= true;
                             endpoint.RedirectUriInQuery ??= true;
 
-                            if (!(endpoint.Query?.ContainsKey("scope") ?? true))
+                            endpoint.AddQueryParameterIfNotExists("response_type", "code");
+
+                            if (!(endpoint.Query?.ContainsKey("scope") ?? false))
                             {
                                 var scope = child.GetSection("scope")?.Get<string>()
                                     ?? "openid email profile";
@@ -94,6 +96,10 @@ public class ProviderService(IServiceProvider serviceProvider)
 
                             endpoint.AddBodyParameter("grant_type", "authorization_code");
                             endpoint.AddBodyParameter("response_type", "code");
+                        }
+                        else if (name == "userinfo")
+                        {
+                            endpoint.Method ??= Method.GET;
                         }
                         else if (name == "logout")
                         {
@@ -236,11 +242,11 @@ public class ProviderService(IServiceProvider serviceProvider)
 
     public static async Task<UserInfo?> GetUserInfo(Provider provider, TokenResponse tokenResponse)
     {
-        if (!provider.Endpoints.TryGetValue("userInfo", out var userInfoEndpoint)
-            || userInfoEndpoint == null)
+        if (!provider.Endpoints.TryGetValue("userinfo", out var userinfoEndpoint)
+            || userinfoEndpoint == null)
             throw new NoUserInfoInProviderException(provider.Name);
 
-        return await Request<UserInfo>(provider, userInfoEndpoint, tokenResponse);
+        return await Request<UserInfo>(provider, userinfoEndpoint, tokenResponse);
     }
 
     public async Task<SessionResponse?> CallbackAuthorizeAsync(Provider provider, DataDictionary? data, HttpRequest request)
@@ -254,6 +260,9 @@ public class ProviderService(IServiceProvider serviceProvider)
             ?? throw new NoUserInfoException();
 
         var username = RFString.FirstNonEmpty(userInfo.PreferredUsername, userInfo.Username, userInfo.Email, userInfo.Sub, userInfo.Name);
+        if (string.IsNullOrWhiteSpace(username))
+            throw new NoUsernameFoundException();
+
         var userId = await UserService.GetSingleIdOrDefaultByUsernameAsync(username);
 
         var accessToken = tokenResponse.AccessToken;
