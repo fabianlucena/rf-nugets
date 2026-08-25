@@ -6,7 +6,7 @@ namespace RFAuthEF;
 
 public static class AddRFAuthEFServicesRegistration
 {
-    public static IServiceCollection AddRFAuthEFSeervices(this IServiceCollection services)
+    public static IServiceCollection AddRFAuthEFServices(this IServiceCollection services)
     {
         services.AddScoped<IUserPasswordRepository, UserPasswordRepository>();
         services.AddScoped<IDeviceRepository, DeviceRepository>();
