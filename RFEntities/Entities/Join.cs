@@ -1,14 +1,13 @@
-﻿namespace RFEntities.Entities
-{
-    public abstract class Join : Base
-    {
-        public Join() { }
+﻿namespace RFEntities.Entities;
 
-        public Join(Join? entity = null)
-            : base(entity)
-        {
-            if (entity == null)
-                return;
-        }
+public abstract class Join : Base
+{
+    public Join() { }
+
+    public Join(Join? entity = null)
+        : base(entity)
+    {
+        if (entity == null)
+            return;
     }
 }

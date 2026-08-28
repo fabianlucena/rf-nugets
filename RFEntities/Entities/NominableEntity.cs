@@ -1,18 +1,17 @@
-﻿namespace RFEntities.Entities
+﻿namespace RFEntities.Entities;
+
+public abstract class NominableEntity : CommonEntity
 {
-    public abstract class NominableEntity : CommonEntity
+    public string Name { get; set; } = string.Empty;
+
+    public NominableEntity() { }
+
+    public NominableEntity(NominableEntity? entity = null)
+        : base(entity)
     {
-        public string Name { get; set; } = string.Empty;
+        if (entity == null)
+            return;
 
-        public NominableEntity() { }
-
-        public NominableEntity(NominableEntity? entity = null)
-            : base(entity)
-        {
-            if (entity == null)
-                return;
-
-            Name = entity.Name;
-        }
+        Name = entity.Name;
     }
 }

@@ -1,22 +1,21 @@
-﻿namespace RFEntities.Entities
+﻿namespace RFEntities.Entities;
+
+public abstract class CommonEntity : AuditableEntity
 {
-    public abstract class CommonEntity : AuditableEntity
+    public DateTime? DeletedAt { get; set; } = null;
+    public long? DeletedById { get; set; } = null;
+    public User? DeletedBy { get; set; } = null;
+
+    public CommonEntity() { }
+
+    public CommonEntity(CommonEntity? entity = null)
+        : base(entity)
     {
-        public DateTime? DeletedAt { get; set; } = null;
-        public long? DeletedById { get; set; } = null;
-        public User? DeletedBy { get; set; } = null;
+        if (entity == null)
+            return;
 
-        public CommonEntity() { }
-
-        public CommonEntity(CommonEntity? entity = null)
-            : base(entity)
-        {
-            if (entity == null)
-                return;
-
-            DeletedAt = entity.DeletedAt;
-            DeletedById = entity.DeletedById;
-            DeletedBy = entity.DeletedBy;
-        }
+        DeletedAt = entity.DeletedAt;
+        DeletedById = entity.DeletedById;
+        DeletedBy = entity.DeletedBy;
     }
 }

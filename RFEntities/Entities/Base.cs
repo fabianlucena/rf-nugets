@@ -1,11 +1,10 @@
-﻿namespace RFEntities.Entities
+﻿namespace RFEntities.Entities;
+
+public abstract class Base
 {
-    public abstract class Base
-    {
-        public Base() { }
+    public Base() { }
 
-        public Base(Base? _) { }
+    public Base(Base? _) { }
 
-        public abstract Base Clone();
-    }
+    public abstract Base Clone();
 }
