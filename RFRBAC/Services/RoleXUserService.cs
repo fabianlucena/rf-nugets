@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RFEntities.Entities;
 using RFIServices.IServices;
-using RFPermissions.Services;
 using RFRBAC.Entities;
 using RFRBAC.Exceptions;
 using RFRBAC.IRepositories;

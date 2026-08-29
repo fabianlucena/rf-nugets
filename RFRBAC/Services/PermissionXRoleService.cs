@@ -32,8 +32,10 @@ public class PermissionXRoleService(
         return await PermissionService.GetNamesByIdsAsync(allPermissionIds);
     }
 
-    public async Task<bool> CreateIfNotExistsAsync(IDictionary<string, IEnumerable<string>> rolesPermissions)
+    public async Task<int> CreateIfNotExistsAsync(IDictionary<string, IEnumerable<string>> rolesPermissions)
     {
+        var created = 0;
+
         var creatorId = await UserService.GetCurrentOrSystemUserIdAsync();
         foreach (var kvp in rolesPermissions)
         {
@@ -66,9 +68,10 @@ public class PermissionXRoleService(
                     PermissionId = permissionId,
                     CreatedById = creatorId,
                 });
+                created++;
             }
         }
 
-        return true;
+        return created;
     }
 }
