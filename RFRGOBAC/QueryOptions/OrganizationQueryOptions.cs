@@ -1,4 +1,5 @@
-﻿using RFIServices.QueryOptions;
+﻿using Microsoft.AspNetCore.Http;
+using RFIServices.QueryOptions;
 
 namespace RFRGOBAC.QueryOptions;
 
@@ -15,4 +16,13 @@ public sealed class OrganizationQueryOptions : CommonEntityQueryOptions
 
     public override OrganizationQueryOptions Clone()
         => new(this);
+
+    public OrganizationQueryOptions BuildFromRequest(HttpRequest request)
+    {
+        var options = new OrganizationQueryOptions(this);
+
+        base.BuildFromRequest(request, options);
+
+        return options;
+    }
 }
