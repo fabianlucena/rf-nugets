@@ -1,43 +1,40 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace RFIServices.QueryOptions
+namespace RFIServices.QueryOptions;
+
+public class UserQueryOptions : CommonEntityQueryOptions
 {
-    public class UserQueryOptions : CommonEntityQueryOptions
+    public string? Username { get; set; }
+
+    public Guid? TypeUuid { get; set; }
+
+    public UserQueryOptions() { }
+
+    public UserQueryOptions(UserQueryOptions? options)
+        : base(options)
     {
+        if (options == null)
+            return;
 
-        public string? Username { get; set; }
+        Username = options.Username;
+        TypeUuid = options.TypeUuid;
+    }
 
-        public Guid? TypeUuid { get; set; }
+    public override UserQueryOptions Clone()
+        => new(this);
 
-        public UserQueryOptions() { }
+    public UserQueryOptions BuildFromRequest(HttpRequest request, UserQueryOptions? options = null)
+    {
+        options ??= new UserQueryOptions();
 
-        public UserQueryOptions(UserQueryOptions? options)
-            : base(options)
-        {
-            if (options == null)
-                return;
+        base.BuildFromRequest(request, options);
 
-            Username = options.Username;
-            TypeUuid = options.TypeUuid;
-        }
+        if (request.Query.ContainsKey("username"))
+            options.Username = request.Query["username"].ToString();
 
-        public override UserQueryOptions Clone()
-            => new(this);
+        if (request.Query.ContainsKey("typeUuid"))
+            options.TypeUuid = Guid.Parse(request.Query["typeUuid"].ToString());
 
-        public UserQueryOptions BuildFromRequest(HttpRequest request)
-        {
-            var options = new UserQueryOptions(this);
-
-            if (request.Query.ContainsKey("ids"))
-                options.Ids = request.Query["ids"].ToString().Split(',').Select(long.Parse);
-
-            if (request.Query.ContainsKey("username"))
-                options.Username = request.Query["username"].ToString();
-
-            if (request.Query.ContainsKey("typeUuid"))
-                options.TypeUuid = Guid.Parse(request.Query["typeUuid"].ToString());
-
-            return options;
-        }
+        return options;
     }
 }

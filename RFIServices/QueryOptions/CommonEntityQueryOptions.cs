@@ -1,20 +1,19 @@
-﻿namespace RFIServices.QueryOptions
+﻿namespace RFIServices.QueryOptions;
+
+public abstract class CommonEntityQueryOptions : AuditableEntityQueryOptions
 {
-    public abstract class CommonEntityQueryOptions : AuditableEntityQueryOptions
+    public bool IncludeDeleted { get; set; } = false;
+    public bool IncludeDeletedBy { get; set; } = false;
+
+    public CommonEntityQueryOptions() { }
+
+    public CommonEntityQueryOptions(CommonEntityQueryOptions? options)
+        : base(options)
     {
-        public bool IncludeDeleted { get; set; } = false;
-        public bool IncludeDeletedBy { get; set; } = false;
+        if (options == null)
+            return;
 
-        public CommonEntityQueryOptions() { }
-
-        public CommonEntityQueryOptions(CommonEntityQueryOptions? options)
-            : base(options)
-        {
-            if (options == null)
-                return;
-
-            IncludeDeleted = options.IncludeDeleted;
-            IncludeDeletedBy = options.IncludeDeletedBy;
-        }
+        IncludeDeleted = options.IncludeDeleted;
+        IncludeDeletedBy = options.IncludeDeletedBy;
     }
 }

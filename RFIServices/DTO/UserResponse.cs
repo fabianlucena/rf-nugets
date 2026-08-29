@@ -1,8 +1,7 @@
 ﻿using RFEntities.Entities;
 
-namespace RFIServices.DTO
+namespace RFIServices.DTO;
+
+public class UserResponse(User user) : UserDTO(user)
 {
-    public class UserResponse(User user) : UserDTO(user)
-    {
-    }
 }

@@ -1,22 +1,21 @@
-﻿namespace RFIServices.QueryOptions
+﻿namespace RFIServices.QueryOptions;
+
+public abstract class CreatableEntityQueryOptions : EntityQueryOptions
 {
-    public abstract class CreatableEntityQueryOptions : EntityQueryOptions
+    public bool IncludeCreatedBy { get; set; } = false;
+
+    public DateTime? CreatedAfter { get; set; }
+
+    public CreatableEntityQueryOptions() { }
+
+    public CreatableEntityQueryOptions(CreatableEntityQueryOptions? options)
+        : base(options)
     {
-        public bool IncludeCreatedBy { get; set; } = false;
+        if (options == null)
+            return;
 
-        public DateTime? CreatedAfter { get; set; }
+        IncludeCreatedBy = options.IncludeCreatedBy;
 
-        public CreatableEntityQueryOptions() { }
-
-        public CreatableEntityQueryOptions(CreatableEntityQueryOptions? options)
-            : base(options)
-        {
-            if (options == null)
-                return;
-
-            IncludeCreatedBy = options.IncludeCreatedBy;
-
-            CreatedAfter = options.CreatedAfter;
-        }
+        CreatedAfter = options.CreatedAfter;
     }
 }

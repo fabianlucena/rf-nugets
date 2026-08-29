@@ -1,18 +1,17 @@
-﻿namespace RFIServices.QueryOptions
+﻿namespace RFIServices.QueryOptions;
+
+public abstract class AuditableEntityQueryOptions : CreatableEntityQueryOptions
 {
-    public abstract class AuditableEntityQueryOptions : CreatableEntityQueryOptions
+    public bool IncludeUpdatedBy { get; set; }
+
+    public AuditableEntityQueryOptions() { }
+
+    public AuditableEntityQueryOptions(AuditableEntityQueryOptions? options)
+        : base(options)
     {
-        public bool IncludeUpdatedBy { get; set; }
+        if (options == null)
+            return;
 
-        public AuditableEntityQueryOptions() { }
-
-        public AuditableEntityQueryOptions(AuditableEntityQueryOptions? options)
-            : base(options)
-        {
-            if (options == null)
-                return;
-
-            IncludeUpdatedBy = options.IncludeUpdatedBy;
-        }
+        IncludeUpdatedBy = options.IncludeUpdatedBy;
     }
 }
