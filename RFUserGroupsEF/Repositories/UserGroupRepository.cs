@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFEntitiesEF.Repositories;
 using RFIServices.QueryOptions;
+using RFRegisterService.Attributes;
 using RFUserGroups.Entities;
 using RFUserGroups.IRepositories;
 using RFUserGroups.QueryOptions;
 
 namespace RFUserGroupsEF.Repositories;
 
+[RegisterService]
 public class UserGroupRepository(DbContext context)
     : CommonJoinRepository<UserGroup>(context),
     IUserGroupRepository
