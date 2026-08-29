@@ -26,6 +26,9 @@ public class EntityRepository<T>(DbContext context)
 
             if (entityOptions.Uuid != null)
                 queryable = queryable.Where(e => e.Uuid == entityOptions.Uuid);
+
+            if (entityOptions.Uuids != null)
+                queryable = queryable.Where(e => entityOptions.Uuids.Contains(e.Uuid));
         }
 
         return queryable;
@@ -57,10 +60,36 @@ public class EntityRepository<T>(DbContext context)
         return result;
     }
 
+    public virtual async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data)
+    {
+        var entity = new T { Uuid = uuid };
+        Context.Set<T>().Attach(entity);
+
+        foreach (var item in data)
+        {
+            Context.Entry(entity).Property(item.Key).CurrentValue = item.Value;
+            Context.Entry(entity).Property(item.Key).IsModified = true;
+        }
+
+        var result = await Context.SaveChangesAsync();
+        Context.Entry(entity).State = EntityState.Detached;
+
+        return result;
+    }
+
     public virtual async Task<int> DeleteByIdAsync(long id)
     {
         var result = await GetDBSet()
             .Where(e => e.Id == id)
+            .ExecuteDeleteAsync();
+
+        return result;
+    }
+
+    public virtual async Task<int> DeleteByUuidAsync(Guid uuid)
+    {
+        var result = await GetDBSet()
+            .Where(e => e.Uuid == uuid)
             .ExecuteDeleteAsync();
 
         return result;
