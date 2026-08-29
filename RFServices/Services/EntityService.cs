@@ -86,11 +86,30 @@ public class EntityService<T>(
         return success;
     }
 
+    public async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data)
+    {
+        data = await ValidateForUpdate(data);
+        int success = await repository.UpdateByUuidAsync(uuid, data);
+        if (success == 0)
+            throw new InvalidOperationException($"Failed to update entity with UUID {uuid}.");
+
+        return success;
+    }
+
     public async Task<int> DeleteByIdAsync(long id)
     {
         int success = await repository.DeleteByIdAsync(id);
         if (success == 0)
             throw new InvalidOperationException($"Failed to delete entity with ID {id}.");
+
+        return success;
+    }
+
+    public async Task<int> DeleteByUuidAsync(Guid uuid)
+    {
+        int success = await repository.DeleteByUuidAsync(uuid);
+        if (success == 0)
+            throw new InvalidOperationException($"Failed to delete entity with UUID {uuid}.");
 
         return success;
     }
