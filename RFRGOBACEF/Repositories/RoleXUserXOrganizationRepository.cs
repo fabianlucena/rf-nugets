@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFEntitiesEF.Repositories;
 using RFIServices.QueryOptions;
+using RFRegisterService.Attributes;
 using RFRGOBAC.Entities;
 using RFRGOBAC.IRepositories;
 using RFRGOBAC.QueryOptions;
 
 namespace RFRGOBACEF.Repositories;
 
+[RegisterService]
 public class RoleXUserXOrganizationRepository(DbContext context)
     : CommonJoinRepository<RoleXUserXOrganization>(context),
     IRoleXUserXOrganizationRepository

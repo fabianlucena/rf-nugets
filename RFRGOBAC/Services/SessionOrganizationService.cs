@@ -1,4 +1,5 @@
-﻿using RFRGOBAC.Entities;
+﻿using RFRegisterService.Attributes;
+using RFRGOBAC.Entities;
 using RFRGOBAC.IRepositories;
 using RFRGOBAC.IServices;
 using RFRGOBAC.QueryOptions;
@@ -6,6 +7,7 @@ using RFServices.Services;
 
 namespace RFRGOBAC.Services;
 
+[RegisterService]
 public class SessionOrganizationService(
     ISessionOrganizationRepository sessionOrganizationRepository,
     IServiceProvider serviceProvider

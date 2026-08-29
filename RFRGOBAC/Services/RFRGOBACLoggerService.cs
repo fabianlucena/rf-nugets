@@ -1,8 +1,8 @@
 ﻿using RFLogger.IServices;
 
-namespace RFRGOBACControllers.IServices;
+namespace RFRGOBAC.Services;
 
-public interface IRFRGOBACControllersLoggerService
+public interface IRFRGOBACLoggerService
     : ILoggerService
 {
     Task<IEnumerable<object?>> AddInfoGetAsync(string message, object? data = null, IDictionary<string, object>? options = null);

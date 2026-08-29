@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFEntitiesEF.Repositories;
 using RFIServices.QueryOptions;
+using RFRegisterService.Attributes;
 using RFRGOBAC.Entities;
 using RFRGOBAC.IRepositories;
 
 namespace RFRGOBACEF.Repositories;
 
+[RegisterService]
 public class OrganizationRepository(DbContext context)
     : LocalizableEntityRepository<Organization>(context),
     IOrganizationRepository

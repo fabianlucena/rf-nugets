@@ -1,6 +1,7 @@
 ﻿using RFAuth.Entities;
 using RFIServices.IServices;
 using RFRBAC.IServices;
+using RFRegisterService.Attributes;
 using RFRGOBAC.DTO;
 using RFRGOBAC.Entities;
 using RFRGOBAC.IServices;
@@ -9,6 +10,7 @@ using RFUserGroupsIServices.IServices;
 
 namespace RFRGOBAC.Services;
 
+[RegisterService]
 public class ORGPDataService(
     IRoleXUserXOrganizationService roleXUserXOrganizationService,
     IUserGroupService userGroupService,

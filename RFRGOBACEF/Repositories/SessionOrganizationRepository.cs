@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RFEntitiesEF.Repositories;
 using RFIServices.QueryOptions;
+using RFRegisterService.Attributes;
 using RFRGOBAC.Entities;
 using RFRGOBAC.IRepositories;
 using RFRGOBAC.QueryOptions;
@@ -8,6 +9,7 @@ using RFRGOBACEF.Exceptions;
 
 namespace RFRGOBACEF.Repositories;
 
+[RegisterService]
 public class SessionOrganizationRepository(DbContext context)
     : NoIdEntityRepository<SessionOrganization>(context),
     ISessionOrganizationRepository

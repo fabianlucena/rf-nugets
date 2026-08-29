@@ -1,4 +1,5 @@
 ﻿using RFRBAC.IServices;
+using RFRegisterService.Attributes;
 using RFRGOBAC.Entities;
 using RFRGOBAC.IRepositories;
 using RFRGOBAC.IServices;
@@ -7,6 +8,7 @@ using RFServices.Services;
 
 namespace RFRGOBAC.Services;
 
+[RegisterService]
 public class RoleXUserXOrganizationService(
     IRoleXUserXOrganizationRepository roleXUserXOrganizationRepository,
     IRoleIncludeService roleIncludeService,
