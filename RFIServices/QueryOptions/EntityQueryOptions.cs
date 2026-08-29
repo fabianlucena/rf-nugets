@@ -1,26 +1,39 @@
-﻿namespace RFIServices.QueryOptions
+﻿using Microsoft.AspNetCore.Http;
+
+namespace RFIServices.QueryOptions;
+
+public abstract class EntityQueryOptions : BaseQueryOptions
 {
-    public abstract class EntityQueryOptions : BaseQueryOptions
+    public long? Id { get; set; }
+    public IEnumerable<long>? Ids { get; set; }
+    public Guid? Uuid { get; set; }
+    public IEnumerable<Guid>? Uuids { get; set; }
+
+    public bool SkipOrderById { get; set; }
+
+    public EntityQueryOptions() { }
+
+    public EntityQueryOptions(EntityQueryOptions? options)
+        : base(options)
     {
-        public long? Id { get; set; }
-        public IEnumerable<long>? Ids { get; set; }
-        public Guid? Uuid { get; set; }
+        if (options == null)
+            return;
 
-        public bool SkipOrderById { get; set; }
+        Id = options.Id;
+        Ids = options.Ids != null ? [.. options.Ids] : null;
+        Uuid = options.Uuid;
+        Uuids = options.Uuids != null ? [.. options.Uuids] : null;
 
-        public EntityQueryOptions() { }
+        SkipOrderById = options.SkipOrderById;
+    }
 
-        public EntityQueryOptions(EntityQueryOptions? options)
-            : base(options)
-        {
-            if (options == null)
-                return;
+    public EntityQueryOptions BuildFromRequest(HttpRequest request, EntityQueryOptions options)
+    {
+        base.BuildFromRequest(request, options);
 
-            Id = options.Id;
-            Ids = options.Ids != null ? [.. options.Ids] : null;
-            Uuid = options.Uuid;
+        if (request.Query.ContainsKey("uuids"))
+            options.Uuids = request.Query["uuids"].ToString().Split(',').Select(Guid.Parse);
 
-            SkipOrderById = options.SkipOrderById;
-        }
+        return options;
     }
 }
