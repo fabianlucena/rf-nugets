@@ -19,6 +19,9 @@ public class EntityServiceDecorator<T>(IEntityService<T> entityService)
     public virtual Task<T> GetSingleByIdAsync(long id, EntityQueryOptions? options = null)
         => entityService.GetSingleByIdAsync(id, options);
 
+    public virtual Task<long> GetSingleIdByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
+        => entityService.GetSingleIdByUuidAsync(uuid, options);
+
     public virtual Task<int> UpdateByIdAsync(long id, IDataDictionary data)
         => entityService.UpdateByIdAsync(id, data);
 

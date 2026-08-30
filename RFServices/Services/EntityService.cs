@@ -1,9 +1,10 @@
-﻿using RFEntities.Entities;
-using RFIServices.QueryOptions;
+﻿using RFBase.ILibs;
+using RFEntities.Entities;
 using RFIRepositories.IRepositories;
 using RFIServices.IServices;
+using RFIServices.QueryOptions;
 using RFServices.Exceptions;
-using RFBase.ILibs;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RFServices.Services;
 
@@ -76,6 +77,15 @@ public class EntityService<T>(
         => await GetSingleIdOrDefaultAsync(options)
             ?? throw new NoEntityFoundMatchingTheSpecifiedCriteriaException();
 
+    public async Task<long> GetSingleIdByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
+    {
+        var id = await repository.GetSingleIdOrDefaultByUuidAsync(uuid, options);
+        if (id == default)
+            throw new NoEntityFoundForUuidException(uuid);
+
+        return id;
+    }
+
     public async Task<int> UpdateByIdAsync(long id, IDataDictionary data)
     {
         data = await ValidateForUpdate(data);
@@ -88,8 +98,9 @@ public class EntityService<T>(
 
     public async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data)
     {
+        var id = await GetSingleIdByUuidAsync(uuid);
         data = await ValidateForUpdate(data);
-        int success = await repository.UpdateByUuidAsync(uuid, data);
+        int success = await repository.UpdateByIdAsync(id, data);
         if (success == 0)
             throw new InvalidOperationException($"Failed to update entity with UUID {uuid}.");
 
