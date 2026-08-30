@@ -39,7 +39,7 @@ public class OrganizationsController(
 
         var response = organizations.Select(organization => new OrganizationResponse(organization));
 
-        return Ok(new DataRowsResult(response));
+        return Ok(response);
     }
 
     [HttpPatch("{uuid}")]
@@ -69,7 +69,7 @@ public class OrganizationsController(
         await loggerService.AddInfoAddAsync("Add organization", new { request });
 
         var data = request.GetPascalized();
-        var result = await organizationService.CreateAsync(request.ToObject<Organization>());
+        var result = await organizationService.CreateAsync(data.ToObject<Organization>());
 
         _ = eventBus.Publish(new Event("OrganizationCreated", new DataDictionary {
             { "Data", data }
