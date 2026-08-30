@@ -4,7 +4,6 @@ using RFIRepositories.IRepositories;
 using RFIServices.IServices;
 using RFIServices.QueryOptions;
 using RFServices.Exceptions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RFServices.Services;
 
