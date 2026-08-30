@@ -106,7 +106,7 @@ public class EntityService<T>(
         return success;
     }
 
-    public async Task<int> DeleteByIdAsync(long id)
+    public virtual async Task<int> DeleteByIdAsync(long id)
     {
         int success = await repository.DeleteByIdAsync(id);
         if (success == 0)
@@ -115,7 +115,7 @@ public class EntityService<T>(
         return success;
     }
 
-    public async Task<int> DeleteByUuidAsync(Guid uuid)
+    public virtual async Task<int> DeleteByUuidAsync(Guid uuid)
     {
         int success = await repository.DeleteByUuidAsync(uuid);
         if (success == 0)

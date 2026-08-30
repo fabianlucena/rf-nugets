@@ -13,11 +13,38 @@ public class CommonEntityService<T>(
     ICommonEntityService<T>
     where T : CommonEntity, new()
 {
+    public override async Task<int> DeleteByIdAsync(long id)
+    {
+        var data = await ValidateForUpdate(new DataDictionary{
+            { "DeletedAt", DateTime.UtcNow },
+            { "DeletedById", await GetCurrentUserId() }
+        });
+        int success = await repository.UpdateByIdAsync(id, data);
+        if (success == 0)
+            throw new InvalidOperationException($"Failed to restore entity with ID {id}.");
+
+        return success;
+    }
+
+    public override async Task<int> DeleteByUuidAsync(Guid uuid)
+    {
+        var id = await GetSingleIdByUuidAsync(uuid);
+        var data = await ValidateForUpdate(new DataDictionary{
+            { "DeletedAt", DateTime.UtcNow },
+            { "DeletedById", await GetCurrentUserId() }
+        });
+        int success = await repository.UpdateByIdAsync(id, data);
+        if (success == 0)
+            throw new InvalidOperationException($"Failed to restore entity with UUID {uuid}.");
+
+        return success;
+    }
+
     public async Task<int> RestoreByIdAsync(long id)
     {
         var data = await ValidateForUpdate(new DataDictionary{
-            { "deletedAt", null },
-            { "deletedById", null  }
+            { "DeletedAt", null },
+            { "DeletedById", null }
         });
         int success = await repository.UpdateByIdAsync(id, data);
         if (success == 0)
@@ -30,8 +57,8 @@ public class CommonEntityService<T>(
     {
         var id = await GetSingleIdByUuidAsync(uuid);
         var data = await ValidateForUpdate(new DataDictionary{
-            { "deletedAt", null },
-            { "deletedById", null  }
+            { "DeletedAt", null },
+            { "DeletedById", null }
         });
         int success = await repository.UpdateByIdAsync(id, data);
         if (success == 0)
