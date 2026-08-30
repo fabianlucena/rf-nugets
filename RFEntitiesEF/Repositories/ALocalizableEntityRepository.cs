@@ -12,6 +12,21 @@ namespace RFEntitiesEF.Repositories
         {
             var queryable = base.CreateDBSet(options);
 
+            var includeInactive = false;
+
+            if (options is ALocalizableEntityQueryOptions aLocalizableOptions)
+            {
+                if (aLocalizableOptions.IncludeInactive)
+                {
+                    includeInactive = true;
+                }
+            }
+
+            if (!includeInactive)
+            {
+                queryable = queryable.Where(u => u.IsActive);
+            }
+
             return queryable;
         }
     }
