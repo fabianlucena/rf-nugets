@@ -8,6 +8,8 @@ public class UserQueryOptions : CommonEntityQueryOptions
 
     public Guid? TypeUuid { get; set; }
 
+    public bool IncludeType { get; set; }
+
     public UserQueryOptions() { }
 
     public UserQueryOptions(UserQueryOptions? options)
@@ -18,6 +20,8 @@ public class UserQueryOptions : CommonEntityQueryOptions
 
         Username = options.Username;
         TypeUuid = options.TypeUuid;
+
+        IncludeType = options.IncludeType;
     }
 
     public override UserQueryOptions Clone()
@@ -32,6 +36,9 @@ public class UserQueryOptions : CommonEntityQueryOptions
 
         if (request.Query.ContainsKey("typeUuid"))
             TypeUuid = Guid.Parse(request.Query["typeUuid"].ToString());
+
+        if (request.Query.ContainsKey("includeType"))
+            IncludeType = bool.Parse(request.Query["includeType"].ToString());
 
         return this;
     }

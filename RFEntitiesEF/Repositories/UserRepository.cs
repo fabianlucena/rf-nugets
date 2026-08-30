@@ -24,6 +24,9 @@ public class UserRepository(DbContext context)
                 queryable = queryable
                     .Include(u => u.Type)
                     .Where(u => u.Type!.Uuid == userOptions.TypeUuid);
+
+            if (userOptions.IncludeType)
+                queryable = queryable.Include(u => u.Type);
         }
 
         return queryable;
