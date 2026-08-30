@@ -53,8 +53,13 @@ public class OrganizationsController(
     {
         await loggerService.AddInfoEditAsync("Update organization", new { uuid, request });
 
+        var organizationOptions = new OrganizationQueryOptions
+        {
+            IncludeInactive = true
+        }.BuildFromRequest(Request);
+
         var data = request.GetPascalized();
-        var result = await organizationService.UpdateByUuidAsync(uuid, data);
+        var result = await organizationService.UpdateByUuidAsync(uuid, data, organizationOptions);
 
         _ = eventBus.Publish(new Event("OrganizationUpdated", new DataDictionary {
             { "Data", data },
@@ -92,7 +97,12 @@ public class OrganizationsController(
     {
         await loggerService.AddInfoDeleteAsync("Delete organization", new { uuid });
 
-        var result = await organizationService.DeleteByUuidAsync(uuid);
+        var organizationOptions = new OrganizationQueryOptions
+        {
+            IncludeInactive = true
+        }.BuildFromRequest(Request);
+
+        var result = await organizationService.DeleteByUuidAsync(uuid, organizationOptions);
 
         _ = eventBus.Publish(new Event("OrganizationDeleted", new DataDictionary {
             { "Filter", new DataDictionary { { "Uuid", uuid } } }
@@ -110,7 +120,13 @@ public class OrganizationsController(
     {
         await loggerService.AddInfoDeleteAsync("Restore organization", new { uuid });
 
-        var result = await organizationService.RestoreByUuidAsync(uuid);
+        var organizationOptions = new OrganizationQueryOptions
+        {
+            IncludeDeleted = true,
+            IncludeInactive = true,
+        }.BuildFromRequest(Request);
+
+        var result = await organizationService.RestoreByUuidAsync(uuid, organizationOptions);
 
         _ = eventBus.Publish(new Event("OrganizationRestored", new DataDictionary {
             { "Filter", new DataDictionary { { "Uuid", uuid } } }
