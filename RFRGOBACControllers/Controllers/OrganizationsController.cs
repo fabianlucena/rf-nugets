@@ -104,7 +104,7 @@ public class OrganizationsController(
         return NoContent();
     }
 
-    [HttpPost("restore/{uuid}")]
+    [HttpPost("{uuid}/restore")]
     [Permission("organizations.restore")]
     public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
     {
