@@ -4,9 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace RFRGOBAC.Entities;
 
 [Table("Organizations", Schema = "auth")]
-public sealed class Organization : LocalizableEntity
+public sealed class Organization : ALocalizableEntity
 {
-    public bool IsActive { get; set; }
     public string Description { get; set; } = string.Empty;
 
     public Organization() { }
@@ -17,7 +16,6 @@ public sealed class Organization : LocalizableEntity
         if (entity == null)
             return;
 
-        IsActive = entity.IsActive;
         Description = entity.Description;
     }
 

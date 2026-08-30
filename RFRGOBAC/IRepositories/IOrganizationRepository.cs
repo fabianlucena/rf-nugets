@@ -3,6 +3,6 @@ using RFRGOBAC.Entities;
 
 namespace RFRGOBAC.IRepositories;
 
-public interface IOrganizationRepository : ILocalizableEntityRepository<Organization>
+public interface IOrganizationRepository : IALocalizableEntityRepository<Organization>
 {
 }
