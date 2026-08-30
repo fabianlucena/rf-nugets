@@ -22,18 +22,18 @@ namespace RFIServices.QueryOptions
 
         public abstract QueryOptions Clone();
 
-        public QueryOptions BuildFromRequest(HttpRequest request, QueryOptions options)
+        public virtual QueryOptions BuildFromRequest(HttpRequest request)
         {
             if (request.Query.ContainsKey("skip"))
-                options.Skip = int.Parse(request.Query["skip"].ToString());
+                Skip = int.Parse(request.Query["skip"].ToString());
 
             if (request.Query.ContainsKey("take"))
-                options.Take = int.Parse(request.Query["take"].ToString());
+                Take = int.Parse(request.Query["take"].ToString());
 
             if (request.Query.ContainsKey("distinct"))
-                options.Distinct = bool.Parse(request.Query["distinct"].ToString());
+                Distinct = bool.Parse(request.Query["distinct"].ToString());
 
-            return options;
+            return this;
         }
     }
 }

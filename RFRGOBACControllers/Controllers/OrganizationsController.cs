@@ -83,7 +83,7 @@ public class OrganizationsController(
         if (result == null)
             return BadRequest();
 
-        return Ok();
+        return NoContent();
     }
 
     [HttpDelete("{uuid}")]
@@ -101,7 +101,7 @@ public class OrganizationsController(
         if (result <= 0)
             return BadRequest();
 
-        return Ok();
+        return NoContent();
     }
 
     [HttpPost("restore/{uuid}")]
@@ -119,6 +119,6 @@ public class OrganizationsController(
         if (result <= 0)
             return BadRequest();
 
-        return Ok();
+        return NoContent();
     }
 }

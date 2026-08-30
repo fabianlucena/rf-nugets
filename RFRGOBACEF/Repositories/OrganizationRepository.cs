@@ -9,7 +9,7 @@ namespace RFRGOBACEF.Repositories;
 
 [RegisterService]
 public class OrganizationRepository(DbContext context)
-    : LocalizableEntityRepository<Organization>(context),
+    : ALocalizableEntityRepository<Organization>(context),
     IOrganizationRepository
 {
     public override IQueryable<Organization> CreateDBSet(BaseQueryOptions? options = null)

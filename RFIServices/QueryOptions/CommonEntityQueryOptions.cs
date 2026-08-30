@@ -1,4 +1,6 @@
-﻿namespace RFIServices.QueryOptions;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace RFIServices.QueryOptions;
 
 public abstract class CommonEntityQueryOptions : AuditableEntityQueryOptions
 {
@@ -15,5 +17,19 @@ public abstract class CommonEntityQueryOptions : AuditableEntityQueryOptions
 
         IncludeDeleted = options.IncludeDeleted;
         IncludeDeletedBy = options.IncludeDeletedBy;
+    }
+
+    public override CommonEntityQueryOptions BuildFromRequest(HttpRequest request)
+    {
+        base.BuildFromRequest(request);
+
+        if (request.Query.TryGetValue("includeDeleted", out var value))
+        {
+            var stringValue = value.ToString().Trim();
+
+            IncludeDeleted = stringValue == "1" || (bool.TryParse(stringValue, out var parsedBool) && parsedBool);
+        }
+
+        return this;
     }
 }

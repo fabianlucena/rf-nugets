@@ -27,13 +27,13 @@ public abstract class EntityQueryOptions : BaseQueryOptions
         SkipOrderById = options.SkipOrderById;
     }
 
-    public EntityQueryOptions BuildFromRequest(HttpRequest request, EntityQueryOptions options)
+    public override EntityQueryOptions BuildFromRequest(HttpRequest request)
     {
-        base.BuildFromRequest(request, options);
+        base.BuildFromRequest(request);
 
         if (request.Query.ContainsKey("uuids"))
-            options.Uuids = request.Query["uuids"].ToString().Split(',').Select(Guid.Parse);
+            Uuids = request.Query["uuids"].ToString().Split(',').Select(Guid.Parse);
 
-        return options;
+        return this;
     }
 }

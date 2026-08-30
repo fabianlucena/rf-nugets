@@ -3,7 +3,7 @@ using RFIServices.QueryOptions;
 
 namespace RFRGOBAC.QueryOptions;
 
-public sealed class OrganizationQueryOptions : CommonEntityQueryOptions
+public sealed class OrganizationQueryOptions : ALocalizableEntityQueryOptions
 {
     public OrganizationQueryOptions() { }
 
@@ -17,12 +17,10 @@ public sealed class OrganizationQueryOptions : CommonEntityQueryOptions
     public override OrganizationQueryOptions Clone()
         => new(this);
 
-    public OrganizationQueryOptions BuildFromRequest(HttpRequest request)
+    public override OrganizationQueryOptions BuildFromRequest(HttpRequest request)
     {
-        var options = new OrganizationQueryOptions(this);
+        base.BuildFromRequest(request);
 
-        base.BuildFromRequest(request, options);
-
-        return options;
+        return this;
     }
 }

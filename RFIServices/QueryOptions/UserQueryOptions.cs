@@ -23,18 +23,16 @@ public class UserQueryOptions : CommonEntityQueryOptions
     public override UserQueryOptions Clone()
         => new(this);
 
-    public UserQueryOptions BuildFromRequest(HttpRequest request, UserQueryOptions? options = null)
+    public override UserQueryOptions BuildFromRequest(HttpRequest request)
     {
-        options ??= new UserQueryOptions();
-
-        base.BuildFromRequest(request, options);
+        base.BuildFromRequest(request);
 
         if (request.Query.ContainsKey("username"))
-            options.Username = request.Query["username"].ToString();
+            Username = request.Query["username"].ToString();
 
         if (request.Query.ContainsKey("typeUuid"))
-            options.TypeUuid = Guid.Parse(request.Query["typeUuid"].ToString());
+            TypeUuid = Guid.Parse(request.Query["typeUuid"].ToString());
 
-        return options;
+        return this;
     }
 }
