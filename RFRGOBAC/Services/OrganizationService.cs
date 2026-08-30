@@ -10,7 +10,7 @@ namespace RFRGOBAC.Services;
 public class OrganizationService(
     IOrganizationRepository organizationRepository,
     IServiceProvider serviceProvider
-) : LocalizableEntityService<Organization>(organizationRepository, serviceProvider),
+) : ALocalizableEntityService<Organization>(organizationRepository, serviceProvider),
     IOrganizationService
 {
 }
