@@ -43,6 +43,16 @@ public class EntityRepository<T>(DbContext context)
         return list;
     }
 
+    public virtual async Task<long> GetSingleIdOrDefaultByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
+    {
+        var list = await GetDBSet(options)
+            .Where(e => e.Uuid == uuid)
+            .Select(e => e.Id)
+            .ToListAsync();
+
+        return list.SingleOrDefault();
+    }
+
     public virtual async Task<int> UpdateByIdAsync(long id, IDataDictionary data)
     {
         var entity = new T { Id = id };
@@ -62,7 +72,11 @@ public class EntityRepository<T>(DbContext context)
 
     public virtual async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data)
     {
-        var entity = new T { Uuid = uuid };
+        var id = await GetSingleIdOrDefaultByUuidAsync(uuid);
+        if (id == 0)
+            return 0;
+
+        var entity = new T { Id = id };
         Context.Set<T>().Attach(entity);
 
         foreach (var item in data)

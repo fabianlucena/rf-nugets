@@ -9,6 +9,7 @@ public interface IEntityRepository<T>
     where T : Entity, new()
 {
     Task<IEnumerable<long>> GetIdsAsync(EntityQueryOptions? options = null);
+    Task<long> GetSingleIdOrDefaultByUuidAsync(Guid uuid, EntityQueryOptions? options = null);
     Task<int> UpdateByIdAsync(long id, IDataDictionary data);
     Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data);
     Task<int> DeleteByIdAsync(long id);
