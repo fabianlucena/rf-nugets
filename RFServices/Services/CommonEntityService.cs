@@ -28,11 +28,12 @@ public class CommonEntityService<T>(
 
     public async Task<int> RestoreByUuidAsync(Guid uuid)
     {
+        var id = await GetSingleIdByUuidAsync(uuid);
         var data = await ValidateForUpdate(new DataDictionary{
             { "deletedAt", null },
             { "deletedById", null  }
         });
-        int success = await repository.UpdateByUuidAsync(uuid, data);
+        int success = await repository.UpdateByIdAsync(id, data);
         if (success == 0)
             throw new InvalidOperationException($"Failed to restore entity with UUID {uuid}.");
 
