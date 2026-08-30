@@ -85,39 +85,39 @@ public class EntityService<T>(
         return id;
     }
 
-    public async Task<int> UpdateByIdAsync(long id, IDataDictionary data)
+    public async Task<int> UpdateByIdAsync(long id, IDataDictionary data, EntityQueryOptions? options = null)
     {
         data = await ValidateForUpdate(data);
-        int success = await repository.UpdateByIdAsync(id, data);
+        int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to update entity with ID {id}.");
 
         return success;
     }
 
-    public async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data)
+    public async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, EntityQueryOptions? options = null)
     {
-        var id = await GetSingleIdByUuidAsync(uuid);
+        var id = await GetSingleIdByUuidAsync(uuid, options);
         data = await ValidateForUpdate(data);
-        int success = await repository.UpdateByIdAsync(id, data);
+        int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to update entity with UUID {uuid}.");
 
         return success;
     }
 
-    public virtual async Task<int> DeleteByIdAsync(long id)
+    public virtual async Task<int> DeleteByIdAsync(long id, EntityQueryOptions? options = null)
     {
-        int success = await repository.DeleteByIdAsync(id);
+        int success = await repository.DeleteByIdAsync(id, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to delete entity with ID {id}.");
 
         return success;
     }
 
-    public virtual async Task<int> DeleteByUuidAsync(Guid uuid)
+    public virtual async Task<int> DeleteByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
     {
-        int success = await repository.DeleteByUuidAsync(uuid);
+        int success = await repository.DeleteByUuidAsync(uuid, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to delete entity with UUID {uuid}.");
 

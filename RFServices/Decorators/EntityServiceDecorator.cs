@@ -22,15 +22,15 @@ public class EntityServiceDecorator<T>(IEntityService<T> entityService)
     public virtual Task<long> GetSingleIdByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
         => entityService.GetSingleIdByUuidAsync(uuid, options);
 
-    public virtual Task<int> UpdateByIdAsync(long id, IDataDictionary data)
-        => entityService.UpdateByIdAsync(id, data);
+    public virtual Task<int> UpdateByIdAsync(long id, IDataDictionary data, EntityQueryOptions? options = null)
+        => entityService.UpdateByIdAsync(id, data, options);
 
-    public virtual Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data)
-        => entityService.UpdateByUuidAsync(uuid, data);
+    public virtual Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, EntityQueryOptions? options = null)
+        => entityService.UpdateByUuidAsync(uuid, data, options);
 
-    public virtual Task<int> DeleteByIdAsync(long id)
-        => entityService.DeleteByIdAsync(id);
+    public virtual Task<int> DeleteByIdAsync(long id, EntityQueryOptions? options = null)
+        => entityService.DeleteByIdAsync(id, options);
 
-    public virtual Task<int> DeleteByUuidAsync(Guid uuid)
-        => entityService.DeleteByUuidAsync(uuid);
+    public virtual Task<int> DeleteByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
+        => entityService.DeleteByUuidAsync(uuid, options);
 }

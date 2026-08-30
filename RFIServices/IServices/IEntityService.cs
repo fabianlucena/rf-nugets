@@ -12,8 +12,8 @@ public interface IEntityService<T>
     Task<IEnumerable<long>> GetIdsAsync(EntityQueryOptions options);
     Task<T> GetSingleByIdAsync(long id, EntityQueryOptions? options = null);
     Task<long> GetSingleIdByUuidAsync(Guid uuid, EntityQueryOptions? options = null);
-    Task<int> UpdateByIdAsync(long id, IDataDictionary data);
-    Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data);
-    Task<int> DeleteByIdAsync(long id);
-    Task<int> DeleteByUuidAsync(Guid uuid);
+    Task<int> UpdateByIdAsync(long id, IDataDictionary data, EntityQueryOptions? options = null);
+    Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, EntityQueryOptions? options = null);
+    Task<int> DeleteByIdAsync(long id, EntityQueryOptions? options = null);
+    Task<int> DeleteByUuidAsync(Guid uuid, EntityQueryOptions? options = null);
 }

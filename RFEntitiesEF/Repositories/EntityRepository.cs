@@ -53,7 +53,7 @@ public class EntityRepository<T>(DbContext context)
         return list.SingleOrDefault();
     }
 
-    public virtual async Task<int> UpdateByIdAsync(long id, IDataDictionary data)
+    public virtual async Task<int> UpdateByIdAsync(long id, IDataDictionary data, EntityQueryOptions? options = null)
     {
         var entity = new T { Id = id };
         Context.Set<T>().Attach(entity);
@@ -70,9 +70,9 @@ public class EntityRepository<T>(DbContext context)
         return result;
     }
 
-    public virtual async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data)
+    public virtual async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, EntityQueryOptions? options = null)
     {
-        var id = await GetSingleIdOrDefaultByUuidAsync(uuid);
+        var id = await GetSingleIdOrDefaultByUuidAsync(uuid, options);
         if (id == 0)
             return 0;
 
@@ -91,18 +91,18 @@ public class EntityRepository<T>(DbContext context)
         return result;
     }
 
-    public virtual async Task<int> DeleteByIdAsync(long id)
+    public virtual async Task<int> DeleteByIdAsync(long id, EntityQueryOptions? options = null)
     {
-        var result = await GetDBSet()
+        var result = await GetDBSet(options)
             .Where(e => e.Id == id)
             .ExecuteDeleteAsync();
 
         return result;
     }
 
-    public virtual async Task<int> DeleteByUuidAsync(Guid uuid)
+    public virtual async Task<int> DeleteByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
     {
-        var result = await GetDBSet()
+        var result = await GetDBSet(options)
             .Where(e => e.Uuid == uuid)
             .ExecuteDeleteAsync();
 
