@@ -47,7 +47,7 @@ public class UserService(
     {
         var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
         var items = contextAccessor.HttpContext?.Items;
-        if (items?.TryGetValue("CurrentUser", out var currentUserData) == true
+        if (items?.TryGetValue("User", out var currentUserData) == true
             && currentUserData is User currentUser
             && currentUser is not null
         )
@@ -65,7 +65,7 @@ public class UserService(
     {
         var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
         var items = contextAccessor.HttpContext?.Items;
-        if (items?.TryGetValue("CurrentUser", out var currentUserData) == true
+        if (items?.TryGetValue("User", out var currentUserData) == true
             && currentUserData is User currentUser
             && currentUser is not null
         )
