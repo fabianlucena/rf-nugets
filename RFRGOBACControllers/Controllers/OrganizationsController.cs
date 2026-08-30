@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using RFBase.Libs;
-using RFControllers;
 using RFEventBus;
 using RFPermissions.Attributes;
 using RFRGOBAC.Entities;
@@ -8,6 +7,7 @@ using RFRGOBAC.IServices;
 using RFRGOBAC.QueryOptions;
 using RFRGOBAC.Services;
 using RFRGOBACControllers.DTO;
+using RFRGOBACControllers.Exceptions;
 
 namespace RFRGOBACControllers.Controllers;
 
@@ -33,10 +33,15 @@ public class OrganizationsController(
         }.BuildFromRequest(Request);
 
         if (uuid != null)
+        {
             organizationOptions.Uuid = uuid;
+            var organization = await organizationService.GetSingleOrDefaultAsync(organizationOptions)
+                ?? throw new OrganizationWithUuidNotFoundException(uuid.Value);
+
+            return Ok(new OrganizationResponse(organization));
+        }
 
         var organizations = await organizationService.GetListAsync(organizationOptions);
-
         var response = organizations.Select(organization => new OrganizationResponse(organization));
 
         return Ok(response);
@@ -59,7 +64,7 @@ public class OrganizationsController(
         if (result <= 0)
             return BadRequest();
 
-        return Ok();
+        return NoContent();
     }
 
     [HttpPost]
