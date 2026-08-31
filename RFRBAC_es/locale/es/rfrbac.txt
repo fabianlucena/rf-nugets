@@ -1,0 +1,11 @@
+﻿Administrator
+Administrador
+
+Basic user of system
+Usuario básico del sistema
+
+Main administrator of system
+Administrador principal del sistema
+
+User
+Usuario

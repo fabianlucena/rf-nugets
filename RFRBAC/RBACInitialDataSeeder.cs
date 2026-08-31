@@ -17,6 +17,30 @@ public class RBACInitialDataSeeder(
 {
     public async Task Run()
     {
+        await roleService.GetOrCreateByNameAsync(
+            "admin",
+            createFactory: async T => new Role
+            {
+                Name = "admin",
+                Title = "Administrator",
+                Description = "Main administrator of system",
+                IsSelectable = true,
+                IsTranslatable = true,
+            }
+        );
+
+        await roleService.GetOrCreateByNameAsync(
+            "user",
+            createFactory: async T => new Role
+            {
+                Name = "user",
+                Title = "User",
+                Description = "Basic user of system",
+                IsSelectable = true,
+                IsTranslatable = true,
+            }
+        );
+
         var rolesPermissions = new Dictionary<string, IEnumerable<string>>{
             { "user", [
                 "changePassword",
