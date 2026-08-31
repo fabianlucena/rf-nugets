@@ -1,22 +1,15 @@
-﻿using RFLogger.Services;
-using RFLogger.Types;
-using RFRegisterService.Attributes;
-using RFRGOBAC.Services;
+﻿using RFLogger.IServices;
 
 namespace RFRGOBAC.IServices;
 
-[RegisterService]
-public class RFRGOBACLoggerService : LoggerService, IRFRGOBACLoggerService
+public interface IRFRGOBACLoggerService
+    : ILoggerService
 {
-    public async Task<IEnumerable<object?>> AddInfoGetAsync(string message, object? data = null, IDictionary<string, object>? options = null)
-        => await AddInfoAsync("RFRGOBAC", LAction.GET, message, data, options);
+    Task<IEnumerable<object?>> AddInfoGetAsync(string message, object? data = null, IDictionary<string, object>? options = null);
 
-    public async Task<IEnumerable<object?>> AddInfoAddAsync(string message, object? data = null, IDictionary<string, object>? options = null)
-        => await AddInfoAsync("RFRGOBAC", LAction.ADD, message, data, options);
+    Task<IEnumerable<object?>> AddInfoAddAsync(string message, object? data = null, IDictionary<string, object>? options = null);
 
-    public async Task<IEnumerable<object?>> AddInfoEditAsync(string message, object? data = null, IDictionary<string, object>? options = null)
-        => await AddInfoAsync("RFRGOBAC", LAction.EDIT, message, data, options);
+    Task<IEnumerable<object?>> AddInfoEditAsync(string message, object? data = null, IDictionary<string, object>? options = null);
 
-    public async Task<IEnumerable<object?>> AddInfoDeleteAsync(string message, object? data = null, IDictionary<string, object>? options = null)
-        => await AddInfoAsync("RFRGOBAC", LAction.DELETE, message, data, options);
+    Task<IEnumerable<object?>> AddInfoDeleteAsync(string message, object? data = null, IDictionary<string, object>? options = null);
 }

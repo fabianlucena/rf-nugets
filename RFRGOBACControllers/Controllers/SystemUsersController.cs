@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using RFBase.Libs;
 using RFEventBus;
 using RFPermissions.Attributes;
+using RFRBAC.DTO;
+using RFRBAC.Exceptions;
+using RFRBAC.IServices;
+using RFRBAC.QueryOptions;
 using RFRGOBAC.DTO;
 using RFRGOBAC.IServices;
 using RFRGOBAC.QueryOptions;
-using RFRGOBAC.Services;
 using RFRGOBACControllers.DTO;
 using RFRGOBACControllers.Exceptions;
 
@@ -16,7 +20,8 @@ namespace RFRGOBACControllers.Controllers;
 public class OrganizationUsersController(
     ISystemUserService systemUserService,
     IRFRGOBACLoggerService loggerService,
-    IEventBus eventBus
+    IEventBus eventBus,
+    IServiceProvider serviceProvider
 ) : ControllerBase
 {
     [HttpGet("{uuid?}")]
@@ -137,5 +142,33 @@ public class OrganizationUsersController(
             return BadRequest();
 
         return NoContent();
+    }
+
+    [HttpGet("{uuid?}")]
+    [Permission("selectableRole.get")]
+    public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
+    {
+        await loggerService.AddInfoGetAsync("Get roles", new { uuid });
+
+        var roleService = serviceProvider.GetRequiredService<IRoleService>();
+
+        var roleOptions = new RoleQueryOptions
+        {
+            IsSelectable = true,
+        }.BuildFromRequest(Request);
+
+        if (uuid != null)
+        {
+            roleOptions.Uuid = uuid;
+            var organization = await roleService.GetSingleOrDefaultAsync(roleOptions)
+                ?? throw new RoleWithUuidNotFoundException(uuid.Value);
+
+            return Ok(new SelectableRoleResponse(organization));
+        }
+
+        var organizations = await roleService.GetListAsync(roleOptions);
+        var response = organizations.Select(organization => new SelectableRoleResponse(organization));
+
+        return Ok(response);
     }
 }

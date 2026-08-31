@@ -14,8 +14,8 @@ namespace RFRGOBACControllers.Controllers;
 [ApiController]
 [Route("v1/organizations")]
 public class OrganizationsController(
+    RFRGOBACLoggerService loggerService,
     IOrganizationService organizationService,
-    IRFRGOBACLoggerService loggerService,
     IEventBus eventBus
 ) : ControllerBase
 {
