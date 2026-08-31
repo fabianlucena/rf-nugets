@@ -1,6 +1,4 @@
-﻿using RFBase.Libs;
-
-namespace RFRBAC.DTO;
+﻿namespace RFRBAC.DTO;
 
 public class RPDataResponse(RPData rpData)
 {

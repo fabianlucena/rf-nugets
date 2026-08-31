@@ -25,6 +25,7 @@ public class RBACInitialDataSeeder(
             { "admin", [
                 "changePassword",
                 "user.get", "user.add", "user.edit", "user.delete", "user.restore",
+                "selectableRole.get"
             ]},
         };
 
