@@ -1,4 +1,5 @@
-﻿using RFIServices.IServices;
+﻿using RFBase.ILibs;
+using RFIServices.IServices;
 using RFRegisterService.Attributes;
 using RFRGOBAC.DTO;
 using RFRGOBAC.IServices;
@@ -13,6 +14,11 @@ public class SystemUserService(
     )
     : ISystemUserService
 {
+    public Task<OrganizationUser> CreateAsync(OrganizationUser user)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<IEnumerable<OrganizationUser>> GetListAsync(OrganizationUserQueryOptions? options)
     {
         options ??= new OrganizationUserQueryOptions();
@@ -34,5 +40,20 @@ public class SystemUserService(
             return null;
 
         return new OrganizationUser(user);
+    }
+
+    public Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, OrganizationUserQueryOptions? options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<int> DeleteByUuidAsync(Guid uuid, OrganizationUserQueryOptions? options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<int> RestoreByUuidAsync(Guid uuid, OrganizationUserQueryOptions? options = null)
+    {
+        throw new NotImplementedException();
     }
 }
