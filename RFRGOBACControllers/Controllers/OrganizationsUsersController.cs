@@ -13,7 +13,7 @@ using RFRGOBACControllers.Exceptions;
 namespace RFRGOBACControllers.Controllers;
 
 [ApiController]
-[Route("v1/organizations-users")]
+[Route("v1/organizations/users")]
 public class OrganizationUsersController(
     IUserService userService,
     IRFRGOBACLoggerService loggerService,
