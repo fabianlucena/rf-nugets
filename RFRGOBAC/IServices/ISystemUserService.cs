@@ -1,16 +1,15 @@
 ﻿using RFBase.ILibs;
 using RFRGOBAC.DTO;
-using RFRGOBAC.Entities;
 using RFRGOBAC.QueryOptions;
 
 namespace RFRGOBAC.IServices;
 
 public interface ISystemUserService
 {
-    Task<OrganizationUser> CreateAsync(OrganizationUser user);
-    Task<IEnumerable<OrganizationUser>> GetListAsync(OrganizationUserQueryOptions? options = null);
-    Task<OrganizationUser?> GetSingleOrDefaultAsync(OrganizationUserQueryOptions? options = null);
-    Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, OrganizationUserQueryOptions? options = null);
-    Task<int> DeleteByUuidAsync(Guid uuid, OrganizationUserQueryOptions? options = null);
-    Task<int> RestoreByUuidAsync(Guid uuid, OrganizationUserQueryOptions? options = null);
+    Task<SystemUser> CreateAsync(SystemUser user);
+    Task<IEnumerable<SystemUser>> GetListAsync(SystemUserQueryOptions? options = null);
+    Task<SystemUser?> GetSingleOrDefaultAsync(SystemUserQueryOptions? options = null);
+    Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, SystemUserQueryOptions? options = null);
+    Task<int> DeleteByUuidAsync(Guid uuid, SystemUserQueryOptions? options = null);
+    Task<int> RestoreByUuidAsync(Guid uuid, SystemUserQueryOptions? options = null);
 }

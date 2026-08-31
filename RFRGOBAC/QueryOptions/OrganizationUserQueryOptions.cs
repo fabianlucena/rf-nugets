@@ -1,23 +1,22 @@
 ﻿using Microsoft.AspNetCore.Http;
-using RFIServices.QueryOptions;
 
 namespace RFRGOBAC.QueryOptions;
 
-public sealed class OrganizationUserQueryOptions : UserQueryOptions
+public class SystemUserQueryOptions : OrganizationUserQueryOptions
 {
-    public OrganizationUserQueryOptions() { }
+    public SystemUserQueryOptions() { }
 
-    public OrganizationUserQueryOptions(OrganizationUserQueryOptions? options)
+    public SystemUserQueryOptions(SystemUserQueryOptions? options)
         : base(options)
     {
         if (options == null)
             return;
     }
 
-    public override OrganizationUserQueryOptions Clone()
+    public override SystemUserQueryOptions Clone()
         => new(this);
 
-    public override OrganizationUserQueryOptions BuildFromRequest(HttpRequest request)
+    public override SystemUserQueryOptions BuildFromRequest(HttpRequest request)
     {
         base.BuildFromRequest(request);
 
