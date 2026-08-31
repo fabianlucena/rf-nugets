@@ -144,7 +144,7 @@ public class OrganizationUsersController(
         return NoContent();
     }
 
-    [HttpGet("{uuid?}")]
+    [HttpGet("selectable-roles/{uuid?}")]
     [Permission("selectableRole.get")]
     public async Task<IActionResult> GetAsync([FromRoute] Guid? uuid)
     {
