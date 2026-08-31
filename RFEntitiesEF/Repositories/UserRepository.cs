@@ -8,7 +8,7 @@ namespace RFEntitiesEF.Repositories;
 
 [RegisterService]
 public class UserRepository(DbContext context)
-    : CommonEntityRepository<User>(context),
+    : ACommonEntityRepository<User>(context),
     IUserRepository
 {
     public override IQueryable<User> CreateDBSet(BaseQueryOptions? options = null)

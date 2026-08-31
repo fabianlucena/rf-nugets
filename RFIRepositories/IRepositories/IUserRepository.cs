@@ -3,7 +3,7 @@ using RFIServices.QueryOptions;
 
 namespace RFIRepositories.IRepositories
 {
-    public interface IUserRepository : ICommonEntityRepository<User>
+    public interface IUserRepository : IACommonEntityRepository<User>
     {
         Task<IEnumerable<string>> GetUsernamesAsync(UserQueryOptions options);
     }

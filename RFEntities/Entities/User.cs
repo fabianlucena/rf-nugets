@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace RFEntities.Entities
 {
     [Table("Users", Schema = "auth")]
-    public class User : CommonEntity
+    public class User : ACommonEntity
     {
         [Required]
         [ForeignKey("Type")]
@@ -13,7 +13,6 @@ namespace RFEntities.Entities
 
         public string Username { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
-        public bool IsActive { get; set; } = true;
         public bool CanLogin { get; set; } = true;
         public DateTime? LastLoginAt { get; set; }
 
@@ -29,7 +28,6 @@ namespace RFEntities.Entities
             Type = entity.Type;
             Username = entity.Username;
             DisplayName = entity.DisplayName;
-            IsActive = entity.IsActive;
             CanLogin = entity.CanLogin;
             LastLoginAt = entity.LastLoginAt;
         }

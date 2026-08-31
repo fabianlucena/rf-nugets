@@ -3,7 +3,7 @@ using RFIServices.QueryOptions;
 
 namespace RFIServices.IServices
 {
-    public interface IUserService : ICommonEntityService<User>
+    public interface IUserService : IACommonEntityService<User>
     {
         Task<User> GetSingleByUsernameAsync(string username, UserQueryOptions? options = null);
         Task<User> GetOrCreateByUsernameAsync(string username, UserQueryOptions? options = null, Func<User, Task<User>>? createFactory = null);

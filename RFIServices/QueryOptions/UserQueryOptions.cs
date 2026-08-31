@@ -2,7 +2,7 @@
 
 namespace RFIServices.QueryOptions;
 
-public class UserQueryOptions : CommonEntityQueryOptions
+public class UserQueryOptions : ACommonEntityQueryOptions
 {
     public string? Username { get; set; }
 
