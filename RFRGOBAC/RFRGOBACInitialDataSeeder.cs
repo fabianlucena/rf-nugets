@@ -21,7 +21,7 @@ public class RFRGOBACInitialDataSeeder(
             var rolesPermissions = new Dictionary<string, IEnumerable<string>>{
                 { "admin",  [
                     "organizations.add", "organizations.get", "organizations.update", "organizations.delete", "organizations.restore",
-                    "organizationsUsers.add", "organizationsUsers.get", "organizationsUsers.update", "organizationsUsers.delete", "organizationsUsers.restore",
+                    "systemUsers.add", "systemUsers.get", "systemUsers.update", "systemUsers.delete", "systemUsers.restore",
                 ] },
 
                 { "user",  [

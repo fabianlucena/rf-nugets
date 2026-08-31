@@ -13,7 +13,7 @@ using RFRGOBACControllers.Exceptions;
 namespace RFRGOBACControllers.Controllers;
 
 [ApiController]
-[Route("v1/organizations/users")]
+[Route("v1/system-users")]
 public class OrganizationUsersController(
     IUserService userService,
     IRFRGOBACLoggerService loggerService,
@@ -21,7 +21,7 @@ public class OrganizationUsersController(
 ) : ControllerBase
 {
     [HttpGet("{uuid?}")]
-    [Permission("organizationsUsers.get")]
+    [Permission("systemUsers.get")]
     public async Task<IActionResult> Get([FromRoute] Guid? uuid)
     {
         await loggerService.AddInfoGetAsync("Get organizations", new { uuid });
@@ -50,7 +50,7 @@ public class OrganizationUsersController(
     }
 
     /*[HttpPatch("{uuid}")]
-    [Permission("organizationsUsers.edit")]
+    [Permission("systemUsers.edit")]
     public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary request)
     {
         await loggerService.AddInfoEditAsync("Update organization", new { uuid, request });
@@ -75,7 +75,7 @@ public class OrganizationUsersController(
     }
 
     [HttpPost]
-    [Permission("organizationsUsers.add")]
+    [Permission("systemUsers.add")]
     public async Task<IActionResult> PostAsync([FromBody] DataDictionary request)
     {
         await loggerService.AddInfoAddAsync("Add organization", new { request });
@@ -94,7 +94,7 @@ public class OrganizationUsersController(
     }
 
     [HttpDelete("{uuid}")]
-    [Permission("organizationsUsers.delete")]
+    [Permission("systemUsers.delete")]
     public async Task<IActionResult> DeleteAsync([FromRoute] Guid uuid)
     {
         await loggerService.AddInfoDeleteAsync("Delete organization", new { uuid });
@@ -117,7 +117,7 @@ public class OrganizationUsersController(
     }
 
     [HttpPost("{uuid}/restore")]
-    [Permission("organizationsUsers.restore")]
+    [Permission("systemUsers.restore")]
     public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
     {
         await loggerService.AddInfoDeleteAsync("Restore organization", new { uuid });
