@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RFAuth.IServices;
-using RFEntities.Entities;
-using RFIServices.IServices;
+using RFRBAC.Entities;
+using RFRBAC.IServices;
 using RFRolesPermissions.IServices;
 using RFServices.Attributes;
 using RFServices.Interfaces;
@@ -10,11 +9,24 @@ namespace RFRGOBAC;
 
 [SeedData(true)]
 public class RFRGOBACInitialDataSeeder(
+    IRoleService roleService,
     IServiceProvider serviceProvider
 ) : ISeeder
 {
     public async Task Run()
     {
+        await roleService.GetOrCreateByNameAsync(
+            "admin",
+            createFactory: async T => new Role
+            {
+                Name = "organizationAdmin",
+                Title = "Organization Administrator",
+                Description = "Administrator for a single organization",
+                IsSelectable = true,
+                IsTranslatable = true,
+            }
+        );
+        
         var addRolePermissionService = serviceProvider.GetService<IAddRolePermissionService>();
         if (addRolePermissionService != null)
         {
@@ -22,6 +34,12 @@ public class RFRGOBACInitialDataSeeder(
                 { "admin",  [
                     "organizations.add", "organizations.get", "organizations.update", "organizations.delete", "organizations.restore",
                     "systemUsers.add", "systemUsers.get", "systemUsers.update", "systemUsers.delete", "systemUsers.restore",
+                    "selectableRole.get",
+                ] },
+
+                { "organizationAdmin",  [
+                    "systemUsers.add", "systemUsers.get", "systemUsers.update", "systemUsers.delete", "systemUsers.restore",
+                    "selectableRole.get",
                 ] },
 
                 { "user",  [

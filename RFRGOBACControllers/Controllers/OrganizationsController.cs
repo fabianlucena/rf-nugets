@@ -5,7 +5,6 @@ using RFPermissions.Attributes;
 using RFRGOBAC.Entities;
 using RFRGOBAC.IServices;
 using RFRGOBAC.QueryOptions;
-using RFRGOBAC.Services;
 using RFRGOBACControllers.DTO;
 using RFRGOBACControllers.Exceptions;
 
@@ -14,7 +13,7 @@ namespace RFRGOBACControllers.Controllers;
 [ApiController]
 [Route("v1/organizations")]
 public class OrganizationsController(
-    RFRGOBACLoggerService loggerService,
+    IRFRGOBACLoggerService loggerService,
     IOrganizationService organizationService,
     IEventBus eventBus
 ) : ControllerBase
