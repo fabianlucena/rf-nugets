@@ -30,7 +30,7 @@ public class OrganizationUsersController(
     {
         await loggerService.AddInfoGetAsync("Get users", new { uuid });
 
-        var userOptions = new OrganizationUserQueryOptions
+        var userOptions = new SystemUserQueryOptions
         {
             IncludeCreatedBy = true,
             IncludeUpdatedBy = true,
@@ -44,26 +44,25 @@ public class OrganizationUsersController(
             var user = await systemUserService.GetSingleOrDefaultAsync(userOptions)
                 ?? throw new UserWithUuidNotFoundException(uuid.Value);
 
-            return Ok(new OrganizationUserResponse(user));
+            return Ok(new SystemUserResponse(user));
         }
 
         var users = await systemUserService.GetListAsync(userOptions);
-        var response = users.Select(user => new OrganizationUserResponse(user));
+        var response = users.Select(user => new SystemUserResponse(user));
 
         return Ok(response);
     }
 
     [HttpPost]
     [Permission("systemUsers.add")]
-    public async Task<IActionResult> PostAsync([FromBody] DataDictionary request)
+    public async Task<IActionResult> PostAsync([FromBody] SystemUserRequest request)
     {
         await loggerService.AddInfoAddAsync("Add user", new { request });
 
-        var data = request.GetPascalized();
-        var result = await systemUserService.CreateAsync(data.ToObject<OrganizationUser>());
+        var result = await systemUserService.CreateAsync(await request.ToSystemUser(serviceProvider));
 
         _ = eventBus.Publish(new Event("SystemUserCreated", new DataDictionary {
-            { "Data", data }
+            { "Data", request }
         }));
 
         if (result == null)
@@ -78,7 +77,7 @@ public class OrganizationUsersController(
     {
         await loggerService.AddInfoEditAsync("Update user", new { uuid, request });
 
-        var userOptions = new OrganizationUserQueryOptions
+        var userOptions = new SystemUserQueryOptions
         {
             IncludeInactive = true
         }.BuildFromRequest(Request);
@@ -103,7 +102,7 @@ public class OrganizationUsersController(
     {
         await loggerService.AddInfoDeleteAsync("Delete user", new { uuid });
 
-        var userOptions = new OrganizationUserQueryOptions
+        var userOptions = new SystemUserQueryOptions
         {
             IncludeInactive = true
         }.BuildFromRequest(Request);
@@ -126,7 +125,7 @@ public class OrganizationUsersController(
     {
         await loggerService.AddInfoDeleteAsync("Restore user", new { uuid });
 
-        var userOptions = new OrganizationUserQueryOptions
+        var userOptions = new SystemUserQueryOptions
         {
             IncludeDeleted = true,
             IncludeInactive = true,
