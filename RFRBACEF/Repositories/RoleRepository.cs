@@ -17,9 +17,13 @@ public class RoleRepository(DbContext context)
     {
         var queryable = base.CreateDBSet(options);
 
-        /* if (options is RoleQueryOptions roleOptions)
+        if (options is RoleQueryOptions roleOptions)
         {
-        } */
+            if (roleOptions.IsSelectable)
+            {
+                queryable = queryable.Where(r => r.IsSelectable);
+            }
+        }
 
         return queryable;
     }
