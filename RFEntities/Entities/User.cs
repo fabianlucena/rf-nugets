@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace RFEntities.Entities
 {
     [Table("Users", Schema = "auth")]
-    public sealed class User : CommonEntity
+    public class User : CommonEntity
     {
         [Required]
         [ForeignKey("Type")]
@@ -25,6 +25,8 @@ namespace RFEntities.Entities
             if (entity == null)
                 return;
 
+            TypeId = entity.TypeId;
+            Type = entity.Type;
             Username = entity.Username;
             DisplayName = entity.DisplayName;
             IsActive = entity.IsActive;
