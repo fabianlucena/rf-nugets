@@ -10,6 +10,7 @@ public interface IEntityService<T>
 {
     Task<T?> GetFirstOrDefaultByUuidAsync(Guid uuid, EntityQueryOptions? options = null);
     Task<IEnumerable<long>> GetIdsAsync(EntityQueryOptions options);
+    Task<IEnumerable<long>> GetIdsByUuidsAsync(IEnumerable<Guid> uuids, EntityQueryOptions? options = null);
     Task<T> GetSingleByIdAsync(long id, EntityQueryOptions? options = null);
     Task<long> GetSingleIdByUuidAsync(Guid uuid, EntityQueryOptions? options = null);
     Task<int> UpdateByIdAsync(long id, IDataDictionary data, EntityQueryOptions? options = null);

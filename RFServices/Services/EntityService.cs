@@ -56,6 +56,13 @@ public class EntityService<T>(
     public async Task<IEnumerable<long>> GetIdsAsync(EntityQueryOptions options)
         => await repository.GetIdsAsync(options);
 
+    public async Task<IEnumerable<long>> GetIdsByUuidsAsync(IEnumerable<Guid> uuids, EntityQueryOptions? options = null)
+    {
+        options = (EntityQueryOptions?)options?.Clone() ?? new EntityQueryOptionsClonable();
+        options.Uuids = uuids;
+        return await repository.GetIdsAsync(options);
+    }
+
     public async Task<long?> GetSingleIdOrDefaultAsync(EntityQueryOptions options)
     {
         options = (EntityQueryOptions)options.Clone();
