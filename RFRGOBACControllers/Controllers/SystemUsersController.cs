@@ -5,6 +5,7 @@ using RFIServices.IServices;
 using RFIServices.QueryOptions;
 using RFPermissions.Attributes;
 using RFRGOBAC.Entities;
+using RFRGOBAC.IServices;
 using RFRGOBAC.QueryOptions;
 using RFRGOBAC.Services;
 using RFRGOBACControllers.DTO;
@@ -15,9 +16,9 @@ namespace RFRGOBACControllers.Controllers;
 [ApiController]
 [Route("v1/system-users")]
 public class OrganizationUsersController(
-    IUserService userService,
-    IRFRGOBACLoggerService loggerService,
-    IEventBus eventBus
+    ISystemUserService systemUserService,
+    IRFRGOBACLoggerService loggerService //,
+    // IEventBus eventBus
 ) : ControllerBase
 {
     [HttpGet("{uuid?}")]
@@ -26,7 +27,7 @@ public class OrganizationUsersController(
     {
         await loggerService.AddInfoGetAsync("Get organizations", new { uuid });
 
-        var organizationOptions = new UserQueryOptions
+        var userOptions = new OrganizationUserQueryOptions
         {
             IncludeCreatedBy = true,
             IncludeUpdatedBy = true,
@@ -36,15 +37,15 @@ public class OrganizationUsersController(
 
         if (uuid != null)
         {
-            organizationOptions.Uuid = uuid;
-            var organization = await userService.GetSingleOrDefaultAsync(organizationOptions)
-                ?? throw new OrganizationWithUuidNotFoundException(uuid.Value);
+            userOptions.Uuid = uuid;
+            var user = await systemUserService.GetSingleOrDefaultAsync(userOptions)
+                ?? throw new UserWithUuidNotFoundException(uuid.Value);
 
-            return Ok(new OrganizationUserResponse(organization));
+            return Ok(new OrganizationUserResponse(user));
         }
 
-        var organizations = await userService.GetListAsync(organizationOptions);
-        var response = organizations.Select(organization => new OrganizationUserResponse(organization));
+        var users = await systemUserService.GetListAsync(userOptions);
+        var response = users.Select(user => new OrganizationUserResponse(user));
 
         return Ok(response);
     }

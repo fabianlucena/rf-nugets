@@ -3,7 +3,7 @@ using RFIServices.DTO;
 
 namespace RFRGOBAC.DTO;
 
-public class OrganizationUserDTO(User user)
+public class OrganizationUserDTO(OrganizationUser user)
     : UserDTO(user)
 {
 }
