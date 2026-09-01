@@ -3,6 +3,7 @@
 public abstract class LocalizableEntity : TitledEntity
 {
     public bool IsTranslatable { get; set; }
+    public string? TranslationContext { get; set; }
 
     public LocalizableEntity() { }
 
@@ -13,5 +14,6 @@ public abstract class LocalizableEntity : TitledEntity
             return;
 
         IsTranslatable = entity.IsTranslatable;
+        TranslationContext = entity.TranslationContext;
     }
 }

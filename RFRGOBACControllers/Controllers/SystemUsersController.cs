@@ -183,7 +183,7 @@ public class OrganizationUsersController(
         }
 
         var roles = await roleService.GetListAsync(roleOptions);
-        var response = await Task.WhenAll(roles.Select(async role => new RoleResponse(await roleService.Translate(role))));
+        var response = (await roleService.Translate(roles)).Select(role => new RoleResponse(role));
 
         return Ok(response);
     }

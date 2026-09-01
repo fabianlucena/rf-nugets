@@ -17,6 +17,9 @@ public class LocalizableEntityService<T>(
 {
     public IL10n L10n { get => ServiceProvider.GetRequiredService<IL10n>(); }
 
+    public virtual string? GetTranlationContext(T entity)
+        => entity.TranslationContext;
+
     public override async Task<T> ValidateForCreateAsync(T entity)
     {
         entity = await base.ValidateForCreateAsync(entity);
@@ -29,7 +32,7 @@ public class LocalizableEntityService<T>(
         if (entity.Title is not null)
         {
             entity = (T)entity.Clone();
-            entity.Title = await L10n._c(context ?? "", entity.Title);
+            entity.Title = await L10n._c(context ?? GetTranlationContext(entity) ?? "rfservices", entity.Title);
         }
 
         return entity;
