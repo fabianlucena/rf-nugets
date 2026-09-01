@@ -17,7 +17,7 @@ public class OrganizationRolesUuid
         return new OrganizationRolesId
         {
             OrganizationId = await organizationService.GetSingleIdByUuidAsync(OrganizationUuid),
-            RolesId = await roleService.GetIdsByUuidsAsync(RolesUuids)
+            RolesId = await roleService.GetListIdByUuidAsync(RolesUuids)
         };
     }
 }

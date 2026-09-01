@@ -24,7 +24,7 @@ public class SystemUserRequest
             Password = Password,
             IsActive = IsActive,
             CanLogin = CanLogin,
-            GlobalRolesId = await roleService.GetIdsByUuidsAsync(GlobalRolesUuid),
+            GlobalRolesId = await roleService.GetListIdByUuidAsync(GlobalRolesUuid),
             OrganizationsRolesId = [..await Task.WhenAll(OrganizationsRolesUuid.Select(o => o.ToOrganizationRolesId(serviceProvider)))],
         };
     }
