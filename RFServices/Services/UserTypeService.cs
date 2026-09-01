@@ -13,8 +13,8 @@ public class UserTypeService(
     : LocalizableEntityService<UserType>(userTypeRepository, serviceProvider),
     IUserTypeService
 {
-    public override string GetTranlationContext(UserType userType)
-        => base.GetTranlationContext(userType) ?? "rfservice";
+    public override string? GetTranslationContext(UserType userType)
+        => base.GetTranslationContext(userType) ?? "rfservice";
 
     public override async Task<UserType> Translate(UserType entity, string? context = null)
         => await base.Translate(entity, context);

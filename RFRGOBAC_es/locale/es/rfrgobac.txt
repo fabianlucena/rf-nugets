@@ -1,0 +1,5 @@
+﻿Organization Administrator
+Administrador de organización
+
+Administrator for a single organization
+Administrador de una organización única

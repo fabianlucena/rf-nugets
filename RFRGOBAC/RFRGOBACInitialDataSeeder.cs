@@ -24,6 +24,7 @@ public class RFRGOBACInitialDataSeeder(
                 Description = "Administrator for a single organization",
                 IsSelectable = true,
                 IsTranslatable = true,
+                TranslationContext = "rfrgobac",
             }
         );
         
