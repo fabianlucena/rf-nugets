@@ -34,7 +34,7 @@ public class EntityRepository<T>(DbContext context)
         return queryable;
     }
 
-    public virtual async Task<IEnumerable<long>> GetIdsAsync(EntityQueryOptions? options = null)
+    public virtual async Task<IEnumerable<long>> GetListIdAsync(EntityQueryOptions? options = null)
     {
         var list = await GetDBSet(options)
             .Select(e => e.Id)

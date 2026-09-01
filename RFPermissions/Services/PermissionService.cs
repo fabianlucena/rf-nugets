@@ -22,7 +22,7 @@ public class PermissionService(
     {
         options = (PermissionQueryOptions?)(options?.Clone() ?? new PermissionQueryOptions());
         options!.Names = names;
-        return await permissionRepository.GetIdsAsync(options);
+        return await permissionRepository.GetListIdAsync(options);
     }
 
     public async Task<long> GetIdOrCreateByNameAsync(string name, PermissionQueryOptions? options = null, Func<Permission, Task<Permission>>? createFactory = null)

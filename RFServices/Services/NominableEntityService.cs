@@ -84,6 +84,6 @@ public class NominableEntityService<T>(
             Names = [.. names]
         };
 
-        return await GetIdsAsync(options);
+        return await GetListIdAsync(options);
     }
 }
