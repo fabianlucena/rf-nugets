@@ -5,6 +5,7 @@ namespace RFRGOBAC.DTO;
 
 public class SystemUser : User
 {
+    public string Password { get; set; } = string.Empty;
     public IEnumerable<long> GlobalRolesId { get; set; } = [];
     public IEnumerable<Role>? GlobalRoles { get; set; }
 
@@ -19,6 +20,7 @@ public class SystemUser : User
         if (entity == null)
             return;
 
+        Password = entity.Password;
         GlobalRolesId = entity.GlobalRolesId;
         GlobalRoles = entity.GlobalRoles;
         OrganizationsRolesId = entity.OrganizationsRolesId;

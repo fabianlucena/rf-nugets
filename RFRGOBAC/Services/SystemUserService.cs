@@ -1,4 +1,5 @@
-﻿using RFBase.ILibs;
+﻿using RFAuth.IServices;
+using RFBase.ILibs;
 using RFIServices.IServices;
 using RFRBAC.IServices;
 using RFRegisterService.Attributes;
@@ -13,6 +14,7 @@ namespace RFRGOBAC.Services;
 [RegisterService]
 public class SystemUserService(
     IUserService userService,
+    IUserPasswordService userPasswordService,
     IUserTypeService userTypeService,
     IRoleXUserService roleXUserService,
     IRoleXUserXOrganizationService roleXUserXOrganizationService
@@ -28,6 +30,9 @@ public class SystemUserService(
         }
 
         var result = new SystemUser(await userService.CreateAsync(user));
+
+        if (!string.IsNullOrWhiteSpace(user.Password))
+            await userPasswordService.CreateOrUpdateByUserIdAsync(user.Password, result.Id);
 
         if (user.GlobalRolesId is not null)
             await roleXUserService.SetAllRolesIdForUserIdAsync(user.GlobalRolesId, result.Id);
