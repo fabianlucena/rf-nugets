@@ -6,8 +6,8 @@ public interface ILocalizableEntityService<T>
     : ITitledEntityService<T>
     where T : LocalizableEntity, new()
 {
-    public async Task<IEnumerable<T>> Translate(IEnumerable<T> entities)
-        => await Task.WhenAll(entities.Select(entity => Translate(entity)));
+    public async Task<IEnumerable<T>> Translate(IEnumerable<T> entities, string context = "")
+        => await Task.WhenAll(entities.Select(entity => Translate(entity, context)));
 
-    Task<T> Translate(T entity);
+    Task<T> Translate(T entity, string? context = null);
 }

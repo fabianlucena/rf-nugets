@@ -9,8 +9,8 @@ namespace RFServices.Decorators
         ILocalizableEntityService<T>
         where T : LocalizableEntity, new()
     {
-        public virtual Task<T> Translate(T entity)
-            => localizableEntityService.Translate(entity);
+        public virtual Task<T> Translate(T entity, string? context = null)
+            => localizableEntityService.Translate(entity, context);
 
         public virtual Task<T> GetOrCreateByNameAsync(string name, LocalizableEntityQueryOptions? options = null, Func<T, Task<T>>? createFactory = null)
             => localizableEntityService.GetOrCreateByNameAsync(name, options, createFactory);

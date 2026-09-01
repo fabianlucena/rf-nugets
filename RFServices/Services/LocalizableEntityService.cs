@@ -24,12 +24,12 @@ public class LocalizableEntityService<T>(
         return entity;
     }
 
-    public async Task<T> Translate(T entity)
+    public virtual async Task<T> Translate(T entity, string? context = null)
     {
         if (entity.Title is not null)
         {
             entity = (T)entity.Clone();
-            entity.Title = await L10n._(entity.Title);
+            entity.Title = await L10n._c(context ?? "", entity.Title);
         }
 
         return entity;

@@ -1,0 +1,8 @@
+﻿Administrator
+Administrador
+
+User
+Usuario
+
+System
+Sistema
