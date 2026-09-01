@@ -99,8 +99,10 @@ public class RoleXUserXOrganizationService(
         var organizationsRoles = new List<OrganizationRoles>();
         foreach (var row in list)
         {
-            var organizationRoles = organizationsRoles.FirstOrDefault(or => or.OrganizationId == row.Organization?.Id)
-                ?? new OrganizationRoles
+            var organizationRoles = organizationsRoles.FirstOrDefault(or => or.OrganizationId == row.Organization?.Id);
+            if (organizationRoles == null)
+            {
+                organizationRoles = new OrganizationRoles
                 {
                     OrganizationId = row.Organization!.Id,
                     Organization = row.Organization,
@@ -108,13 +110,14 @@ public class RoleXUserXOrganizationService(
                     Roles = [],
                 };
 
+                organizationsRoles.Add(organizationRoles);
+            }
+
             if (!organizationRoles.RolesId!.Any(id => id == row.Role?.Id))
             {
                 organizationRoles.RolesId = [.. organizationRoles.RolesId, row.Role!.Id];
                 organizationRoles.Roles = [.. organizationRoles.Roles!, row.Role];
             }
-
-            organizationsRoles.Add(organizationRoles);
         }
 
         return organizationsRoles;
