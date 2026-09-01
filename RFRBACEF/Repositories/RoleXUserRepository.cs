@@ -43,7 +43,7 @@ public class RoleXUserRepository(DbContext context)
         return queryable;
     }
 
-    public async Task<IEnumerable<long>> GetRoleIdsAsync(RoleXUserQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetRolesIdAsync(RoleXUserQueryOptions? options = null)
     {
         var set = GetDBSet(options);
         var roleIds = await set
@@ -52,7 +52,7 @@ public class RoleXUserRepository(DbContext context)
         return roleIds;
     }
 
-    public async Task<IEnumerable<string>> GetRoleNamesAsync(RoleXUserQueryOptions? options = null)
+    public async Task<IEnumerable<string>> GetRolesNameAsync(RoleXUserQueryOptions? options = null)
     {
         options = new RoleXUserQueryOptions(options)
         {
