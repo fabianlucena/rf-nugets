@@ -31,7 +31,7 @@ public class RFAuthInitialDataSeeder(
             {
                 TypeId = userType.Id,
                 Username = "admin",
-                DisplayName = "Administrador",
+                DisplayName = "Administrator",
             }
         );
 
