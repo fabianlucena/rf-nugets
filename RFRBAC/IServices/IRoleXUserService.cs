@@ -11,6 +11,7 @@ namespace RFRBAC.IServices
         Task<IEnumerable<string>> GetRolesNameByUsersIdAsync(IEnumerable<long> userIds, RoleXUserQueryOptions? options = null);
         Task<IEnumerable<string>> GetRolesNameByUserIdAsync(long userId, RoleXUserQueryOptions? options = null);
         Task<IEnumerable<long>> GetAllRolesIdByUserIdAsync(long userId, RoleXUserQueryOptions? options = null);
+        Task<IEnumerable<Role>> GetRolesByUserIdAsync(long userId, RoleXUserQueryOptions? options = null);
         Task<IEnumerable<Role>> GetAllRolesByUserIdAsync(long userId, RoleXUserQueryOptions? options = null);
         Task<long> SetAllRolesForUserIdAsync(IEnumerable<string> roles, long userId, RoleXUserQueryOptions? options = null);
         Task<long> SetAllRolesIdForUserIdAsync(IEnumerable<long> rolesId, long userId, RoleXUserQueryOptions? options = null);

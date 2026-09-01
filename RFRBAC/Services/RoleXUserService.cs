@@ -49,6 +49,12 @@ public class RoleXUserService(
         return allRoleIds;
     }
 
+    public async Task<IEnumerable<Role>> GetRolesByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
+    {
+        var rolesId = await GetRolesIdByUserIdAsync(userId, options);
+        return await RoleService.GetListAsync(new RoleQueryOptions { Ids = rolesId });
+    }
+
     public async Task<IEnumerable<Role>> GetAllRolesByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
     {
         var rolesId = await GetAllRolesIdByUserIdAsync(userId, options);
