@@ -53,21 +53,21 @@ public class EntityService<T>(
         return await GetFirstOrDefaultAsync(options);
     }
 
-    public async Task<IEnumerable<long>> GetIdsAsync(EntityQueryOptions options)
-        => await repository.GetIdsAsync(options);
+    public async Task<IEnumerable<long>> GetListIdAsync(EntityQueryOptions options)
+        => await repository.GetListIdAsync(options);
 
-    public async Task<IEnumerable<long>> GetIdsByUuidsAsync(IEnumerable<Guid> uuids, EntityQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetListIdByUuidAsync(IEnumerable<Guid> uuids, EntityQueryOptions? options = null)
     {
         options = (EntityQueryOptions?)options?.Clone() ?? new EntityQueryOptionsClonable();
         options.Uuids = uuids;
-        return await repository.GetIdsAsync(options);
+        return await repository.GetListIdAsync(options);
     }
 
     public async Task<long?> GetSingleIdOrDefaultAsync(EntityQueryOptions options)
     {
         options = (EntityQueryOptions)options.Clone();
         options.Take = 2;
-        var ids = await GetIdsAsync(options);
+        var ids = await GetListIdAsync(options);
 
         if (!ids.Any())
             return null;

@@ -13,11 +13,11 @@ public class EntityServiceDecorator<T>(IEntityService<T> entityService)
     public virtual Task<T?> GetFirstOrDefaultByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
         => entityService.GetFirstOrDefaultByUuidAsync(uuid, options);
 
-    public virtual Task<IEnumerable<long>> GetIdsAsync(EntityQueryOptions options)
-        => entityService.GetIdsAsync(options);
+    public virtual Task<IEnumerable<long>> GetListIdAsync(EntityQueryOptions options)
+        => entityService.GetListIdAsync(options);
 
-    public virtual Task<IEnumerable<long>> GetIdsByUuidsAsync(IEnumerable<Guid> uuids, EntityQueryOptions? options = null)
-        => entityService.GetIdsByUuidsAsync(uuids, options);
+    public virtual Task<IEnumerable<long>> GetListIdByUuidAsync(IEnumerable<Guid> uuids, EntityQueryOptions? options = null)
+        => entityService.GetListIdByUuidAsync(uuids, options);
 
     public virtual Task<T> GetSingleByIdAsync(long id, EntityQueryOptions? options = null)
         => entityService.GetSingleByIdAsync(id, options);
