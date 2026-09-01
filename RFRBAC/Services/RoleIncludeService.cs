@@ -16,12 +16,12 @@ public class RoleIncludeService(
     : CommonJoinService<RoleInclude>(roleIncludeRepository, serviceProvider),
     IRoleIncludeService
 {
-    public async Task<IEnumerable<long>> GetAllRoleIdsByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
-        => await roleIncludeRepository.GetAllRoleIdsByRoleIdsAsync(roleIds, options);
+    public async Task<IEnumerable<long>> GetAllRolesIdByRolesIdAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
+        => await roleIncludeRepository.GetAllRolesIdByRolesIdAsync(roleIds, options);
 
-    public async Task<IEnumerable<string>> GetAllRoleNamesByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
+    public async Task<IEnumerable<string>> GetAllRolesNameByRolesIdAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
     {
-        var allRoleIds = await GetAllRoleIdsByRoleIdsAsync(roleIds, options);
+        var allRoleIds = await GetAllRolesIdByRolesIdAsync(roleIds, options);
         var allRoleNames = await roleService.GetNamesByIdsAsync(allRoleIds);
         return allRoleNames;
     }

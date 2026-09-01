@@ -25,7 +25,7 @@ public class RPDataService(
         var rpData = new RPData();
 #pragma warning restore IDE0017 // Simplify object initialization
 
-        rpData.RoleIds = await roleXUserService.GetAllRoleIdsByUserIdAsync(userId);
+        rpData.RoleIds = await roleXUserService.GetAllRolesIdByUserIdAsync(userId);
         rpData.RoleNames = await roleService.GetNamesByIdsAsync(rpData.RoleIds);
         rpData.PermissionNames = await permissionXRoleService.GetPermissionNamesByRoleIdsAsync(rpData.RoleIds);
 

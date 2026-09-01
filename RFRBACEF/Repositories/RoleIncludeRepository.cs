@@ -31,7 +31,7 @@ public class RoleIncludeRepository(DbContext context)
         return queryable;
     }
 
-    public async Task<IEnumerable<long>> GetAllRoleIdsByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetAllRolesIdByRolesIdAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
     {
         var set = GetDBSet(options);
         var result = roleIds.ToList();

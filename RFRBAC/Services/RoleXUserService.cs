@@ -22,22 +22,15 @@ public class RoleXUserService(
     public IRoleService RoleService { get => ServiceProvider.GetRequiredService<IRoleService>(); }
     public IUserService UserService { get => ServiceProvider.GetRequiredService<IUserService>(); }
 
-    public async Task<IEnumerable<long>> GetRoleIdsByUserIdsAsync(IEnumerable<long> userIds, RoleXUserQueryOptions? options = null)
-    {
-        options = options?.Clone() ?? new RoleXUserQueryOptions();
-        options.UserIds = userIds;
-        return await roleXUserRepository.GetRolesIdAsync(options);
-    }
-
-    public async Task<IEnumerable<long>> GetRoleIdsByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
-        => await GetRoleIdsByUserIdsAsync([userId], options);
-
     public async Task<IEnumerable<long>> GetRolesIdByUsersIdAsync(IEnumerable<long> userIds, RoleXUserQueryOptions? options = null)
     {
         options = options?.Clone() ?? new RoleXUserQueryOptions();
         options.UserIds = userIds;
         return await roleXUserRepository.GetRolesIdAsync(options);
     }
+
+    public async Task<IEnumerable<long>> GetRolesIdByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
+        => await GetRolesIdByUsersIdAsync([userId], options);
 
     public async Task<IEnumerable<string>> GetRolesNameByUsersIdAsync(IEnumerable<long> userIds, RoleXUserQueryOptions? options = null)
     {
@@ -46,17 +39,20 @@ public class RoleXUserService(
         return await roleXUserRepository.GetRolesNameAsync(options);
     }
 
-    public async Task<IEnumerable<long>> GetRolesIdByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
-        => await GetRolesIdByUsersIdAsync([userId], options);
-
     public async Task<IEnumerable<string>> GetRolesNameByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
         => await GetRolesNameByUsersIdAsync([userId], options);
 
-    public async Task<IEnumerable<long>> GetAllRoleIdsByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetAllRolesIdByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
     {
-        var roleIds = await GetRoleIdsByUserIdAsync(userId, options);
-        var allRoleIds = await roleIncludeService.GetAllRoleIdsByRoleIdsAsync(roleIds);
+        var roleIds = await GetRolesIdByUserIdAsync(userId, options);
+        var allRoleIds = await roleIncludeService.GetAllRolesIdByRolesIdAsync(roleIds);
         return allRoleIds;
+    }
+
+    public async Task<IEnumerable<Role>> GetAllRolesByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
+    {
+        var rolesId = await GetAllRolesIdByUserIdAsync(userId, options);
+        return await RoleService.GetListAsync(new RoleQueryOptions { Ids = rolesId });
     }
 
     public async Task<long> SetAllRolesForUserIdAsync(IEnumerable<string> roles, long userId, RoleXUserQueryOptions? options = null)
@@ -155,7 +151,7 @@ public class RoleXUserService(
 
             var userId = await UserService.GetSingleIdByUsernameAsync(username);
 
-            var existentRoleIds = await this.GetRoleIdsByUserIdsAsync([userId]);
+            var existentRoleIds = await this.GetRolesIdByUsersIdAsync([userId]);
             var newRoleIds = roleIds.Except(existentRoleIds);
 
             foreach (var roleId in newRoleIds)

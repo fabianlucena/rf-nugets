@@ -1,6 +1,7 @@
 ﻿using RFBase.ILibs;
 using RFIServices.IServices;
 using RFRBAC.IServices;
+using RFRBAC.QueryOptions;
 using RFRegisterService.Attributes;
 using RFRGOBAC.DTO;
 using RFRGOBAC.IServices;
@@ -61,7 +62,15 @@ public class SystemUserService(
         if (user == null)
             return null;
 
-        return new SystemUser(user);
+        var result = new SystemUser(user);
+        if (options.IncludeGlobalRoles)
+        {
+            result.GlobalRoles = await roleXUserService.GetAllRolesByUserIdAsync(user.Id);
+        }
+
+
+
+        return result;
     }
 
     public Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, SystemUserQueryOptions? options = null)

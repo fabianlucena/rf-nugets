@@ -6,6 +6,6 @@ namespace RFRBAC.IRepositories
 {
     public interface IRoleIncludeRepository : ICommonJoinRepository<RoleInclude>
     {
-        Task<IEnumerable<long>> GetAllRoleIdsByRoleIdsAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null);
+        Task<IEnumerable<long>> GetAllRolesIdByRolesIdAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null);
     }
 }

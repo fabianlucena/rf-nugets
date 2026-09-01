@@ -20,7 +20,9 @@ public class SystemUser : User
             return;
 
         GlobalRolesId = entity.GlobalRolesId;
+        GlobalRoles = entity.GlobalRoles;
         OrganizationsRolesId = entity.OrganizationsRolesId;
+        OrganizationsRoles = entity.OrganizationsRoles;
     }
 
     public SystemUser(User? entity = null)

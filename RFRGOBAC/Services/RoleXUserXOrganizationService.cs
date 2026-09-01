@@ -17,7 +17,7 @@ public class RoleXUserXOrganizationService(
 ) : CommonJoinService<RoleXUserXOrganization>(roleXUserXOrganizationRepository, serviceProvider),
     IRoleXUserXOrganizationService
 {
-    public async Task<IEnumerable<long>> GetRoleIdsByUserIdsAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
     {
         options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
         options.UserIds = userIds;
@@ -25,14 +25,14 @@ public class RoleXUserXOrganizationService(
         return await roleXUserXOrganizationRepository.GetIdsAsync(options);
     }
 
-    public async Task<IEnumerable<long>> GetAllRoleIdsByUserIdsAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetAllRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
     {
-        var roleIds = await GetRoleIdsByUserIdsAndOrganizationIdAsync(userIds, OrganizationId, options);
-        var allRoleIds = await roleIncludeService.GetAllRoleIdsByRoleIdsAsync(roleIds);
+        var roleIds = await GetRolesIdByUsersIdAndOrganizationIdAsync(userIds, OrganizationId, options);
+        var allRoleIds = await roleIncludeService.GetAllRolesIdByRolesIdAsync(roleIds);
         return allRoleIds;
     }
 
-    public async Task<IEnumerable<Organization>> GetListOrganizationsByUserIdsAsync(IEnumerable<long> userIds, RoleXUserXOrganizationQueryOptions? options = null)
+    public async Task<IEnumerable<Organization>> GetOrganizationsByUsersIdAsync(IEnumerable<long> userIds, RoleXUserXOrganizationQueryOptions? options = null)
     {
         options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
         options.UserIds = userIds;

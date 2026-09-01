@@ -33,7 +33,7 @@ public class ORGPDataService(
         orpgData.GroupNames = await userService.GetUsernamesByIdsAsync(orpgData.GroupIds);
 
         orpgData.Organizations = await roleXUserXOrganizationService
-            .GetListOrganizationsByUserIdsAsync(orpgData.GroupIds);
+            .GetOrganizationsByUsersIdAsync(orpgData.GroupIds);
         if (!orpgData.Organizations.Any())
             return orpgData;
 
@@ -55,7 +55,7 @@ public class ORGPDataService(
             });
         }
 
-        orpgData.RoleIds = await roleXUserXOrganizationService.GetAllRoleIdsByUserIdsAndOrganizationIdAsync(
+        orpgData.RoleIds = await roleXUserXOrganizationService.GetAllRolesIdByUsersIdAndOrganizationIdAsync(
             orpgData.GroupIds,
             orpgData.CurrentOrganization.Id
         );
