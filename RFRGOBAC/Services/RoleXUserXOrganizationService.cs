@@ -1,4 +1,5 @@
-﻿using RFRBAC.IServices;
+﻿using RFRBAC.Entities;
+using RFRBAC.IServices;
 using RFRegisterService.Attributes;
 using RFRGOBAC.DTO;
 using RFRGOBAC.Entities;
@@ -42,5 +43,35 @@ public class RoleXUserXOrganizationService(
     public Task<long> SetAllOrganizationsRolesIdForUserIdAsync(IEnumerable<OrganizationRolesId> organizationRolesId, long userId, RoleXUserXOrganizationQueryOptions? options = null)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<IEnumerable<OrganizationRoles>> GetOrganizationsRolesByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+        options.UserId = userId;
+        options.IncludeOrganization = true;
+        options.IncludeRole = true;
+
+        var list = await roleXUserXOrganizationRepository.GetListAsync(options);
+        var organizationsRoles = new List<OrganizationRoles>();
+        foreach (var row in list)
+        {
+            var organizationRoles = organizationsRoles.FirstOrDefault(or => or.OrganizationId == row.Organization?.Id)
+                ?? new OrganizationRoles
+                {
+                    OrganizationId = row.Organization!.Id,
+                    Organization = row.Organization,
+                    RolesId = [],
+                    Roles = [],
+                };
+
+            if (!organizationRoles.RolesId!.Any(id => id == row.Role?.Id))
+            {
+                ((List<long>)organizationRoles.RolesId!).Add(row.Role!.Id);
+                ((List<Role>)organizationRoles.Roles!).Add(row.Role);
+            }
+        }
+
+        return organizationsRoles;
     }
 }

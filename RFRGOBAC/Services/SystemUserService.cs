@@ -1,9 +1,9 @@
 ﻿using RFBase.ILibs;
 using RFIServices.IServices;
 using RFRBAC.IServices;
-using RFRBAC.QueryOptions;
 using RFRegisterService.Attributes;
 using RFRGOBAC.DTO;
+using RFRGOBAC.Exceptions;
 using RFRGOBAC.IServices;
 using RFRGOBAC.QueryOptions;
 
@@ -30,14 +30,10 @@ public class SystemUserService(
         var result = new SystemUser(await userService.CreateAsync(user));
 
         if (user.GlobalRolesId is not null)
-        {
             await roleXUserService.SetAllRolesIdForUserIdAsync(user.GlobalRolesId, result.Id);
-        }
 
         if (user.OrganizationsRolesId is not null)
-        {
             await roleXUserXOrganizationService.SetAllOrganizationsRolesIdForUserIdAsync(user.OrganizationsRolesId, result.Id);
-        }
 
         return result;
     }
@@ -45,12 +41,19 @@ public class SystemUserService(
     public async Task<IEnumerable<SystemUser>> GetListAsync(SystemUserQueryOptions? options)
     {
         options ??= new SystemUserQueryOptions();
-        var users = (await userService
+        var users = await Task.WhenAll((await userService
             .GetListAsync(options))
-            .Select(user =>
+            .Select(async user =>
             {
-                return new SystemUser(user);
-            });
+                var result = new SystemUser(user);
+                if (options.IncludeGlobalRoles)
+                    result.GlobalRoles = await roleXUserService.GetRolesByUserIdAsync(user.Id);
+
+                if (options.IncludeOrganizationsRoles)
+                    result.OrganizationsRoles = await roleXUserXOrganizationService.GetOrganizationsRolesByUserIdAsync(user.Id);
+
+                return result;
+            }));
 
         return users;
     }
@@ -58,19 +61,12 @@ public class SystemUserService(
     public async Task<SystemUser?> GetSingleOrDefaultAsync(SystemUserQueryOptions? options)
     {
         options ??= new SystemUserQueryOptions();
-        var user = await userService.GetSingleOrDefaultAsync(options);
-        if (user == null)
-            return null;
+        options.Take = 2;
+        var users = await GetListAsync(options);
+        if (users.Count() > 1)
+            throw new ThereAreMultipleUsersMatchingTheGivenConditionsException();
 
-        var result = new SystemUser(user);
-        if (options.IncludeGlobalRoles)
-        {
-            result.GlobalRoles = await roleXUserService.GetAllRolesByUserIdAsync(user.Id);
-        }
-
-
-
-        return result;
+        return users.FirstOrDefault();
     }
 
     public Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, SystemUserQueryOptions? options = null)

@@ -1,4 +1,5 @@
 ﻿using RFIServices.IServices;
+using RFRBAC.Entities;
 using RFRGOBAC.DTO;
 using RFRGOBAC.Entities;
 using RFRGOBAC.QueryOptions;
@@ -11,4 +12,5 @@ public interface IRoleXUserXOrganizationService : ICommonJoinService<RoleXUserXO
     Task<IEnumerable<long>> GetAllRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
     Task<IEnumerable<Organization>> GetOrganizationsByUsersIdAsync(IEnumerable<long> userIds, RoleXUserXOrganizationQueryOptions? options = null);
     Task<long> SetAllOrganizationsRolesIdForUserIdAsync(IEnumerable<OrganizationRolesId> organizationRolesId, long userId, RoleXUserXOrganizationQueryOptions? options = null);
+    Task<IEnumerable<OrganizationRoles>> GetOrganizationsRolesByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null);
 }

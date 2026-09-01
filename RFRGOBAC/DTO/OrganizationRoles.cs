@@ -5,7 +5,7 @@ namespace RFRGOBAC.DTO;
 
 public class OrganizationRoles
 {
-    public long Id { get; set; }
+    public long OrganizationId { get; set; }
     public Organization? Organization { get; set; }
 
     public IEnumerable<long> RolesId { get; set; } = [];

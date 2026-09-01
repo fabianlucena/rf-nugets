@@ -6,6 +6,7 @@ namespace RFRGOBAC.QueryOptions;
 public class SystemUserQueryOptions : UserQueryOptions
 {
     public bool IncludeGlobalRoles { get; set; }
+    public bool IncludeOrganizationsRoles { get; set; }
 
     public SystemUserQueryOptions() { }
 
@@ -16,6 +17,7 @@ public class SystemUserQueryOptions : UserQueryOptions
             return;
 
         IncludeGlobalRoles = options.IncludeGlobalRoles;
+        IncludeOrganizationsRoles = options.IncludeOrganizationsRoles;
     }
 
     public override SystemUserQueryOptions Clone()
@@ -27,6 +29,9 @@ public class SystemUserQueryOptions : UserQueryOptions
 
         if (request.Query.ContainsKey("includeGlobalRoles"))
             IncludeGlobalRoles = bool.Parse(request.Query["includeGlobalRoles"].ToString());
+
+        if (request.Query.ContainsKey("includeOrganizationsRoles"))
+            IncludeOrganizationsRoles = bool.Parse(request.Query["includeOrganizationsRoles"].ToString());
 
         return this;
     }
