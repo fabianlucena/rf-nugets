@@ -18,31 +18,74 @@ public class RoleXUserXOrganizationService(
 ) : CommonJoinService<RoleXUserXOrganization>(roleXUserXOrganizationRepository, serviceProvider),
     IRoleXUserXOrganizationService
 {
-    public async Task<IEnumerable<long>> GetRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> usersId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
     {
         options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
-        options.UserIds = userIds;
+        options.UsersId = usersId;
         options.OrganizationId = OrganizationId;
         return await roleXUserXOrganizationRepository.GetIdsAsync(options);
     }
 
-    public async Task<IEnumerable<long>> GetAllRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> userIds, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetAllRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> usersId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
     {
-        var roleIds = await GetRolesIdByUsersIdAndOrganizationIdAsync(userIds, OrganizationId, options);
+        var roleIds = await GetRolesIdByUsersIdAndOrganizationIdAsync(usersId, OrganizationId, options);
         var allRoleIds = await roleIncludeService.GetAllRolesIdByRolesIdAsync(roleIds);
         return allRoleIds;
     }
 
-    public async Task<IEnumerable<Organization>> GetOrganizationsByUsersIdAsync(IEnumerable<long> userIds, RoleXUserXOrganizationQueryOptions? options = null)
+    public async Task<IEnumerable<Organization>> GetOrganizationsByUsersIdAsync(IEnumerable<long> usersId, RoleXUserXOrganizationQueryOptions? options = null)
     {
         options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
-        options.UserIds = userIds;
+        options.UsersId = usersId;
         return await roleXUserXOrganizationRepository.GetOrganizationsAsync(options);
     }
 
-    public Task<long> SetAllOrganizationsRolesIdForUserIdAsync(IEnumerable<OrganizationRolesId> organizationRolesId, long userId, RoleXUserXOrganizationQueryOptions? options = null)
+    public async Task<long> SetOrganizationsRolesIdForUserIdAsync(IEnumerable<OrganizationRolesId> organizationsRolesId, long userId, RoleXUserXOrganizationQueryOptions? options = null)
     {
-        throw new NotImplementedException();
+        int result = 0;
+
+        options ??= new RoleXUserXOrganizationQueryOptions();
+        options.RoleId = null;
+        options.RolesId = null;
+        options.OrganizationId = null;
+        options.OrganizationsId = null;
+        options.UserId = userId;
+        options.UsersId = null;
+        options.Take = 1000;
+        var list = await GetListAsync(options);
+
+        foreach (var organizationRolesId in organizationsRolesId)
+        {
+            var currentRolesId = list.Where(r => r.OrganizationId == organizationRolesId.OrganizationId).Select(r => r.RoleId);
+            var rolesIdToAdd = organizationRolesId.RolesId.Except(currentRolesId);
+            var rolesIdToRemove = currentRolesId.Except(organizationRolesId.RolesId);
+
+            if (rolesIdToAdd.Any())
+            {
+                foreach (var roleId in rolesIdToAdd)
+                {
+                    await CreateAsync(new RoleXUserXOrganization
+                    {
+                        UserId = userId,
+                        OrganizationId = organizationRolesId.OrganizationId,
+                        RoleId = roleId
+                    });
+                    result++;
+                }
+            }
+
+            if (rolesIdToRemove.Any())
+            {
+                result += await DeleteAsync(new RoleXUserXOrganizationQueryOptions
+                {
+                    UserId = userId,
+                    OrganizationId = organizationRolesId.OrganizationId,
+                    RolesId = rolesIdToRemove
+                });
+            }
+        }
+
+        return result;
     }
 
     public async Task<IEnumerable<OrganizationRoles>> GetOrganizationsRolesByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
@@ -67,9 +110,11 @@ public class RoleXUserXOrganizationService(
 
             if (!organizationRoles.RolesId!.Any(id => id == row.Role?.Id))
             {
-                ((List<long>)organizationRoles.RolesId!).Add(row.Role!.Id);
-                ((List<Role>)organizationRoles.Roles!).Add(row.Role);
+                organizationRoles.RolesId = [.. organizationRoles.RolesId, row.Role!.Id];
+                organizationRoles.Roles = [.. organizationRoles.Roles!, row.Role];
             }
+
+            organizationsRoles.Add(organizationRoles);
         }
 
         return organizationsRoles;
