@@ -14,6 +14,6 @@ namespace RFIServices.DTO
 
         public UserMinDTO? CreatedBy { get; } = user.CreatedBy != null ? new UserMinDTO(user.CreatedBy) : null;
         public UserMinDTO? UpdatedBy { get; } = user.UpdatedBy != null ? new UserDTO(user.UpdatedBy) : null;
-        public UserMinDTO? DeleteBy { get; } = user.DeletedBy != null ? new UserDTO(user.DeletedBy) : null;
+        public UserMinDTO? DeletedBy { get; } = user.DeletedBy != null ? new UserDTO(user.DeletedBy) : null;
     }
 }
