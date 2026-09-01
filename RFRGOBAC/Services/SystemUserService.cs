@@ -1,5 +1,6 @@
 ﻿using RFBase.ILibs;
 using RFIServices.IServices;
+using RFRBAC.IServices;
 using RFRegisterService.Attributes;
 using RFRGOBAC.DTO;
 using RFRGOBAC.IServices;
@@ -10,13 +11,34 @@ namespace RFRGOBAC.Services;
 
 [RegisterService]
 public class SystemUserService(
-        IUserService userService
-    )
-    : ISystemUserService
+    IUserService userService,
+    IUserTypeService userTypeService,
+    IRoleXUserService roleXUserService,
+    IRoleXUserXOrganizationService roleXUserXOrganizationService
+) : ISystemUserService
 {
-    public Task<SystemUser> CreateAsync(SystemUser user)
+    public async Task<SystemUser> CreateAsync(SystemUser user)
     {
-        throw new NotImplementedException();
+        user = user.Clone();
+        if (user.TypeId <= 0)
+        {
+            user.TypeId = user.Type?.Id
+                ?? await userTypeService.GetSingleIdByNameAsync("user");
+        }
+
+        var result = new SystemUser(await userService.CreateAsync(user));
+
+        if (user.GlobalRolesId is not null)
+        {
+            await roleXUserService.SetAllRolesIdForUserIdAsync(user.GlobalRolesId, result.Id);
+        }
+
+        if (user.OrganizationsRolesId is not null)
+        {
+            await roleXUserXOrganizationService.SetAllOrganizationsRolesIdForUserIdAsync(user.OrganizationsRolesId, result.Id);
+        }
+
+        return result;
     }
 
     public async Task<IEnumerable<SystemUser>> GetListAsync(SystemUserQueryOptions? options)

@@ -1,5 +1,6 @@
 ﻿using RFRBAC.IServices;
 using RFRegisterService.Attributes;
+using RFRGOBAC.DTO;
 using RFRGOBAC.Entities;
 using RFRGOBAC.IRepositories;
 using RFRGOBAC.IServices;
@@ -36,5 +37,10 @@ public class RoleXUserXOrganizationService(
         options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
         options.UserIds = userIds;
         return await roleXUserXOrganizationRepository.GetOrganizationsAsync(options);
+    }
+
+    public Task<long> SetAllOrganizationsRolesIdForUserIdAsync(IEnumerable<OrganizationRolesId> organizationRolesId, long userId, RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        throw new NotImplementedException();
     }
 }
