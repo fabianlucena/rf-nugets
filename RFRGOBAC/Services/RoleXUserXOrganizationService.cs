@@ -85,6 +85,16 @@ public class RoleXUserXOrganizationService(
             }
         }
 
+        var currentOrganizationsId = list.Select(r => r.OrganizationId);
+        var organizationsIdToRemove = currentOrganizationsId.Except(organizationsRolesId.Select(or => or.OrganizationId));
+        if (organizationsIdToRemove.Any()) {
+            result += await DeleteAsync(new RoleXUserXOrganizationQueryOptions
+            {
+                UserId = userId,
+                OrganizationsId = organizationsIdToRemove
+            });
+        }
+
         return result;
     }
 
