@@ -45,6 +45,32 @@ public class DataDictionary
         }
     }
 
+    public static DataDictionary FromObject(object obj)
+    {
+        var result = new DataDictionary();
+
+        foreach (var prop in obj.GetType().GetProperties())
+        {
+            if (prop.GetIndexParameters().Length == 0)
+                result[prop.Name] = prop.GetValue(obj);
+        }
+
+        return result;
+    }
+
+    public IDataDictionary FilterKeys(params string[] keys)
+    {
+        var result = new DataDictionary();
+
+        foreach (var key in keys)
+        {
+            if (ContainsKey(key))
+                result[key] = this[key];
+        }
+
+        return result;
+    }
+
     public IDataDictionary GetPascalized()
     {
         var data = this.ToDictionary(

@@ -1,5 +1,7 @@
 ﻿using RFAuth.IServices;
 using RFBase.ILibs;
+using RFBase.Libs;
+using RFEntities.Entities;
 using RFIServices.IServices;
 using RFRBAC.IServices;
 using RFRegisterService.Attributes;
@@ -74,9 +76,22 @@ public class SystemUserService(
         return users.FirstOrDefault();
     }
 
-    public Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, SystemUserQueryOptions? options = null)
+    public async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, SystemUserQueryOptions? options = null)
     {
-        throw new NotImplementedException();
+        var id = await userService.GetSingleIdByUuidAsync(uuid, options);
+        await userService.UpdateByIdAsync(id, data.FilterKeys("DisplayName", "Username", "IsActive", "CanLogin"));
+
+        if (data.TryGetString("Password", out var password) && !string.IsNullOrWhiteSpace(password))
+            await userPasswordService.CreateOrUpdateByUserIdAsync(password, id);
+
+        /*if (user.GlobalRolesId is not null)
+            await roleXUserService.SetAllRolesIdForUserIdAsync(user.GlobalRolesId, result.Id);
+
+        if (user.OrganizationsRolesId is not null)
+            await roleXUserXOrganizationService.SetAllOrganizationsRolesIdForUserIdAsync(user.OrganizationsRolesId, result.Id);
+        */
+
+        return 1;
     }
 
     public Task<int> DeleteByUuidAsync(Guid uuid, SystemUserQueryOptions? options = null)

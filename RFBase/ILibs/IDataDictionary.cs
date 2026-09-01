@@ -1,39 +1,43 @@
-﻿namespace RFBase.ILibs
+﻿using RFBase.Libs;
+
+namespace RFBase.ILibs
 {
     public interface IDataDictionary
         : IDictionary<string, object?>
     {
-        public IDataDictionary GetPascalized();
+        IDataDictionary FilterKeys(params string []keys);
 
-        public bool IsNullValue(string key);
+        IDataDictionary GetPascalized();
 
-        public bool IsNotNullValue(string key);
+        bool IsNullValue(string key);
 
-        public bool TryGetInt64(string key, out long value);
+        bool IsNotNullValue(string key);
 
-        public bool TryGetString(string key, out string? value);
+        bool TryGetInt64(string key, out long value);
 
-        public bool TryGetNotNullString(string key, out string value);
+        bool TryGetString(string key, out string? value);
 
-        public bool TryGetNotNullOrEmptyString(string key, out string value);
+        bool TryGetNotNullString(string key, out string value);
 
-        public bool TryGetNotNullStrings(string key, out IEnumerable<string> value);
+        bool TryGetNotNullOrEmptyString(string key, out string value);
 
-        public bool TryGetBool(string key, out bool value);
+        bool TryGetNotNullStrings(string key, out IEnumerable<string> value);
 
-        public bool TryGetGuid(string key, out Guid value);
+        bool TryGetBool(string key, out bool value);
 
-        public bool TryGetGuids(string key, out IEnumerable<Guid> value);
+        bool TryGetGuid(string key, out Guid value);
 
-        public bool TryGetDecimal(string key, out Decimal value);
+        bool TryGetGuids(string key, out IEnumerable<Guid> value);
 
-        public bool TryGetNullableObjects(string key, out IEnumerable<object?> value);
+        bool TryGetDecimal(string key, out Decimal value);
 
-        public T ToObject<T>()
+        bool TryGetNullableObjects(string key, out IEnumerable<object?> value);
+
+        T ToObject<T>()
             where T : new();
 
-        public object? GetValue(object? element, bool camelize = false);
+        object? GetValue(object? element, bool camelize = false);
 
-        public string GetJson();
+        string GetJson();
     }
 }
