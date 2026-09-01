@@ -34,18 +34,18 @@ public class UserGroupRepository(DbContext context)
             if (userGroupOptions.UserId is not null)
                 queryable = queryable.Where(ug => ug.UserId == userGroupOptions.UserId);
 
-            if (userGroupOptions.UserIds is not null)
-                queryable = queryable.Where(ug => userGroupOptions.UserIds.Contains(ug.UserId));
+            if (userGroupOptions.UsersId is not null)
+                queryable = queryable.Where(ug => userGroupOptions.UsersId.Contains(ug.UserId));
         }
 
         return queryable;
     }
 
-    public async Task<IEnumerable<long>> GetAllGroupIdsByUserIdsAsync(IEnumerable<long> userIds, UserGroupQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetAllGroupsIdByUsersIdAsync(IEnumerable<long> usersId, UserGroupQueryOptions? options = null)
     {
         var set = GetDBSet(options);
-        var result = userIds.ToList();
-        var lastResult = userIds.ToList();
+        var result = usersId.ToList();
+        var lastResult = usersId.ToList();
         do
         {
             lastResult = await set

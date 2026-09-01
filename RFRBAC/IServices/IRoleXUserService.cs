@@ -6,9 +6,9 @@ namespace RFRBAC.IServices
 {
     public interface IRoleXUserService : ICommonJoinService<RoleXUser>
     {
-        Task<IEnumerable<long>> GetRolesIdByUsersIdAsync(IEnumerable<long> userIds, RoleXUserQueryOptions? options = null);
+        Task<IEnumerable<long>> GetRolesIdByUsersIdAsync(IEnumerable<long> usersId, RoleXUserQueryOptions? options = null);
         Task<IEnumerable<long>> GetRolesIdByUserIdAsync(long userId, RoleXUserQueryOptions? options = null);
-        Task<IEnumerable<string>> GetRolesNameByUsersIdAsync(IEnumerable<long> userIds, RoleXUserQueryOptions? options = null);
+        Task<IEnumerable<string>> GetRolesNameByUsersIdAsync(IEnumerable<long> usersId, RoleXUserQueryOptions? options = null);
         Task<IEnumerable<string>> GetRolesNameByUserIdAsync(long userId, RoleXUserQueryOptions? options = null);
         Task<IEnumerable<long>> GetAllRolesIdByUserIdAsync(long userId, RoleXUserQueryOptions? options = null);
         Task<IEnumerable<Role>> GetRolesByUserIdAsync(long userId, RoleXUserQueryOptions? options = null);

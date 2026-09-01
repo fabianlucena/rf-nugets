@@ -6,5 +6,5 @@ namespace RFUserGroups.IRepositories;
 
 public interface IUserGroupRepository : ICommonJoinRepository<UserGroup>
 {
-    Task<IEnumerable<long>> GetAllGroupIdsByUserIdsAsync(IEnumerable<long> userIds, UserGroupQueryOptions? options = null);
+    Task<IEnumerable<long>> GetAllGroupsIdByUsersIdAsync(IEnumerable<long> usersId, UserGroupQueryOptions? options = null);
 }

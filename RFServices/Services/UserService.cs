@@ -106,10 +106,10 @@ public class UserService(
     public async Task<long> GetSingleIdByUsernameAsync(string username, UserQueryOptions? options = null)
         => await GetSingleIdAsync(new UserQueryOptions(options) { Username = username });
 
-    public async Task<IEnumerable<string>> GetUsernamesByIdsAsync(IEnumerable<long> userIds, UserQueryOptions? options = null)
+    public async Task<IEnumerable<string>> GetUsernamesByIdsAsync(IEnumerable<long> usersId, UserQueryOptions? options = null)
     {
         options = (UserQueryOptions?)(options?.Clone() ?? new UserQueryOptions());
-        options!.Ids = userIds;
+        options!.Ids = usersId;
         return await userRepository.GetUsernamesAsync(options);
     }
 

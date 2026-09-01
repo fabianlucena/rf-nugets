@@ -28,6 +28,6 @@ namespace RFIServices.IServices
 
         Task UpdateLastLoginAtByUserIdAsync(long userId);
 
-        Task<IEnumerable<string>> GetUsernamesByIdsAsync(IEnumerable<long> userIds, UserQueryOptions? options = null);
+        Task<IEnumerable<string>> GetUsernamesByIdsAsync(IEnumerable<long> usersId, UserQueryOptions? options = null);
     }
 }

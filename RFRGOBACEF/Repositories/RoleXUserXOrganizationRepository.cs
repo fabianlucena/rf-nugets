@@ -36,11 +36,14 @@ public class RoleXUserXOrganizationRepository(DbContext context)
             if (roleXUserXOrganizationOptions.UserId.HasValue)
                 queryable = queryable.Where(ruo => ruo.UserId == roleXUserXOrganizationOptions.UserId.Value);
 
-            if (roleXUserXOrganizationOptions.UserIds != null)
-                queryable = queryable.Where(ruo => roleXUserXOrganizationOptions.UserIds.Contains(ruo.UserId));
+            if (roleXUserXOrganizationOptions.UsersId != null)
+                queryable = queryable.Where(ruo => roleXUserXOrganizationOptions.UsersId.Contains(ruo.UserId));
 
             if (roleXUserXOrganizationOptions.OrganizationId.HasValue)
                 queryable = queryable.Where(ruo => ruo.OrganizationId == roleXUserXOrganizationOptions.OrganizationId.Value);
+
+            if (roleXUserXOrganizationOptions.OrganizationsId != null)
+                queryable = queryable.Where(ruo => roleXUserXOrganizationOptions.OrganizationsId.Contains(ruo.OrganizationId));
         }
 
         return queryable;

@@ -28,7 +28,7 @@ public class ORGPDataService(
 
         var orpgData = new ORGPData
         {
-            GroupIds = await userGroupService.GetAllGroupIdsByUserIdsAsync([userId]),
+            GroupIds = await userGroupService.GetAllGroupIdsByUsersIdAsync([userId]),
         };
         orpgData.GroupNames = await userService.GetUsernamesByIdsAsync(orpgData.GroupIds);
 

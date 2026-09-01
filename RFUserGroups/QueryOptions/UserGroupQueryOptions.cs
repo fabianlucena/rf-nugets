@@ -9,7 +9,7 @@ public sealed class UserGroupQueryOptions : CommonJoinQueryOptions
 
     public long? UserId { get; set; }
     public long? GroupId { get; set; }
-    public IEnumerable<long>? UserIds { get; set; }    
+    public IEnumerable<long>? UsersId { get; set; }    
 
     public UserGroupQueryOptions() { }
 
@@ -24,7 +24,7 @@ public sealed class UserGroupQueryOptions : CommonJoinQueryOptions
 
         UserId = options.UserId;
         GroupId = options.GroupId;
-        UserIds = options.UserIds != null ? [.. options.UserIds] : null;
+        UsersId = options.UsersId != null ? [.. options.UsersId] : null;
     }
 
     public override UserGroupQueryOptions Clone()

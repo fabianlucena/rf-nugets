@@ -30,14 +30,14 @@ public class RoleXUserRepository(DbContext context)
             if (roleXUserOptions.RoleId.HasValue)
                 queryable = queryable.Where(ru => ru.RoleId == roleXUserOptions.RoleId.Value);
 
-            if (roleXUserOptions.RoleIds is not null)
-                queryable = queryable.Where(ru => roleXUserOptions.RoleIds.Contains(ru.RoleId));
+            if (roleXUserOptions.RolesId is not null)
+                queryable = queryable.Where(ru => roleXUserOptions.RolesId.Contains(ru.RoleId));
 
             if (roleXUserOptions.UserId.HasValue)
                 queryable = queryable.Where(ru => ru.UserId == roleXUserOptions.UserId.Value);
 
-            if (roleXUserOptions.UserIds is not null)
-                queryable = queryable.Where(ru => roleXUserOptions.UserIds.Contains(ru.UserId));
+            if (roleXUserOptions.UsersId is not null)
+                queryable = queryable.Where(ru => roleXUserOptions.UsersId.Contains(ru.UserId));
         }
 
         return queryable;

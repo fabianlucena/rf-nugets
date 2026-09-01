@@ -4,6 +4,7 @@ using RFBase.Libs;
 using RFEntities.Entities;
 using RFIServices.IServices;
 using RFRBAC.IServices;
+using RFRBAC.Services;
 using RFRegisterService.Attributes;
 using RFRGOBAC.DTO;
 using RFRGOBAC.Exceptions;
@@ -18,8 +19,10 @@ public class SystemUserService(
     IUserService userService,
     IUserPasswordService userPasswordService,
     IUserTypeService userTypeService,
+    IRoleService roleService,
     IRoleXUserService roleXUserService,
-    IRoleXUserXOrganizationService roleXUserXOrganizationService
+    IRoleXUserXOrganizationService roleXUserXOrganizationService,
+    IOrganizationService organizationService
 ) : ISystemUserService
 {
     public async Task<SystemUser> CreateAsync(SystemUser user)
@@ -40,7 +43,7 @@ public class SystemUserService(
             await roleXUserService.SetAllRolesIdForUserIdAsync(user.GlobalRolesId, result.Id);
 
         if (user.OrganizationsRolesId is not null)
-            await roleXUserXOrganizationService.SetAllOrganizationsRolesIdForUserIdAsync(user.OrganizationsRolesId, result.Id);
+            await roleXUserXOrganizationService.SetOrganizationsRolesIdForUserIdAsync(user.OrganizationsRolesId, result.Id);
 
         return result;
     }
@@ -78,18 +81,44 @@ public class SystemUserService(
 
     public async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, SystemUserQueryOptions? options = null)
     {
+        data.TryGetGuids("GlobalRolesUuid", out var globalRolesUuid);
+
+        List<OrganizationRolesId>? organizationsRolesId = null;
+        data.TryGetValue("OrganizationsRolesUuid", out var organizationsRolesUuidDict);
+
+        if (organizationsRolesUuidDict is not null)
+        {
+            organizationsRolesId = [];
+            var rawList = (IEnumerable<object>)organizationsRolesUuidDict;
+
+            foreach (var item in rawList)
+            {
+                var entry = (Dictionary<string, object?>)item;
+                var organizationRolesUuid = new OrganizationRolesId
+                {
+                    OrganizationId = await organizationService.GetSingleIdByUuidAsync(Guid.Parse(entry["organizationUuid"]!.ToString()!)),
+                    RolesId = await roleService.GetListIdByUuidAsync([.. ((IEnumerable<object>)entry["rolesUuid"]!).Select(x => Guid.Parse(x.ToString()!))]),
+                };
+
+                organizationsRolesId.Add(organizationRolesUuid);
+            }
+        }
+
         var id = await userService.GetSingleIdByUuidAsync(uuid, options);
+
         await userService.UpdateByIdAsync(id, data.FilterKeys("DisplayName", "Username", "IsActive", "CanLogin"));
 
         if (data.TryGetString("Password", out var password) && !string.IsNullOrWhiteSpace(password))
             await userPasswordService.CreateOrUpdateByUserIdAsync(password, id);
 
-        /*if (user.GlobalRolesId is not null)
-            await roleXUserService.SetAllRolesIdForUserIdAsync(user.GlobalRolesId, result.Id);
+        if (globalRolesUuid is not null && globalRolesUuid.Any())
+        {
+            var globalRolesId = await roleService.GetListIdByUuidAsync(globalRolesUuid);
+            await roleXUserService.SetAllRolesIdForUserIdAsync(globalRolesId, id);
+        }
 
-        if (user.OrganizationsRolesId is not null)
-            await roleXUserXOrganizationService.SetAllOrganizationsRolesIdForUserIdAsync(user.OrganizationsRolesId, result.Id);
-        */
+        if (organizationsRolesId is not null)
+            await roleXUserXOrganizationService.SetOrganizationsRolesIdForUserIdAsync(organizationsRolesId, id);
 
         return 1;
     }

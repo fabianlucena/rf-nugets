@@ -22,20 +22,20 @@ public class RoleXUserService(
     public IRoleService RoleService { get => ServiceProvider.GetRequiredService<IRoleService>(); }
     public IUserService UserService { get => ServiceProvider.GetRequiredService<IUserService>(); }
 
-    public async Task<IEnumerable<long>> GetRolesIdByUsersIdAsync(IEnumerable<long> userIds, RoleXUserQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetRolesIdByUsersIdAsync(IEnumerable<long> usersId, RoleXUserQueryOptions? options = null)
     {
         options = options?.Clone() ?? new RoleXUserQueryOptions();
-        options.UserIds = userIds;
+        options.UsersId = usersId;
         return await roleXUserRepository.GetRolesIdAsync(options);
     }
 
     public async Task<IEnumerable<long>> GetRolesIdByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
         => await GetRolesIdByUsersIdAsync([userId], options);
 
-    public async Task<IEnumerable<string>> GetRolesNameByUsersIdAsync(IEnumerable<long> userIds, RoleXUserQueryOptions? options = null)
+    public async Task<IEnumerable<string>> GetRolesNameByUsersIdAsync(IEnumerable<long> usersId, RoleXUserQueryOptions? options = null)
     {
         options = options?.Clone() ?? new RoleXUserQueryOptions();
-        options.UserIds = userIds;
+        options.UsersId = usersId;
         return await roleXUserRepository.GetRolesNameAsync(options);
     }
 

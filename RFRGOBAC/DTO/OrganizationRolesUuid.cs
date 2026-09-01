@@ -7,7 +7,7 @@ namespace RFRGOBAC.DTO;
 public class OrganizationRolesUuid
 {
     public Guid OrganizationUuid { get; set; }
-    public IEnumerable<Guid> RolesUuids { get; set; } = [];
+    public IEnumerable<Guid> RolesUuid { get; set; } = [];
 
     public async Task<OrganizationRolesId> ToOrganizationRolesId(IServiceProvider serviceProvider)
     {
@@ -17,7 +17,7 @@ public class OrganizationRolesUuid
         return new OrganizationRolesId
         {
             OrganizationId = await organizationService.GetSingleIdByUuidAsync(OrganizationUuid),
-            RolesId = await roleService.GetListIdByUuidAsync(RolesUuids)
+            RolesId = await roleService.GetListIdByUuidAsync(RolesUuid)
         };
     }
 }
