@@ -6,5 +6,6 @@ namespace RFIServices.DTO
     {
         public Guid Uuid { get; } = userType.Uuid;
         public string Name { get; } = userType.Name;
+        public string Title { get; } = userType.Title;
     }
 }

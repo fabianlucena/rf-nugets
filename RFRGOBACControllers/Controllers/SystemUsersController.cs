@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using RFBase.Libs;
 using RFEventBus;
+using RFIRepositories.IRepositories;
+using RFIServices.IServices;
 using RFPermissions.Attributes;
 using RFRBAC.DTO;
 using RFRBAC.Exceptions;
@@ -20,6 +22,7 @@ namespace RFRGOBACControllers.Controllers;
 public class OrganizationUsersController(
     ISystemUserService systemUserService,
     IRFRGOBACLoggerService loggerService,
+    IUserTypeService userTypeService,
     IEventBus eventBus,
     IServiceProvider serviceProvider
 ) : ControllerBase
@@ -35,7 +38,6 @@ public class OrganizationUsersController(
             IncludeCreatedBy = true,
             IncludeUpdatedBy = true,
             IncludeDeletedBy = true,
-            IncludeType = true,
         }.BuildFromRequest(Request);
 
         if (uuid != null)
@@ -44,11 +46,26 @@ public class OrganizationUsersController(
             var user = await systemUserService.GetSingleOrDefaultAsync(userOptions)
                 ?? throw new UserWithUuidNotFoundException(uuid.Value);
 
+            if (user.Type is not null)
+            {
+                user = user.Clone();
+                user.Type = await userTypeService.Translate(user.Type!);
+            }
+
             return Ok(new SystemUserResponse(user));
         }
 
         var users = await systemUserService.GetListAsync(userOptions);
-        var response = users.Select(user => new SystemUserResponse(user));
+        var response = await Task.WhenAll(users.Select(async user =>
+        {
+            if (user.Type is not null)
+            {
+                user = user.Clone();
+                user.Type = await userTypeService.Translate(user.Type!);
+            }
+
+            return new SystemUserResponse(user);
+        }));
 
         return Ok(response);
     }
@@ -159,14 +176,14 @@ public class OrganizationUsersController(
         if (uuid != null)
         {
             roleOptions.Uuid = uuid;
-            var organization = await roleService.GetSingleOrDefaultAsync(roleOptions)
+            var role = await roleService.GetSingleOrDefaultAsync(roleOptions)
                 ?? throw new RoleWithUuidNotFoundException(uuid.Value);
 
-            return Ok(new SelectableRoleResponse(organization));
+            return Ok(new RoleResponse(await roleService.Translate(role)));
         }
 
-        var organizations = await roleService.GetListAsync(roleOptions);
-        var response = organizations.Select(organization => new SelectableRoleResponse(organization));
+        var roles = await roleService.GetListAsync(roleOptions);
+        var response = await Task.WhenAll(roles.Select(async role => new RoleResponse(await roleService.Translate(role))));
 
         return Ok(response);
     }
