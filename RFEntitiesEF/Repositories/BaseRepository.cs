@@ -79,7 +79,7 @@ public class BaseRepository<T>(DbContext context)
 
     public virtual async Task<int> DeleteAsync(BaseQueryOptions options)
     {
-        var result = await GetDBSet()
+        var result = await GetDBSet(options)
             .ExecuteDeleteAsync();
 
         return result;
