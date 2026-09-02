@@ -92,6 +92,7 @@ public class SystemUserService(
                     result.Organizations = roleXUserXOrganizationService.GetOrganizationsByUserIdAsync(user.Id)
                         .GetAwaiter()
                         .GetResult()
+                        .Where(o => o is not null)
                         .DistinctBy(o => o.Id);
 
                     result.OrganizationsId = result.Organizations.Select(o => o.Id);
