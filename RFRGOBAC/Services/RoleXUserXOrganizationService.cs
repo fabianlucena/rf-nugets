@@ -132,4 +132,15 @@ public class RoleXUserXOrganizationService(
 
         return organizationsRoles;
     }
+
+    public async Task<IEnumerable<Organization>> GetOrganizationsByUserIdAsync(long userId, RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+        options.UserId = userId;
+        options.IncludeOrganization = true;
+
+        var list = await roleXUserXOrganizationRepository.GetListAsync(options);
+        
+        return list.Select(r => r.Organization).Where(o => o != null)!;
+    }
 }

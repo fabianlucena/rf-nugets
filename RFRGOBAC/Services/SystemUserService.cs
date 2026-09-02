@@ -39,8 +39,8 @@ public class SystemUserService(
         if (!string.IsNullOrWhiteSpace(user.Password))
             await userPasswordService.CreateOrUpdateByUserIdAsync(user.Password, result.Id);
 
-        if (user.GlobalRolesId is not null)
-            await roleXUserService.SetAllRolesIdForUserIdAsync(user.GlobalRolesId, result.Id);
+        if (user.SystemRolesId is not null)
+            await roleXUserService.SetAllRolesIdForUserIdAsync(user.SystemRolesId, result.Id);
 
         if (user.OrganizationsRolesId is not null)
             await roleXUserXOrganizationService.SetOrganizationsRolesIdForUserIdAsync(user.OrganizationsRolesId, result.Id);
@@ -51,19 +51,54 @@ public class SystemUserService(
     public async Task<IEnumerable<SystemUser>> GetListAsync(SystemUserQueryOptions? options)
     {
         options ??= new SystemUserQueryOptions();
-        var users = await Task.WhenAll((await userService
+        var users = (await userService
             .GetListAsync(options))
-            .Select(async user =>
+            .Select(user =>
             {
                 var result = new SystemUser(user);
-                if (options.IncludeGlobalRoles)
-                    result.GlobalRoles = await roleXUserService.GetRolesByUserIdAsync(user.Id);
+
+                if (options.IncludeSystemRoles)
+                {
+                    result.SystemRoles = roleXUserService.GetRolesByUserIdAsync(user.Id)
+                        .GetAwaiter()
+                        .GetResult();
+
+                    result.SystemRolesId = result.SystemRoles.Select(r => r.Id);
+                }
 
                 if (options.IncludeOrganizationsRoles)
-                    result.OrganizationsRoles = await roleXUserXOrganizationService.GetOrganizationsRolesByUserIdAsync(user.Id);
+                {
+                    result.OrganizationsRoles = roleXUserXOrganizationService.GetOrganizationsRolesByUserIdAsync(user.Id)
+                        .GetAwaiter()
+                        .GetResult();
+
+                    result.OrganizationsRolesId = result.OrganizationsRoles.Select(or => new OrganizationRolesId
+                    {
+                        OrganizationId = or.Organization!.Id,
+                        RolesId = or.Roles!.Select(r => r.Id)
+                    });
+
+                    if (options.IncludeOrganizations)
+                    {
+                        result.Organizations = result.OrganizationsRoles
+                            .Select(or => or.Organization)
+                            .Where(o => o is not null)
+                            .DistinctBy(o => o!.Id)!;
+                        result.OrganizationsId = result.Organizations.Select(o => o.Id);
+                    }
+                }
+                else if (options.IncludeOrganizations)
+                {
+                    result.Organizations = roleXUserXOrganizationService.GetOrganizationsByUserIdAsync(user.Id)
+                        .GetAwaiter()
+                        .GetResult()
+                        .DistinctBy(o => o.Id);
+
+                    result.OrganizationsId = result.Organizations.Select(o => o.Id);
+                }
 
                 return result;
-            }));
+            });
 
         return users;
     }
@@ -136,8 +171,8 @@ public class SystemUserService(
         if (user.Type is not null)
             user.Type = await userTypeService.Translate(user.Type!);
 
-        if (user.GlobalRoles is not null)
-            user.GlobalRoles = await roleService.Translate(user.GlobalRoles!);
+        if (user.SystemRoles is not null)
+            user.SystemRoles = await roleService.Translate(user.SystemRoles);
 
         if (user.OrganizationsRoles is not null)
         {
