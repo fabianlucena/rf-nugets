@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using RFBase.Libs;
+using RFEntities.Entities;
 using RFEventBus;
 using RFIRepositories.IRepositories;
 using RFIServices.IServices;
@@ -22,7 +23,6 @@ namespace RFRGOBACControllers.Controllers;
 public class OrganizationUsersController(
     ISystemUserService systemUserService,
     IRFRGOBACLoggerService loggerService,
-    IUserTypeService userTypeService,
     IEventBus eventBus,
     IServiceProvider serviceProvider
 ) : ControllerBase
@@ -46,26 +46,14 @@ public class OrganizationUsersController(
             var user = await systemUserService.GetSingleOrDefaultAsync(userOptions)
                 ?? throw new UserWithUuidNotFoundException(uuid.Value);
 
-            if (user.Type is not null)
-            {
-                user = user.Clone();
-                user.Type = await userTypeService.Translate(user.Type!);
-            }
+            user = await systemUserService.Translate(user);
 
             return Ok(new SystemUserResponse(user));
         }
 
         var users = await systemUserService.GetListAsync(userOptions);
-        var response = await Task.WhenAll(users.Select(async user =>
-        {
-            if (user.Type is not null)
-            {
-                user = user.Clone();
-                user.Type = await userTypeService.Translate(user.Type!);
-            }
-
-            return new SystemUserResponse(user);
-        }));
+        users = await systemUserService.Translate(users);
+        var response = users.Select(user => new SystemUserResponse(user));
 
         return Ok(response);
     }

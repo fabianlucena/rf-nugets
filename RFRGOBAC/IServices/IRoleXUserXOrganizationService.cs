@@ -1,5 +1,4 @@
 ﻿using RFIServices.IServices;
-using RFRBAC.Entities;
 using RFRGOBAC.DTO;
 using RFRGOBAC.Entities;
 using RFRGOBAC.QueryOptions;

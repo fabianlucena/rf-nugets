@@ -123,13 +123,36 @@ public class SystemUserService(
         return 1;
     }
 
-    public Task<int> DeleteByUuidAsync(Guid uuid, SystemUserQueryOptions? options = null)
+    public async Task<int> DeleteByUuidAsync(Guid uuid, SystemUserQueryOptions? options = null)
+        => await userService.DeleteByUuidAsync(uuid);
+
+    public async Task<int> RestoreByUuidAsync(Guid uuid, SystemUserQueryOptions? options = null)
+        => await userService.RestoreByUuidAsync(uuid);
+
+    public async Task<SystemUser> Translate(SystemUser user, string? context = null)
     {
-        throw new NotImplementedException();
+        user = user.Clone();
+
+        if (user.Type is not null)
+            user.Type = await userTypeService.Translate(user.Type!);
+
+        if (user.GlobalRoles is not null)
+            user.GlobalRoles = await roleService.Translate(user.GlobalRoles!);
+
+        if (user.OrganizationsRoles is not null)
+        {
+            user.OrganizationsRoles = await Task.WhenAll(user.OrganizationsRoles.Select(async or => new OrganizationRoles
+            {
+                OrganizationId = or.OrganizationId,
+                RolesId = or.RolesId,
+                Organization = or.Organization is not null ? await organizationService.Translate(or.Organization) : null,
+                Roles = or.Roles is not null ? await roleService.Translate(or.Roles) : null
+            }));
+        }
+
+        return user;
     }
 
-    public Task<int> RestoreByUuidAsync(Guid uuid, SystemUserQueryOptions? options = null)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<IEnumerable<SystemUser>> Translate(IEnumerable<SystemUser> users, string? context = null)
+        => await Task.WhenAll(users.Select(user => Translate(user, context)));
 }

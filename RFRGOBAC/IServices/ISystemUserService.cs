@@ -12,4 +12,6 @@ public interface ISystemUserService
     Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, SystemUserQueryOptions? options = null);
     Task<int> DeleteByUuidAsync(Guid uuid, SystemUserQueryOptions? options = null);
     Task<int> RestoreByUuidAsync(Guid uuid, SystemUserQueryOptions? options = null);
+    Task<SystemUser> Translate(SystemUser user, string? context = null);
+    Task<IEnumerable<SystemUser>> Translate(IEnumerable<SystemUser> users, string? context = null);
 }
