@@ -1,10 +1,7 @@
 ﻿using RFAuth.IServices;
 using RFBase.ILibs;
-using RFBase.Libs;
-using RFEntities.Entities;
 using RFIServices.IServices;
 using RFRBAC.IServices;
-using RFRBAC.Services;
 using RFRegisterService.Attributes;
 using RFRGOBAC.DTO;
 using RFRGOBAC.Exceptions;
@@ -117,7 +114,7 @@ public class SystemUserService(
 
     public async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, SystemUserQueryOptions? options = null)
     {
-        data.TryGetGuids("GlobalRolesUuid", out var globalRolesUuid);
+        data.TryGetGuids("SystemRolesUuid", out var systemRolesUuid);
 
         List<OrganizationRolesId>? organizationsRolesId = null;
         data.TryGetValue("OrganizationsRolesUuid", out var organizationsRolesUuidDict);
@@ -147,10 +144,10 @@ public class SystemUserService(
         if (data.TryGetString("Password", out var password) && !string.IsNullOrWhiteSpace(password))
             await userPasswordService.CreateOrUpdateByUserIdAsync(password, id);
 
-        if (globalRolesUuid is not null && globalRolesUuid.Any())
+        if (systemRolesUuid is not null && systemRolesUuid.Any())
         {
-            var globalRolesId = await roleService.GetListIdByUuidAsync(globalRolesUuid);
-            await roleXUserService.SetAllRolesIdForUserIdAsync(globalRolesId, id);
+            var systemRolesId = await roleService.GetListIdByUuidAsync(systemRolesUuid);
+            await roleXUserService.SetAllRolesIdForUserIdAsync(systemRolesId, id);
         }
 
         if (organizationsRolesId is not null)

@@ -1,10 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using RFBase.Libs;
-using RFEntities.Entities;
 using RFEventBus;
-using RFIRepositories.IRepositories;
-using RFIServices.IServices;
 using RFPermissions.Attributes;
 using RFRBAC.DTO;
 using RFRBAC.Exceptions;
