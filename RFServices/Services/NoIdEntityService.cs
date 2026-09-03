@@ -1,7 +1,9 @@
-﻿using RFBase.ILibs;
+﻿using Microsoft.Extensions.DependencyInjection;
+using RFBase.ILibs;
 using RFEntities.Entities;
 using RFIRepositories.IRepositories;
 using RFIServices.IServices;
+using RFServices.Exceptions;
 
 namespace RFServices.Services;
 
@@ -17,16 +19,29 @@ public class NoIdEntityService<T>(
     {
         entity = await base.ValidateForCreateAsync(entity);
 
+
         if (entity.CreatedById == 0)
         {
-            throw new ArgumentException("CreatedById must be set for new entries.");
+            var userService = ServiceProvider.GetService<IUserService>()
+                ?? throw new CreatedByIdMustBeSetForNewEntriesException();
+
+            var createdById = await userService.GetCurrentUserIdAsync();
+            if (createdById <= 0)
+                throw new CreatedByIdMustBeSetForNewEntriesException();
+
+            entity.CreatedById = createdById;
         }
 
         entity.CreatedAt = DateTime.UtcNow;
 
         if (entity.UpdatedById <= 0)
         {
-            throw new ArgumentException("UpdatedById must be set for auditable entries.");
+            var userService = ServiceProvider.GetService<IUserService>()
+                ?? throw new CreatedByIdMustBeSetForNewEntriesException();
+
+            entity.UpdatedById = await userService.GetCurrentUserIdAsync();
+            if (entity.UpdatedById <= 0)
+                throw new CreatedByIdMustBeSetForNewEntriesException();
         }
 
         entity.UpdatedAt = DateTime.UtcNow;
@@ -40,7 +55,14 @@ public class NoIdEntityService<T>(
 
         if (!data.TryGetValue("UpdatedById", out object? value) || value is null || (long)value <= 0)
         {
-            throw new InvalidOperationException("UpdatedById must be set for auditable entities.");
+            var userService = ServiceProvider.GetService<IUserService>()
+                ?? throw new CreatedByIdMustBeSetForNewEntriesException();
+
+            var updatedById = await userService.GetCurrentUserIdAsync();
+            if (updatedById <= 0)
+                throw new UpdatedByIdMustBeSetForAuditableEntriesException();
+
+            data["UpdatedById"] = updatedById;
         }
 
         data["UpdatedAt"] = DateTime.UtcNow;
