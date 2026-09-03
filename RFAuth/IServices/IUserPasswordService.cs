@@ -15,6 +15,7 @@ namespace RFAuth.IServices
         Task<bool> CreateIfNotExistsByUsernameAsync(string password, string username);
         Task<bool> CreateOrUpdateByUserIdAsync(string password, long userId);
         Task<bool> CreateOrUpdateByUsernameAsync(string password, string username);
+        Task<bool> CreateOrUpdateByUserUuidAsync(string password, Guid userUuid);
         Task<bool> CheckPasswordByUserIdAsync(string password, long userId);
         Task<bool> ChangePasswordByUserIdAsync(string currentPassword, string newPassword, long userId);
     }

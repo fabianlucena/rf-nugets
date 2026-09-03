@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using RFAuth.Exceptions;
 using RFAuth.IServices;
+using RFBase.Libs;
 using RFControllers;
 using RFIServices.DTO;
 using RFIServices.IServices;
@@ -12,7 +15,8 @@ namespace RFAuthControllers.Controllers;
 [Route("v1/users")]
 public class UsersController(
     IRFAuthLoggerService loggerService,
-    IUserService userService
+    IUserService userService,
+    IServiceProvider serviceProvider
 ) : ControllerBase
 {
     [HttpGet("{uuid?}")]
@@ -149,4 +153,21 @@ public class UsersController(
 
         return true;
     } */
+
+    [HttpPost("{uuid}/set-password")]
+    [Permission("user.edit")]
+    public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary request)
+    {
+        await loggerService.AddInfoEditAsync("Set user password", new { uuid });
+
+        if (!request.TryGetString("password", out var password) || string.IsNullOrWhiteSpace(password))
+            throw new PasswordRequiredException();
+
+        var userPasswordService = serviceProvider.GetRequiredService<IUserPasswordService>();
+        var result = await userPasswordService.CreateOrUpdateByUserUuidAsync(password, uuid);
+        if (!result)
+            return BadRequest();
+
+        return NoContent();
+    }
 }

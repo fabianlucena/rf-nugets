@@ -100,20 +100,33 @@ public class UserPasswordService(
 
     public async Task<bool> CreateOrUpdateByUserIdAsync(string password, long userId)
     {
+        var userService = ServiceProvider.GetRequiredService<IUserService>();
+        var currentUserId = await userService.GetCurrentUserIdAsync();
+
+        var passwordHash = HashPassword(password);
+
         var pasaswordObj = await GetSingleOrDefaultByUserIdAsync(userId);
         if (pasaswordObj == null)
         {
             pasaswordObj = await CreateAsync(new UserPassword
             {
+                CreatedAt = DateTime.UtcNow,
+                CreatedById = currentUserId,
+                UpdatedAt = DateTime.UtcNow,
+                UpdatedById = currentUserId,
                 UserId = userId,
-                PasswordHash = HashPassword(password)
+                PasswordHash = passwordHash,
             });
 
             return pasaswordObj != null;
         }
 
         var result = await UpdateByUserIdAsync(
-            new DataDictionary { { "PasswordHash", HashPassword(password) } },
+            new DataDictionary { 
+                { "PasswordHash", passwordHash },
+                { "UpdatedAt", DateTime.UtcNow },
+                { "UpdatedById", currentUserId },
+            },
             userId
         );
 
@@ -127,6 +140,13 @@ public class UserPasswordService(
         return await CreateOrUpdateByUserIdAsync(password, userId);
     }
 
+    public async Task<bool> CreateOrUpdateByUserUuidAsync(string password, Guid userUuid)
+    {
+        var userService = ServiceProvider.GetRequiredService<IUserService>();
+        var userId = await userService.GetSingleIdByUuidAsync(userUuid);
+        return await CreateOrUpdateByUserIdAsync(password, userId);
+    }
+
     public async Task<bool> CheckPasswordByUserIdAsync(string password, long userId)
     {
         var userPassword = await GetSingleByUserIdAsync(userId);
@@ -136,7 +156,6 @@ public class UserPasswordService(
 
         return true;
     }
-
 
     public async Task<bool> ChangePasswordByUserIdAsync(string currentPassword, string newPassword, long userId)
     {
