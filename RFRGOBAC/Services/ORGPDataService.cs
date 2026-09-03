@@ -32,8 +32,9 @@ public class ORGPDataService(
         };
         orpgData.GroupNames = await userService.GetUsernamesByIdsAsync(orpgData.GroupIds);
 
-        orpgData.Organizations = await roleXUserXOrganizationService
-            .GetOrganizationsByUsersIdAsync(orpgData.GroupIds);
+        orpgData.Organizations = (await roleXUserXOrganizationService
+            .GetOrganizationsByUsersIdAsync(orpgData.GroupIds))
+            .DistinctBy(o => o.Id);
         if (!orpgData.Organizations.Any())
             return orpgData;
 
