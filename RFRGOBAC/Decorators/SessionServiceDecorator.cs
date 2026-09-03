@@ -3,11 +3,13 @@ using RFAuth.Decorators;
 using RFAuth.Entities;
 using RFAuth.IServices;
 using RFBase.Libs;
+using RFRegisterService.Attributes;
 using RFRGOBAC.DTO;
 using RFRGOBAC.IServices;
 
 namespace RFRGOBAC.Decorators;
 
+[RegisterDecorator]
 public class SessionServiceDecorator(
     ISessionService _sessionService,
     IServiceProvider serviceProvider
@@ -34,7 +36,7 @@ public class SessionServiceDecorator(
             return session;
 
         session.Data ??= new DataDictionary();
-        session.Data["Organizations"] = orpgData.Organizations;
+        session.Data["Organizations"] = orpgData.Organizations.Select(o => new OrganizationDTO(o));
         session.Data["CurrentOrganization"] = orpgData.CurrentOrganization;
 
         if (orpgData.GroupIds is not null)
