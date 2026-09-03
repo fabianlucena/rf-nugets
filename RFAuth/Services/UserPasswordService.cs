@@ -91,9 +91,11 @@ public class UserPasswordService(
     public async Task<UserPassword?> GetSingleOrDefaultByUserAsync(User user)
         => await GetSingleOrDefaultByUserIdAsync(user.Id);
 
-    public async Task<int> UpdateByUserIdAsync(IDataDictionary data, long userId)
+    public async Task<int> UpdateByUserIdAsync(IDataDictionary data, long userId, UserPasswordQueryOptions? options = null)
     {
-        return await UpdateByUserIdAsync(data, userId);
+        options ??= new UserPasswordQueryOptions();
+        options.UserId = userId;
+        return await UpdateAsync(data, options);
     }
 
     public async Task<bool> CreateOrUpdateByUserIdAsync(string password, long userId)
