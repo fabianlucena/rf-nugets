@@ -100,9 +100,6 @@ public class UserPasswordService(
 
     public async Task<bool> CreateOrUpdateByUserIdAsync(string password, long userId)
     {
-        var userService = ServiceProvider.GetRequiredService<IUserService>();
-        var currentUserId = await userService.GetCurrentUserIdAsync();
-
         var passwordHash = HashPassword(password);
 
         var pasaswordObj = await GetSingleOrDefaultByUserIdAsync(userId);
@@ -110,10 +107,6 @@ public class UserPasswordService(
         {
             pasaswordObj = await CreateAsync(new UserPassword
             {
-                CreatedAt = DateTime.UtcNow,
-                CreatedById = currentUserId,
-                UpdatedAt = DateTime.UtcNow,
-                UpdatedById = currentUserId,
                 UserId = userId,
                 PasswordHash = passwordHash,
             });
@@ -121,14 +114,7 @@ public class UserPasswordService(
             return pasaswordObj != null;
         }
 
-        var result = await UpdateByUserIdAsync(
-            new DataDictionary { 
-                { "PasswordHash", passwordHash },
-                { "UpdatedAt", DateTime.UtcNow },
-                { "UpdatedById", currentUserId },
-            },
-            userId
-        );
+        var result = await UpdateByUserIdAsync(new DataDictionary { { "PasswordHash", passwordHash } }, userId );
 
         return result > 0;
     }
