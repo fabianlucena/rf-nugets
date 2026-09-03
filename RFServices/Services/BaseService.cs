@@ -1,5 +1,4 @@
 ﻿using RFBase.ILibs;
-using RFBase.Libs;
 using RFEntities.Entities;
 using RFIRepositories.IRepositories;
 using RFIServices.IServices;
@@ -18,14 +17,10 @@ public class BaseService<T>(
     public IServiceProvider ServiceProvider { get => serviceProvider; }
 
     public virtual async Task<T> ValidateForCreateAsync(T entity)
-    {
-        return entity;
-    }
+        => entity;
 
     public virtual async Task<IDataDictionary> ValidateForUpdate(IDataDictionary data)
-    {
-        return data;
-    }
+        => data;
 
     public virtual async Task<T> CreateAsync(T entity)
     {
@@ -34,9 +29,7 @@ public class BaseService<T>(
     }
 
     public virtual async Task<IEnumerable<T>> GetListAsync(BaseQueryOptions options)
-    {
-        return await repository.GetListAsync(options);
-    }
+        => await repository.GetListAsync(options);
 
     public virtual async Task<T?> GetFirstOrDefaultAsync(BaseQueryOptions options)
     {
@@ -71,7 +64,7 @@ public class BaseService<T>(
         => await GetSingleOrDefaultAsync(options)
             ?? throw new NoEntityFoundMatchingTheSpecifiedCriteriaException();
 
-    public virtual async Task<int> UpdateAsync(DataDictionary data, BaseQueryOptions options)
+    public virtual async Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
         => await repository.UpdateAsync(data, options);
 
     public virtual async Task<int> DeleteAsync(BaseQueryOptions options)

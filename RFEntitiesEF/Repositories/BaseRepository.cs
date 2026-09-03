@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RFBase.Libs;
+using RFBase.ILibs;
 using RFEntities.Entities;
 using RFIServices.QueryOptions;
 
@@ -55,7 +55,7 @@ public class BaseRepository<T>(DbContext context)
         return list;
     }
 
-    public virtual async Task<int> UpdateAsync(DataDictionary data, BaseQueryOptions options)
+    public virtual async Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
     {
         var list = await GetListAsync(options);
 

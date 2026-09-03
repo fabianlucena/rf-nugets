@@ -1,4 +1,4 @@
-﻿using RFBase.Libs;
+﻿using RFBase.ILibs;
 using RFEntities.Entities;
 using RFIServices.IServices;
 using RFIServices.QueryOptions;
@@ -27,7 +27,7 @@ public class BaseServiceDecorator<T>(IBaseService<T> baseService)
     public Task<T?> GetSingleOrDefaultAsync(BaseQueryOptions options)
         => baseService.GetSingleOrDefaultAsync(options);
 
-    public Task<int> UpdateAsync(DataDictionary data, BaseQueryOptions options)
+    public Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
         => baseService.UpdateAsync(data, options);
 
     public Task<int> DeleteAsync(BaseQueryOptions options)
