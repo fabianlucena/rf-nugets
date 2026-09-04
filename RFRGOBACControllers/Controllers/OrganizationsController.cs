@@ -235,7 +235,8 @@ public class OrganizationsController(
         }
 
         var orgpDataService = serviceProvider.GetRequiredService<IORGPDataService>();
-        var orgpData = await orgpDataService.GetSingleOrDefaultBySession(session);
+        var orgpData = await orgpDataService.GetSingleOrDefaultBySession(session)
+            ?? throw new NoSessionException();
 
         return Ok(new ORPGDataResponse(orgpData));
     }
