@@ -35,11 +35,12 @@ public class RFRGOBACInitialDataSeeder(
                 { "admin",  [
                     "organizations.add", "organizations.get", "organizations.update", "organizations.delete", "organizations.restore",
                     "systemUsers.add", "systemUsers.get", "systemUsers.update", "systemUsers.delete", "systemUsers.restore",
+                    "organizationUsers.add", "organizationUsers.get", "organizationUsers.update", "organizationUsers.delete", "organizationUsers.restore",
                     "selectableRole.get",
                 ] },
 
                 { "organizationAdmin",  [
-                    "systemUsers.add", "systemUsers.get", "systemUsers.update", "systemUsers.delete", "systemUsers.restore",
+                    "organizationUsers.add", "organizationUsers.get", "organizationUsers.update", "organizationUsers.delete", "organizationUsers.restore",
                     "selectableRole.get",
                 ] },
 
