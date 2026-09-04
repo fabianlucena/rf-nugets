@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using RFAuth.Entities;
 using RFAuth.IServices;
 using RFBase.Libs;
 using RFEventBus;
@@ -238,6 +236,6 @@ public class OrganizationsController(
         var orgpData = await orgpDataService.GetSingleOrDefaultBySession(session)
             ?? throw new NoSessionException();
 
-        return Ok(new ORPGDataResponse(orgpData));
+        return Ok(new ORPGDataResponse(orgpData).Data);
     }
 }

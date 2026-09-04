@@ -111,7 +111,7 @@ public class AuthorizationMiddleware(RequestDelegate next)
         if (sessionIdObj is not long sessionId)
             return;
 
-        var token = cache.FirstOrDefault(x => x.Value.SessionId == sessionId)
+        var token = cache.FirstOrDefault(x => x.Value?.SessionId == sessionId)
             .Key;
 
         if (token == null)
