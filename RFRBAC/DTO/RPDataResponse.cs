@@ -2,6 +2,6 @@
 
 public class RPDataResponse(RPData rpData)
 {
-    public IEnumerable<string> RoleNames { get; set; } = rpData.RoleNames;
-    public IEnumerable<string> PermissionNames { get; set; } = rpData.PermissionNames;
+    public IEnumerable<string> RolesName { get; set; } = rpData.RolesName;
+    public IEnumerable<string> PermissionsName { get; set; } = rpData.PermissionsName;
 }

@@ -12,5 +12,6 @@ namespace RFPermissions.IServices
         Task<IEnumerable<long>> GetIdsByNamesAsync(IEnumerable<string> names, PermissionQueryOptions? options = null);
         Task<long> GetIdOrCreateByNameAsync(string name, PermissionQueryOptions? options = null, Func<Permission, Task<Permission>>? createFactory = null);
         Task<IEnumerable<long>> GetIdsOrCreateByNamesAsync(IEnumerable<string> names, PermissionQueryOptions? options = null, Func<Permission, Task<Permission>>? createFactory = null);
+        bool HasCurrentPermission(string permissionName);
     }
 }

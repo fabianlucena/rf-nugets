@@ -31,11 +31,11 @@ public class PermissionXRoleRepository(DbContext context)
         return queryable;
     }
 
-    public async Task<IEnumerable<long>> GetPermissionIdsByRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetPermissionsIdByRolesIdAsync(IEnumerable<long> rolesId, PermissionXRoleQueryOptions? options = null)
     {
         var set = GetDBSet(options);
         var result = await set
-            .Where(r => roleIds.Contains(r.RoleId))
+            .Where(r => rolesId.Contains(r.RoleId))
             .Select(r => r.PermissionId)
             .ToListAsync();
 

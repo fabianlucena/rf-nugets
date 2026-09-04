@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using RFBase.Libs;
 using RFEventBus;
 using RFPermissions.Attributes;
+using RFPermissions.IServices;
 using RFRGOBAC.Entities;
 using RFRGOBAC.IServices;
 using RFRGOBAC.QueryOptions;
@@ -15,14 +17,17 @@ namespace RFRGOBACControllers.Controllers;
 public class OrganizationsController(
     IRFRGOBACLoggerService loggerService,
     IOrganizationService organizationService,
-    IEventBus eventBus
+    IEventBus eventBus,
+    IServiceProvider serviceProvider
 ) : ControllerBase
 {
     [HttpGet("{uuid?}")]
-    [Permission("organizations.get")]
+    [Permission("organizations.get", "organizations.select")]
     public async Task<IActionResult> Get([FromRoute] Guid? uuid)
     {
         await loggerService.AddInfoGetAsync("Get organizations", new { uuid });
+
+        var permissionService = serviceProvider.GetRequiredService<IPermissionService>();
 
         var organizationOptions = new OrganizationQueryOptions
         {
@@ -30,6 +35,12 @@ public class OrganizationsController(
             IncludeUpdatedBy = true,
             IncludeDeletedBy = true,
         }.BuildFromRequest(Request);
+
+        if (!permissionService.HasCurrentPermission("organizations.get"))
+        {
+            var organizationService = serviceProvider.GetRequiredService<IOrganizationService>();
+            organizationOptions.Ids = organizationService.GetCurrentOrganizationsId();
+        }
 
         if (uuid != null)
         {

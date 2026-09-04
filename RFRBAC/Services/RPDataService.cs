@@ -25,9 +25,9 @@ public class RPDataService(
         var rpData = new RPData();
 #pragma warning restore IDE0017 // Simplify object initialization
 
-        rpData.RoleIds = await roleXUserService.GetAllRolesIdByUserIdAsync(userId);
-        rpData.RoleNames = await roleService.GetNamesByIdsAsync(rpData.RoleIds);
-        rpData.PermissionNames = await permissionXRoleService.GetPermissionNamesByRoleIdsAsync(rpData.RoleIds);
+        rpData.RolesId = await roleXUserService.GetAllRolesIdByUserIdAsync(userId);
+        rpData.RolesName = await roleService.GetNamesByIdsAsync(rpData.RolesId);
+        rpData.PermissionsName = await permissionXRoleService.GetPermissionsNameByRolesIdAsync(rpData.RolesId);
 
         return rpData;
     }
@@ -42,12 +42,12 @@ public class RPDataService(
 
         var rpData = await GetSingleBySession(session, options);
 
-        CombineLongs(session.InternalData, "RolesIds", rpData.RoleIds);
-        CombineStrings(session.InternalData, "RoleNames", rpData.RoleNames);
-        CombineStrings(session.InternalData, "PermissionNames", rpData.PermissionNames);
+        CombineLongs(session.InternalData, "RolesId", rpData.RolesId);
+        CombineStrings(session.InternalData, "RolesName", rpData.RolesName);
+        CombineStrings(session.InternalData, "PermissionsName", rpData.PermissionsName);
 
-        CombineStrings(session.ResponseData, "roles", rpData.RoleNames);
-        CombineStrings(session.ResponseData, "permissions", rpData.PermissionNames);
+        CombineStrings(session.ResponseData, "roles", rpData.RolesName);
+        CombineStrings(session.ResponseData, "permissions", rpData.PermissionsName);
 
         return session;
     }

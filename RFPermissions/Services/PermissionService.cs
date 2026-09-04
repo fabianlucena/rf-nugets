@@ -1,4 +1,6 @@
-﻿using RFPermissions.Entities;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using RFPermissions.Entities;
 using RFPermissions.IRepositories;
 using RFPermissions.IServices;
 using RFPermissions.QueryOptions;
@@ -15,6 +17,27 @@ public class PermissionService(
     : ImmutableEntityService<Permission>(permissionRepository, serviceProvider),
     IPermissionService
 {
+    private IEnumerable<string>? _currentPermissionsName = null;
+
+    public IEnumerable<string> CurrentPermissionsName {
+        get
+        {
+            if (_currentPermissionsName is null)
+            {
+                var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
+                var items = contextAccessor.HttpContext?.Items;
+                if (items?.TryGetValue("PermissionsName", out var permissionsNameRaw) == true
+                    && permissionsNameRaw is IEnumerable<string> permissionsName
+                )
+                    _currentPermissionsName = permissionsName;
+                else
+                    _currentPermissionsName = [];
+            }
+
+            return _currentPermissionsName;
+        }
+    }
+
     public async Task<IEnumerable<string>> GetNamesAsync(PermissionQueryOptions options)
         => await permissionRepository.GetNamesAsync(options);
 
@@ -67,4 +90,7 @@ public class PermissionService(
         {
             Names = [name]
         });
+
+    public bool HasCurrentPermission(string permissionName)
+        => CurrentPermissionsName.Contains(permissionName);
 }

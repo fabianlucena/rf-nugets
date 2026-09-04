@@ -9,19 +9,18 @@ public class ORPGDataResponse
     public ORPGDataResponse(ORGPData orpgData)
     {
         Data["organizations"] = orpgData.Organizations
-            .Select(c => new OrganizationMinDTO(c))
-            .ToList();
+            .Select(c => new OrganizationMinDTO(c));
 
         if (orpgData.CurrentOrganization is not null)
             Data["currentOrganization"] = new OrganizationMinDTO(orpgData.CurrentOrganization);
 
-        if (orpgData.GroupNames is not null)
-            Data["groups"] = orpgData.GroupNames;
+        if (orpgData.GroupsName is not null)
+            Data["groups"] = orpgData.GroupsName;
 
-        if (orpgData.RoleNames is not null)
-            Data["roles"] = orpgData.RoleNames;
+        if (orpgData.RolesName is not null)
+            Data["roles"] = orpgData.RolesName;
 
-        if (orpgData.PermissionNames is not null)
-            Data["permissions"] = orpgData.PermissionNames;
+        if (orpgData.PermissionsName is not null)
+            Data["permissions"] = orpgData.PermissionsName;
     }
 }

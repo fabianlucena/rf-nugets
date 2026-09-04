@@ -28,12 +28,12 @@ public class ORGPDataService(
 
         var orpgData = new ORGPData
         {
-            GroupIds = await userGroupService.GetAllGroupIdsByUsersIdAsync([userId]),
+            GroupsId = await userGroupService.GetAllGroupsIdByUsersIdAsync([userId]),
         };
-        orpgData.GroupNames = await userService.GetUsernamesByIdsAsync(orpgData.GroupIds);
+        orpgData.GroupsName = await userService.GetUsernamesByIdsAsync(orpgData.GroupsId);
 
         orpgData.Organizations = (await roleXUserXOrganizationService
-            .GetOrganizationsByUsersIdAsync(orpgData.GroupIds))
+            .GetOrganizationsByUsersIdAsync(orpgData.GroupsId))
             .DistinctBy(o => o.Id);
         if (!orpgData.Organizations.Any())
             return orpgData;
@@ -56,12 +56,12 @@ public class ORGPDataService(
             });
         }
 
-        orpgData.RoleIds = await roleXUserXOrganizationService.GetAllRolesIdByUsersIdAndOrganizationIdAsync(
-            orpgData.GroupIds,
+        orpgData.RolesId = await roleXUserXOrganizationService.GetAllRolesIdByUsersIdAndOrganizationIdAsync(
+            orpgData.GroupsId,
             orpgData.CurrentOrganization.Id
         );
-        orpgData.RoleNames = await roleService.GetNamesByIdsAsync(orpgData.RoleIds);
-        orpgData.PermissionNames = await permissionXRoleService.GetPermissionNamesByRoleIdsAsync(orpgData.RoleIds);
+        orpgData.RolesName = await roleService.GetNamesByIdsAsync(orpgData.RolesId);
+        orpgData.PermissionsName = await permissionXRoleService.GetPermissionsNameByRolesIdAsync(orpgData.RolesId);
 
         return orpgData;
     }

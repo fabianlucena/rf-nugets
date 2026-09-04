@@ -36,24 +36,26 @@ public class SessionServiceDecorator(
             return session;
 
         session.Data ??= new DataDictionary();
-        session.Data["Organizations"] = orpgData.Organizations.Select(o => new OrganizationDTO(o));
+        session.Data["Organizations"] = orpgData.Organizations;
         session.Data["CurrentOrganization"] = orpgData.CurrentOrganization;
+        session.InternalData["Organizations"] = session.Data["Organizations"];
+        session.InternalData["CurrentOrganization"] = session.Data["CurrentOrganization"];
 
-        if (orpgData.GroupIds is not null)
-            session.Data["GroupIds"] = orpgData.GroupIds;
+        if (orpgData.GroupsId is not null)
+            session.Data["GroupsId"] = orpgData.GroupsId;
 
-        if (orpgData.GroupIds is not null)
-            session.Data["GroupNames"] = orpgData.GroupNames;
+        if (orpgData.GroupsName is not null)
+            session.Data["GroupsName"] = orpgData.GroupsName;
 
-        if (orpgData.RoleIds is not null)
-            session.Data["RoleIds"] = orpgData.RoleIds;
+        if (orpgData.RolesId is not null)
+            session.Data["RolesId"] = orpgData.RolesId;
 
-        if (orpgData.RoleNames is not null)
-            session.Data["RoleNames"] = orpgData.RoleNames;
+        if (orpgData.RolesName is not null)
+            session.Data["RolesName"] = orpgData.RolesName;
 
-        if (orpgData.PermissionNames is not null)
-            session.Data["PermissionNames"] = orpgData.PermissionNames;
-
+        if (orpgData.PermissionsName is not null)
+            session.Data["PermissionsName"] = orpgData.PermissionsName;
+            
         var sessionDataResponse = new ORPGDataResponse(orpgData);
         if (sessionDataResponse == null)
             return session;

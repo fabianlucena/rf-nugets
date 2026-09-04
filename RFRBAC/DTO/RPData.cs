@@ -2,7 +2,7 @@
 
 public class RPData
 {
-    public IEnumerable<long> RoleIds { get; set; } = [];
-    public IEnumerable<string> RoleNames { get; set; } = [];
-    public IEnumerable<string> PermissionNames { get; set; } = [];
+    public IEnumerable<long> RolesId { get; set; } = [];
+    public IEnumerable<string> RolesName { get; set; } = [];
+    public IEnumerable<string> PermissionsName { get; set; } = [];
 }

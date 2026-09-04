@@ -6,6 +6,6 @@ namespace RFRBAC.IRepositories
 {
     public interface IPermissionXRoleRepository : ICommonJoinRepository<PermissionXRole>
     {
-        Task<IEnumerable<long>> GetPermissionIdsByRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null);
+        Task<IEnumerable<long>> GetPermissionsIdByRolesIdAsync(IEnumerable<long> rolesId, PermissionXRoleQueryOptions? options = null);
     }
 }

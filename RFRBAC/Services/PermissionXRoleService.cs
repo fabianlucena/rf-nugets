@@ -23,13 +23,13 @@ public class PermissionXRoleService(
     public IRoleService RoleService { get => ServiceProvider.GetRequiredService<IRoleService>(); }
     public IUserService UserService { get => ServiceProvider.GetRequiredService<IUserService>(); }
 
-    public async Task<IEnumerable<long>> GetPermissionIdsByRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null)
-        => await permissionXRoleRepository.GetPermissionIdsByRoleIdsAsync(roleIds, options);
+    public async Task<IEnumerable<long>> GetPermissionsIdByRolesIdAsync(IEnumerable<long> rolesId, PermissionXRoleQueryOptions? options = null)
+        => await permissionXRoleRepository.GetPermissionsIdByRolesIdAsync(rolesId, options);
 
-    public async Task<IEnumerable<string>> GetPermissionNamesByRoleIdsAsync(IEnumerable<long> roleIds, PermissionXRoleQueryOptions? options = null)
+    public async Task<IEnumerable<string>> GetPermissionsNameByRolesIdAsync(IEnumerable<long> rolesId, PermissionXRoleQueryOptions? options = null)
     {
-        var allPermissionIds = await GetPermissionIdsByRoleIdsAsync(roleIds, options);
-        return await PermissionService.GetNamesByIdsAsync(allPermissionIds);
+        var allPermissionsId = await GetPermissionsIdByRolesIdAsync(rolesId, options);
+        return await PermissionService.GetNamesByIdsAsync(allPermissionsId);
     }
 
     public async Task<int> CreateIfNotExistsAsync(IDictionary<string, IEnumerable<string>> rolesPermissions)
@@ -40,9 +40,9 @@ public class PermissionXRoleService(
         foreach (var kvp in rolesPermissions)
         {
             var roleName = kvp.Key;
-            var permissionNames = kvp.Value;
-            var permissionIds = await PermissionService.GetIdsOrCreateByNamesAsync(
-                permissionNames,
+            var permissionsName = kvp.Value;
+            var permissionsId = await PermissionService.GetIdsOrCreateByNamesAsync(
+                permissionsName,
                 createFactory: async permission =>
                 {
                     permission.CreatedById = creatorId;
@@ -57,10 +57,10 @@ public class PermissionXRoleService(
                     return role;
                 });
 
-            var existentPermissionIds = await GetPermissionIdsByRoleIdsAsync([roleId]);
-            var newPermissionIds = permissionIds.Except(existentPermissionIds);
+            var existentPermissionsId = await GetPermissionsIdByRolesIdAsync([roleId]);
+            var newPermissionsId = permissionsId.Except(existentPermissionsId);
 
-            foreach (var permissionId in newPermissionIds)
+            foreach (var permissionId in newPermissionsId)
             {
                 await CreateAsync(new PermissionXRole
                 {

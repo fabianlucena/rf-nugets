@@ -8,4 +8,9 @@ public class OrganizationServiceDecoratorBase(IOrganizationService organizationS
     : LocalizableEntityServiceDecorator<Organization>(organizationService),
     IOrganizationService
 {
+    public IEnumerable<Organization> GetCurrentOrganizations()
+        => organizationService.GetCurrentOrganizations();
+
+    public IEnumerable<long> GetCurrentOrganizationsId()
+        => organizationService.GetCurrentOrganizationsId();
 }

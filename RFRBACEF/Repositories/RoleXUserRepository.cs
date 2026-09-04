@@ -46,10 +46,10 @@ public class RoleXUserRepository(DbContext context)
     public async Task<IEnumerable<long>> GetRolesIdAsync(RoleXUserQueryOptions? options = null)
     {
         var set = GetDBSet(options);
-        var roleIds = await set
+        var rolesId = await set
             .Select(x => x.RoleId)
             .ToListAsync();
-        return roleIds;
+        return rolesId;
     }
 
     public async Task<IEnumerable<string>> GetRolesNameAsync(RoleXUserQueryOptions? options = null)
@@ -60,9 +60,9 @@ public class RoleXUserRepository(DbContext context)
         };
 
         var set = GetDBSet(options);
-        var roleNames = await set
+        var rolesName = await set
             .Select(x => x.Role!.Name)
             .ToListAsync();
-        return roleNames;
+        return rolesName;
     }
 }

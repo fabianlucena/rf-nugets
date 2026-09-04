@@ -28,9 +28,9 @@ public class RoleXUserXOrganizationService(
 
     public async Task<IEnumerable<long>> GetAllRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> usersId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
     {
-        var roleIds = await GetRolesIdByUsersIdAndOrganizationIdAsync(usersId, OrganizationId, options);
-        var allRoleIds = await roleIncludeService.GetAllRolesIdByRolesIdAsync(roleIds);
-        return allRoleIds;
+        var rolesId = await GetRolesIdByUsersIdAndOrganizationIdAsync(usersId, OrganizationId, options);
+        var allRolesId = await roleIncludeService.GetAllRolesIdByRolesIdAsync(rolesId);
+        return allRolesId;
     }
 
     public async Task<IEnumerable<Organization>> GetOrganizationsByUsersIdAsync(IEnumerable<long> usersId, RoleXUserXOrganizationQueryOptions? options = null)

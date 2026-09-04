@@ -31,11 +31,11 @@ public class RoleIncludeRepository(DbContext context)
         return queryable;
     }
 
-    public async Task<IEnumerable<long>> GetAllRolesIdByRolesIdAsync(IEnumerable<long> roleIds, RoleIncludeQueryOptions? options = null)
+    public async Task<IEnumerable<long>> GetAllRolesIdByRolesIdAsync(IEnumerable<long> rolesId, RoleIncludeQueryOptions? options = null)
     {
         var set = GetDBSet(options);
-        var result = roleIds.ToList();
-        var lastResult = roleIds.ToList();
+        var result = rolesId.ToList();
+        var lastResult = rolesId.ToList();
 
         do
         {

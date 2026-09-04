@@ -44,9 +44,9 @@ public class RoleXUserService(
 
     public async Task<IEnumerable<long>> GetAllRolesIdByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
     {
-        var roleIds = await GetRolesIdByUserIdAsync(userId, options);
-        var allRoleIds = await roleIncludeService.GetAllRolesIdByRolesIdAsync(roleIds);
-        return allRoleIds;
+        var rolesId = await GetRolesIdByUserIdAsync(userId, options);
+        var allRolesId = await roleIncludeService.GetAllRolesIdByRolesIdAsync(rolesId);
+        return allRolesId;
     }
 
     public async Task<IEnumerable<Role>> GetRolesByUserIdAsync(long userId, RoleXUserQueryOptions? options = null)
@@ -150,17 +150,17 @@ public class RoleXUserService(
         foreach (var kvp in usersRoles)
         {
             var username = kvp.Key;
-            var roleNames = kvp.Value;
-            var roleIds = await RoleService.GetIdsByNamesAsync(roleNames);
-            if (roleIds.Count() != roleNames.Count())
-                throw new SomeRolesDoNotExistException(roleNames.Except(await RoleService.GetNamesByIdsAsync(roleIds)));
+            var rolesName = kvp.Value;
+            var rolesId = await RoleService.GetIdsByNamesAsync(rolesName);
+            if (rolesId.Count() != rolesName.Count())
+                throw new SomeRolesDoNotExistException(rolesName.Except(await RoleService.GetNamesByIdsAsync(rolesId)));
 
             var userId = await UserService.GetSingleIdByUsernameAsync(username);
 
-            var existentRoleIds = await this.GetRolesIdByUsersIdAsync([userId]);
-            var newRoleIds = roleIds.Except(existentRoleIds);
+            var existentRolesId = await this.GetRolesIdByUsersIdAsync([userId]);
+            var newRolesId = rolesId.Except(existentRolesId);
 
-            foreach (var roleId in newRoleIds)
+            foreach (var roleId in newRolesId)
             {
                 await CreateAsync(new RoleXUser
                 {

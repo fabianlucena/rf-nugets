@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RFControllers\RFControllers.csproj" />
     <ProjectReference Include="..\RFEventBus\RFEventBus.csproj" />
+    <ProjectReference Include="..\RFHttpExceptions\RFHttpExceptions.csproj" />
     <ProjectReference Include="..\RFLogger\RFLogger.csproj" />
     <ProjectReference Include="..\RFRGOBAC\RFRGOBAC.csproj" />
   </ItemGroup>
