@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using RFAuth.Entities;
+using RFAuth.IServices;
 using RFBase.Libs;
 using RFEventBus;
 using RFPermissions.Attributes;
@@ -21,13 +24,11 @@ public class OrganizationsController(
     IServiceProvider serviceProvider
 ) : ControllerBase
 {
-    [HttpGet("{uuid?}")]
+    [HttpGet]
     [Permission("organizations.get", "organizations.select")]
-    public async Task<IActionResult> Get([FromRoute] Guid? uuid)
+    public async Task<IActionResult> Get()
     {
-        await loggerService.AddInfoGetAsync("Get organizations", new { uuid });
-
-        var permissionService = serviceProvider.GetRequiredService<IPermissionService>();
+        await loggerService.AddInfoGetAsync("Get organizations");
 
         var organizationOptions = new OrganizationQueryOptions
         {
@@ -36,26 +37,49 @@ public class OrganizationsController(
             IncludeDeletedBy = true,
         }.BuildFromRequest(Request);
 
+        var permissionService = serviceProvider.GetRequiredService<IPermissionService>();
         if (!permissionService.HasCurrentPermission("organizations.get"))
-        {
-            var organizationService = serviceProvider.GetRequiredService<IOrganizationService>();
             organizationOptions.Ids = organizationService.GetCurrentOrganizationsId();
-        }
-
-        if (uuid != null)
-        {
-            organizationOptions.Uuid = uuid;
-            var organization = await organizationService.GetSingleOrDefaultAsync(organizationOptions)
-                ?? throw new OrganizationWithUuidNotFoundException(uuid.Value);
-
-            return Ok(new OrganizationResponse(organization));
-        }
 
         var organizations = await organizationService.GetListAsync(organizationOptions);
         var response = organizations.Select(organization => new OrganizationResponse(organization));
 
         return Ok(response);
     }
+
+    [HttpGet("{uuid}")]
+    [Permission("organizations.get", "organizations.select")]
+    public async Task<IActionResult> Get([FromRoute] Guid uuid)
+    {
+        await loggerService.AddInfoGetAsync("Get organization", new { uuid });
+
+        var organizationOptions = new OrganizationQueryOptions
+        {
+            IncludeCreatedBy = true,
+            IncludeUpdatedBy = true,
+            IncludeDeletedBy = true,
+        }.BuildFromRequest(Request);
+
+        var permissionService = serviceProvider.GetRequiredService<IPermissionService>();
+        if (!permissionService.HasCurrentPermission("organizations.get"))
+            organizationOptions.Ids = organizationService.GetCurrentOrganizationsId();
+
+        organizationOptions.Uuid = uuid;
+        var organization = await organizationService.GetSingleOrDefaultAsync(organizationOptions)
+            ?? throw new OrganizationWithUuidNotFoundException(uuid);
+
+        return Ok(new OrganizationResponse(organization));
+    }
+
+    [HttpGet("current")]
+    [Permission("organizations.select")]
+    public async Task<IActionResult> GetCurrent()
+    {
+        await loggerService.AddInfoGetAsync("Get current organization");
+
+        return Ok(organizationService.GetCurrentOrganization());
+    }
+
 
     [HttpPatch("{uuid}")]
     [Permission("organizations.edit")]
@@ -144,6 +168,68 @@ public class OrganizationsController(
 
         if (result <= 0)
             return BadRequest();
+
+        return NoContent();
+    }
+
+    [HttpPost("{uuid}/select")]
+    [Permission("organizations.select")]
+    public async Task<IActionResult> SelectAsync([FromRoute] Guid uuid)
+    {
+        await loggerService.AddInfoDeleteAsync("Select organization", new { uuid });
+
+        var organizations = organizationService.GetCurrentOrganizations();
+
+        var newOrganizationId = organizations.FirstOrDefault(o => o.Uuid == uuid)?.Id
+            ?? throw new OrganizationWithUuidNotFoundException(uuid);
+
+        var sessionService = serviceProvider.GetRequiredService<ISessionService>();
+        var sessionId = sessionService.GetCurrentSessionId()
+            ?? throw new NoCurrentSessionException();
+
+        var sessionOrganizationService = serviceProvider.GetRequiredService<ISessionOrganizationService>();
+        var storedOrganizationId = await sessionOrganizationService.GetSingleOrDefaultOrganizationIdBySessionIdAsync(sessionId);
+
+        if (storedOrganizationId <= 0)
+        {
+            await sessionOrganizationService.CreateAsync(new SessionOrganization
+            {
+                SessionId = sessionId,
+                OrganizationId = newOrganizationId,
+            });
+
+            eventBus?.Publish(new Event("SessionUpdated", new DataDictionary {
+                { "SessionId", sessionId },
+                { "Action", "ChangeOrganization" },
+                { "OrganizationId", newOrganizationId },
+            }));
+        }
+        else
+        {
+            if (storedOrganizationId != newOrganizationId)
+            {
+                var data = new DataDictionary
+                {
+                    { "OrganizationId", newOrganizationId }
+                };
+
+                var options = new SessionOrganizationQueryOptions
+                {
+                    SessionId = sessionId
+                };
+
+                if (await sessionOrganizationService.UpdateAsync(data, options) <= 0)
+                {
+                    return BadRequest();
+                }
+
+                eventBus?.Publish(new Event("SessionUpdated", new DataDictionary {
+                    { "SessionId", sessionId },
+                    { "Action", "ChangeOrganization" },
+                    { "OrganizationId", newOrganizationId },
+                }));
+            }
+        }
 
         return NoContent();
     }
