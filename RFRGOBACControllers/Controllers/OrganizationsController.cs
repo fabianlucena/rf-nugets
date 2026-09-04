@@ -7,6 +7,7 @@ using RFBase.Libs;
 using RFEventBus;
 using RFPermissions.Attributes;
 using RFPermissions.IServices;
+using RFRGOBAC.DTO;
 using RFRGOBAC.Entities;
 using RFRGOBAC.IServices;
 using RFRGOBAC.QueryOptions;
@@ -184,8 +185,10 @@ public class OrganizationsController(
             ?? throw new OrganizationWithUuidNotFoundException(uuid);
 
         var sessionService = serviceProvider.GetRequiredService<ISessionService>();
-        var sessionId = sessionService.GetCurrentSessionId()
+        var session = sessionService.GetCurrentSession()
             ?? throw new NoCurrentSessionException();
+
+        var sessionId = session.Id;
 
         var sessionOrganizationService = serviceProvider.GetRequiredService<ISessionOrganizationService>();
         var storedOrganizationId = await sessionOrganizationService.GetSingleOrDefaultOrganizationIdBySessionIdAsync(sessionId);
@@ -231,6 +234,9 @@ public class OrganizationsController(
             }
         }
 
-        return NoContent();
+        var orgpDataService = serviceProvider.GetRequiredService<IORGPDataService>();
+        var orgpData = await orgpDataService.GetSingleOrDefaultBySession(session);
+
+        return Ok(new ORPGDataResponse(orgpData));
     }
 }
