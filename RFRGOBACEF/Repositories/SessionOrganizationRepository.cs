@@ -27,6 +27,12 @@ public class SessionOrganizationRepository(DbContext context)
 
             if (sessionOrganizationOptions.IncludeOrganization)
                 queryable = queryable.Include(so => so.Organization);
+
+            if (sessionOrganizationOptions.SessionId is not null)
+                queryable = queryable.Where(so => so.SessionId == sessionOrganizationOptions.SessionId);
+
+            if (sessionOrganizationOptions.OrganizationId is not null)
+                queryable = queryable.Where(so => so.OrganizationId == sessionOrganizationOptions.OrganizationId);
         }
 
         return queryable;
@@ -42,7 +48,18 @@ public class SessionOrganizationRepository(DbContext context)
 
         return Organization;
     }
-    
+
+    public async Task<long> GetSingleOrDefaultOrganizationIdBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
+    {
+        var set = GetDBSet(options);
+        var Organization = await set
+            .Where(e => e.SessionId == sessionId)
+            .Select(e => e.OrganizationId)
+            .FirstOrDefaultAsync();
+
+        return Organization;
+    }
+
     public async Task<Organization> GetSingleOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
     {
         var Organization = (await GetSingleOrDefaultOrganizationBySessionIdAsync(sessionId, options))
