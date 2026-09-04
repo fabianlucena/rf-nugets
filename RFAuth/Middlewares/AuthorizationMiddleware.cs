@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
-using RFAuth.QueryOptions;
-using RFAuth.IServices;
 using RFAuth.DTO;
+using RFAuth.IServices;
+using RFAuth.QueryOptions;
+using RFBase.ILibs;
+using RFEventBus;
 
 namespace RFAuth.Middlewares;
 
@@ -95,5 +97,26 @@ public class AuthorizationMiddleware(RequestDelegate next)
         cache[token] = cachedSession;
 
         return cachedSession;
+    }
+
+    [EventHandler]
+    public static void SessionUpdated(Event evt)
+    {
+        if (evt.Data is not IDataDictionary data)
+            return;
+
+        if (!data.TryGetValue("SessionId", out var sessionIdObj))
+            return;
+
+        if (sessionIdObj is not long sessionId)
+            return;
+
+        var token = cache.FirstOrDefault(x => x.Value.SessionId == sessionId)
+            .Key;
+
+        if (token == null)
+            return;
+
+        cache.Remove(token);
     }
 }

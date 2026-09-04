@@ -10,6 +10,12 @@ namespace RFAuth.Decorators
         : CreatableEntityServiceDecorator<Session>(sessionService),
         ISessionService
     {
+        public virtual Session? GetCurrentSession()
+            => sessionService.GetCurrentSession();
+
+        public virtual long? GetCurrentSessionId()
+            => sessionService.GetCurrentSessionId();
+
         public virtual Task AddDataByIdAsync(long sessionId, string key, object value)
             => sessionService.AddDataByIdAsync(sessionId, key, value);
 

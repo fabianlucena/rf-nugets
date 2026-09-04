@@ -1,10 +1,13 @@
-﻿using RFAuth.DTO;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using RFAuth.DTO;
 using RFAuth.Entities;
 using RFAuth.IRepositories;
 using RFAuth.IServices;
 using RFAuth.QueryOptions;
 using RFBase.ILibs;
 using RFBase.Libs;
+using RFEventBus;
 using RFRegisterService.Attributes;
 using RFServices.Services;
 using System.Text.Json;
@@ -20,6 +23,30 @@ public class SessionService(
     ISessionService
 {
     public int TokenSize { get; set; } = 64;
+    private Session? _currentSession = null;
+    public Session? CurrentSession
+    {
+        get
+        {
+            if (_currentSession == null)
+            {
+                var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
+                var items = contextAccessor.HttpContext?.Items;
+                if (items?.TryGetValue("Session", out var sessionRaw) == true
+                    && sessionRaw is Session session
+                )
+                    _currentSession = session;
+            }
+
+            return _currentSession;
+        }
+    }
+
+    public Session? GetCurrentSession()
+        => CurrentSession;
+
+    public long? GetCurrentSessionId()
+        => CurrentSession?.Id;
 
     public override async Task<Session> ValidateForCreateAsync(Session session)
     {
@@ -90,9 +117,7 @@ public class SessionService(
         => await GetSingleOrDefaultAsync(new SessionQueryOptions(options) { AuthorizationToken = token });
 
     public async Task UpdateLastUsageAsync(long sessionId)
-    {
-        await UpdateByIdAsync(sessionId, new DataDictionary { ["LastUsedAt"] = DateTime.UtcNow });
-    }
+        => await UpdateByIdAsync(sessionId, new DataDictionary { ["LastUsedAt"] = DateTime.UtcNow });
 
     public async Task AddDataByIdAsync(long sessionId, string key, object value)
     {
@@ -105,6 +130,14 @@ public class SessionService(
                 { "DataJson", JsonSerializer.Serialize(session.Data) }
             }
         );
+
+        var eventBus = ServiceProvider.GetService<IEventBus>();
+        eventBus?.Publish(new Event("SessionUpdated", new DataDictionary {
+            { "SessionId", sessionId },
+            { "Action", "AddData" },
+            { "Key", key },
+            { "Value", value },
+        }));
     }
 
     public async Task<Session?> GetFirstOrDefaultByAutoLoginTokenAsync(string autoLoginToken, SessionQueryOptions? options = null)

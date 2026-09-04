@@ -7,6 +7,8 @@ namespace RFAuth.IServices
 {
     public interface ISessionService : ICreatableEntityService<Session>
     {
+        Session? GetCurrentSession();
+        long? GetCurrentSessionId();
         Task<Session> CreateAsync(long userId, long deviceId, string identityProvider, IDataDictionary? data = null);
         Task<Session?> GetFirstOrDefaultByAuthorizationTokenAsync(string token, SessionQueryOptions? options = null);
         Task<Session?> GetSingleOrDefaultByAuthorizationTokenAsync(string token, SessionQueryOptions? options = null);
