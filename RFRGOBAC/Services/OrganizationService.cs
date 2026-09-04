@@ -16,7 +16,6 @@ public class OrganizationService(
     IOrganizationService
 {
     private IEnumerable<Organization>? _currentOrganizations = null;
-
     public IEnumerable<Organization> CurrentOrganizations
     {
         get
@@ -37,9 +36,31 @@ public class OrganizationService(
         }
     }
 
+    private Organization? _currentOrganization = null;
+    public Organization? CurrentOrganization
+    {
+        get
+        {
+            if (_currentOrganization is null)
+            {
+                var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
+                var items = contextAccessor.HttpContext?.Items;
+                if (items?.TryGetValue("CurrentOrganization", out var organizationRaw) == true
+                    && organizationRaw is Organization organization
+                )
+                    _currentOrganization = organization;
+            }
+
+            return _currentOrganization;
+        }
+    }
+
     public IEnumerable<Organization> GetCurrentOrganizations()
         => CurrentOrganizations;
 
     public IEnumerable<long> GetCurrentOrganizationsId()
         => GetCurrentOrganizations().Select(o => o.Id);
+
+    public Organization? GetCurrentOrganization()
+        => CurrentOrganization;
 }

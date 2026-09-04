@@ -15,14 +15,11 @@ public class SessionOrganizationService(
     ISessionOrganizationService
 {
     public async Task<Organization> GetSingleOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
-    {
-        var Organization= await sessionOrganizationRepository.GetSingleOrganizationBySessionIdAsync(sessionId, options);
-        return Organization;
-    }
+        => await sessionOrganizationRepository.GetSingleOrganizationBySessionIdAsync(sessionId, options);
 
-    public async Task<Organization?> GetSingleOrDefaultOrganizationBySessionIdAsync(long id, SessionOrganizationQueryOptions? options = null)
-    {
-        var Organization = await sessionOrganizationRepository.GetSingleOrDefaultOrganizationBySessionIdAsync(id, options);
-        return Organization;
-    }
+    public async Task<Organization?> GetSingleOrDefaultOrganizationBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
+        => await sessionOrganizationRepository.GetSingleOrDefaultOrganizationBySessionIdAsync(sessionId, options);
+
+    public async Task<long> GetSingleOrDefaultOrganizationIdBySessionIdAsync(long sessionId, SessionOrganizationQueryOptions? options = null)
+        => await sessionOrganizationRepository.GetSingleOrDefaultOrganizationIdBySessionIdAsync(sessionId, options);
 }
