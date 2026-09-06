@@ -1,9 +1,15 @@
 ﻿using RFEntities.Entities;
+using RFRBAC.Entities;
 
 namespace RFRGOBAC.DTO;
 
 public class OrganizationUser : User
 {
+    public string Password { get; set; } = string.Empty;
+
+    public IEnumerable<long> RolesId { get; set; } = [];
+    public IEnumerable<Role>? Roles { get; set; }
+
     public OrganizationUser() { }
 
     public OrganizationUser(OrganizationUser? entity = null)
@@ -11,6 +17,10 @@ public class OrganizationUser : User
     {
         if (entity == null)
             return;
+
+        Password = entity.Password;
+        RolesId = entity.RolesId;
+        Roles = entity.Roles;
     }
 
     public OrganizationUser(User? entity = null)

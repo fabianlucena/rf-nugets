@@ -2,6 +2,6 @@
 
 namespace RFRGOBACControllers.DTO;
 
-public class OrganizationUserResponse(OrganizationUser user) : OrganizationUserDTO(user)
+public class SystemUserResponse(SystemUser user) : SystemUserDTO(user)
 {
 }

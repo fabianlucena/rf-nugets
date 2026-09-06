@@ -16,21 +16,21 @@ using RFRGOBACControllers.Exceptions;
 namespace RFRGOBACControllers.Controllers;
 
 [ApiController]
-[Route("v1/system-users")]
-public class SystemUsersController(
-    ISystemUserService systemUserService,
+[Route("v1/organization-users")]
+public class OrganizationUsersController(
+    IOrganizationUserService organizationUserService,
     IRFRGOBACLoggerService loggerService,
     IEventBus eventBus,
     IServiceProvider serviceProvider
 ) : ControllerBase
 {
     [HttpGet("{uuid?}")]
-    [Permission("systemUsers.get")]
+    [Permission("organizationUsers.get")]
     public async Task<IActionResult> Get([FromRoute] Guid? uuid)
     {
         await loggerService.AddInfoGetAsync("Get users", new { uuid });
 
-        var userOptions = new SystemUserQueryOptions
+        var userOptions = new OrganizationUserQueryOptions
         {
             IncludeCreatedBy = true,
             IncludeUpdatedBy = true,
@@ -40,30 +40,30 @@ public class SystemUsersController(
         if (uuid != null)
         {
             userOptions.Uuid = uuid;
-            var user = await systemUserService.GetSingleOrDefaultAsync(userOptions)
+            var user = await organizationUserService.GetSingleOrDefaultAsync(userOptions)
                 ?? throw new UserWithUuidNotFoundException(uuid.Value);
 
-            user = await systemUserService.Translate(user);
+            user = await organizationUserService.Translate(user);
 
-            return Ok(new SystemUserResponse(user));
+            return Ok(new OrganizationUserResponse(user));
         }
 
-        var users = await systemUserService.GetListAsync(userOptions);
-        users = await systemUserService.Translate(users);
-        var response = users.Select(user => new SystemUserResponse(user));
+        var users = await organizationUserService.GetListAsync(userOptions);
+        users = await organizationUserService.Translate(users);
+        var response = users.Select(user => new OrganizationUserResponse(user));
 
         return Ok(response);
     }
 
     [HttpPost]
-    [Permission("systemUsers.add")]
-    public async Task<IActionResult> PostAsync([FromBody] SystemUserRequest request)
+    [Permission("organizationUsers.add")]
+    public async Task<IActionResult> PostAsync([FromBody] OrganizationUserRequest request)
     {
         await loggerService.AddInfoAddAsync("Add user", new { request });
 
-        var result = await systemUserService.CreateAsync(await request.ToSystemUser(serviceProvider));
+        var result = await organizationUserService.CreateAsync(await request.ToOrganizationUser(serviceProvider));
 
-        _ = eventBus.Publish(new Event("SystemUserCreated", new DataDictionary {
+        _ = eventBus.Publish(new Event("OrganizationUserCreated", new DataDictionary {
             { "Data", request }
         }));
 
@@ -74,20 +74,20 @@ public class SystemUsersController(
     }
 
     [HttpPatch("{uuid}")]
-    [Permission("systemUsers.edit")]
+    [Permission("organizationUsers.edit")]
     public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary request)
     {
         await loggerService.AddInfoEditAsync("Update user", new { uuid, request });
 
-        var userOptions = new SystemUserQueryOptions
+        var userOptions = new OrganizationUserQueryOptions
         {
             IncludeInactive = true
         }.BuildFromRequest(Request);
 
         var data = request.GetPascalized();
-        var result = await systemUserService.UpdateByUuidAsync(uuid, data, userOptions);
+        var result = await organizationUserService.UpdateByUuidAsync(uuid, data, userOptions);
 
-        _ = eventBus.Publish(new Event("SystemUserUpdated", new DataDictionary {
+        _ = eventBus.Publish(new Event("OrganizationUserUpdated", new DataDictionary {
             { "Data", data },
             { "Filter", new DataDictionary {{ "Uuid", uuid }}},
         }));
@@ -99,19 +99,19 @@ public class SystemUsersController(
     }
 
     [HttpDelete("{uuid}")]
-    [Permission("systemUsers.delete")]
+    [Permission("organizationUsers.delete")]
     public async Task<IActionResult> DeleteAsync([FromRoute] Guid uuid)
     {
         await loggerService.AddInfoDeleteAsync("Delete user", new { uuid });
 
-        var userOptions = new SystemUserQueryOptions
+        var userOptions = new OrganizationUserQueryOptions
         {
             IncludeInactive = true
         }.BuildFromRequest(Request);
 
-        var result = await systemUserService.DeleteByUuidAsync(uuid, userOptions);
+        var result = await organizationUserService.DeleteByUuidAsync(uuid, userOptions);
 
-        _ = eventBus.Publish(new Event("SystemUserDeleted", new DataDictionary {
+        _ = eventBus.Publish(new Event("OrganizationUserDeleted", new DataDictionary {
             { "Filter", new DataDictionary { { "Uuid", uuid } } }
         }));
 
@@ -122,20 +122,20 @@ public class SystemUsersController(
     }
 
     [HttpPost("{uuid}/restore")]
-    [Permission("systemUsers.restore")]
+    [Permission("organizationUsers.restore")]
     public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
     {
         await loggerService.AddInfoDeleteAsync("Restore user", new { uuid });
 
-        var userOptions = new SystemUserQueryOptions
+        var userOptions = new OrganizationUserQueryOptions
         {
             IncludeDeleted = true,
             IncludeInactive = true,
         }.BuildFromRequest(Request);
 
-        var result = await systemUserService.RestoreByUuidAsync(uuid, userOptions);
+        var result = await organizationUserService.RestoreByUuidAsync(uuid, userOptions);
 
-        _ = eventBus.Publish(new Event("SystemUserRestored", new DataDictionary {
+        _ = eventBus.Publish(new Event("OrganizationUserRestored", new DataDictionary {
             { "Filter", new DataDictionary { { "Uuid", uuid } } }
         }));
 

@@ -236,6 +236,6 @@ public class OrganizationsController(
         var orgpData = await orgpDataService.GetSingleOrDefaultBySession(session)
             ?? throw new NoSessionException();
 
-        return Ok(new ORPGDataResponse(orgpData).Data);
+        return Ok(new ORPGDataResponse(orgpData));
     }
 }

@@ -1,26 +1,12 @@
-﻿using RFBase.Libs;
+﻿using RFRBAC.DTO;
 
 namespace RFRGOBAC.DTO;
 
-public class ORPGDataResponse
+public class ORPGDataResponse(ORGPData orpgData)
 {
-    public DataDictionary Data { get; set; } = [];
-
-    public ORPGDataResponse(ORGPData orpgData)
-    {
-        Data["organizations"] = orpgData.Organizations
-            .Select(c => new OrganizationMinDTO(c));
-
-        if (orpgData.CurrentOrganization is not null)
-            Data["currentOrganization"] = new OrganizationMinDTO(orpgData.CurrentOrganization);
-
-        if (orpgData.GroupsName is not null)
-            Data["groups"] = orpgData.GroupsName;
-
-        if (orpgData.RolesName is not null)
-            Data["roles"] = orpgData.RolesName;
-
-        if (orpgData.PermissionsName is not null)
-            Data["permissions"] = orpgData.PermissionsName;
-    }
+    public OrganizationMinDTO? CurrentOrganization { get; set; } = orpgData.CurrentOrganization is not null ? new OrganizationMinDTO(orpgData.CurrentOrganization) : null;
+    public IEnumerable<OrganizationMinDTO> Organizations { get; set; } = orpgData.Organizations.Select(c => new OrganizationMinDTO(c));
+    public IEnumerable<string>? Groups{ get; set; } = orpgData.GroupsName;
+    public IEnumerable<string>? Roles{ get; set; } = orpgData.RolesName;
+    public IEnumerable<string>? Permissions { get; set; } = orpgData.PermissionsName;
 }

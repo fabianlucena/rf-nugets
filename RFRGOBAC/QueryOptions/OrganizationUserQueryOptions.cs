@@ -3,40 +3,36 @@ using RFIServices.QueryOptions;
 
 namespace RFRGOBAC.QueryOptions;
 
-public class SystemUserQueryOptions : UserQueryOptions
+public class OrganizationUserQueryOptions : UserQueryOptions
 {
-    public bool IncludeSystemRoles { get; set; }
-    public bool IncludeOrganizations { get; set; }
-    public bool IncludeOrganizationsRoles { get; set; }
+    public bool IncludeRoles { get; set; }
 
-    public SystemUserQueryOptions() { }
+    public long? OrganizationId { get; set; }
+    public long? UserId { get; set; }
 
-    public SystemUserQueryOptions(SystemUserQueryOptions? options)
+    public OrganizationUserQueryOptions() { }
+
+    public OrganizationUserQueryOptions(OrganizationUserQueryOptions? options)
         : base(options)
     {
         if (options == null)
             return;
 
-        IncludeSystemRoles = options.IncludeSystemRoles;
-        IncludeOrganizations = options.IncludeOrganizations;
-        IncludeOrganizationsRoles = options.IncludeOrganizationsRoles;
+        IncludeRoles = options.IncludeRoles;
+
+        OrganizationId = options.OrganizationId;
+        UserId = options.UserId;
     }
 
-    public override SystemUserQueryOptions Clone()
+    public override OrganizationUserQueryOptions Clone()
         => new(this);
 
-    public override SystemUserQueryOptions BuildFromRequest(HttpRequest request)
+    public override OrganizationUserQueryOptions BuildFromRequest(HttpRequest request)
     {
         base.BuildFromRequest(request);
 
-        if (request.Query.ContainsKey("includeSystemRoles"))
-            IncludeSystemRoles = bool.Parse(request.Query["includeSystemRoles"].ToString());
-
-        if (request.Query.ContainsKey("includeOrganizations"))
-            IncludeOrganizations = bool.Parse(request.Query["includeOrganizations"].ToString());
-
-        if (request.Query.ContainsKey("includeOrganizationsRoles"))
-            IncludeOrganizationsRoles = bool.Parse(request.Query["includeOrganizationsRoles"].ToString());
+        if (request.Query.ContainsKey("roles"))
+            IncludeRoles = bool.Parse(request.Query["roles"].ToString());
 
         return this;
     }
