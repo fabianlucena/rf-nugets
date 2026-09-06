@@ -39,12 +39,12 @@ public class OrganizationUserService(
         if (user.RolesId is not null)
         {
             await roleXUserXOrganizationService.SetOrganizationsRolesIdForUserIdAsync(
-                new List<OrganizationRolesId> {
-                    new OrganizationRolesId {
+                [
+                    new() {
                         OrganizationId = 10,
                         RolesId = user.RolesId,
                     },
-                },
+                ],
                 result.Id
             );
         }
@@ -63,7 +63,6 @@ public class OrganizationUserService(
         var users = (await roleXUserXOrganizationService.GetUsersAsync(new RoleXUserXOrganizationQueryOptions
         {
             OrganizationId = options.OrganizationId,
-            IncludeRole = true,
         })).Select(user =>
             {
                 var result = new OrganizationUser(user);

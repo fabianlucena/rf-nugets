@@ -8,4 +8,5 @@ public interface IOrganizationService : IALocalizableEntityService<Organization>
     IEnumerable<Organization> GetCurrentOrganizations();
     IEnumerable<long> GetCurrentOrganizationsId();
     Organization? GetCurrentOrganization();
+    long? GetCurrentOrganizationId();
 }

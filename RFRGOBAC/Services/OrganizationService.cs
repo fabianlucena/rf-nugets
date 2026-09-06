@@ -63,4 +63,7 @@ public class OrganizationService(
 
     public Organization? GetCurrentOrganization()
         => CurrentOrganization;
+
+    public long? GetCurrentOrganizationId()
+        => CurrentOrganization?.Id;
 }

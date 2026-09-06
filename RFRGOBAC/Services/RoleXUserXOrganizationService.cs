@@ -19,12 +19,99 @@ public class RoleXUserXOrganizationService(
 ) : CommonJoinService<RoleXUserXOrganization>(roleXUserXOrganizationRepository, serviceProvider),
     IRoleXUserXOrganizationService
 {
+    public async Task<IEnumerable<long>> GetRolesIdAsync(RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+        options.IncludeRole = false;
+        options.IncludeUser = false;
+        options.IncludeOrganization = false;
+
+        var list = await roleXUserXOrganizationRepository.GetListAsync(options);
+
+        return list.Select(r => r.Role)
+            .Where(r => r != null)
+            .Select(r => r!.Id)
+            .Distinct();
+    }
+
+    public async Task<IEnumerable<long>> GetUsersIdAsync(RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+        options.IncludeRole = false;
+        options.IncludeUser = false;
+        options.IncludeOrganization = false;
+
+        var list = await roleXUserXOrganizationRepository.GetListAsync(options);
+
+        return list.Select(r => r.User)
+            .Where(u => u != null)
+            .Select(u => u!.Id)
+            .Distinct();
+    }
+
+    public async Task<IEnumerable<long>> GetOrganizationsIdAsync(RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+        options.IncludeRole = false;
+        options.IncludeUser = false;
+        options.IncludeOrganization = false;
+
+        var list = await roleXUserXOrganizationRepository.GetListAsync(options);
+
+        return list.Select(r => r.Organization)
+            .Where(o => o != null)
+            .Select(o => o!.Id)
+            .Distinct();
+    }
+
+    public async Task<IEnumerable<Role>> GetRolesAsync(RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+        options.IncludeRole = true;
+        options.IncludeUser = false;
+        options.IncludeOrganization = false;
+
+        var list = await roleXUserXOrganizationRepository.GetListAsync(options);
+
+        return list.Select(r => r.Role)
+            .Where(r => r != null)
+            .DistinctBy(r => r!.Id)!;
+    }
+
+    public async Task<IEnumerable<User>> GetUsersAsync(RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+        options.IncludeRole = false;
+        options.IncludeUser = true;
+        options.IncludeOrganization = false;
+
+        var list = await roleXUserXOrganizationRepository.GetListAsync(options);
+
+        return list.Select(r => r.User)
+            .Where(u => u != null)
+            .DistinctBy(u => u!.Id)!;
+    }
+
+    public async Task<IEnumerable<Organization>> GetOrganizationsAsync(RoleXUserXOrganizationQueryOptions? options = null)
+    {
+        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
+        options.IncludeRole = false;
+        options.IncludeUser = false;
+        options.IncludeOrganization = true;
+
+        var list = await roleXUserXOrganizationRepository.GetListAsync(options);
+
+        return list.Select(r => r.Organization)
+            .Where(o => o != null)
+            .DistinctBy(o => o!.Id)!;
+    }
+
     public async Task<IEnumerable<long>> GetRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> usersId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
     {
         options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
         options.UsersId = usersId;
         options.OrganizationId = OrganizationId;
-        return await roleXUserXOrganizationRepository.GetIdsAsync(options);
+        return await roleXUserXOrganizationRepository.GetRolesIdAsync(options);
     }
 
     public async Task<IEnumerable<long>> GetAllRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> usersId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null)
@@ -139,47 +226,5 @@ public class RoleXUserXOrganizationService(
         options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
         options.UserId = userId;
         return await roleXUserXOrganizationRepository.GetOrganizationsAsync(options);
-    }
-
-    public async Task<IEnumerable<Role>> GetRolesAsync(RoleXUserXOrganizationQueryOptions? options = null)
-    {
-        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
-        options.IncludeRole = true;
-        options.IncludeUser = false;
-        options.IncludeOrganization = false;
-
-        var list = await roleXUserXOrganizationRepository.GetListAsync(options);
-
-        return list.Select(r => r.Role)
-            .Where(r => r != null)
-            .DistinctBy(r => r!.Id)!;
-    }
-
-    public async Task<IEnumerable<User>> GetUsersAsync(RoleXUserXOrganizationQueryOptions? options = null)
-    {
-        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
-        options.IncludeRole = false;
-        options.IncludeUser = true;
-        options.IncludeOrganization = false;
-
-        var list = await roleXUserXOrganizationRepository.GetListAsync(options);
-
-        return list.Select(r => r.User)
-            .Where(u => u != null)
-            .DistinctBy(u => u!.Id)!;
-    }
-
-    public async Task<IEnumerable<Organization>> GetOrganizationsAsync(RoleXUserXOrganizationQueryOptions? options = null)
-    {
-        options = options?.Clone() ?? new RoleXUserXOrganizationQueryOptions();
-        options.IncludeRole = false;
-        options.IncludeUser = false;
-        options.IncludeOrganization = true;
-
-        var list = await roleXUserXOrganizationRepository.GetListAsync(options);
-
-        return list.Select(r => r.Organization)
-            .Where(o => o != null)
-            .DistinctBy(o => o!.Id)!;
     }
 }

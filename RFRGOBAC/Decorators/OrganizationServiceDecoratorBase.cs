@@ -16,4 +16,7 @@ public class OrganizationServiceDecoratorBase(IOrganizationService organizationS
 
     public Organization? GetCurrentOrganization()
         => organizationService.GetCurrentOrganization();
+
+    public long? GetCurrentOrganizationId()
+        => organizationService.GetCurrentOrganizationId();
 }
