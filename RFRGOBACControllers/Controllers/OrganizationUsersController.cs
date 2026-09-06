@@ -87,9 +87,23 @@ public class OrganizationUsersController(
     {
         await loggerService.AddInfoEditAsync("Update user", new { uuid, request });
 
+        var user = await organizationUserService.GetSingleOrDefaultAsync(new OrganizationUserQueryOptions
+        {
+            IncludeCanEdit = true,
+            IncludeInactive = true,
+            IncludeDeleted = true,
+            Uuid = uuid,
+        }.BuildFromRequest(Request)) ?? throw new UserWithUuidNotFoundException(uuid);
+
+        if (user.CanEdit == false)
+            throw new UserWithUuidCannotBeEditedException(uuid);
+
+        if (user.DeletedAt != null)
+            throw new UserWithUuidIsDeletedException(uuid);
+
         var userOptions = new OrganizationUserQueryOptions
         {
-            IncludeInactive = true
+            IncludeInactive = true,
         }.BuildFromRequest(Request);
 
         var data = request.GetPascalized();
@@ -112,6 +126,17 @@ public class OrganizationUsersController(
     {
         await loggerService.AddInfoDeleteAsync("Delete user", new { uuid });
 
+        var user = await organizationUserService.GetSingleOrDefaultAsync(new OrganizationUserQueryOptions
+        {
+            IncludeCanEdit = true,
+            IncludeInactive = true,
+            IncludeDeleted = true,
+            Uuid = uuid,
+        }.BuildFromRequest(Request)) ?? throw new UserWithUuidNotFoundException(uuid);
+
+        if (user.CanEdit == false)
+            throw new UserWithUuidCannotBeEditedException(uuid);
+
         var userOptions = new OrganizationUserQueryOptions
         {
             IncludeInactive = true
@@ -133,7 +158,16 @@ public class OrganizationUsersController(
     [Permission("organizationUsers.restore")]
     public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
     {
-        await loggerService.AddInfoDeleteAsync("Restore user", new { uuid });
+        await loggerService.AddInfoDeleteAsync("Restore user", new { uuid }); var user = await organizationUserService.GetSingleOrDefaultAsync(new OrganizationUserQueryOptions
+        {
+            IncludeCanEdit = true,
+            IncludeInactive = true,
+            IncludeDeleted = true,
+            Uuid = uuid,
+        }.BuildFromRequest(Request)) ?? throw new UserWithUuidNotFoundException(uuid);
+
+        if (user.CanEdit == false)
+            throw new UserWithUuidCannotBeEditedException(uuid);
 
         var userOptions = new OrganizationUserQueryOptions
         {

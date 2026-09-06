@@ -1,0 +1,5 @@
+﻿User with UUID {0} cannot be edited.
+El usuario con UUID {0} no puede ser editado.
+
+User with UUID {0} is deleted.
+El usuario con UUID {0} ha sido eliminado.
