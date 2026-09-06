@@ -20,6 +20,7 @@ namespace RFRGOBACControllers.Controllers;
 public class OrganizationUsersController(
     IOrganizationUserService organizationUserService,
     IRFRGOBACLoggerService loggerService,
+    IOrganizationService organizationService,
     IEventBus eventBus,
     IServiceProvider serviceProvider
 ) : ControllerBase
@@ -30,12 +31,19 @@ public class OrganizationUsersController(
     {
         await loggerService.AddInfoGetAsync("Get users", new { uuid });
 
+        var organizationId = organizationService.GetCurrentOrganizationId()
+            ?? throw new NoCurrentOrganizationException();
+
         var userOptions = new OrganizationUserQueryOptions
         {
             IncludeCreatedBy = true,
             IncludeUpdatedBy = true,
             IncludeDeletedBy = true,
+            OrganizationId = organizationId
         }.BuildFromRequest(Request);
+
+        if (userOptions.OrganizationId != organizationId)
+            throw new InvalidOrganizationOrganizationException();
 
         if (uuid != null)
         {

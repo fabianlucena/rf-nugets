@@ -52,7 +52,7 @@ public class RoleXUserXOrganizationRepository(DbContext context)
         return queryable;
     }
 
-    public async Task<IEnumerable<long>> GetIdsAsync(RoleXUserXOrganizationQueryOptions options)
+    public async Task<IEnumerable<long>> GetRolesIdAsync(RoleXUserXOrganizationQueryOptions options)
         => await GetDBSet(options)
             .Select(e => e.RoleId)
             .ToListAsync();
