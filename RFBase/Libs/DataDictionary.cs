@@ -127,6 +127,57 @@ public class DataDictionary
         return false;
     }
 
+    public bool TryGetInt64List(string key, out IEnumerable<long> value)
+    {
+        if (!TryGetValue(key, out object? obj)
+            || obj is null
+        )
+        {
+            value = [];
+            return false;
+        }
+
+        if (obj is long[] valueLongs)
+        {
+            value = valueLongs;
+            return true;
+        }
+
+        if (obj is IEnumerable<long> longs)
+        {
+            value = longs;
+            return true;
+        }
+
+        if (obj is not IEnumerable list)
+        {
+            value = [];
+            return false;
+        }
+
+        var newValue = new List<long>();
+        foreach (var item in list)
+        {
+            if (item == null)
+                continue;
+
+            if (item is long val)
+            {
+                newValue.Add(val);
+                continue;
+            }
+
+            if (obj is JsonElement jsonValue && jsonValue.ValueKind == JsonValueKind.Number)
+            {
+                newValue.Add(jsonValue.GetInt64());
+                continue;
+            }
+        }
+
+        value = newValue;
+        return true;
+    }
+
     public string? GetString(string key)
     {
         if (!TryGetValue(key, out object? obj)
@@ -220,6 +271,51 @@ public class DataDictionary
     }
 
     public bool TryGetNotNullStrings(string key, out IEnumerable<string> value)
+    {
+        if (!TryGetValue(key, out object? obj)
+            || obj is null
+        )
+        {
+            value = [];
+            return false;
+        }
+
+        if (obj is string[] valueStrings)
+        {
+            value = valueStrings;
+            return true;
+        }
+
+        if (obj is IEnumerable<string> strings)
+        {
+            value = strings;
+            return true;
+        }
+
+        if (obj is not IEnumerable list)
+        {
+            value = [];
+            return false;
+        }
+
+        var newValue = new List<string>();
+        foreach (var item in list)
+        {
+            if (item == null)
+                continue;
+
+            var str = item.ToString();
+            if (str is null)
+                continue;
+
+            newValue.Add(str);
+        }
+
+        value = newValue;
+        return true;
+    }
+
+    public bool TryGetNotNullOrEmptyStrings(string key, out IEnumerable<string> value)
     {
         if (!TryGetValue(key, out object? obj)
             || obj is null
@@ -633,5 +729,19 @@ public class DataDictionary
         return TryGetInt64(key, out var value)
             ? value
             : defaultValue;
+    }
+
+    public IEnumerable<long> GetInt64List(string key)
+    {
+        return TryGetInt64List(key, out var value)
+            ? value
+            : [];
+    }
+
+    public IEnumerable<string> GetNotNullOrEmptyStrings(string key)
+    {
+        return TryGetNotNullOrEmptyStrings(key, out var value)
+               ? value
+               : [];
     }
 }

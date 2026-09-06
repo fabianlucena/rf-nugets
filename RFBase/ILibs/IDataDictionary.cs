@@ -21,6 +21,8 @@ public interface IDataDictionary
 
     bool TryGetNotNullStrings(string key, out IEnumerable<string> value);
 
+    bool TryGetNotNullOrEmptyStrings(string key, out IEnumerable<string> value);
+
     bool TryGetBool(string key, out bool value);
 
     bool TryGetGuid(string key, out Guid value);
@@ -39,4 +41,8 @@ public interface IDataDictionary
     string GetJson();
 
     long GetInt64(string key, long defaultValue = 0);
+
+    IEnumerable<long> GetInt64List(string key);
+
+    IEnumerable<string> GetNotNullOrEmptyStrings(string key);
 }
