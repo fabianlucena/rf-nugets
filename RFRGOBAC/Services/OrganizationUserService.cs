@@ -61,34 +61,39 @@ public class OrganizationUserService(
     public async Task<IEnumerable<OrganizationUser>> GetListAsync(OrganizationUserQueryOptions? options)
     {
         options ??= new OrganizationUserQueryOptions();
-        var usersId = (await roleXUserXOrganizationService.GetUsersIdAsync(new RoleXUserXOrganizationQueryOptions
+
+        var roleXUserXOrganizationQueryOptions = new RoleXUserXOrganizationQueryOptions
         {
             OrganizationId = options.OrganizationId,
-        })).ToList();
+        };
+
+        if (options.Uuid is not null)
+            roleXUserXOrganizationQueryOptions.UserId = await userService.GetSingleIdByUuidAsync(options.Uuid.Value);
+
+        var usersId = (await roleXUserXOrganizationService.GetUsersIdAsync(roleXUserXOrganizationQueryOptions)).ToList();
 
         var users = (await userService.GetListAsync(new UserQueryOptions
         {
             IncludeType = options.IncludeType,
             Ids = usersId,
-        })).Select(user =>
+        })).Select(user => new OrganizationUser(user));
+
+        if (options.IncludeRoles)
+        {
+            var newUsers = new List<OrganizationUser>();
+            foreach (var user in users)
             {
-                var result = new OrganizationUser(user);
-
-                if (options.IncludeRoles)
+                user.Roles = await roleXUserXOrganizationService.GetRolesAsync(new RoleXUserXOrganizationQueryOptions
                 {
-                    result.Roles = roleXUserXOrganizationService.GetRolesAsync(new RoleXUserXOrganizationQueryOptions
-                    {
-                        OrganizationId = options.OrganizationId,
-                        UserId = result.Id,
-                    })
-                        .GetAwaiter()
-                        .GetResult();
+                    OrganizationId = options.OrganizationId,
+                    UserId = user.Id,
+                });
 
-                    result.RolesId = result.Roles.Select(r => r.Id);
-                }
-
-                return result;
-            });
+                user.RolesId = user.Roles.Select(r => r.Id);
+                newUsers.Add(user);
+            }
+            users = newUsers;
+        }
 
         return users;
     }

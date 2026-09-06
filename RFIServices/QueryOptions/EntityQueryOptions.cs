@@ -31,6 +31,9 @@ public abstract class EntityQueryOptions : BaseQueryOptions
     {
         base.BuildFromRequest(request);
 
+        if (request.Query.ContainsKey("uuid"))
+            Uuid = Guid.Parse(request.Query["uuid"].ToString());
+
         if (request.Query.ContainsKey("uuids"))
             Uuids = request.Query["uuids"].ToString().Split(',').Select(Guid.Parse);
 

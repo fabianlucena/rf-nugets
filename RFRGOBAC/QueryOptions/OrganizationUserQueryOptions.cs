@@ -31,8 +31,8 @@ public class OrganizationUserQueryOptions : UserQueryOptions
     {
         base.BuildFromRequest(request);
 
-        if (request.Query.ContainsKey("roles"))
-            IncludeRoles = bool.Parse(request.Query["roles"].ToString());
+        if (request.Query.ContainsKey("includeRoles"))
+            IncludeRoles = bool.Parse(request.Query["includeRoles"].ToString());
 
         return this;
     }
