@@ -28,7 +28,7 @@ public class SystemUsersController(
     [Permission("systemUsers.get")]
     public async Task<IActionResult> Get([FromRoute] Guid? uuid)
     {
-        await loggerService.AddInfoGetAsync("Get users", new { uuid });
+        await loggerService.AddInfoGetAsync("Get system users", new { uuid });
 
         var userOptions = new SystemUserQueryOptions
         {
@@ -59,7 +59,7 @@ public class SystemUsersController(
     [Permission("systemUsers.add")]
     public async Task<IActionResult> PostAsync([FromBody] SystemUserRequest request)
     {
-        await loggerService.AddInfoAddAsync("Add user", new { request });
+        await loggerService.AddInfoAddAsync("Add system user", new { request });
 
         var result = await systemUserService.CreateAsync(await request.ToSystemUser(serviceProvider));
 
@@ -77,7 +77,7 @@ public class SystemUsersController(
     [Permission("systemUsers.update")]
     public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary request)
     {
-        await loggerService.AddInfoEditAsync("Update user", new { uuid, request });
+        await loggerService.AddInfoEditAsync("Update system user", new { uuid, request });
 
         var userOptions = new SystemUserQueryOptions
         {
@@ -102,7 +102,7 @@ public class SystemUsersController(
     [Permission("systemUsers.delete")]
     public async Task<IActionResult> DeleteAsync([FromRoute] Guid uuid)
     {
-        await loggerService.AddInfoDeleteAsync("Delete user", new { uuid });
+        await loggerService.AddInfoDeleteAsync("Delete system user", new { uuid });
 
         var userOptions = new SystemUserQueryOptions
         {
@@ -125,7 +125,7 @@ public class SystemUsersController(
     [Permission("systemUsers.restore")]
     public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
     {
-        await loggerService.AddInfoDeleteAsync("Restore user", new { uuid });
+        await loggerService.AddInfoDeleteAsync("Restore system user", new { uuid });
 
         var userOptions = new SystemUserQueryOptions
         {

@@ -29,7 +29,7 @@ public class OrganizationUsersController(
     [Permission("organizationUsers.get")]
     public async Task<IActionResult> Get([FromRoute] Guid? uuid)
     {
-        await loggerService.AddInfoGetAsync("Get users", new { uuid });
+        await loggerService.AddInfoGetAsync("Get organization users", new { uuid });
 
         var organizationId = organizationService.GetCurrentOrganizationId()
             ?? throw new NoCurrentOrganizationException();
@@ -67,7 +67,10 @@ public class OrganizationUsersController(
     [Permission("organizationUsers.add")]
     public async Task<IActionResult> PostAsync([FromBody] OrganizationUserRequest request)
     {
-        await loggerService.AddInfoAddAsync("Add user", new { request });
+        await loggerService.AddInfoAddAsync("Add organization user", new { request });
+
+        var organizationId = organizationService.GetCurrentOrganizationId()
+            ?? throw new NoCurrentOrganizationException();
 
         var result = await organizationUserService.CreateAsync(await request.ToOrganizationUser(serviceProvider));
 
@@ -85,13 +88,17 @@ public class OrganizationUsersController(
     [Permission("organizationUsers.update")]
     public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary request)
     {
-        await loggerService.AddInfoEditAsync("Update user", new { uuid, request });
+        await loggerService.AddInfoEditAsync("Update organization user", new { uuid, request });
+
+        var organizationId = organizationService.GetCurrentOrganizationId()
+            ?? throw new NoCurrentOrganizationException();
 
         var user = await organizationUserService.GetSingleOrDefaultAsync(new OrganizationUserQueryOptions
         {
             IncludeCanEdit = true,
             IncludeInactive = true,
             IncludeDeleted = true,
+            OrganizationId = organizationId,
             Uuid = uuid,
         }.BuildFromRequest(Request)) ?? throw new UserWithUuidNotFoundException(uuid);
 
@@ -124,13 +131,17 @@ public class OrganizationUsersController(
     [Permission("organizationUsers.delete")]
     public async Task<IActionResult> DeleteAsync([FromRoute] Guid uuid)
     {
-        await loggerService.AddInfoDeleteAsync("Delete user", new { uuid });
+        await loggerService.AddInfoDeleteAsync("Delete organization user", new { uuid });
+
+        var organizationId = organizationService.GetCurrentOrganizationId()
+            ?? throw new NoCurrentOrganizationException();
 
         var user = await organizationUserService.GetSingleOrDefaultAsync(new OrganizationUserQueryOptions
         {
             IncludeCanEdit = true,
             IncludeInactive = true,
             IncludeDeleted = true,
+            OrganizationId = organizationId,
             Uuid = uuid,
         }.BuildFromRequest(Request)) ?? throw new UserWithUuidNotFoundException(uuid);
 
@@ -158,11 +169,17 @@ public class OrganizationUsersController(
     [Permission("organizationUsers.restore")]
     public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
     {
-        await loggerService.AddInfoDeleteAsync("Restore user", new { uuid }); var user = await organizationUserService.GetSingleOrDefaultAsync(new OrganizationUserQueryOptions
+        await loggerService.AddInfoDeleteAsync("Restore organization user", new { uuid });
+
+        var organizationId = organizationService.GetCurrentOrganizationId()
+            ?? throw new NoCurrentOrganizationException();
+
+        var user = await organizationUserService.GetSingleOrDefaultAsync(new OrganizationUserQueryOptions
         {
             IncludeCanEdit = true,
             IncludeInactive = true,
             IncludeDeleted = true,
+            OrganizationId = organizationId,
             Uuid = uuid,
         }.BuildFromRequest(Request)) ?? throw new UserWithUuidNotFoundException(uuid);
 
