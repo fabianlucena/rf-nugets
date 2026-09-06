@@ -81,7 +81,7 @@ public class OrganizationsController(
 
 
     [HttpPatch("{uuid}")]
-    [Permission("organizations.edit")]
+    [Permission("organizations.update")]
     public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary request)
     {
         await loggerService.AddInfoEditAsync("Update organization", new { uuid, request });

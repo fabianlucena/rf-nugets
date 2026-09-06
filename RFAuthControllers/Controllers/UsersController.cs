@@ -43,7 +43,7 @@ public class UsersController(
     }
 
     /* [HttpPatch("{uuid}")]
-    [Permission("user.edit")]
+    [Permission("users.update")]
     public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary request)
     {
         logger.LogInformation("Updating user");
@@ -74,7 +74,7 @@ public class UsersController(
     }
 
     [HttpPost]
-    [Permission("user.add")]
+    [Permission("users.add")]
     public async Task<IActionResult> PostAsync([FromBody] DataDictionary request)
     {
         logger.LogInformation("Creating user");
@@ -100,7 +100,7 @@ public class UsersController(
     }
 
     [HttpDelete("{uuid}")]
-    [Permission("user.delete")]
+    [Permission("users.delete")]
     public async Task<IActionResult> DeleteAsync([FromRoute] Guid uuid)
     {
         logger.LogInformation("Deleting user");
@@ -121,7 +121,7 @@ public class UsersController(
     }
 
     [HttpPost("restore/{uuid}")]
-    [Permission("user.restore")]
+    [Permission("users.restore")]
     public async Task<IActionResult> RestoreAsync([FromRoute] Guid uuid)
     {
         logger.LogInformation("Restoring user");
@@ -155,7 +155,7 @@ public class UsersController(
     } */
 
     [HttpPost("{uuid}/set-password")]
-    [Permission("user.edit")]
+    [Permission("users.update")]
     public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary request)
     {
         await loggerService.AddInfoEditAsync("Set user password", new { uuid });

@@ -74,7 +74,7 @@ public class SystemUsersController(
     }
 
     [HttpPatch("{uuid}")]
-    [Permission("systemUsers.edit")]
+    [Permission("systemUsers.update")]
     public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary request)
     {
         await loggerService.AddInfoEditAsync("Update user", new { uuid, request });

@@ -82,7 +82,7 @@ public class OrganizationUsersController(
     }
 
     [HttpPatch("{uuid}")]
-    [Permission("organizationUsers.edit")]
+    [Permission("organizationUsers.update")]
     public async Task<IActionResult> PatchAsync([FromRoute] Guid uuid, [FromBody] DataDictionary request)
     {
         await loggerService.AddInfoEditAsync("Update user", new { uuid, request });
