@@ -1,6 +1,7 @@
 ﻿using RFAuth.IServices;
 using RFBase.ILibs;
 using RFIServices.IServices;
+using RFIServices.QueryOptions;
 using RFRBAC.IServices;
 using RFRegisterService.Attributes;
 using RFRGOBAC.DTO;
@@ -60,9 +61,15 @@ public class OrganizationUserService(
     public async Task<IEnumerable<OrganizationUser>> GetListAsync(OrganizationUserQueryOptions? options)
     {
         options ??= new OrganizationUserQueryOptions();
-        var users = (await roleXUserXOrganizationService.GetUsersAsync(new RoleXUserXOrganizationQueryOptions
+        var usersId = (await roleXUserXOrganizationService.GetUsersIdAsync(new RoleXUserXOrganizationQueryOptions
         {
             OrganizationId = options.OrganizationId,
+        })).ToList();
+
+        var users = (await userService.GetListAsync(new UserQueryOptions
+        {
+            IncludeType = options.IncludeType,
+            Ids = usersId,
         })).Select(user =>
             {
                 var result = new OrganizationUser(user);

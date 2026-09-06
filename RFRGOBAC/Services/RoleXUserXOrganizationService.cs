@@ -28,9 +28,7 @@ public class RoleXUserXOrganizationService(
 
         var list = await roleXUserXOrganizationRepository.GetListAsync(options);
 
-        return list.Select(r => r.Role)
-            .Where(r => r != null)
-            .Select(r => r!.Id)
+        return list.Select(r => r.RoleId)
             .Distinct();
     }
 
@@ -43,9 +41,7 @@ public class RoleXUserXOrganizationService(
 
         var list = await roleXUserXOrganizationRepository.GetListAsync(options);
 
-        return list.Select(r => r.User)
-            .Where(u => u != null)
-            .Select(u => u!.Id)
+        return list.Select(r => r.UserId)
             .Distinct();
     }
 
@@ -58,9 +54,7 @@ public class RoleXUserXOrganizationService(
 
         var list = await roleXUserXOrganizationRepository.GetListAsync(options);
 
-        return list.Select(r => r.Organization)
-            .Where(o => o != null)
-            .Select(o => o!.Id)
+        return list.Select(r => r.OrganizationId)
             .Distinct();
     }
 
