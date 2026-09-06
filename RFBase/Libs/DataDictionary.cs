@@ -101,19 +101,30 @@ public class DataDictionary
             && obj is not null;
     }
 
-    public bool TryGetInt64(string key, out long value)
+    public bool TryGetInt64(string key, out long value, long defaultValue = 0)
     {
         if (!TryGetValue(key, out object? obj)
             || obj is null
-            || obj is not long val
         )
         {
-            value = 0;
+            value = defaultValue;
             return false;
         }
 
-        value = val;
-        return true;
+        if (obj is long val)
+        {
+            value = val;
+            return true;
+        }
+
+        if (obj is JsonElement jsonValue && jsonValue.ValueKind == JsonValueKind.Number)
+        {
+            value = jsonValue.GetInt64();
+            return true;
+        }
+
+        value = defaultValue;
+        return false;
     }
 
     public string? GetString(string key)
@@ -615,5 +626,12 @@ public class DataDictionary
         }
 
         return "{" + string.Join(",", lines) + "}";
+    }
+
+    public long GetInt64(string key, long defaultValue = 0)
+    {
+        return TryGetInt64(key, out var value)
+            ? value
+            : defaultValue;
     }
 }
