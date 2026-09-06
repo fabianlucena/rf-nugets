@@ -41,18 +41,22 @@ public class ORGPDataService(
         orpgData.CurrentOrganization = await sessionOrganizationService.GetSingleOrDefaultOrganizationBySessionIdAsync(session.Id);
         if (orpgData.CurrentOrganization is null)
         {
-            if (orpgData.Organizations.Count() != 1)
-                return orpgData;
+            if (orpgData.Organizations.Count() == 1)
+                orpgData.CurrentOrganization = orpgData.Organizations.First();
 
-            orpgData.CurrentOrganization = orpgData.Organizations.First();
             if (orpgData.CurrentOrganization is null)
-                return orpgData;
+            {
+                var previousSessionId = session.Data.GetInt64("previousSessionId");
+                orpgData.CurrentOrganization = await sessionOrganizationService.GetSingleOrDefaultOrganizationBySessionIdAsync(previousSessionId);
+                if (orpgData.CurrentOrganization is null)
+                    return orpgData;
+            }
 
             await sessionOrganizationService.CreateAsync(new SessionOrganization {
                 CreatedById = userId,
                 UpdatedById = userId,
                 SessionId = session.Id,
-                OrganizationId = orpgData.CurrentOrganization.Id,
+                OrganizationId = orpgData.CurrentOrganization!.Id,
             });
         }
 
