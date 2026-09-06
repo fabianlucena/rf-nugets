@@ -122,7 +122,7 @@ public class RoleXUserXOrganizationService(
         return await roleXUserXOrganizationRepository.GetOrganizationsAsync(options);
     }
 
-    public async Task<long> SetOrganizationsRolesIdForUserIdAsync(IEnumerable<OrganizationRolesId> organizationsRolesId, long userId, RoleXUserXOrganizationQueryOptions? options = null)
+    public async Task<int> SetOrganizationsRolesIdForUserIdAsync(IEnumerable<OrganizationRolesId> organizationsRolesId, long userId, RoleXUserXOrganizationQueryOptions? options = null)
     {
         int result = 0;
 
