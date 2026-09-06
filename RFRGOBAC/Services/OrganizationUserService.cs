@@ -16,7 +16,7 @@ public class OrganizationUserService(
     IUserService userService,
     IUserPasswordService userPasswordService,
     IUserTypeService userTypeService,
-    //IRoleService roleService,
+    IRoleService roleService,
     //IRoleXUserService roleXUserService,
     IRoleXUserXOrganizationService roleXUserXOrganizationService //,
     //IOrganizationService organizationService
@@ -39,12 +39,12 @@ public class OrganizationUserService(
         if (user.RolesId is not null)
         {
             await roleXUserXOrganizationService.SetOrganizationsRolesIdForUserIdAsync(
-                [
-                    new() {
+                new List<OrganizationRolesId> {
+                    new OrganizationRolesId {
                         OrganizationId = 10,
                         RolesId = user.RolesId,
                     },
-                ],
+                },
                 result.Id
             );
         }
@@ -103,15 +103,23 @@ public class OrganizationUserService(
         throw new NotImplementedException();
     }
 
-    public Task<OrganizationUser> Translate(OrganizationUser user, string? context = null)
+    public async Task<OrganizationUser> Translate(OrganizationUser user, string? context = null)
     {
-        throw new NotImplementedException();
+        {
+            user = user.Clone();
+
+            if (user.Type is not null)
+                user.Type = await userTypeService.Translate(user.Type!);
+
+            if (user.Roles is not null)
+                user.Roles = await roleService.Translate(user.Roles);
+
+            return user;
+        }
     }
 
-    public Task<IEnumerable<OrganizationUser>> Translate(IEnumerable<OrganizationUser> users, string? context = null)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<IEnumerable<OrganizationUser>> Translate(IEnumerable<OrganizationUser> users, string? context = null)
+        => await Task.WhenAll(users.Select(user => Translate(user, context)));
 
     public Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, OrganizationUserQueryOptions? options = null)
     {
