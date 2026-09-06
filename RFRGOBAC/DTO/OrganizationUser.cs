@@ -10,6 +10,8 @@ public class OrganizationUser : User
     public IEnumerable<long> RolesId { get; set; } = [];
     public IEnumerable<Role>? Roles { get; set; }
 
+    public bool? CanEdit { get; set; }
+
     public OrganizationUser() { }
 
     public OrganizationUser(OrganizationUser? entity = null)
@@ -21,6 +23,7 @@ public class OrganizationUser : User
         Password = entity.Password;
         RolesId = entity.RolesId;
         Roles = entity.Roles;
+        CanEdit = entity.CanEdit;
     }
 
     public OrganizationUser(User? entity = null)

@@ -47,6 +47,9 @@ public class RoleXUserXOrganizationRepository(DbContext context)
 
             if (roleXUserXOrganizationOptions.OrganizationsId != null)
                 queryable = queryable.Where(ruo => roleXUserXOrganizationOptions.OrganizationsId.Contains(ruo.OrganizationId));
+
+            if (roleXUserXOrganizationOptions.NotOrganizationId.HasValue)
+                queryable = queryable.Where(ruo => ruo.OrganizationId != roleXUserXOrganizationOptions.NotOrganizationId.Value);
         }
 
         return queryable;

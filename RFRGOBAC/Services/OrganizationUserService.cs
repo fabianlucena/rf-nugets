@@ -95,6 +95,25 @@ public class OrganizationUserService(
             users = newUsers;
         }
 
+        if (options.IncludeCanEdit)
+        {
+            var newUsers = new List<OrganizationUser>();
+            foreach (var user in users)
+            {
+                var organizationId = await roleXUserXOrganizationService.GetOrganizationsIdAsync(new RoleXUserXOrganizationQueryOptions
+                {
+                    IncludeDeleted = true,
+                    UserId = user.Id,
+                    NotOrganizationId = options.OrganizationId,
+                });
+
+                user.CanEdit = !organizationId.Any();
+
+                newUsers.Add(user);
+            }
+            users = newUsers;
+        }
+
         return users;
     }
 
@@ -116,17 +135,15 @@ public class OrganizationUserService(
 
     public async Task<OrganizationUser> Translate(OrganizationUser user, string? context = null)
     {
-        {
-            user = user.Clone();
+        user = user.Clone();
 
-            if (user.Type is not null)
-                user.Type = await userTypeService.Translate(user.Type!);
+        if (user.Type is not null)
+            user.Type = await userTypeService.Translate(user.Type!);
 
-            if (user.Roles is not null)
-                user.Roles = await roleService.Translate(user.Roles);
+        if (user.Roles is not null)
+            user.Roles = await roleService.Translate(user.Roles);
 
-            return user;
-        }
+        return user;
     }
 
     public async Task<IEnumerable<OrganizationUser>> Translate(IEnumerable<OrganizationUser> users, string? context = null)

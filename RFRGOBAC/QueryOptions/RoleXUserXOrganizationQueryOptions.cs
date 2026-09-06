@@ -8,6 +8,7 @@ public sealed class RoleXUserXOrganizationQueryOptions : RoleXUserQueryOptionsBa
 
     public long? OrganizationId { get; set; }
     public IEnumerable<long>? OrganizationsId { get; set; }
+    public long? NotOrganizationId { get; set; }
 
     public RoleXUserXOrganizationQueryOptions() { }
 
@@ -22,6 +23,7 @@ public sealed class RoleXUserXOrganizationQueryOptions : RoleXUserQueryOptionsBa
         UsersId = options.UsersId;
         OrganizationId = options.OrganizationId;
         OrganizationsId = options.OrganizationsId;
+        NotOrganizationId = options.NotOrganizationId;
     }
 
     public override RoleXUserXOrganizationQueryOptions Clone()

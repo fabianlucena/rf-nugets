@@ -9,12 +9,12 @@ namespace RFRGOBAC.IServices;
 
 public interface IRoleXUserXOrganizationService : ICommonJoinService<RoleXUserXOrganization>
 {
-    Task<IEnumerable<long>> GetRolesIdAsync(RoleXUserXOrganizationQueryOptions? options = null);
-    Task<IEnumerable<long>> GetUsersIdAsync(RoleXUserXOrganizationQueryOptions? options = null);
-    Task<IEnumerable<long>> GetOrganizationsIdAsync(RoleXUserXOrganizationQueryOptions? options = null);
-    Task<IEnumerable<Role>> GetRolesAsync(RoleXUserXOrganizationQueryOptions? options = null);
-    Task<IEnumerable<User>> GetUsersAsync(RoleXUserXOrganizationQueryOptions? options = null);
-    Task<IEnumerable<Organization>> GetOrganizationsAsync(RoleXUserXOrganizationQueryOptions? options = null);
+    Task<IEnumerable<long>> GetRolesIdAsync(RoleXUserXOrganizationQueryOptions options);
+    Task<IEnumerable<long>> GetUsersIdAsync(RoleXUserXOrganizationQueryOptions options);
+    Task<IEnumerable<long>> GetOrganizationsIdAsync(RoleXUserXOrganizationQueryOptions options);
+    Task<IEnumerable<Role>> GetRolesAsync(RoleXUserXOrganizationQueryOptions options);
+    Task<IEnumerable<User>> GetUsersAsync(RoleXUserXOrganizationQueryOptions options);
+    Task<IEnumerable<Organization>> GetOrganizationsAsync(RoleXUserXOrganizationQueryOptions options);
     Task<IEnumerable<long>> GetRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> usersId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
     Task<IEnumerable<long>> GetAllRolesIdByUsersIdAndOrganizationIdAsync(IEnumerable<long> usersId, long OrganizationId, RoleXUserXOrganizationQueryOptions? options = null);
     Task<IEnumerable<Organization>> GetOrganizationsByUsersIdAsync(IEnumerable<long> usersId, RoleXUserXOrganizationQueryOptions? options = null);
