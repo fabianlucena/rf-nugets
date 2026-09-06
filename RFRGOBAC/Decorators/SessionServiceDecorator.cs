@@ -4,7 +4,6 @@ using RFAuth.Entities;
 using RFAuth.IServices;
 using RFBase.Libs;
 using RFRegisterService.Attributes;
-using RFRGOBAC.DTO;
 using RFRGOBAC.IServices;
 
 namespace RFRGOBAC.Decorators;
@@ -36,32 +35,34 @@ public class SessionServiceDecorator(
             return session;
 
         session.Data ??= new DataDictionary();
-        session.Data["Organizations"] = orpgData.Organizations;
-        session.Data["CurrentOrganization"] = orpgData.CurrentOrganization;
-        session.InternalData["Organizations"] = session.Data["Organizations"];
-        session.InternalData["CurrentOrganization"] = session.Data["CurrentOrganization"];
+        session.InternalData["Organizations"] = orpgData.Organizations;
+        session.ResponseData["organizations"] = orpgData.Organizations;
+        session.InternalData["CurrentOrganization"] = orpgData.CurrentOrganization;
+        session.ResponseData["currentOrganization"] = orpgData.CurrentOrganization;
 
         if (orpgData.GroupsId is not null)
-            session.Data["GroupsId"] = orpgData.GroupsId;
-
-        if (orpgData.GroupsName is not null)
-            session.Data["GroupsName"] = orpgData.GroupsName;
+            session.InternalData["GroupsId"] = new List<long>([.. (session.InternalData.GetInt64List("GroupsId")), .. orpgData.GroupsId]);
 
         if (orpgData.RolesId is not null)
-            session.Data["RolesId"] = orpgData.RolesId;
+            session.InternalData["RolesId"] = new List<long>([.. (session.InternalData.GetInt64List("RolesId")), .. orpgData.RolesId]);
+
+        if (orpgData.GroupsName is not null)
+        {
+            session.InternalData["GroupsName"] = new List<string>([.. (session.InternalData.GetNotNullOrEmptyStrings("GroupsName")), .. orpgData.GroupsName]);
+            session.ResponseData["groups"] = new List<string>([.. (session.ResponseData.GetNotNullOrEmptyStrings("GroupsName")), .. orpgData.GroupsName]);
+        }
 
         if (orpgData.RolesName is not null)
-            session.Data["RolesName"] = orpgData.RolesName;
+        {
+            session.InternalData["RolesName"] = new List<string>([.. (session.InternalData.GetNotNullOrEmptyStrings("RolesName")), .. orpgData.RolesName]);
+            session.ResponseData["roles"] = new List<string>([.. (session.ResponseData.GetNotNullOrEmptyStrings("RolesName")), .. orpgData.RolesName]);
+        }
 
         if (orpgData.PermissionsName is not null)
-            session.Data["PermissionsName"] = orpgData.PermissionsName;
-            
-        var sessionDataResponse = new ORPGDataResponse(orpgData);
-        if (sessionDataResponse == null)
-            return session;
-
-        foreach (var item in sessionDataResponse.Data)
-            session.ResponseData[item.Key] = item.Value;
+        {
+            session.InternalData["PermissionsName"] = new List<string>([.. (session.InternalData.GetNotNullOrEmptyStrings("PermissionsName")), .. orpgData.PermissionsName]);
+            session.ResponseData["permissions"] = new List<string>([.. (session.ResponseData.GetNotNullOrEmptyStrings("PermissionsName")), .. orpgData.PermissionsName]);
+        }
 
         return session;
     }
