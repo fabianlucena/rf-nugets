@@ -72,7 +72,7 @@ public class OrganizationUsersController(
         var organizationId = organizationService.GetCurrentOrganizationId()
             ?? throw new NoCurrentOrganizationException();
 
-        var result = await organizationUserService.CreateAsync(await request.ToOrganizationUser(serviceProvider));
+        var result = await organizationUserService.CreateAsync(organizationId, await request.ToOrganizationUser(serviceProvider));
 
         _ = eventBus.Publish(new Event("OrganizationUserCreated", new DataDictionary {
             { "Data", request }
@@ -102,19 +102,23 @@ public class OrganizationUsersController(
             Uuid = uuid,
         }.BuildFromRequest(Request)) ?? throw new UserWithUuidNotFoundException(uuid);
 
-        if (user.CanEdit == false)
-            throw new UserWithUuidCannotBeEditedException(uuid);
-
         if (user.DeletedAt != null)
             throw new UserWithUuidIsDeletedException(uuid);
+
 
         var userOptions = new OrganizationUserQueryOptions
         {
             IncludeInactive = true,
         }.BuildFromRequest(Request);
-
         var data = request.GetPascalized();
-        var result = await organizationUserService.UpdateByUuidAsync(uuid, data, userOptions);
+        int result;
+
+        if (user.CanEdit == true)
+            result = await organizationUserService.UpdateByUuidAsync(organizationId, uuid, data, userOptions);
+        else if (request.TryGetGuids("RolesUuid", out var rolesUuid))
+            result = await organizationUserService.SetRolesUuidByUuidAsync(organizationId, uuid, rolesUuid, userOptions);
+        else
+            result = 0;
 
         _ = eventBus.Publish(new Event("OrganizationUserUpdated", new DataDictionary {
             { "Data", data },

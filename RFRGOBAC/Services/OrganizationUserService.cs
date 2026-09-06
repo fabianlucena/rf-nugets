@@ -1,7 +1,6 @@
 ﻿using RFAuth.IServices;
 using RFBase.ILibs;
 using RFIServices.IServices;
-using RFIServices.QueryOptions;
 using RFRBAC.IServices;
 using RFRegisterService.Attributes;
 using RFRGOBAC.DTO;
@@ -11,19 +10,16 @@ using RFRGOBAC.QueryOptions;
 
 namespace RFRGOBAC.Services;
 
-
 [RegisterService]
 public class OrganizationUserService(
     IUserService userService,
     IUserPasswordService userPasswordService,
     IUserTypeService userTypeService,
     IRoleService roleService,
-    //IRoleXUserService roleXUserService,
-    IRoleXUserXOrganizationService roleXUserXOrganizationService //,
-    //IOrganizationService organizationService
+    IRoleXUserXOrganizationService roleXUserXOrganizationService
 ) : IOrganizationUserService
 {
-    public async Task<OrganizationUser> CreateAsync(OrganizationUser user)
+    public async Task<OrganizationUser> CreateAsync(long organizationId, OrganizationUser user)
     {
         user = user.Clone();
         if (user.TypeId <= 0)
@@ -42,7 +38,7 @@ public class OrganizationUserService(
             await roleXUserXOrganizationService.SetOrganizationsRolesIdForUserIdAsync(
                 [
                     new() {
-                        OrganizationId = 10,
+                        OrganizationId = organizationId,
                         RolesId = user.RolesId,
                     },
                 ],
@@ -67,16 +63,15 @@ public class OrganizationUserService(
             OrganizationId = options.OrganizationId,
         };
 
+        var userOptions = options.Clone();
         if (options.Uuid is not null)
-            roleXUserXOrganizationQueryOptions.UserId = await userService.GetSingleIdByUuidAsync(options.Uuid.Value);
+            roleXUserXOrganizationQueryOptions.UserId = await userService.GetSingleIdByUuidAsync(options.Uuid.Value, userOptions);
 
         var usersId = (await roleXUserXOrganizationService.GetUsersIdAsync(roleXUserXOrganizationQueryOptions)).ToList();
 
-        var users = (await userService.GetListAsync(new UserQueryOptions
-        {
-            IncludeType = options.IncludeType,
-            Ids = usersId,
-        })).Select(user => new OrganizationUser(user));
+        userOptions.Ids = usersId;
+        var users = (await userService.GetListAsync(userOptions))
+            .Select(user => new OrganizationUser(user));
 
         if (options.IncludeRoles)
         {
@@ -149,8 +144,35 @@ public class OrganizationUserService(
     public async Task<IEnumerable<OrganizationUser>> Translate(IEnumerable<OrganizationUser> users, string? context = null)
         => await Task.WhenAll(users.Select(user => Translate(user, context)));
 
-    public Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, OrganizationUserQueryOptions? options = null)
+    public async Task<int> UpdateByUuidAsync(long organizationId, Guid uuid, IDataDictionary data, OrganizationUserQueryOptions? options = null)
     {
-        throw new NotImplementedException();
+        var id = await userService.GetSingleIdByUuidAsync(uuid, options);
+
+        await userService.UpdateByIdAsync(id, data.FilterKeys("DisplayName", "Username", "IsActive", "CanLogin"));
+
+        if (data.TryGetString("Password", out var password) && !string.IsNullOrWhiteSpace(password))
+            await userPasswordService.CreateOrUpdateByUserIdAsync(password, id);
+
+        if (data.TryGetGuids("RolesUuid", out var rolesUuid))
+            await SetRolesUuidByIdAsync(organizationId, id, rolesUuid, options);
+
+        return 1;
+    }
+    
+    public async Task<int> SetRolesUuidByIdAsync(long organizationId, long userId, IEnumerable<Guid> rolesUuid, OrganizationUserQueryOptions? options = null)
+    {
+        var organizationsRolesId = new OrganizationRolesId
+        {
+            OrganizationId = organizationId,
+            RolesId = await roleService.GetListIdByUuidAsync(rolesUuid),
+        };
+
+        return await roleXUserXOrganizationService.SetOrganizationsRolesIdForUserIdAsync([organizationsRolesId], userId);
+    }
+
+    public async Task<int> SetRolesUuidByUuidAsync(long organizationId, Guid userUuid, IEnumerable<Guid> rolesUuid, OrganizationUserQueryOptions? options = null)
+    {
+        var userId = await userService.GetSingleIdByUuidAsync(userUuid, options);
+        return await SetRolesUuidByIdAsync(organizationId, userId, rolesUuid, options);
     }
 }

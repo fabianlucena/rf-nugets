@@ -114,8 +114,6 @@ public class SystemUserService(
 
     public async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, SystemUserQueryOptions? options = null)
     {
-        data.TryGetGuids("SystemRolesUuid", out var systemRolesUuid);
-
         List<OrganizationRolesId>? organizationsRolesId = null;
         data.TryGetValue("OrganizationsRolesUuid", out var organizationsRolesUuidDict);
 
@@ -144,7 +142,10 @@ public class SystemUserService(
         if (data.TryGetString("Password", out var password) && !string.IsNullOrWhiteSpace(password))
             await userPasswordService.CreateOrUpdateByUserIdAsync(password, id);
 
-        if (systemRolesUuid is not null && systemRolesUuid.Any())
+        if (data.TryGetGuids("SystemRolesUuid", out var systemRolesUuid)
+            && systemRolesUuid is not null
+            && systemRolesUuid.Any()
+        )
         {
             var systemRolesId = await roleService.GetListIdByUuidAsync(systemRolesUuid);
             await roleXUserService.SetAllRolesIdForUserIdAsync(systemRolesId, id);
