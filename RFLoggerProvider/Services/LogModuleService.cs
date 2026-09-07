@@ -3,11 +3,13 @@ using RFLoggerProvider.IRepositories;
 using RFLoggerProvider.IServices;
 using RFServices.Services;
 
-namespace RFLoggerProvider.Services
+namespace RFLoggerProvider.Services;
+
+public class LogModuleService(
+    ILogModuleRepository logModuleRepository,
+    IServiceProvider serviceProvider
+)
+    : NominableEntityService<LogModule>(logModuleRepository, serviceProvider),
+    ILogModuleService
 {
-    public class LogModuleService(ILogModuleRepository logModuleRepository)
-        : NominableEntityService<LogModule>(logModuleRepository),
-        ILogModuleService
-    {
-    }
 }

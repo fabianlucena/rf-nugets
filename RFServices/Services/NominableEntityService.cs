@@ -33,7 +33,7 @@ public class NominableEntityService<T>(
         return GetSingleOrDefaultAsync(options);
     }
 
-    public async Task<T> GetOrCreateByNameAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? createFactory = null)
+    public async Task<T> GetSingleOrCreateByNameAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? createFactory = null)
     {
         var entity = await GetSingleOrDefaultByNameAsync(name, options);
         if (entity != null)
@@ -58,9 +58,9 @@ public class NominableEntityService<T>(
         => await GetSingleIdOrDefaultByNameAsync(name, options)
             ?? throw new NoEntityFoundForNameException(name);
 
-    public async Task<long> GetIdOrCreateByNameAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? createFactory = null)
+    public async Task<long> GetSingleIdOrCreateByNameAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? createFactory = null)
     {
-        var entity = await GetOrCreateByNameAsync(name, options, createFactory);
+        var entity = await GetSingleOrCreateByNameAsync(name, options, createFactory);
         return entity.Id;
     }
 

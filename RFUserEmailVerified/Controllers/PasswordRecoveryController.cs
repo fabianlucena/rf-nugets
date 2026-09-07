@@ -30,7 +30,7 @@ namespace RFUserEmailVerified.Controllers
             var action = await httpActionService.CreateAsync(
                 new HttpAction
                 {
-                    TypeId = await httpActionTypeService.GetIdOrCreateByNameAsync(
+                    TypeId = await httpActionTypeService.GetSingleIdOrCreateByNameAsync(
                         "passwordRecovery",
                         createFactory: async httpActionType => {
                             httpActionType.Title = "PasswordRecovery";
