@@ -15,7 +15,7 @@ public class RFAuthInitialDataSeeder(
 {
     public async Task Run()
     {
-        var userType = await userTypeService.GetOrCreateByNameAsync(
+        var userType = await userTypeService.GetSingleOrCreateByNameAsync(
             "user",
             createFactory: async T => new UserType
             {

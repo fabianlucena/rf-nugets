@@ -3,13 +3,13 @@ using RFDBLocalizer.IRepositories;
 using RFDBLocalizer.IServices;
 using RFServices.Services;
 
-namespace RFDBLocalizer.Services
+namespace RFDBLocalizer.Services;
+
+public class LanguageService(
+    ILanguageRepository languageRepository,
+    IServiceProvider serviceProvider
+)
+    : NominableEntityService<Language>(languageRepository, serviceProvider),
+    ILanguageService
 {
-    public class LanguageService(
-        ILanguageRepository languageRepository
-    )
-        : NominableEntityService<Language>(languageRepository),
-        ILanguageService
-    {
-    }
 }
