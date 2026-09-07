@@ -58,7 +58,7 @@ namespace RFUserEmailVerified.Controllers
             var action = await httpActionService.CreateAsync(
                 new HttpAction
                 {
-                    TypeId = await httpActionTypeService.GetIdOrCreateByNameAsync(
+                    TypeId = await httpActionTypeService.GetSingleIdOrCreateByNameAsync(
                         "userEmail.verify",
                         createFactory: async httpActionType => {
                             httpActionType.Title = "UserEmail Verify";

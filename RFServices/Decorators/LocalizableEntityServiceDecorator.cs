@@ -16,6 +16,6 @@ namespace RFServices.Decorators
             => localizableEntityService.Translate(entity, context);
 
         public virtual Task<T> GetOrCreateByNameAsync(string name, LocalizableEntityQueryOptions? options = null, Func<T, Task<T>>? createFactory = null)
-            => localizableEntityService.GetOrCreateByNameAsync(name, options, createFactory);
+            => localizableEntityService.GetSingleOrCreateByNameAsync(name, options, createFactory);
     }
 }

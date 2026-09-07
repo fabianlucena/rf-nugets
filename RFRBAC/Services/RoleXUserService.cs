@@ -71,7 +71,7 @@ public class RoleXUserService(
         var systemUserId = await UserService.GetSystemUserIdAsync();
         foreach (var role in addRoles)
         {
-            var roleId = await roleService.GetIdOrCreateByNameAsync(
+            var roleId = await roleService.GetSingleIdOrCreateByNameAsync(
                 role,
                 createFactory: async r =>
                 {

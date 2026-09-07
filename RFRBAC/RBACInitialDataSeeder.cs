@@ -17,7 +17,7 @@ public class RBACInitialDataSeeder(
 {
     public async Task Run()
     {
-        await roleService.GetOrCreateByNameAsync(
+        await roleService.GetSingleOrCreateByNameAsync(
             "admin",
             createFactory: async T => new Role
             {
@@ -29,7 +29,7 @@ public class RBACInitialDataSeeder(
             }
         );
 
-        await roleService.GetOrCreateByNameAsync(
+        await roleService.GetSingleOrCreateByNameAsync(
             "user",
             createFactory: async T => new Role
             {

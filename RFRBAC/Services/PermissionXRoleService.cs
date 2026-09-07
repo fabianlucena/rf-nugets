@@ -48,7 +48,7 @@ public class PermissionXRoleService(
                     permission.CreatedById = creatorId;
                     return permission;
                 });
-            var roleId = await RoleService.GetIdOrCreateByNameAsync(
+            var roleId = await RoleService.GetSingleIdOrCreateByNameAsync(
                 roleName,
                 createFactory: async role =>
                 {
