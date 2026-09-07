@@ -15,7 +15,7 @@ public class RFRGOBACInitialDataSeeder(
 {
     public async Task Run()
     {
-        await roleService.GetOrCreateByNameAsync(
+        await roleService.GetSingleOrCreateByNameAsync(
             "admin",
             createFactory: async T => new Role
             {
