@@ -158,10 +158,10 @@ public class SystemUserService(
     }
 
     public async Task<int> DeleteByUuidAsync(Guid uuid, SystemUserQueryOptions? options = null)
-        => await userService.DeleteByUuidAsync(uuid);
+        => await userService.DeleteByUuidAsync(uuid, options);
 
     public async Task<int> RestoreByUuidAsync(Guid uuid, SystemUserQueryOptions? options = null)
-        => await userService.RestoreByUuidAsync(uuid);
+        => await userService.RestoreByUuidAsync(uuid, options);
 
     public async Task<SystemUser> Translate(SystemUser user, string? context = null)
     {

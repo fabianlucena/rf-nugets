@@ -49,11 +49,6 @@ public class OrganizationUserService(
         return result;
     }
 
-    public Task<int> DeleteByUuidAsync(Guid uuid, OrganizationUserQueryOptions? options = null)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<IEnumerable<OrganizationUser>> GetListAsync(OrganizationUserQueryOptions? options)
     {
         options ??= new OrganizationUserQueryOptions();
@@ -123,10 +118,11 @@ public class OrganizationUserService(
         return users.FirstOrDefault();
     }
 
-    public Task<int> RestoreByUuidAsync(Guid uuid, OrganizationUserQueryOptions? options = null)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<int> DeleteByUuidAsync(Guid uuid, OrganizationUserQueryOptions? options = null)
+        => await userService.DeleteByUuidAsync(uuid, options);
+
+    public async Task<int> RestoreByUuidAsync(Guid uuid, OrganizationUserQueryOptions? options = null)
+        => await userService.RestoreByUuidAsync(uuid, options);
 
     public async Task<OrganizationUser> Translate(OrganizationUser user, string? context = null)
     {
