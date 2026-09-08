@@ -27,6 +27,9 @@ public class BaseServiceDecorator<T>(IBaseService<T> baseService)
     public Task<T?> GetSingleOrDefaultAsync(BaseQueryOptions options)
         => baseService.GetSingleOrDefaultAsync(options);
 
+    public Task<int> GetCountAsync(BaseQueryOptions options)
+        => baseService.GetCountAsync(options);
+
     public Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
         => baseService.UpdateAsync(data, options);
 

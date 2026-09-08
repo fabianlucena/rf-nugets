@@ -1,10 +1,9 @@
 ﻿using RFEntities.Entities;
 using RFIServices.QueryOptions;
 
-namespace RFIRepositories.IRepositories
+namespace RFIRepositories.IRepositories;
+
+public interface IUserRepository : IACommonEntityRepository<User>
 {
-    public interface IUserRepository : IACommonEntityRepository<User>
-    {
-        Task<IEnumerable<string>> GetUsernamesAsync(UserQueryOptions options);
-    }
+    Task<IEnumerable<string>> GetUsernamesAsync(UserQueryOptions options);
 }

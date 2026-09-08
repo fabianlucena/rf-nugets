@@ -2,8 +2,8 @@
 
 namespace RFIRepositories.IRepositories;
 
-public interface ITitledEntityRepository<T>
+public interface IANominableEntityRepository<T>
     : INominableEntityRepository<T>
-    where T : TitledEntity, new()
+    where T : ANominableEntity, new()
 {
 }

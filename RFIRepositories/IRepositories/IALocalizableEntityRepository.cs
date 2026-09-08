@@ -1,10 +1,9 @@
 ﻿using RFEntities.Entities;
 
-namespace RFIRepositories.IRepositories
+namespace RFIRepositories.IRepositories;
+
+public interface IALocalizableEntityRepository<T>
+    : ILocalizableEntityRepository<T>
+    where T : ALocalizableEntity, new()
 {
-    public interface IALocalizableEntityRepository<T>
-        : ILocalizableEntityRepository<T>
-        where T : ALocalizableEntity, new()
-    {
-    }
 }

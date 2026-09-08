@@ -1,10 +1,9 @@
 ﻿using RFEntities.Entities;
 
-namespace RFIRepositories.IRepositories
+namespace RFIRepositories.IRepositories;
+
+public interface IACommonEntityRepository<T>
+    : ICommonEntityRepository<T>
+    where T : ACommonEntity, new()
 {
-    public interface IACommonEntityRepository<T>
-        : ICommonEntityRepository<T>
-        where T : ACommonEntity, new()
-    {
-    }
 }

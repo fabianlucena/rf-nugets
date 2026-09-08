@@ -2,8 +2,8 @@
 
 namespace RFIRepositories.IRepositories;
 
-public interface ITranslatableEntityRepository<T>
+public interface IOwnedEntityRepository<T>
     : ICommonEntityRepository<T>
-    where T : TranslatableEntity, new()
+    where T : OwnedEntity, new()
 {
 }

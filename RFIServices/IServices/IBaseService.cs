@@ -12,6 +12,7 @@ public interface IBaseService<T> where T : Base
     Task<T?> GetFirstOrDefaultAsync(BaseQueryOptions options);
     Task<T> GetSingleAsync(BaseQueryOptions options);
     Task<T?> GetSingleOrDefaultAsync(BaseQueryOptions options);
+    Task<int> GetCountAsync(BaseQueryOptions options);
 
     Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options);
     Task<int> DeleteAsync(BaseQueryOptions options);

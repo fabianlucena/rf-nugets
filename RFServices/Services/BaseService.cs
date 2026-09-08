@@ -64,6 +64,9 @@ public class BaseService<T>(
         => await GetSingleOrDefaultAsync(options)
             ?? throw new NoEntityFoundMatchingTheSpecifiedCriteriaException();
 
+    public async Task<int> GetCountAsync(BaseQueryOptions options)
+        => await repository.GetCountAsync(options);
+
     public virtual async Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
         => await repository.UpdateAsync(data, options);
 
