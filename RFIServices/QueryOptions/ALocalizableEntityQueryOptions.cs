@@ -1,34 +1,33 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace RFIServices.QueryOptions
+namespace RFIServices.QueryOptions;
+
+public abstract class ALocalizableEntityQueryOptions : LocalizableEntityQueryOptions
 {
-    public abstract class ALocalizableEntityQueryOptions : LocalizableEntityQueryOptions
+    public bool IncludeInactive { get; set; } = false;
+
+    public ALocalizableEntityQueryOptions() { }
+
+    public ALocalizableEntityQueryOptions(ALocalizableEntityQueryOptions? options)
+        : base(options)
     {
-        public bool IncludeInactive { get; set; } = false;
+        if (options == null)
+            return;
 
-        public ALocalizableEntityQueryOptions() { }
+        IncludeInactive = options.IncludeInactive;
+    }
 
-        public ALocalizableEntityQueryOptions(ALocalizableEntityQueryOptions? options)
-            : base(options)
+    public override CommonEntityQueryOptions UpdateFromRequest(HttpRequest request)
+    {
+        base.UpdateFromRequest(request);
+
+        if (request.Query.TryGetValue("includeInactive", out var value))
         {
-            if (options == null)
-                return;
+            var stringValue = value.ToString().Trim();
 
-            IncludeInactive = options.IncludeInactive;
+            IncludeInactive = stringValue == "1" || (bool.TryParse(stringValue, out var parsedBool) && parsedBool);
         }
 
-        public override CommonEntityQueryOptions UpdateFromRequest(HttpRequest request)
-        {
-            base.UpdateFromRequest(request);
-
-            if (request.Query.TryGetValue("includeInactive", out var value))
-            {
-                var stringValue = value.ToString().Trim();
-
-                IncludeInactive = stringValue == "1" || (bool.TryParse(stringValue, out var parsedBool) && parsedBool);
-            }
-
-            return this;
-        }
+        return this;
     }
 }

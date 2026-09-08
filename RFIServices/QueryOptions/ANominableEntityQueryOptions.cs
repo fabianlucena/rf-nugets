@@ -2,13 +2,13 @@
 
 namespace RFIServices.QueryOptions;
 
-public abstract class ACommonEntityQueryOptions : CommonEntityQueryOptions
+public class ANominableEntityQueryOptions : NominableEntityQueryOptions
 {
     public bool IncludeInactive { get; set; } = false;
 
-    public ACommonEntityQueryOptions() { }
+    public ANominableEntityQueryOptions() { }
 
-    public ACommonEntityQueryOptions(ACommonEntityQueryOptions? options)
+    public ANominableEntityQueryOptions(ANominableEntityQueryOptions? options)
         : base(options)
     {
         if (options == null)
@@ -17,7 +17,10 @@ public abstract class ACommonEntityQueryOptions : CommonEntityQueryOptions
         IncludeInactive = options.IncludeInactive;
     }
 
-    public override CommonEntityQueryOptions UpdateFromRequest(HttpRequest request)
+    public override ANominableEntityQueryOptions Clone()
+        => new(this);
+
+    public override ANominableEntityQueryOptions UpdateFromRequest(HttpRequest request)
     {
         base.UpdateFromRequest(request);
 
