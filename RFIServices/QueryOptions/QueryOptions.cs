@@ -33,6 +33,17 @@ namespace RFIServices.QueryOptions
             return defaultValue;
         }
 
+        public static bool? GetNullableBoolFromRequest(HttpRequest request, string key, bool? defaultValue = null)
+        {
+            if (request.Query.TryGetValue(key, out var value))
+            {
+                var stringValue = value.ToString().Trim();
+                return stringValue == "1" || (bool.TryParse(stringValue, out var parsedBool) && parsedBool);
+            }
+
+            return defaultValue;
+        }
+
         public virtual QueryOptions UpdateFromRequest(HttpRequest request)
         {
             if (request.Query.ContainsKey("skip"))

@@ -4,7 +4,7 @@ namespace RFIServices.QueryOptions;
 
 public class OwnedEntityQueryOptions : CommonEntityQueryOptions
 {
-    public bool? IsMine { get; set; } = null;
+    public bool? Mine { get; set; } = null;
 
     public OwnedEntityQueryOptions() { }
 
@@ -14,7 +14,7 @@ public class OwnedEntityQueryOptions : CommonEntityQueryOptions
         if (options == null)
             return;
 
-        IsMine = options.IsMine;
+        Mine = options.Mine;
     }
 
     public override OwnedEntityQueryOptions Clone()
@@ -24,12 +24,7 @@ public class OwnedEntityQueryOptions : CommonEntityQueryOptions
     {
         base.UpdateFromRequest(request);
 
-        if (request.Query.TryGetValue("mine", out var value))
-        {
-            var stringValue = value.ToString().Trim();
-
-            IsMine = stringValue == "1" || (bool.TryParse(stringValue, out var parsedBool) && parsedBool);
-        }
+        Mine = GetNullableBoolFromRequest(request, "mine", Mine);
 
         return this;
     }
