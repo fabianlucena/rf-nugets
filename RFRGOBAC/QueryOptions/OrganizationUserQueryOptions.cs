@@ -29,9 +29,9 @@ public class OrganizationUserQueryOptions : UserQueryOptions
     public override OrganizationUserQueryOptions Clone()
         => new(this);
 
-    public override OrganizationUserQueryOptions BuildFromRequest(HttpRequest request)
+    public override OrganizationUserQueryOptions UpdateFromRequest)HttpRequest request)
     {
-        base.BuildFromRequest(request);
+        base.UpdateFromRequest)request);
 
         if (request.Query.ContainsKey("includeRoles"))
             IncludeRoles = bool.Parse(request.Query["includeRoles"].ToString());

@@ -27,9 +27,9 @@ public class UserQueryOptions : ACommonEntityQueryOptions
     public override UserQueryOptions Clone()
         => new(this);
 
-    public override UserQueryOptions BuildFromRequest(HttpRequest request)
+    public override UserQueryOptions UpdateFromRequest)HttpRequest request)
     {
-        base.BuildFromRequest(request);
+        base.UpdateFromRequest)request);
 
         if (request.Query.ContainsKey("username"))
             Username = request.Query["username"].ToString();

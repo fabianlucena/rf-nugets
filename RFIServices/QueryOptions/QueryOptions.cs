@@ -22,7 +22,7 @@ namespace RFIServices.QueryOptions
 
         public abstract QueryOptions Clone();
 
-        public virtual QueryOptions BuildFromRequest(HttpRequest request)
+        public virtual QueryOptions UpdateFromRequest)HttpRequest request)
         {
             if (request.Query.ContainsKey("skip"))
                 Skip = int.Parse(request.Query["skip"].ToString());

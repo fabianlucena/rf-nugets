@@ -17,9 +17,9 @@ public sealed class OrganizationQueryOptions : ALocalizableEntityQueryOptions
     public override OrganizationQueryOptions Clone()
         => new(this);
 
-    public override OrganizationQueryOptions BuildFromRequest(HttpRequest request)
+    public override OrganizationQueryOptions UpdateFromRequest)HttpRequest request)
     {
-        base.BuildFromRequest(request);
+        base.UpdateFromRequest)request);
 
         return this;
     }

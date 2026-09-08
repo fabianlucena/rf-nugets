@@ -19,9 +19,9 @@ public abstract class CommonEntityQueryOptions : AuditableEntityQueryOptions
         IncludeDeletedBy = options.IncludeDeletedBy;
     }
 
-    public override CommonEntityQueryOptions BuildFromRequest(HttpRequest request)
+    public override CommonEntityQueryOptions UpdateFromRequest)HttpRequest request)
     {
-        base.BuildFromRequest(request);
+        base.UpdateFromRequest)request);
 
         if (request.Query.TryGetValue("includeDeleted", out var value))
         {

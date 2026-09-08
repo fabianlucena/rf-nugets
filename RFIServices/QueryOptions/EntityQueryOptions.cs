@@ -27,9 +27,9 @@ public abstract class EntityQueryOptions : BaseQueryOptions
         SkipOrderById = options.SkipOrderById;
     }
 
-    public override EntityQueryOptions BuildFromRequest(HttpRequest request)
+    public override EntityQueryOptions UpdateFromRequest)HttpRequest request)
     {
-        base.BuildFromRequest(request);
+        base.UpdateFromRequest)request);
 
         if (request.Query.ContainsKey("uuid"))
             Uuid = Guid.Parse(request.Query["uuid"].ToString());
