@@ -40,7 +40,7 @@ public class OrganizationUsersController(
             IncludeUpdatedBy = true,
             IncludeDeletedBy = true,
             OrganizationId = organizationId
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         if (userOptions.OrganizationId != organizationId)
             throw new InvalidOrganizationOrganizationException();
@@ -100,7 +100,7 @@ public class OrganizationUsersController(
             IncludeDeleted = true,
             OrganizationId = organizationId,
             Uuid = uuid,
-        }.UpdateFromRequest)Request)) ?? throw new UserWithUuidNotFoundException(uuid);
+        }.UpdateFromRequest(Request)) ?? throw new UserWithUuidNotFoundException(uuid);
 
         if (user.DeletedAt != null)
             throw new UserWithUuidIsDeletedException(uuid);
@@ -109,7 +109,7 @@ public class OrganizationUsersController(
         var userOptions = new OrganizationUserQueryOptions
         {
             IncludeInactive = true,
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
         var data = request.GetPascalized();
         int result;
 
@@ -147,7 +147,7 @@ public class OrganizationUsersController(
             IncludeDeleted = true,
             OrganizationId = organizationId,
             Uuid = uuid,
-        }.UpdateFromRequest)Request)) ?? throw new UserWithUuidNotFoundException(uuid);
+        }.UpdateFromRequest(Request)) ?? throw new UserWithUuidNotFoundException(uuid);
 
         if (user.CanEdit == false)
             throw new UserWithUuidCannotBeEditedException(uuid);
@@ -155,7 +155,7 @@ public class OrganizationUsersController(
         var userOptions = new OrganizationUserQueryOptions
         {
             IncludeInactive = true
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         var result = await organizationUserService.DeleteByUuidAsync(uuid, userOptions);
 
@@ -185,7 +185,7 @@ public class OrganizationUsersController(
             IncludeDeleted = true,
             OrganizationId = organizationId,
             Uuid = uuid,
-        }.UpdateFromRequest)Request)) ?? throw new UserWithUuidNotFoundException(uuid);
+        }.UpdateFromRequest(Request)) ?? throw new UserWithUuidNotFoundException(uuid);
 
         if (user.CanEdit == false)
             throw new UserWithUuidCannotBeEditedException(uuid);
@@ -194,7 +194,7 @@ public class OrganizationUsersController(
         {
             IncludeDeleted = true,
             IncludeInactive = true,
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         var result = await organizationUserService.RestoreByUuidAsync(uuid, userOptions);
 
@@ -219,7 +219,7 @@ public class OrganizationUsersController(
         var roleOptions = new RoleQueryOptions
         {
             IsSelectable = true,
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         if (uuid != null)
         {

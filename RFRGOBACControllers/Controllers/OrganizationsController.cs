@@ -34,7 +34,7 @@ public class OrganizationsController(
             IncludeCreatedBy = true,
             IncludeUpdatedBy = true,
             IncludeDeletedBy = true,
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         var permissionService = serviceProvider.GetRequiredService<IPermissionService>();
         if (!permissionService.HasCurrentPermission("organizations.get"))
@@ -57,7 +57,7 @@ public class OrganizationsController(
             IncludeCreatedBy = true,
             IncludeUpdatedBy = true,
             IncludeDeletedBy = true,
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         var permissionService = serviceProvider.GetRequiredService<IPermissionService>();
         if (!permissionService.HasCurrentPermission("organizations.get"))
@@ -89,7 +89,7 @@ public class OrganizationsController(
         var organizationOptions = new OrganizationQueryOptions
         {
             IncludeInactive = true
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         var data = request.GetPascalized();
         var result = await organizationService.UpdateByUuidAsync(uuid, data, organizationOptions);
@@ -133,7 +133,7 @@ public class OrganizationsController(
         var organizationOptions = new OrganizationQueryOptions
         {
             IncludeInactive = true
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         var result = await organizationService.DeleteByUuidAsync(uuid, organizationOptions);
 
@@ -157,7 +157,7 @@ public class OrganizationsController(
         {
             IncludeDeleted = true,
             IncludeInactive = true,
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         var result = await organizationService.RestoreByUuidAsync(uuid, organizationOptions);
 

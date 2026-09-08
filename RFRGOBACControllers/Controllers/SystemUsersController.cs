@@ -35,7 +35,7 @@ public class SystemUsersController(
             IncludeCreatedBy = true,
             IncludeUpdatedBy = true,
             IncludeDeletedBy = true,
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         if (uuid != null)
         {
@@ -82,7 +82,7 @@ public class SystemUsersController(
         var userOptions = new SystemUserQueryOptions
         {
             IncludeInactive = true
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         var data = request.GetPascalized();
         var result = await systemUserService.UpdateByUuidAsync(uuid, data, userOptions);
@@ -107,7 +107,7 @@ public class SystemUsersController(
         var userOptions = new SystemUserQueryOptions
         {
             IncludeInactive = true
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         var result = await systemUserService.DeleteByUuidAsync(uuid, userOptions);
 
@@ -131,7 +131,7 @@ public class SystemUsersController(
         {
             IncludeDeleted = true,
             IncludeInactive = true,
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         var result = await systemUserService.RestoreByUuidAsync(uuid, userOptions);
 
@@ -156,7 +156,7 @@ public class SystemUsersController(
         var roleOptions = new RoleQueryOptions
         {
             IsSelectable = true,
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         if (uuid != null)
         {

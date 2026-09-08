@@ -30,7 +30,7 @@ public class UsersController(
             IncludeCreatedBy = true,
             IncludeUpdatedBy = true,
             IncludeDeletedBy = true,
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         if (uuid != null)
             userOptions.Uuid = uuid;

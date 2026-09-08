@@ -23,7 +23,7 @@ public class SelectableRolesController(
         var roleOptions = new RoleQueryOptions
         {
             IsSelectable = true,
-        }.UpdateFromRequest)Request);
+        }.UpdateFromRequest(Request);
 
         if (uuid != null)
         {

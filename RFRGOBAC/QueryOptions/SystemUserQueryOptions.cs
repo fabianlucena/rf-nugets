@@ -25,9 +25,9 @@ public class SystemUserQueryOptions : UserQueryOptions
     public override SystemUserQueryOptions Clone()
         => new(this);
 
-    public override SystemUserQueryOptions UpdateFromRequest)HttpRequest request)
+    public override SystemUserQueryOptions UpdateFromRequest(HttpRequest request)
     {
-        base.UpdateFromRequest)request);
+        base.UpdateFromRequest(request);
 
         if (request.Query.ContainsKey("includeSystemRoles"))
             IncludeSystemRoles = bool.Parse(request.Query["includeSystemRoles"].ToString());

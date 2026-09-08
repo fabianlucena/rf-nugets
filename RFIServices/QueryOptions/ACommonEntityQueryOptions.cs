@@ -17,9 +17,9 @@ namespace RFIServices.QueryOptions
             IncludeInactive = options.IncludeInactive;
         }
 
-        public override CommonEntityQueryOptions UpdateFromRequest)HttpRequest request)
+        public override CommonEntityQueryOptions UpdateFromRequest(HttpRequest request)
         {
-            base.UpdateFromRequest)request);
+            base.UpdateFromRequest(request);
 
             if (request.Query.TryGetValue("includeInactive", out var value))
             {
