@@ -7,5 +7,5 @@ public interface INominableOwnedEntityRepository<T>
     : IOwnedEntityRepository<T>
     where T : NominableOwnedEntity, new()
 {
-    Task<IEnumerable<string>> GetNamesAsync(NominableEntityQueryOptions options);
+    Task<IEnumerable<string>> GetNamesAsync(NominableOwnedEntityQueryOptions options);
 }

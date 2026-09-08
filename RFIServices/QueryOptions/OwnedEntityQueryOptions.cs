@@ -4,7 +4,8 @@ namespace RFIServices.QueryOptions;
 
 public class OwnedEntityQueryOptions : CommonEntityQueryOptions
 {
-    public bool? Mine { get; set; } = null;
+    public bool? Mine { get; set; }
+    public long OwnerId { get; set; }
 
     public OwnedEntityQueryOptions() { }
 
@@ -15,6 +16,7 @@ public class OwnedEntityQueryOptions : CommonEntityQueryOptions
             return;
 
         Mine = options.Mine;
+        OwnerId = options.OwnerId;
     }
 
     public override OwnedEntityQueryOptions Clone()
