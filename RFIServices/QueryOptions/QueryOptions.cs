@@ -22,6 +22,17 @@ namespace RFIServices.QueryOptions
 
         public abstract QueryOptions Clone();
 
+        public static bool GetBoolFromRequest(HttpRequest request, string key, bool defaultValue = false)
+        {
+            if (request.Query.TryGetValue(key, out var value))
+            {
+                var stringValue = value.ToString().Trim();
+                return stringValue == "1" || (bool.TryParse(stringValue, out var parsedBool) && parsedBool);
+            }
+
+            return defaultValue;
+        }
+
         public virtual QueryOptions UpdateFromRequest(HttpRequest request)
         {
             if (request.Query.ContainsKey("skip"))

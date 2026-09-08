@@ -1,7 +1,8 @@
-﻿namespace RFLoggerProvider.DTO
+﻿using RFLoggerProvider.Entities;
+
+namespace RFLoggerProvider.DTO;
+
+public class LogResponse(Log log)
+    : LogDTO(log)
 {
-    public class LogResponse
-        : LogDTO
-    {
-    }
 }
