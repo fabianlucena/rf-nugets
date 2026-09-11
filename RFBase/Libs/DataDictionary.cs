@@ -650,10 +650,10 @@ public class DataDictionary
                 return null;
 
             case JsonValueKind.Number:
-                if (jsonElement.TryGetInt64(out var int32))
-                    return int32;
-                else if (jsonElement.TryGetUInt64(out var uint32))
-                    return uint32;
+                if (jsonElement.TryGetInt64(out var int64))
+                    return int64;
+                else if (jsonElement.TryGetUInt64(out var uint64))
+                    return uint64;
                 else
                     return jsonElement.GetDouble();
 
