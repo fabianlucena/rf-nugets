@@ -31,7 +31,7 @@ public class AuthorizationFilter() : IAsyncActionFilter
 
         var httpContext = context.HttpContext;
         var userIdText = httpContext.Items["UserId"];
-        var userId = Convert.ToLong(userIdText);
+        var userId = Convert.ToInt64(userIdText);
         if (userId <= 0)
         {
             context.Result = new StatusCodeResult(401);
