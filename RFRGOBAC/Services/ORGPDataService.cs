@@ -46,7 +46,7 @@ public class ORGPDataService(
 
             if (orpgData.CurrentOrganization is null)
             {
-                var previousSessionId = session.Data.GetInt64("previousSessionId");
+                var previousSessionId = session.Data.GetLong("previousSessionId");
                 orpgData.CurrentOrganization = await sessionOrganizationService.GetSingleOrDefaultOrganizationBySessionIdAsync(previousSessionId);
                 if (orpgData.CurrentOrganization is null)
                     return orpgData;
