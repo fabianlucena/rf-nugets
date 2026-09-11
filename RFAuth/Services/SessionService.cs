@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using RFAuth.DTO;
 using RFAuth.Entities;
 using RFAuth.IRepositories;
 using RFAuth.IServices;
@@ -8,6 +7,7 @@ using RFAuth.QueryOptions;
 using RFBase.ILibs;
 using RFBase.Libs;
 using RFEventBus;
+using RFIServices.QueryOptions;
 using RFRegisterService.Attributes;
 using RFServices.Services;
 using System.Text.Json;
@@ -79,9 +79,11 @@ public class SessionService(
         return session;
     }
 
-    public override async Task<IDataDictionary> ValidateForUpdate(IDataDictionary data)
+    public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data)
     {
+        data = await base.ValidateForUpdateAsync(data);
         data["LastUsedAt"] = DateTime.UtcNow;
+
         return data;
     }
 

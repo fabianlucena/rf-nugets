@@ -1,15 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using RFBase.ILibs;
-using RFBase.Libs;
-using RFEntities.Entities;
+﻿using RFBase.Libs;
 using RFHttpAction.Entities;
 using RFHttpAction.Exceptions;
 using RFHttpAction.IRepositories;
 using RFHttpAction.IServices;
 using RFHttpAction.QueryOptions;
-using RFIServices.IServices;
 using RFRegisterService.Attributes;
-using RFServices.Exceptions;
 using RFServices.Services;
 
 namespace RFHttpAction.Services;
@@ -22,14 +17,6 @@ public class HttpActionService(
     : AuditableEntityService<HttpAction>(httpActionRepository, serviceProvider),
         IHttpActionService
 {
-    public override async Task<long> GetCurrentUserId()
-    {
-        if (catchedCurrentUserId <= 0)
-            catchedCurrentUserId = await UserService.GetCurrentOrSystemUserIdAsync();
-
-        return catchedCurrentUserId;
-    }
-
     public override async Task<HttpAction> ValidateForCreateAsync(HttpAction entity)
     {
         entity = await base.ValidateForCreateAsync(entity);
