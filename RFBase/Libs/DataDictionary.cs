@@ -724,6 +724,13 @@ public class DataDictionary
         return "{" + string.Join(",", lines) + "}";
     }
 
+    public bool GetBool(string key, bool defaultValue = false)
+    {
+        return TryGetBool(key, out var value)
+            ? value
+            : defaultValue;
+    }
+
     public long GetInt64(string key, long defaultValue = 0)
     {
         return TryGetInt64(key, out var value)

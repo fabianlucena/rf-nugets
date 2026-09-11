@@ -42,6 +42,8 @@ public interface IDataDictionary
 
     long GetInt64(string key, long defaultValue = 0);
 
+    bool GetBool(string key, bool defaultValue = false);
+
     IEnumerable<long> GetInt64List(string key);
 
     IEnumerable<string> GetNotNullOrEmptyStrings(string key);
