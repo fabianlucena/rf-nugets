@@ -7,6 +7,7 @@ public interface INominableEntityService<T>
     : ICommonEntityService<T>
     where T : NominableEntity, new()
 {
+    Task<T> GetSingleByNameAsync(string name, NominableEntityQueryOptions? options = null);
     Task<T?> GetSingleOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null);
     Task<T> GetSingleOrCreateByNameAsync(string name, NominableEntityQueryOptions? options = null, Func<T, Task<T>>? createFactory = null);
     Task<long?> GetSingleIdOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null);
