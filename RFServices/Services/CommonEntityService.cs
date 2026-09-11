@@ -19,7 +19,7 @@ public class CommonEntityService<T>(
         var data = await ValidateForUpdateAsync(new DataDictionary{
             { "DeletedAt", DateTime.UtcNow },
             { "DeletedById", await GetCurrentUserIdAsync() }
-        });
+        }, options ?? new NewableCommonEntityQueryOptions());
         int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to delete entity with ID {id}.");
@@ -32,8 +32,8 @@ public class CommonEntityService<T>(
         var id = await GetSingleIdByUuidAsync(uuid, options);
         var data = await ValidateForUpdateAsync(new DataDictionary{
             { "DeletedAt", DateTime.UtcNow },
-            { "DeletedById", await GetCurrentUserIdAsync() }
-        });
+            { "DeletedById", await GetCurrentUserIdAsync() },
+        }, options ?? new NewableCommonEntityQueryOptions());
         int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to delete entity with UUID {uuid}.");
@@ -45,8 +45,8 @@ public class CommonEntityService<T>(
     {
         var data = await ValidateForUpdateAsync(new DataDictionary{
             { "DeletedAt", null },
-            { "DeletedById", null }
-        });
+            { "DeletedById", null },
+        }, options ?? new NewableCommonEntityQueryOptions());
         int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to restore entity with ID {id}.");
@@ -59,8 +59,8 @@ public class CommonEntityService<T>(
         var id = await GetSingleIdByUuidAsync(uuid, options);
         var data = await ValidateForUpdateAsync(new DataDictionary{
             { "DeletedAt", null },
-            { "DeletedById", null }
-        });
+            { "DeletedById", null },
+        }, options ?? new NewableCommonEntityQueryOptions());
         int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to restore entity with UUID {uuid}.");

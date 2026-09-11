@@ -118,7 +118,7 @@ public class EntityService<T>(
 
     public async Task<int> UpdateByIdAsync(long id, IDataDictionary data, EntityQueryOptions? options = null)
     {
-        data = await ValidateForUpdateAsync(data);
+        data = await ValidateForUpdateAsync(data, options ?? new NewableEntityQueryOptions());
         int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to update entity with ID {id}.");
@@ -129,7 +129,7 @@ public class EntityService<T>(
     public async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, EntityQueryOptions? options = null)
     {
         var id = await GetSingleIdByUuidAsync(uuid, options);
-        data = await ValidateForUpdateAsync(data);
+        data = await ValidateForUpdateAsync(data, options ?? new NewableEntityQueryOptions());
         int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to update entity with UUID {uuid}.");

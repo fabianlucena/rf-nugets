@@ -79,9 +79,9 @@ public class SessionService(
         return session;
     }
 
-    public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data)
+    public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, BaseQueryOptions options)
     {
-        data = await base.ValidateForUpdateAsync(data);
+        data = await base.ValidateForUpdateAsync(data, options);
         data["LastUsedAt"] = DateTime.UtcNow;
 
         return data;
