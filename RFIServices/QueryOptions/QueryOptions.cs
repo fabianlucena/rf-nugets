@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using RFBase.Libs;
 
 namespace RFIServices.QueryOptions
 {
@@ -40,6 +41,14 @@ namespace RFIServices.QueryOptions
                 var stringValue = value.ToString().Trim();
                 return stringValue == "1" || (bool.TryParse(stringValue, out var parsedBool) && parsedBool);
             }
+
+            return defaultValue;
+        }
+
+        public static Guid? GetNullableUuidFromRequest(HttpRequest request, string key, Guid? defaultValue = null)
+        {
+            if (request.Query.TryGetGuid(key, out var value))
+                return value;
 
             return defaultValue;
         }

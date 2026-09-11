@@ -20,13 +20,8 @@ public abstract class ALocalizableEntityQueryOptions : LocalizableEntityQueryOpt
     public override CommonEntityQueryOptions UpdateFromRequest(HttpRequest request)
     {
         base.UpdateFromRequest(request);
-
-        if (request.Query.TryGetValue("includeInactive", out var value))
-        {
-            var stringValue = value.ToString().Trim();
-
-            IncludeInactive = stringValue == "1" || (bool.TryParse(stringValue, out var parsedBool) && parsedBool);
-        }
+        
+        IncludeInactive = GetBoolFromRequest(request, "includeInactive");
 
         return this;
     }
