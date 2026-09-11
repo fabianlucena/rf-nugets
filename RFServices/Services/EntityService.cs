@@ -46,6 +46,20 @@ public class EntityService<T>(
         return await GetSingleAsync(options);
     }
 
+    public async Task<T?> GetSingleOrDefaultByIdAsync(long id, EntityQueryOptions? options = null)
+    {
+        options = (EntityQueryOptions?)options?.Clone() ?? new EntityQueryOptionsClonable();
+        options.Id = id;
+        return await GetSingleOrDefaultAsync(options);
+    }
+
+    public async Task<T> GetSingleByUuidAsync(Guid guid, EntityQueryOptions? options = null)
+    {
+        options = (EntityQueryOptions?)options?.Clone() ?? new EntityQueryOptionsClonable();
+        options.Uuid = guid;
+        return await GetSingleAsync(options);
+    }
+
     public async Task<T?> GetFirstOrDefaultByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
     {
         options = (EntityQueryOptions?)options?.Clone() ?? new EntityQueryOptionsClonable();
@@ -53,8 +67,18 @@ public class EntityService<T>(
         return await GetFirstOrDefaultAsync(options);
     }
 
+    public async Task<T?> GetSingleOrDefaultByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
+    {
+        options = (EntityQueryOptions?)options?.Clone() ?? new EntityQueryOptionsClonable();
+        options.Uuid = uuid;
+        return await GetSingleOrDefaultAsync(options);
+    }
+
     public async Task<IEnumerable<long>> GetListIdAsync(EntityQueryOptions options)
         => await repository.GetListIdAsync(options);
+
+    public async Task<IEnumerable<Guid>> GetListUuidAsync(EntityQueryOptions options)
+        => await repository.GetListUuidAsync(options);
 
     public async Task<IEnumerable<long>> GetListIdByUuidAsync(IEnumerable<Guid> uuids, EntityQueryOptions? options = null)
     {
@@ -94,7 +118,7 @@ public class EntityService<T>(
 
     public async Task<int> UpdateByIdAsync(long id, IDataDictionary data, EntityQueryOptions? options = null)
     {
-        data = await ValidateForUpdate(data);
+        data = await ValidateForUpdateAsync(data);
         int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to update entity with ID {id}.");
@@ -105,7 +129,7 @@ public class EntityService<T>(
     public async Task<int> UpdateByUuidAsync(Guid uuid, IDataDictionary data, EntityQueryOptions? options = null)
     {
         var id = await GetSingleIdByUuidAsync(uuid, options);
-        data = await ValidateForUpdate(data);
+        data = await ValidateForUpdateAsync(data);
         int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
             throw new InvalidOperationException($"Failed to update entity with UUID {uuid}.");

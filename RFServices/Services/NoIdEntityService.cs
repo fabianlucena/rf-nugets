@@ -3,6 +3,7 @@ using RFBase.ILibs;
 using RFEntities.Entities;
 using RFIRepositories.IRepositories;
 using RFIServices.IServices;
+using RFIServices.QueryOptions;
 using RFServices.Exceptions;
 
 namespace RFServices.Services;
@@ -49,9 +50,9 @@ public class NoIdEntityService<T>(
         return entity;
     }
 
-    public override async Task<IDataDictionary> ValidateForUpdate(IDataDictionary data)
+    public override async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, BaseQueryOptions options)
     {
-        data = await base.ValidateForUpdate(data);
+        data = await base.ValidateForUpdateAsync(data, options);
 
         if (!data.TryGetValue("UpdatedById", out object? value) || value is null || (long)value <= 0)
         {

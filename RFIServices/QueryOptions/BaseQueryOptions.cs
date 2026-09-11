@@ -1,12 +1,11 @@
-﻿namespace RFIServices.QueryOptions
+﻿namespace RFIServices.QueryOptions;
+
+public abstract class BaseQueryOptions : QueryOptions
 {
-    public abstract class BaseQueryOptions : QueryOptions
+    public BaseQueryOptions() { }
+
+    public BaseQueryOptions(BaseQueryOptions? options)
+        : base(options)
     {
-        public BaseQueryOptions() { }
-    
-        public BaseQueryOptions(BaseQueryOptions? options)
-            : base(options)
-        {
-        }
     }
 }

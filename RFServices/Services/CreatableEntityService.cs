@@ -17,7 +17,7 @@ public class CreatableEntityService<T>(
     public IUserService UserService => ServiceProvider.GetRequiredService<IUserService>();
 
     protected long catchedCurrentUserId = 0;
-    public virtual async Task<long> GetCurrentUserId()
+    public virtual async Task<long> GetCurrentUserIdAsync()
     {
         if (catchedCurrentUserId <= 0)
             catchedCurrentUserId = await UserService.GetCurrentUserIdAsync();
@@ -31,7 +31,7 @@ public class CreatableEntityService<T>(
 
         if (entity.CreatedById <= 0)
         {
-            entity.CreatedById = await GetCurrentUserId();
+            entity.CreatedById = await GetCurrentUserIdAsync();
             if (entity.CreatedById <= 0)
                 throw new CreatedByIdMustBeSetForNewEntriesException();
         }

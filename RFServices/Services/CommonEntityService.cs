@@ -16,9 +16,9 @@ public class CommonEntityService<T>(
 {
     public virtual async Task<int> DeleteByIdAsync(long id, CommonEntityQueryOptions? options = null)
     {
-        var data = await ValidateForUpdate(new DataDictionary{
+        var data = await ValidateForUpdateAsync(new DataDictionary{
             { "DeletedAt", DateTime.UtcNow },
-            { "DeletedById", await GetCurrentUserId() }
+            { "DeletedById", await GetCurrentUserIdAsync() }
         });
         int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
@@ -30,9 +30,9 @@ public class CommonEntityService<T>(
     public virtual async Task<int> DeleteByUuidAsync(Guid uuid, CommonEntityQueryOptions? options = null)
     {
         var id = await GetSingleIdByUuidAsync(uuid, options);
-        var data = await ValidateForUpdate(new DataDictionary{
+        var data = await ValidateForUpdateAsync(new DataDictionary{
             { "DeletedAt", DateTime.UtcNow },
-            { "DeletedById", await GetCurrentUserId() }
+            { "DeletedById", await GetCurrentUserIdAsync() }
         });
         int success = await repository.UpdateByIdAsync(id, data, options);
         if (success == 0)
@@ -43,7 +43,7 @@ public class CommonEntityService<T>(
 
     public async Task<int> RestoreByIdAsync(long id, CommonEntityQueryOptions? options = null)
     {
-        var data = await ValidateForUpdate(new DataDictionary{
+        var data = await ValidateForUpdateAsync(new DataDictionary{
             { "DeletedAt", null },
             { "DeletedById", null }
         });
@@ -57,7 +57,7 @@ public class CommonEntityService<T>(
     public async Task<int> RestoreByUuidAsync(Guid uuid, CommonEntityQueryOptions? options = null)
     {
         var id = await GetSingleIdByUuidAsync(uuid, options);
-        var data = await ValidateForUpdate(new DataDictionary{
+        var data = await ValidateForUpdateAsync(new DataDictionary{
             { "DeletedAt", null },
             { "DeletedById", null }
         });

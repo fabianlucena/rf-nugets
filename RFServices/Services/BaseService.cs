@@ -19,7 +19,7 @@ public class BaseService<T>(
     public virtual async Task<T> ValidateForCreateAsync(T entity)
         => entity;
 
-    public virtual async Task<IDataDictionary> ValidateForUpdate(IDataDictionary data)
+    public virtual async Task<IDataDictionary> ValidateForUpdateAsync(IDataDictionary data, BaseQueryOptions options)
         => data;
 
     public virtual async Task<T> CreateAsync(T entity)

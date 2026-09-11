@@ -58,9 +58,6 @@ public class UserService(
         throw new NoCurrentUserException();
     }
 
-    public async Task<long> GetCurrentUserIdAsync()
-        => (await GetCurrentUserAsync()).Id;
-
     public async Task<User> GetCurrentOrSystemUserAsync()
     {
         var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
