@@ -2,10 +2,9 @@
 using RFPermissions.Entities;
 using RFPermissions.QueryOptions;
 
-namespace RFPermissions.IRepositories
+namespace RFPermissions.IRepositories;
+
+public interface IPermissionRepository : IImmutableEntityRepository<Permission>
 {
-    public interface IPermissionRepository : IImmutableEntityRepository<Permission>
-    {
-        Task<IEnumerable<string>> GetNamesAsync(PermissionQueryOptions options);
-    }
+    Task<IEnumerable<string>> GetNamesAsync(PermissionQueryOptions options);
 }

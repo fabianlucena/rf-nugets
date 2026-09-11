@@ -3,7 +3,6 @@ using RFPermissions.Attributes;
 using RFPermissions.Entities;
 using RFPermissions.IServices;
 using RFPermissions.QueryOptions;
-using RFPermissions.Services;
 using RFServices.Attributes;
 using RFServices.Interfaces;
 using System.Data;

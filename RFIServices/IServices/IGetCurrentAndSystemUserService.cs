@@ -9,6 +9,9 @@ public interface IGetCurrentAndSystemUserService
     public async Task<long> GetCurrentUserIdAsync()
         => await GetRequiredService<IUserService>().GetCurrentUserIdAsync();
 
+    public async Task<long?> GetCurrentUserIdOrDefaultAsync()
+        => await GetRequiredService<IUserService>().GetCurrentUserIdOrDefaultAsync();
+
     public async Task<User> GetSystemUserAsync()
         => await GetRequiredService<IUserService>().GetSystemUserAsync();
 
