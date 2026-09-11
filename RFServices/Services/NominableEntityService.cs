@@ -26,6 +26,10 @@ public class NominableEntityService<T>(
         return entity;
     }
 
+    public Task<T> GetSingleByNameAsync(string name, NominableEntityQueryOptions? options = null)
+        => GetSingleOrDefaultByNameAsync(name, options)
+            .ContinueWith(t => t.Result ?? throw new NoEntityFoundForNameException(name));
+
     public Task<T?> GetSingleOrDefaultByNameAsync(string name, NominableEntityQueryOptions? options = null)
     {
         options = (NominableEntityQueryOptions?)options?.Clone() ?? new NominableEntityQueryOptionsClonable();
