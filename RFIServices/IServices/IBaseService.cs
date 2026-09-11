@@ -6,6 +6,9 @@ namespace RFIServices.IServices;
 
 public interface IBaseService<T> where T : Base
 {
+    IServiceProvider ServiceProvider { get; }
+    T1 GetRequiredService<T1>() where T1 : notnull;
+
     Task<T> CreateAsync(T entity);
     Task<IEnumerable<T>> GetListAsync(BaseQueryOptions options);
     Task<T> GetFirstAsync(BaseQueryOptions options);

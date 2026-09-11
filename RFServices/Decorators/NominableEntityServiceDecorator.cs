@@ -9,6 +9,9 @@ namespace RFServices.Decorators
         INominableEntityService<T>
         where T : NominableEntity, new()
     {
+        public Task<T> GetSingleByNameAsync(string name, NominableEntityQueryOptions? options = null)
+            => nominableEntityService.GetSingleByNameAsync(name, options);
+
         public Task<IEnumerable<string>> GetNamesByIdsAsync(IEnumerable<long> ids, NominableEntityQueryOptions? options = null)
             => nominableEntityService.GetNamesByIdsAsync(ids, options);
 

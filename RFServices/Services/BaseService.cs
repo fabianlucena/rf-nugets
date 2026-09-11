@@ -1,4 +1,5 @@
-﻿using RFBase.ILibs;
+﻿using Microsoft.Extensions.DependencyInjection;
+using RFBase.ILibs;
 using RFEntities.Entities;
 using RFIRepositories.IRepositories;
 using RFIServices.IServices;
@@ -15,6 +16,9 @@ public class BaseService<T>(
     where T : Base
 {
     public IServiceProvider ServiceProvider { get => serviceProvider; }
+
+    public T1 GetRequiredService<T1>() where T1 : notnull
+        => ServiceProvider.GetRequiredService<T1>();
 
     public virtual async Task<T> ValidateForCreateAsync(T entity)
         => entity;

@@ -9,6 +9,11 @@ public class BaseServiceDecorator<T>(IBaseService<T> baseService)
     : IBaseService<T>
     where T : Base, new()
 {
+    public IServiceProvider ServiceProvider { get => baseService.ServiceProvider; }
+
+    public T1 GetRequiredService<T1>() where T1 : notnull
+        => baseService.GetRequiredService<T1>();
+
     public virtual Task<T> CreateAsync(T entity)
         => baseService.CreateAsync(entity);
 
