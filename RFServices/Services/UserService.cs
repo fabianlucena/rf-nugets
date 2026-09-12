@@ -38,7 +38,16 @@ public class UserService(
         => await GetSingleIdOrDefaultAsync(new UserQueryOptions(options) { Username = username });
 
     public async Task<User> GetSystemUserAsync()
-        => await GetSingleByUsernameAsync("system");
+    {
+        try
+        {
+            return await GetSingleByUsernameAsync("system");
+        }
+        catch (Exception)
+        {
+            throw new SystemUserNotFoundException();
+        }
+    }
 
     public async Task<long> GetSystemUserIdAsync()
         => (await GetSystemUserAsync()).Id;

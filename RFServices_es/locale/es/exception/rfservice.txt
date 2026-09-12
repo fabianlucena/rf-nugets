@@ -49,6 +49,9 @@ Filtro desconocido: {0}.
 UpdatedById must be set for auditable entries
 Se debe establecer UpdatedById para entradas auditables
 
+System user not found. Please ensure that a user with the username 'system' exists.
+Usuario sistema (system) no encontrado. Asegúrese de que exista un usuario con el nombre de usuario 'system'.
+
 {0} seeder cannot be abstract
 El seeder {0} no puede ser abstracto
 
