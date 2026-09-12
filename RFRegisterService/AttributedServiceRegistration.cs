@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RFRegisterService.Attributes;
 using System.Reflection;
+using System.Runtime.Loader;
 
 namespace RFRegisterService;
 
@@ -37,6 +38,36 @@ public static class AttributedServiceRegistration
         }
 
         return services;
+    }
+
+    public static void LoadAllAssemblies()
+    {
+        var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        var loadedPaths = loadedAssemblies.Where(a => !a.IsDynamic).Select(a => a.Location).ToHashSet();
+
+        var loadedAssemblyNames = loadedAssemblies.Select(a => a.GetName().Name).ToHashSet();
+
+        var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+
+        foreach (var file in files)
+        {
+            try
+            {
+                var assemblyName = AssemblyName.GetAssemblyName(file);
+                if (!loadedAssemblyNames.Contains(assemblyName.Name))
+                {
+                    AssemblyLoadContext.Default.LoadFromAssemblyPath(file);
+                }
+            }
+            catch (BadImageFormatException)
+            {
+                // Ignora DLLs nativas (C/C++, etc.) que no son assemblies de .NET
+            }
+            catch (FileLoadException)
+            {
+                // Ignora assemblies que no se pudieron cargar por bloqueos u otros motivos
+            }
+        }
     }
 
     public static List<(Type ServiceType, Type ImplementationType, ServiceLifetime Lifetime)> GetServicesToRegister<TAttribute>(
