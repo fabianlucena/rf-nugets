@@ -37,34 +37,63 @@ public class UserService(
     public async Task<long?> GetSingleIdOrDefaultByUsernameAsync(string username, UserQueryOptions? options = null)
         => await GetSingleIdOrDefaultAsync(new UserQueryOptions(options) { Username = username });
 
+    protected User? catchedSystemUser;
     public async Task<User> GetSystemUserAsync()
     {
-        try
+        if (catchedSystemUser is null)
         {
-            return await GetSingleByUsernameAsync("system");
+            try
+            {
+                catchedSystemUser = await GetSingleByUsernameAsync("system");
+            }
+            catch (Exception)
+            {
+                throw new SystemUserNotFoundException();
+            }
         }
-        catch (Exception)
-        {
-            throw new SystemUserNotFoundException();
-        }
+
+        return catchedSystemUser;
     }
 
-    public async Task<long> GetSystemUserIdAsync()
-        => (await GetSystemUserAsync()).Id;
 
+    protected User? catchedCurrentUser;
     public async Task<User> GetCurrentUserAsync()
     {
-        var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
-        var items = contextAccessor.HttpContext?.Items;
-        if (items?.TryGetValue("User", out var currentUserData) == true
-            && currentUserData is User currentUser
-            && currentUser is not null
-        )
+        if (catchedCurrentUser is null)
         {
-            return currentUser;
+            var contextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>();
+            var items = contextAccessor.HttpContext?.Items;
+            if (items?.TryGetValue("User", out var currentUserData) == true
+                && currentUserData is User currentUser
+                && currentUser is not null
+            )
+            {
+                catchedCurrentUser = currentUser;
+            }
+
+            if (catchedCurrentUser is null)
+                throw new NoCurrentUserException();
         }
 
-        throw new NoCurrentUserException();
+        return catchedCurrentUser;
+    }
+
+    protected long catchedSystemUserId = 0;
+    public async Task<long> GetSystemUserIdAsync()
+    {
+        if (catchedSystemUserId <= 0)
+            catchedSystemUserId = (await GetSystemUserAsync()).Id;
+
+        return catchedSystemUserId;
+    }
+
+    protected long catchedCurrentUserId = 0;
+    public override async Task<long> GetCurrentUserIdAsync()
+    {
+        if (catchedCurrentUserId <= 0)
+            catchedCurrentUserId = (await GetCurrentUserAsync()).Id;
+
+        return catchedCurrentUserId;
     }
 
     public async Task<User> GetCurrentOrSystemUserAsync()
