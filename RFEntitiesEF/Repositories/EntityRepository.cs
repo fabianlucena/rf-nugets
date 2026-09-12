@@ -43,6 +43,15 @@ public class EntityRepository<T>(DbContext context)
         return list;
     }
 
+    public virtual async Task<IEnumerable<Guid>> GetListUuidAsync(EntityQueryOptions? options = null)
+    {
+        var list = await GetDBSet(options)
+            .Select(e => e.Uuid)
+            .ToListAsync();
+
+        return list;
+    }
+
     public virtual async Task<long> GetSingleIdOrDefaultByUuidAsync(Guid uuid, EntityQueryOptions? options = null)
     {
         var list = await GetDBSet(options)

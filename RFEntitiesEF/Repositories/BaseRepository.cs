@@ -55,6 +55,14 @@ public class BaseRepository<T>(DbContext context)
         return list;
     }
 
+    public virtual async Task<int> GetCountAsync(BaseQueryOptions options)
+    {
+        var count = await GetDBSet(options)
+            .CountAsync();
+
+        return count;
+    }
+
     public virtual async Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
     {
         var list = await GetListAsync(options);
