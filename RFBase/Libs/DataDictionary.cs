@@ -3,6 +3,7 @@ using RFBase.Exceptions;
 using RFBase.ILibs;
 using System.Collections;
 using System.Globalization;
+using System.Reflection;
 using System.Text.Json;
 
 namespace RFBase.Libs;
@@ -750,5 +751,26 @@ public class DataDictionary
         return TryGetNotNullOrEmptyStrings(key, out var value)
                ? value
                : [];
+    }
+
+    public IDataDictionary AddFrom<T>(T obj)
+    {
+        if (obj is null)
+            return this;
+
+        PropertyInfo[] props = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        foreach (var prop in props)
+        {
+            if (prop.CanRead)
+            {
+                string key = prop.Name;
+                object? value = prop.GetValue(obj);
+
+                this[key] = value;
+            }
+        }
+
+        return this;
     }
 }
