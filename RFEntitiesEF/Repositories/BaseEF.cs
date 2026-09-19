@@ -5,7 +5,7 @@ using RFIServices.QueryOptions;
 
 namespace RFEntitiesEF.Repositories;
 
-public class BaseRepository<T>(DbContext context)
+public class BaseEF<T>(DbContext context)
     where T : Base, new()
 {
     public DbContext Context { get; } = context;

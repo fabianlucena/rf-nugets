@@ -6,7 +6,7 @@ using RFIServices.QueryOptions;
 namespace RFEntitiesEF.Repositories;
 
 public class EntityRepository<T>(DbContext context)
-    : BaseRepository<T>(context)
+    : BaseEF<T>(context)
     where T : Entity, new()
 {
     public override IQueryable<T> CreateDBSet(BaseQueryOptions? options = null)
