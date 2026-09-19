@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="locale\es\exception\rfdapper.txt">
+    <ProjectReference Include="..\RFDapper\RFDapper.csproj" />
+    <ProjectReference Include="..\RFL10n\RFL10n.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="rfdapper_es.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

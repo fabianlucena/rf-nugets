@@ -7,13 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.79" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
+    <PackageReference Include="Dapper" Version="2.1.86" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RFHttpExceptions\RFHttpExceptions.csproj" />
+    <ProjectReference Include="..\..\..\loat-facade\rf-nugets\RFIServices\RFIServices.csproj" />
+    <ProjectReference Include="..\RFEntities\RFEntities.csproj" />
   </ItemGroup>
 
 </Project>
