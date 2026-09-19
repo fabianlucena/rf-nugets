@@ -1,0 +1,2 @@
+﻿ConnectionFactory is not initialized.
+ConnectionFactory no se ha inicializado.
