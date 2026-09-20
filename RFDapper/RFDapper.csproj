@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\loat-facade\rf-nugets\RFIServices\RFIServices.csproj" />
     <ProjectReference Include="..\RFEntities\RFEntities.csproj" />
+    <ProjectReference Include="..\RFQueryBuilder\RFQueryBuilder.csproj" />
   </ItemGroup>
 
 </Project>

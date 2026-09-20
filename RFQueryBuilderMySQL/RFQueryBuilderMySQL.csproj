@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RFDapper\RFDapper.csproj" />
+    <ProjectReference Include="..\RFQueryBuilder\RFQueryBuilder.csproj" />
+  </ItemGroup>
+
 </Project>

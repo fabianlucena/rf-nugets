@@ -1,11 +1,12 @@
 ﻿using RFBase.ILibs;
 using RFDapper.Exceptions;
 using RFDapper.Interfaces;
-using RFDapper.Services;
 using RFEntities.Entities;
 using RFIServices.QueryOptions;
 using System.Data;
 using Dapper;
+using RFQueryBuilder.Interfaces;
+using RFQueryBuilder.Implementations;
 
 namespace RFDapper.Repositories;
 

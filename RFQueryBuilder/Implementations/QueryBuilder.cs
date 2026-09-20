@@ -1,10 +1,10 @@
 ﻿using RFBase.ILibs;
 using RFBase.Libs;
-using RFDapper.Interfaces;
 using RFEntities.Entities;
+using RFQueryBuilder.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RFDapper.Services;
+namespace RFQueryBuilder.Implementations;
 
 public class QueryBuilder<T> : IQueryBuilder<T>
     where T : Base, new()

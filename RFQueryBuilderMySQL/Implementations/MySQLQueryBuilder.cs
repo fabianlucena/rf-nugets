@@ -1,6 +1,6 @@
 ﻿using RFDapper.Exceptions;
-using RFDapper.Services;
 using RFEntities.Entities;
+using RFQueryBuilder.Implementations;
 using System.Text.RegularExpressions;
 
 namespace RFDapperMySQL;
@@ -8,7 +8,7 @@ namespace RFDapperMySQL;
 public partial class MySQLQueryBuilder<T> : QueryBuilder<T>
     where T : Base, new()
 {
-    string _schemeSeparator = "__";
+    public string SchemeSeparator { get; } = "__";
 
     [GeneratedRegex(@"^`.*`$")]
     private static partial Regex QuotedSingleConstructor();

@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\loat-facade\rf-nugets\RFEntities\RFEntities.csproj" />
+    <ProjectReference Include="..\RFBase\RFBase.csproj" />
+  </ItemGroup>
+
 </Project>

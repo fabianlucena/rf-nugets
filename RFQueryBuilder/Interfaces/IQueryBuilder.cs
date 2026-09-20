@@ -1,7 +1,7 @@
 ﻿using RFBase.Libs;
 using RFEntities.Entities;
 
-namespace RFDapper.Interfaces;
+namespace RFQueryBuilder.Interfaces;
 
 public interface IQueryBuilder<T>
     where T : Base, new()
