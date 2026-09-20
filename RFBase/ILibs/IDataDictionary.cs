@@ -47,4 +47,6 @@ public interface IDataDictionary
     IEnumerable<long> GetInt64List(string key);
 
     IEnumerable<string> GetNotNullOrEmptyStrings(string key);
+
+    IDataDictionary AddFrom(object? param);
 }

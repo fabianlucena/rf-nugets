@@ -751,4 +751,20 @@ public class DataDictionary
                ? value
                : [];
     }
+
+    public IDataDictionary AddFrom(object? param)
+    {
+        if (param == null)
+            return this;
+
+        var properties = param.GetType().GetProperties();
+        foreach (var property in properties)
+        {
+            var value = property.GetValue(param);
+            if (value != null)
+                this[property.Name] = value;
+        }
+
+        return this;
+    }
 }
