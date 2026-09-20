@@ -36,9 +36,10 @@ public class BaseDapper<T>
         return await ConnectionFactory.CreateConnectionAsync(ct);
     }
 
-    public virtual IQueryBuilder<T> CreateQueryBuilder(BaseQueryOptions? options)
+    public virtual IQueryBuilder<T> CreateQueryBuilder<D>(BaseQueryOptions? options)
+        where D : IQueryBuilder<T>, new()
     {
-        var queryBuilder = new QueryBuilder<T>();
+        var queryBuilder = new D();
 
         if (options != null)
         {
@@ -51,7 +52,7 @@ public class BaseDapper<T>
 
     public virtual IQueryBuilder<T> GetQueryBuilder(BaseQueryOptions? options)
     {
-        var queryBuilder = CreateQueryBuilder(options);
+        var queryBuilder = CreateQueryBuilder<QueryBuilder<T>>(options);
 
         if (options != null)
         {
