@@ -38,12 +38,12 @@ public partial class MySQLQueryBuilder<T> : QueryBuilder<T>
         return $"`{name}`";
     }
 
-    public override string SanitizeTable(string table)
+    public override string SanitizeTableName(string table)
         => SanitizeName(table);
+
+    public override string SanitizeColumnName(string column)
+        => SanitizeName(column);
 
     public override string SanitizeColumnAlias(string alias)
         => SanitizeName(alias);
-
-    public override string SanitizeColumn(string column)
-        => SanitizeName(column);
 }
