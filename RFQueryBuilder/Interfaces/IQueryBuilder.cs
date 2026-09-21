@@ -1,4 +1,5 @@
-﻿using RFBase.Libs;
+﻿using RFBase.ILibs;
+using RFBase.Libs;
 using RFEntities.Entities;
 
 namespace RFQueryBuilder.Interfaces;
@@ -20,4 +21,5 @@ public interface IQueryBuilder<T>
 
     string BuildSelectQuery();
     string BuildInsertQuery(T entity);
+    string BuildUpdateQuery(IDataDictionary data);
 }

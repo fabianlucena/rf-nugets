@@ -281,4 +281,22 @@ public class QueryBuilder<T> : IQueryBuilder<T>
 
         return $"{insertClause} {valuesClause}".Trim();
     }
+
+    public string BuildUpdateQuery(IDataDictionary data)
+    {
+        var setClauses = new List<string>();
+        foreach (var item in data)
+        {
+            var column = TableColumns.Find(c => c.Name == item.Key)
+                ?? throw new ColumnDoesNotExistInTableException(item.Key, TableName);
+
+            AddParam(column.Name, SanitizeValue(item.Value));
+            setClauses.Add($"{column.Query} = @{column.Name}");
+        }
+        var updateClause = $"UPDATE {TableName}";
+        var setClause = $"SET {string.Join(", ", setClauses)}";
+        var whereClause = _where.Length > 0 ? $"WHERE {string.Join(" AND ", _where)}" : "";
+
+        return $"{updateClause} {setClause} {whereClause}".Trim();
+    }
 }
