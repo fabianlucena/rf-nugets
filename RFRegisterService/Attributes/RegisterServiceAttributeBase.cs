@@ -2,14 +2,14 @@
 
 namespace RFRegisterService.Attributes;
 
-public class RegisterServiceAttributeBase :  Attribute
+[AttributeUsage(AttributeTargets.Class)]
+public class RegisterServiceAttributeBase : Attribute
 {
     public ServiceLifetime Lifetime { get; } = ServiceLifetime.Scoped;
     public Type[]? Interfaces { get; } = null;
 
     public RegisterServiceAttributeBase()
-    {
-    }
+    {}
 
     public RegisterServiceAttributeBase(
         ServiceLifetime lifetime,
