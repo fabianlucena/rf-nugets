@@ -65,22 +65,22 @@ public class BaseDapper<T>
         return queryBuilder;
     }
 
-    public Task<T> CreateAsync(T entity)
+    public virtual Task<T> CreateAsync(T entity)
     {
         throw new NotImplementedException();
     }
 
-    public Task<int> DeleteAsync(BaseQueryOptions options)
+    public virtual Task<int> DeleteAsync(BaseQueryOptions options)
     {
         throw new NotImplementedException();
     }
 
-    public Task<int> GetCountAsync(BaseQueryOptions options)
+    public virtual Task<int> GetCountAsync(BaseQueryOptions options)
     {
         throw new NotImplementedException();
     }
 
-    async public Task<IEnumerable<T>> GetListAsync(BaseQueryOptions options)
+    async virtual public Task<IEnumerable<T>> GetListAsync(BaseQueryOptions options)
     {
         var db = await CreateConnectionAsync();
         var queryBuilder = GetQueryBuilder(options);
@@ -88,7 +88,7 @@ public class BaseDapper<T>
         return await db.QueryAsync<T>(query, queryBuilder.Params);
     }
 
-    public Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
+    public virtual Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
     {
         throw new NotImplementedException();
     }
