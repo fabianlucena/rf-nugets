@@ -27,6 +27,9 @@ public partial class MySQLQueryBuilder<T> : QueryBuilder<T>
     private readonly static Regex FreeAndQuoted = FreeAndQuotedConstructor();
 
     public string SanitizeName(string name)
+        => $"`{RawName(name)}`";
+
+    public string RawName(string name)
     {
         name = name.Trim();
         if (QuotedSingle.IsMatch(name))
@@ -35,7 +38,7 @@ public partial class MySQLQueryBuilder<T> : QueryBuilder<T>
         if (name.Contains('`'))
             throw new InvalidTableNameException(name);
 
-        return $"`{name}`";
+        return name;
     }
 
     public override string SanitizeTableName(string table)
@@ -43,6 +46,9 @@ public partial class MySQLQueryBuilder<T> : QueryBuilder<T>
 
     public override string SanitizeColumnName(string column)
         => SanitizeName(column);
+
+    public override string RawColumnName(string column)
+        => RawName(column);
 
     public override string SanitizeColumnAlias(string alias)
         => SanitizeName(alias);

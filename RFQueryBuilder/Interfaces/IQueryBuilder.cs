@@ -9,6 +9,7 @@ public interface IQueryBuilder<T>
     DataDictionary Params { get; }
 
     IQueryBuilder<T> Distinct(bool distinct = true);
+    IQueryBuilder<T> Select(params string[] columns);
     IQueryBuilder<T> OrderBy(string orderBy, object? param = null);
     IQueryBuilder<T> Where(string where, object? param = null);
 

@@ -1,6 +1,7 @@
 ﻿using RFBase.ILibs;
 using RFBase.Libs;
 using RFEntities.Entities;
+using RFQueryBuilder.Exceptions;
 using RFQueryBuilder.Interfaces;
 using RFQueryBuilder.Models;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,7 +14,7 @@ public class QueryBuilder<T> : IQueryBuilder<T>
     private Table? _table;
     private Table Table
     {
-        get => _table ?? throw new InvalidOperationException("Table is not set.");
+        get => _table ?? throw new TableIsNotSetException();
 
         set
         {
@@ -38,22 +39,22 @@ public class QueryBuilder<T> : IQueryBuilder<T>
         {
             var tableName = Table.Name;
             if (string.IsNullOrWhiteSpace(tableName))
-                throw new InvalidOperationException("Table name is not set.");
+                throw new TableNameIsNotSetException();
 
             return tableName;
         }
     }
 
-    private List<Column> _columns = [];
-    public List<Column> Columns
+    private List<Column> _tableColumns = [];
+    public List<Column> TableColumns
     {
         get
         {
-            if (_columns.Count <= 0)
+            if (_tableColumns.Count <= 0)
             {
                 var type = typeof(T);
                 var properties = type.GetProperties();
-                _columns = properties.Select(p =>
+                _tableColumns = properties.Select(p =>
                 {
                     string alias = p.Name, column;
                     if (p.GetCustomAttributes(typeof(ColumnAttribute), true).FirstOrDefault() is ColumnAttribute columnAttribute
@@ -69,18 +70,36 @@ public class QueryBuilder<T> : IQueryBuilder<T>
 
                     return new Column
                     {
-                        Name = SanitizeColumnName(column),
+                        Name = column,
+                        Query = SanitizeColumnName(column),
                         Alias = SanitizeColumnAlias(alias),
                     };
                 }).ToList() ?? [];
             }
 
-            return _columns;
+            return _tableColumns;
         }
     }
-    public List<string> ColumnsAlias
+    public List<string> TableColumnsAlias
     {
-        get => [..Columns.Select(c => c.Name + " AS " + c.Alias)];
+        get => [..TableColumns.Select(c => c.Query + " AS " + c.Alias)];
+    }
+
+    private readonly List<Column> _selectedColumns = [];
+    public List<Column> SelectedColumns
+    {
+        get
+        {
+            if (_selectedColumns.Count <= 0)
+                return TableColumns;
+
+            return _selectedColumns;
+        }
+    }
+
+    public List<string> SelectedColumnsAlias
+    {
+        get => [.. SelectedColumns.Select(c => c.Query + " AS " + c.Alias)];
     }
 
     private bool _distinct = false;
@@ -111,6 +130,22 @@ public class QueryBuilder<T> : IQueryBuilder<T>
     public IQueryBuilder<T> Distinct(bool distinct = true)
     {
         _distinct = distinct;
+        return this;
+    }
+
+    public IQueryBuilder<T> Select(params string[] columns)
+    {
+        foreach (var column in columns)
+        {
+            if (!_selectedColumns.Any(c => c.Name == column))
+                continue;
+
+            var col = TableColumns.FirstOrDefault(c => c.Name == column)
+                ?? throw new ColumnDoesNotExistInTableException(column, TableName);
+
+            _selectedColumns.Add(col);
+        }
+
         return this;
     }
 
@@ -146,6 +181,9 @@ public class QueryBuilder<T> : IQueryBuilder<T>
     public virtual string SanitizeColumnName(string column)
         => column;
 
+    public virtual string RawColumnName(string column)
+        => column;
+
     public virtual string SanitizeColumnAlias(string alias)
         => alias;
 
@@ -153,7 +191,7 @@ public class QueryBuilder<T> : IQueryBuilder<T>
     {
         var selectClause = "SELECT";
         var distinctClause = _distinct ? "DISTINCT" : "";
-        var columnsClause = string.Join(", ", ColumnsAlias);
+        var columnsClause = string.Join(", ", SelectedColumnsAlias);
         var fromClause = $"FROM {TableName}";
         var whereClause = _where.Length > 0 ? $"WHERE {string.Join(" AND ", _where)}" : "";
         var orderByClause = _orderBy.Length > 0 ? $"ORDER BY {string.Join(", ", _orderBy)}" : "";
