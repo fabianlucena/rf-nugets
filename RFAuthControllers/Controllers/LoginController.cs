@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using RFAuth.DTO;
+using RFAuth.Exceptions;
 using RFAuth.IServices;
 using RFBase.Libs;
 
@@ -28,9 +29,15 @@ public class LoginController(
             { "userAgent", Request.Headers.UserAgent.ToString() },
         };
 
-        var session = await loginService.LoginAsync(request, "local", clientData);
-        var response = new SessionResponse(session);
-
-        return Ok(response);
+        try
+        {
+            var session = await loginService.LoginAsync(request, "local", clientData);
+            var response = new SessionResponse(session);
+            return Ok(response);
+        }
+        catch (Exception)
+        {
+            throw new InvalidCredentialsException();
+        }
     }
 }
