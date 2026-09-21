@@ -81,14 +81,20 @@ public class BaseDapper<T>
         return inserted;
     }
 
-    public virtual Task<int> DeleteAsync(BaseQueryOptions options)
+    public virtual async Task<int> DeleteAsync(BaseQueryOptions options)
     {
-        throw new NotImplementedException();
+        var db = await CreateConnectionAsync();
+        var deleteQB = GetQueryBuilder(options);
+        var deleteQuery = deleteQB.BuildDeleteQuery();
+        return await db.ExecuteAsync(deleteQuery, deleteQB.Params.ToDynamicParameters());
     }
 
-    public virtual Task<int> GetCountAsync(BaseQueryOptions options)
+    public virtual async Task<int> GetCountAsync(BaseQueryOptions options)
     {
-        throw new NotImplementedException();
+        var db = await CreateConnectionAsync();
+        var queryBuilder = GetQueryBuilder(options);
+        var query = queryBuilder.BuildSelectCountQuery();
+        return await db.QuerySingleAsync<int>(query, queryBuilder.Params.ToDynamicParameters());
     }
 
     public virtual async Task<IEnumerable<T>> GetListAsync(BaseQueryOptions options)

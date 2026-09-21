@@ -261,6 +261,14 @@ public class QueryBuilder<T> : IQueryBuilder<T>
         return $"{selectClause} {distinctClause} {columnsClause} {fromClause} {whereClause} {orderByClause} {limitClause} {offsetClause}".Trim();
     }
 
+    public string BuildSelectCountQuery()
+    {
+        var selectClause = "SELECT COUNT(*)";
+        var fromClause = $"FROM {TableName}";
+        var whereClause = _where.Length > 0 ? $"WHERE {string.Join(" AND ", _where)}" : "";
+        return $"{selectClause} {fromClause} {whereClause}".Trim();
+    }
+
     public string BuildInsertQuery(T entity)
     {
         var columns = new List<Column>();
@@ -298,5 +306,12 @@ public class QueryBuilder<T> : IQueryBuilder<T>
         var whereClause = _where.Length > 0 ? $"WHERE {string.Join(" AND ", _where)}" : "";
 
         return $"{updateClause} {setClause} {whereClause}".Trim();
+    }
+
+    public string BuildDeleteQuery()
+    {
+        var deleteClause = $"DELETE FROM {TableName}";
+        var whereClause = _where.Length > 0 ? $"WHERE {string.Join(" AND ", _where)}" : "";
+        return $"{deleteClause} {whereClause}".Trim();
     }
 }

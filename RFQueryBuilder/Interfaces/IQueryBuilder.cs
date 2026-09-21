@@ -20,6 +20,8 @@ public interface IQueryBuilder<T>
     IQueryBuilder<T> Skip(int skip);
 
     string BuildSelectQuery();
+    string BuildSelectCountQuery();
     string BuildInsertQuery(T entity);
     string BuildUpdateQuery(IDataDictionary data);
+    string BuildDeleteQuery();
 }
