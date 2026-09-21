@@ -99,8 +99,11 @@ public class BaseDapper<T>
         return await db.QueryAsync<T>(query, queryBuilder.Params.ToDynamicParameters());
     }
 
-    public virtual Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
+    public virtual async Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
     {
-        throw new NotImplementedException();
+        var db = await CreateConnectionAsync();
+        var updateQB = GetQueryBuilder(options);
+        var updateQuery = updateQB.BuildUpdateQuery(data);
+        return await db.ExecuteAsync(updateQuery, updateQB.Params.ToDynamicParameters());
     }
 }
