@@ -1,6 +1,7 @@
 ﻿using RFDapper.Exceptions;
 using RFEntities.Entities;
 using RFQueryBuilder.Implementations;
+using RFQueryBuilder.Models;
 using System.Text.RegularExpressions;
 
 namespace RFDapperMySQL;
@@ -52,4 +53,20 @@ public partial class MySQLQueryBuilder<T> : QueryBuilder<T>
 
     public override string SanitizeColumnAlias(string alias)
         => SanitizeName(alias);
+
+    public override object? SanitizeValue(object? value, Column? column = null)
+    {
+        if (value is DateTime dateTime)
+        {
+            dateTime = new DateTime(
+                dateTime.Year, dateTime.Month, dateTime.Day,
+                dateTime.Hour, dateTime.Minute, dateTime.Second,
+                DateTimeKind.Unspecified
+            );
+
+            value = DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified);
+        }
+
+        return value;
+    }
 }

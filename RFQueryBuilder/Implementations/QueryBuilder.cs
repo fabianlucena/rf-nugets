@@ -4,6 +4,7 @@ using RFEntities.Entities;
 using RFQueryBuilder.Exceptions;
 using RFQueryBuilder.Interfaces;
 using RFQueryBuilder.Models;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RFQueryBuilder.Implementations;
@@ -56,6 +57,15 @@ public class QueryBuilder<T> : IQueryBuilder<T>
                 var properties = type.GetProperties();
                 _tableColumns = properties.Select(p =>
                 {
+                    if (!IsSimpleType(p.PropertyType))
+                        return null;
+
+                    if (p.GetCustomAttributes(typeof(KeyAttribute), true).FirstOrDefault() is KeyAttribute)
+                        return null;
+
+                    if (p.GetCustomAttributes(typeof(NotMappedAttribute), true).FirstOrDefault() is NotMappedAttribute)
+                        return null;
+
                     string alias = p.Name, column;
                     if (p.GetCustomAttributes(typeof(ColumnAttribute), true).FirstOrDefault() is ColumnAttribute columnAttribute
                         && !string.IsNullOrWhiteSpace(columnAttribute.Name)
@@ -74,7 +84,7 @@ public class QueryBuilder<T> : IQueryBuilder<T>
                         Query = SanitizeColumnName(column),
                         Alias = SanitizeColumnAlias(alias),
                     };
-                }).ToList() ?? [];
+                }).Where(c => c != null).Select(c => c!).ToList() ?? [];
             }
 
             return _tableColumns;
@@ -113,6 +123,19 @@ public class QueryBuilder<T> : IQueryBuilder<T>
     public QueryBuilder()
     {
         Table = new Table { Entity = typeof(T) };
+    }
+
+    private static bool IsSimpleType(Type type)
+    {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+
+        return type.IsPrimitive
+            || type.IsEnum
+            || type == typeof(string)
+            || type == typeof(decimal)
+            || type == typeof(DateTime)
+            || type == typeof(Guid)
+            || type == typeof(TimeSpan);
     }
 
     public IQueryBuilder<T> AddParam(string key, object? value)
@@ -163,6 +186,41 @@ public class QueryBuilder<T> : IQueryBuilder<T>
         return this;
     }
 
+    public IQueryBuilder<T> WhereColumn(string column, object? value)
+    {
+        var columnInfo = TableColumns.Find(c => c.Name == column)
+            ?? throw new ColumnDoesNotExistInTableException(column, TableName);
+
+        Where($"{columnInfo.Query} = @{columnInfo.Name}");
+        AddParam(columnInfo.Name, SanitizeValue(value));
+
+        return this;
+    }
+
+    public IQueryBuilder<T> Where(T entity)
+    {
+        foreach (var column in TableColumns)
+        {
+            var property = typeof(T).GetProperty(column.Name);
+            if (property == null)
+                continue;
+
+            var value = property.GetValue(entity);
+
+            if (value is null)
+            {
+                Where($"{column.Query} IS NULL");
+            }
+            else
+            {
+                Where($"{column.Query} = @{column.Name}");
+                AddParam(column.Name, SanitizeValue(value));
+            }
+        }
+
+        return this;
+    }
+
     public IQueryBuilder<T> Take(int take)
     {
         _take = take;
@@ -187,6 +245,9 @@ public class QueryBuilder<T> : IQueryBuilder<T>
     public virtual string SanitizeColumnAlias(string alias)
         => alias;
 
+    public virtual object? SanitizeValue(object? value, Column? column = null)
+        => value;
+
     public string BuildSelectQuery()
     {
         var selectClause = "SELECT";
@@ -198,5 +259,26 @@ public class QueryBuilder<T> : IQueryBuilder<T>
         var limitClause = _take > 0 ? $"LIMIT {_take}" : "";
         var offsetClause = _skip > 0 ? $"OFFSET {_skip}" : "";
         return $"{selectClause} {distinctClause} {columnsClause} {fromClause} {whereClause} {orderByClause} {limitClause} {offsetClause}".Trim();
+    }
+
+    public string BuildInsertQuery(T entity)
+    {
+        var columns = new List<Column>();
+        var type = typeof(T);
+        foreach (var column in TableColumns)
+        {
+            var property = type.GetProperty(column.Name);
+            if (property == null)
+                continue;
+
+            columns.Add(column);
+            var value = property.GetValue(entity);
+            AddParam(column.Name, SanitizeValue(value));
+        }
+
+        var insertClause = $"INSERT INTO {TableName} ({string.Join(", ", columns.Select(c => c.Query))})";
+        var valuesClause = $"VALUES ({string.Join(", ", columns.Select(c => "@" + c.Name))})";
+
+        return $"{insertClause} {valuesClause}".Trim();
     }
 }

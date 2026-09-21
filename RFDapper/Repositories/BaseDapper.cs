@@ -1,12 +1,13 @@
-﻿using RFBase.ILibs;
+﻿using Dapper;
+using RFBase.ILibs;
 using RFDapper.Exceptions;
+using RFDapper.Extensions;
 using RFDapper.Interfaces;
 using RFEntities.Entities;
 using RFIServices.QueryOptions;
-using System.Data;
-using Dapper;
-using RFQueryBuilder.Interfaces;
 using RFQueryBuilder.Implementations;
+using RFQueryBuilder.Interfaces;
+using System.Data;
 
 namespace RFDapper.Repositories;
 
@@ -37,7 +38,7 @@ public class BaseDapper<T>
         return await ConnectionFactory.CreateConnectionAsync(ct);
     }
 
-    public virtual IQueryBuilder<T> CreateQueryBuilder<D>(BaseQueryOptions? options)
+    public virtual IQueryBuilder<T> CreateQueryBuilder<D>(BaseQueryOptions? options = null)
         where D : IQueryBuilder<T>, new()
     {
         var queryBuilder = new D();
@@ -51,7 +52,7 @@ public class BaseDapper<T>
         return queryBuilder;
     }
 
-    public virtual IQueryBuilder<T> GetQueryBuilder(BaseQueryOptions? options)
+    public virtual IQueryBuilder<T> GetQueryBuilder(BaseQueryOptions? options = null)
     {
         var queryBuilder = CreateQueryBuilder<QueryBuilder<T>>(options);
 
@@ -65,9 +66,19 @@ public class BaseDapper<T>
         return queryBuilder;
     }
 
-    public virtual Task<T> CreateAsync(T entity)
+    public virtual async Task<T> CreateAsync(T entity)
     {
-        throw new NotImplementedException();
+        var db = await CreateConnectionAsync();
+        var insertQB = GetQueryBuilder();
+        var insertQuery = insertQB.BuildInsertQuery(entity);
+        var parameters = insertQB.Params.ToDynamicParameters();
+        await db.ExecuteAsync(insertQuery, parameters);
+
+        var selectQB = GetQueryBuilder();
+        selectQB.Where(entity);
+        var selectQuery = selectQB.BuildSelectQuery();
+        var inserted = db.QuerySingle<T>(selectQuery, selectQB.Params.ToDynamicParameters());
+        return inserted;
     }
 
     public virtual Task<int> DeleteAsync(BaseQueryOptions options)
@@ -80,12 +91,12 @@ public class BaseDapper<T>
         throw new NotImplementedException();
     }
 
-    async virtual public Task<IEnumerable<T>> GetListAsync(BaseQueryOptions options)
+    public virtual async Task<IEnumerable<T>> GetListAsync(BaseQueryOptions options)
     {
         var db = await CreateConnectionAsync();
         var queryBuilder = GetQueryBuilder(options);
         var query = queryBuilder.BuildSelectQuery();
-        return await db.QueryAsync<T>(query, queryBuilder.Params);
+        return await db.QueryAsync<T>(query, queryBuilder.Params.ToDynamicParameters());
     }
 
     public virtual Task<int> UpdateAsync(IDataDictionary data, BaseQueryOptions options)
