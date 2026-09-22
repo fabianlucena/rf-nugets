@@ -1,5 +1,6 @@
 ﻿using RFBase.ILibs;
 using RFBase.Libs;
+using RFEntities.Attributes;
 using RFEntities.Entities;
 using RFQueryBuilder.Exceptions;
 using RFQueryBuilder.Interfaces;
@@ -12,96 +13,24 @@ namespace RFQueryBuilder.Implementations;
 public class QueryBuilder<T> : IQueryBuilder<T>
     where T : Base, new()
 {
-    private Table? _table;
-    private Table Table
-    {
-        get => _table ?? throw new TableIsNotSetException();
+    static readonly Dictionary<Type, Dictionary<Type, QueryBuilder<T>>> cache = [];
 
-        set
-        {
-            _table = value;
-            if (_table.Entity is not null)
-            {
-                var type = _table.Entity;
-                if (type.GetCustomAttributes(typeof(TableAttribute), true).FirstOrDefault() is TableAttribute tableAttribute)
-                {
-                    _table.Name = SanitizeTableName(tableAttribute.Name);
-                }
-                else
-                {
-                    _table.Name = SanitizeTableName(type.Name);
-                }
-            }
-        }
-    }
-    public string TableName
-    {
-        get
-        {
-            var tableName = Table.Name;
-            if (string.IsNullOrWhiteSpace(tableName))
-                throw new TableNameIsNotSetException();
+    private EntityTable EntityTable { get; }
+    
+    public List<EntityColumn> EntityColumns { get; }
+    public List<EntityColumn> PrimaryKeyColumns { get; }
+    public List<EntityColumn> SelectableColumns { get; }
+    public List<EntityColumn> InsertableColumns { get; }
+    public List<EntityColumn> UpdatableColumns { get; }
 
-            return tableName;
-        }
-    }
-
-    private List<Column> _tableColumns = [];
-    public List<Column> TableColumns
-    {
-        get
-        {
-            if (_tableColumns.Count <= 0)
-            {
-                var type = typeof(T);
-                var properties = type.GetProperties();
-                _tableColumns = properties.Select(p =>
-                {
-                    if (!IsSimpleType(p.PropertyType))
-                        return null;
-
-                    if (p.GetCustomAttributes(typeof(KeyAttribute), true).FirstOrDefault() is KeyAttribute)
-                        return null;
-
-                    if (p.GetCustomAttributes(typeof(NotMappedAttribute), true).FirstOrDefault() is NotMappedAttribute)
-                        return null;
-
-                    string alias = p.Name, column;
-                    if (p.GetCustomAttributes(typeof(ColumnAttribute), true).FirstOrDefault() is ColumnAttribute columnAttribute
-                        && !string.IsNullOrWhiteSpace(columnAttribute.Name)
-                    )
-                    {
-                        column = columnAttribute.Name;
-                    }
-                    else
-                    {
-                        column = alias;
-                    }
-
-                    return new Column
-                    {
-                        Name = column,
-                        Query = SanitizeColumnName(column),
-                        Alias = SanitizeColumnAlias(alias),
-                    };
-                }).Where(c => c != null).Select(c => c!).ToList() ?? [];
-            }
-
-            return _tableColumns;
-        }
-    }
-    public List<string> TableColumnsAlias
-    {
-        get => [..TableColumns.Select(c => c.Query + " AS " + c.Alias)];
-    }
-
-    private readonly List<Column> _selectedColumns = [];
+    private readonly List<Column> AllColumns;
+    private List<Column> _selectedColumns = [];
     public List<Column> SelectedColumns
     {
         get
         {
             if (_selectedColumns.Count <= 0)
-                return TableColumns;
+                return AllColumns;
 
             return _selectedColumns;
         }
@@ -118,11 +47,106 @@ public class QueryBuilder<T> : IQueryBuilder<T>
     private int _take = 0;
     private int _skip = 0;
 
-    public DataDictionary Params { get; } = [];
+    public DataDictionary Params { get; private set; } = [];
 
     public QueryBuilder()
     {
-        Table = new Table { Entity = typeof(T) };
+        var qbType = this.GetType();
+        var type = typeof(T);
+        if (cache.TryGetValue(qbType, out var qbData) && qbData.TryGetValue(typeof(T), out var cachedInstance))
+        {
+            EntityTable = cachedInstance.EntityTable;
+            EntityColumns = cachedInstance.EntityColumns;
+            PrimaryKeyColumns = cachedInstance.PrimaryKeyColumns;
+            SelectableColumns = cachedInstance.SelectableColumns;
+            InsertableColumns = cachedInstance.InsertableColumns;
+            UpdatableColumns = cachedInstance.UpdatableColumns;
+            AllColumns = cachedInstance.AllColumns;
+            return;
+        }
+
+        var tableName = type.GetCustomAttributes(typeof(TableAttribute), true).FirstOrDefault() is TableAttribute tableAttribute ?
+            tableAttribute.Name :
+            type.Name;
+
+        EntityTable = new EntityTable
+        {
+            Name = tableName,
+            Query = SanitizeTableName(tableName),
+        };
+
+        PrimaryKeyColumns = [];
+        var properties = type.GetProperties();
+        EntityColumns = properties.Select(p =>
+        {
+            var isMapeable = !(p.GetGetMethod()?.IsVirtual ?? false)
+                && IsSimpleType(p.PropertyType)
+                && p.GetCustomAttributes(typeof(VirtualAttribute), true).Length == 0
+                && p.GetCustomAttributes(typeof(NotMappedAttribute), true).FirstOrDefault() is not NotMappedAttribute;
+
+            var isPrimaryKey = p.GetCustomAttributes(typeof(KeyAttribute), true).FirstOrDefault() is KeyAttribute;
+
+            string alias = p.Name, column;
+            if (p.GetCustomAttributes(typeof(ColumnAttribute), true).FirstOrDefault() is ColumnAttribute columnAttribute
+                && !string.IsNullOrWhiteSpace(columnAttribute.Name)
+            )
+            {
+                column = columnAttribute.Name;
+            }
+            else
+            {
+                column = alias;
+            }
+
+            var entityColumn = new EntityColumn(
+                column,
+                p.PropertyType,
+                SanitizeColumnName(column),
+                SanitizeColumnAlias(alias),
+                isMapeable,
+                isPrimaryKey
+            );
+
+            if (isPrimaryKey)
+                PrimaryKeyColumns.Add(entityColumn);
+
+            return entityColumn;
+        }).Where(c => c != null).Select(c => c!).ToList() ?? [];
+
+        var hasAutoincrementPrimaryKey = PrimaryKeyColumns.Any(c => c.IsPrimaryKey && (c.Type == typeof(int) || c.Type == typeof(long)));
+
+        SelectableColumns = [.. EntityColumns.Where(c => c.IsMapeable)];
+        AllColumns = [.. SelectableColumns.Select(c => new Column(c.Query, c.Alias))];
+        if (hasAutoincrementPrimaryKey)
+        {
+            InsertableColumns = [.. EntityColumns.Where(c => c.IsMapeable && !c.IsPrimaryKey)];
+        }
+        else
+        {
+            InsertableColumns = [.. EntityColumns.Where(c => c.IsMapeable)];
+        }
+
+        UpdatableColumns = [.. EntityColumns.Where(c => c.IsMapeable && !c.IsPrimaryKey)];
+
+        if (qbData is null)
+        {
+            qbData = [];
+            cache[qbType] = qbData;
+
+            qbData[type] = this.Clone();
+        }
+    }
+
+    protected virtual QueryBuilder<T> Clone()
+    {
+        var clone = (QueryBuilder<T>)MemberwiseClone();
+        clone.Params = [];
+        clone._selectedColumns = [];
+        clone._where = [];
+        clone._orderBy = [];
+        clone._take = 0;
+        clone._skip = 0;
+        return clone;
     }
 
     private static bool IsSimpleType(Type type)
@@ -160,11 +184,11 @@ public class QueryBuilder<T> : IQueryBuilder<T>
     {
         foreach (var column in columns)
         {
-            if (!_selectedColumns.Any(c => c.Name == column))
+            if (!_selectedColumns.Any(c => c.Query == column))
                 continue;
 
-            var col = TableColumns.FirstOrDefault(c => c.Name == column)
-                ?? throw new ColumnDoesNotExistInTableException(column, TableName);
+            var col = EntityColumns.FirstOrDefault(c => c.Name == column)
+                ?? throw new ColumnDoesNotExistInTableException(column, EntityTable.Name);
 
             _selectedColumns.Add(col);
         }
@@ -188,8 +212,8 @@ public class QueryBuilder<T> : IQueryBuilder<T>
 
     public IQueryBuilder<T> WhereColumn(string column, object? value)
     {
-        var columnInfo = TableColumns.Find(c => c.Name == column)
-            ?? throw new ColumnDoesNotExistInTableException(column, TableName);
+        var columnInfo = EntityColumns.Find(c => c.Name == column && c.IsMapeable)
+            ?? throw new ColumnDoesNotExistInTableException(column, EntityTable.Name);
 
         Where($"{columnInfo.Query} = @{columnInfo.Name}");
         AddParam(columnInfo.Name, SanitizeValue(value));
@@ -199,11 +223,33 @@ public class QueryBuilder<T> : IQueryBuilder<T>
 
     public IQueryBuilder<T> Where(T entity)
     {
-        foreach (var column in TableColumns)
+        foreach (var column in SelectableColumns)
         {
-            var property = typeof(T).GetProperty(column.Name);
-            if (property == null)
-                continue;
+            var property = typeof(T).GetProperty(column.Name)
+                ?? throw new NoEntityPropertyFoundForColumnException(column.Name, EntityTable.Name);
+
+            var value = property.GetValue(entity);
+
+            if (value is null)
+            {
+                Where($"{column.Query} IS NULL");
+            }
+            else
+            {
+                Where($"{column.Query} = @{column.Name}");
+                AddParam(column.Name, SanitizeValue(value));
+            }
+        }
+
+        return this;
+    }
+
+    public IQueryBuilder<T> WhereInserted(T entity)
+    {
+        foreach (var column in InsertableColumns)
+        {
+            var property = typeof(T).GetProperty(column.Name)
+                ?? throw new NoEntityPropertyFoundForColumnException(column.Name, EntityTable.Name);
 
             var value = property.GetValue(entity);
 
@@ -250,10 +296,14 @@ public class QueryBuilder<T> : IQueryBuilder<T>
 
     public string BuildSelectQuery()
     {
+        var columns = SelectedColumnsAlias;
+        if (columns.Count <= 0)
+            throw new NoColumnsSelectedException(EntityTable.Name);
+
         var selectClause = "SELECT";
         var distinctClause = _distinct ? "DISTINCT" : "";
-        var columnsClause = string.Join(", ", SelectedColumnsAlias);
-        var fromClause = $"FROM {TableName}";
+        var columnsClause = string.Join(", ", columns);
+        var fromClause = $"FROM {EntityTable.Query}";
         var whereClause = _where.Length > 0 ? $"WHERE {string.Join(" AND ", _where)}" : "";
         var orderByClause = _orderBy.Length > 0 ? $"ORDER BY {string.Join(", ", _orderBy)}" : "";
         var limitClause = _take > 0 ? $"LIMIT {_take}" : "";
@@ -264,16 +314,16 @@ public class QueryBuilder<T> : IQueryBuilder<T>
     public string BuildSelectCountQuery()
     {
         var selectClause = "SELECT COUNT(*)";
-        var fromClause = $"FROM {TableName}";
+        var fromClause = $"FROM {EntityTable.Query}";
         var whereClause = _where.Length > 0 ? $"WHERE {string.Join(" AND ", _where)}" : "";
         return $"{selectClause} {fromClause} {whereClause}".Trim();
     }
 
-    public string BuildInsertQuery(T entity)
+    public virtual string BuildInsertQuery(T entity)
     {
-        var columns = new List<Column>();
+        var columns = new List<EntityColumn>();
         var type = typeof(T);
-        foreach (var column in TableColumns)
+        foreach (var column in InsertableColumns)
         {
             var property = type.GetProperty(column.Name);
             if (property == null)
@@ -284,7 +334,7 @@ public class QueryBuilder<T> : IQueryBuilder<T>
             AddParam(column.Name, SanitizeValue(value));
         }
 
-        var insertClause = $"INSERT INTO {TableName} ({string.Join(", ", columns.Select(c => c.Query))})";
+        var insertClause = $"INSERT INTO {EntityTable.Query} ({string.Join(", ", columns.Select(c => c.Query))})";
         var valuesClause = $"VALUES ({string.Join(", ", columns.Select(c => "@" + c.Name))})";
 
         return $"{insertClause} {valuesClause}".Trim();
@@ -295,13 +345,19 @@ public class QueryBuilder<T> : IQueryBuilder<T>
         var setClauses = new List<string>();
         foreach (var item in data)
         {
-            var column = TableColumns.Find(c => c.Name == item.Key)
-                ?? throw new ColumnDoesNotExistInTableException(item.Key, TableName);
+            var column = UpdatableColumns.Find(c => c.Name == item.Key);
+            if (column is null)
+            {
+                if (EntityColumns.Any(c => c.Name == item.Key))
+                    throw new ColumnIsNotUpdatableException(item.Key, EntityTable.Name);
+
+                throw new ColumnDoesNotExistInTableException(item.Key, EntityTable.Name);
+            }
 
             AddParam(column.Name, SanitizeValue(item.Value));
             setClauses.Add($"{column.Query} = @{column.Name}");
         }
-        var updateClause = $"UPDATE {TableName}";
+        var updateClause = $"UPDATE {EntityTable.Query}";
         var setClause = $"SET {string.Join(", ", setClauses)}";
         var whereClause = _where.Length > 0 ? $"WHERE {string.Join(" AND ", _where)}" : "";
 
@@ -310,7 +366,7 @@ public class QueryBuilder<T> : IQueryBuilder<T>
 
     public string BuildDeleteQuery()
     {
-        var deleteClause = $"DELETE FROM {TableName}";
+        var deleteClause = $"DELETE FROM {EntityTable.Query}";
         var whereClause = _where.Length > 0 ? $"WHERE {string.Join(" AND ", _where)}" : "";
         return $"{deleteClause} {whereClause}".Trim();
     }

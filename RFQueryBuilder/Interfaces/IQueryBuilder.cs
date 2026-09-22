@@ -1,12 +1,17 @@
 ﻿using RFBase.ILibs;
 using RFBase.Libs;
 using RFEntities.Entities;
+using RFQueryBuilder.Models;
 
 namespace RFQueryBuilder.Interfaces;
 
 public interface IQueryBuilder<T>
     where T : Base, new()
 {
+    List<EntityColumn> PrimaryKeyColumns { get; }
+    List<EntityColumn> SelectableColumns { get; }
+    List<EntityColumn> InsertableColumns { get; }
+    List<EntityColumn> UpdatableColumns { get; }
     DataDictionary Params { get; }
 
     IQueryBuilder<T> Distinct(bool distinct = true);
@@ -15,6 +20,7 @@ public interface IQueryBuilder<T>
     IQueryBuilder<T> Where(string where, object? param = null);
     IQueryBuilder<T> WhereColumn(string column, object? value);
     IQueryBuilder<T> Where(T entity);
+    IQueryBuilder<T> WhereInserted(T entity);
 
     IQueryBuilder<T> Take(int take);
     IQueryBuilder<T> Skip(int skip);

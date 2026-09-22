@@ -1,8 +1,7 @@
 ﻿namespace RFQueryBuilder.Models;
 
-public class Column
+public class Column(string query = "", string alias = "")
 {
-    public string Name { get; set; } = string.Empty;
-    public string Query { get; set; } = string.Empty;
-    public string Alias { get; set; } = string.Empty;
+    public virtual string Query { get; set; } = query;
+    public virtual string Alias { get; set; } = alias;
 }

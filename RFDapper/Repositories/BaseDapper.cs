@@ -72,10 +72,26 @@ public class BaseDapper<T>
         var insertQB = GetQueryBuilder();
         var insertQuery = insertQB.BuildInsertQuery(entity);
         var parameters = insertQB.Params.ToDynamicParameters();
-        await db.ExecuteAsync(insertQuery, parameters);
+        var insertedId = await db.ExecuteScalarAsync<long>(insertQuery, parameters);
 
         var selectQB = GetQueryBuilder();
-        selectQB.Where(entity);
+        if (insertedId > 0 && insertQB.PrimaryKeyColumns.Count == 1 && insertQB.PrimaryKeyColumns[0].Name != null)
+        {
+            selectQB.WhereColumn(insertQB.PrimaryKeyColumns[0].Name, insertedId);
+        }
+        else if (insertQB.PrimaryKeyColumns.Count > 0 && insertQB.PrimaryKeyColumns.All(pkColumn => insertQB.InsertableColumns.Any(c => c.Name == pkColumn.Name)))
+        {
+            foreach (var pkColumn in insertQB.PrimaryKeyColumns)
+            {
+                var value = insertQB.Params.GetValue(pkColumn.Name);
+                selectQB.WhereColumn(pkColumn.Name, value);
+            }
+        }
+        else
+        {
+            selectQB.WhereInserted(entity);
+        }
+
         var selectQuery = selectQB.BuildSelectQuery();
         var inserted = db.QuerySingle<T>(selectQuery, selectQB.Params.ToDynamicParameters());
         return inserted;

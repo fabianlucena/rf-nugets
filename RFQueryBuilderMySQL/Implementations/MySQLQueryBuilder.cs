@@ -69,4 +69,11 @@ public partial class MySQLQueryBuilder<T> : QueryBuilder<T>
 
         return value;
     }
+
+    public override string BuildInsertQuery(T entity)
+    {
+        var query = base.BuildInsertQuery(entity);
+        query += "; SELECT LAST_INSERT_ID();";
+        return query;
+    }
 }
