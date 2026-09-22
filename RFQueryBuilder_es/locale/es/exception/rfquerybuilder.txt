@@ -1,0 +1,17 @@
+﻿Column {0} does not exist in table {1}.
+La columna {0} no existe en la tabla {1}.
+
+Column {0} is not updatable in table {1}.
+La columna {0} no se puede actualizar en la tabla {1}.
+
+No columns selected in table {0}.
+No se han seleccionado columnas en la tabla {0}.
+
+No entity property found for column {0} in table {1}.
+No se encontró una propiedad de entidad para la columna {0} en la tabla {1}.
+
+Table is not set.
+La tabla no está definida.
+
+Table name is not set.
+El nombre de la tabla no está definido.
